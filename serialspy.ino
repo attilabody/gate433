@@ -1,31 +1,35 @@
-#define NUMDELTAS 512
-#define FREQ 10
+#define NUMDELTAS 768
+#define FREQ 9600
+#define BAUDRATE 57600
+#define LEDDIVIDER 1000
+
+typedef unsigned int datatype;
+
 
 unsigned long iter(0);
-bool          state;
-unsigned long micro;
+unsigned long micro(0), curmicro;
 
 
-unsigned int deltas[NUMDELTAS];
-unsigned int  cursample(0);
-typedef unsigned int datatype;
+volatile unsigned int deltas[NUMDELTAS];
+volatile unsigned int cursample(0);
+
 #define MSB ( sizeof( datatype ) * 8 )
 
 const int outPin = 12;
 const int inPin = 2;
 const int ledPin = 13;
-const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 
-int sv, asv;
-bool  first = true;
+volatile bool   full = false;
 
 void printDeltas()
 {
+  bool          state;
   unsigned long start( micros() );
-  for( int sample=0; sample<NUMDELTAS; ++sample )
+
+  for ( int sample = 0; sample < NUMDELTAS; ++sample )
   {
     unsigned long val( deltas[sample] );
-    bool state = val & ((unsigned long)1 << (MSB-1));
+    bool state = val & ((unsigned long)1 << (MSB - 1));
     val &= ((datatype)(-1)) >> 1;
     Serial.print( state ? "HL " : "LH " );
     Serial.println( val );
@@ -36,40 +40,40 @@ void printDeltas()
   Serial.println("");
 }
 
-/*void loop()
+
+bool          ledStatus(false);
+unsigned int  isrCounter(0);
+bool          in;
+
+void isr()
 {
-  if( state != (digitalRead( inPin ) == HIGH))
+  curmicro = micros();
+  
+  if ( ++isrCounter >= LEDDIVIDER )
   {
-    state = !state;
-    digitalWrite( ledPin, state ? HIGH : LOW );
-    Serial.print( iter++ );
-    Serial.print(": ");
-    Serial.println( state );
+    isrCounter = 0;
+    ledStatus = !ledStatus;
+    digitalWrite( ledPin, ledStatus ? HIGH : LOW );
   }
+  if( full ) {
+    micro = curmicro;
+    return;
+  }
+
+  in = (digitalRead(inPin) == HIGH);
+  deltas[cursample++] = (curmicro - micro) | (((unsigned long)in) << (MSB-1));
+  if( cursample == NUMDELTAS ) {
+    full=true;
+  }
+  micro = curmicro;
 }
-*/
+
 void loop()
 {
-  if( state != (digitalRead( inPin ) == HIGH))
-  {
-    unsigned long curmicro = micros();
-    unsigned long delta = curmicro - micro;
-    if( state ) {
-      delta |= (((unsigned long)1) << (MSB-1));
-    }
-    
-    deltas[cursample++] = delta;
-    if( cursample >= NUMDELTAS )
-    {
-      printDeltas();
-      curmicro = micros();
-      cursample=0;
-      state = (digitalRead( inPin ) == LOW); //we will invert it
-    }
-    micro = curmicro;
-    state = !state;
-    digitalWrite( ledPin, state ? HIGH : LOW );
-  }
+  while( !full );
+  printDeltas();
+  cursample = 0;
+  full = false;
 }
 
 void setup()
@@ -78,10 +82,10 @@ void setup()
   pinMode(ledPin, OUTPUT);
   pinMode(inPin, INPUT);
   analogReference( DEFAULT );
-  Serial.begin(115200);
+  Serial.begin(BAUDRATE);
+  attachInterrupt(digitalPinToInterrupt(inPin), isr, CHANGE);
   tone( outPin, FREQ );
   Serial.println( "Start" );
-  state = (digitalRead( inPin ) == HIGH);
   micro = micros();
 }
 
