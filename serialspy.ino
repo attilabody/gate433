@@ -1,7 +1,7 @@
 #define NUMDELTAS 768
-#define FREQ 9600
+#define FREQ 1000
 #define BAUDRATE 57600
-#define LEDDIVIDER 1000
+#define LEDDIVIDER 100
 
 typedef unsigned int datatype;
 
@@ -29,7 +29,7 @@ void printDeltas()
   for ( int sample = 0; sample < NUMDELTAS; ++sample )
   {
     unsigned long val( deltas[sample] );
-    bool state = val & ((unsigned long)1 << (MSB - 1));
+    bool state = val & ((datatype)1 << (MSB - 1));
     val &= ((datatype)(-1)) >> 1;
     Serial.print( state ? "HL " : "LH " );
     Serial.println( val );
@@ -49,12 +49,6 @@ void isr()
 {
   curmicro = micros();
   
-  if ( ++isrCounter >= LEDDIVIDER )
-  {
-    isrCounter = 0;
-    ledStatus = !ledStatus;
-    digitalWrite( ledPin, ledStatus ? HIGH : LOW );
-  }
   if( full ) {
     micro = curmicro;
     return;
@@ -82,6 +76,11 @@ void setup()
   pinMode(ledPin, OUTPUT);
   pinMode(inPin, INPUT);
   analogReference( DEFAULT );
+
+  noInterrupts();           // disable all interrupts
+  TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
+  interrupts();             // enable all interrupts
+
   Serial.begin(BAUDRATE);
   attachInterrupt(digitalPinToInterrupt(inPin), isr, CHANGE);
   tone( outPin, FREQ );
@@ -89,4 +88,8 @@ void setup()
   micro = micros();
 }
 
+ISR( TIMER0_COMPA_vect )
+{
+  digitalWrite( ledPin, ( !full && micros()-micro < 100000 ) ? HIGH : LOW );
+}
 
