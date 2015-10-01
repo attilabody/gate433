@@ -1,13 +1,12 @@
 #define NUMDELTAS 768
 #define FREQ 1000
 #define BAUDRATE 57600
-#define LEDDIVIDER 100
 
 typedef unsigned int datatype;
 
 
 unsigned long iter(0);
-unsigned long micro(0), curmicro;
+unsigned long lastedge;
 
 
 volatile unsigned int deltas[NUMDELTAS];
@@ -26,7 +25,7 @@ void printDeltas()
   bool          state;
   unsigned long start( micros() );
 
-  for ( int sample = 0; sample < NUMDELTAS; ++sample )
+  for ( int sample = 0; sample < cursample; ++sample )
   {
     unsigned long val( deltas[sample] );
     bool state = val & ((datatype)1 << (MSB - 1));
@@ -47,19 +46,21 @@ bool          in;
 
 void isr()
 {
+  static unsigned long curmicro;
+
   curmicro = micros();
   
   if( full ) {
-    micro = curmicro;
+    lastedge = curmicro;
     return;
   }
 
   in = (digitalRead(inPin) == HIGH);
-  deltas[cursample++] = (curmicro - micro) | (((unsigned long)in) << (MSB-1));
+  deltas[cursample++] = (curmicro - lastedge) | (((unsigned long)in) << (MSB-1));
   if( cursample == NUMDELTAS ) {
     full=true;
   }
-  micro = curmicro;
+  lastedge = curmicro;
 }
 
 void loop()
@@ -85,11 +86,16 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(inPin), isr, CHANGE);
   tone( outPin, FREQ );
   Serial.println( "Start" );
-  micro = micros();
+  lastedge = micros();
 }
 
 ISR( TIMER0_COMPA_vect )
 {
-  digitalWrite( ledPin, ( !full && micros()-micro < 100000 ) ? HIGH : LOW );
+  unsigned long now;
+
+  now = micros();
+  digitalWrite( ledPin, ( !full && now - lastedge < 100000 ) ? HIGH : LOW );
+  if( cursample && !full && now - lastedge > 1000000 )
+    full = true;
 }
 
