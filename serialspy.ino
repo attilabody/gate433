@@ -1,33 +1,40 @@
-#define NUMDELTAS 768
-#define FREQ 1000
+#define NUMDELTAS 600
 #define BAUDRATE 57600
+#define MSB ( sizeof( datatype ) * 8 )
+
+#define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
 typedef unsigned int datatype;
 
+unsigned long g_iter(0);
+unsigned long g_lastedge;
 
-unsigned long iter(0);
-unsigned long lastedge;
+volatile unsigned int g_deltas[NUMDELTAS];
+volatile unsigned int g_cursample(0);
+
+const int g_outPin( 12 );
+const int g_inPin( 2 );
+const int g_ledPin( 13 );
+
+volatile bool   g_full( false );
+
+char g_serbuf[32];
+unsigned char g_serptr(0);
+
+const char * g_commands[] = {
+  "tone"
+};
 
 
-volatile unsigned int deltas[NUMDELTAS];
-volatile unsigned int cursample(0);
-
-#define MSB ( sizeof( datatype ) * 8 )
-
-const int outPin = 12;
-const int inPin = 2;
-const int ledPin = 13;
-
-volatile bool   full = false;
 
 void printDeltas()
 {
   bool          state;
   unsigned long start( micros() );
 
-  for ( int sample = 0; sample < cursample; ++sample )
+  for ( int sample = 0; sample < g_cursample; ++sample )
   {
-    unsigned long val( deltas[sample] );
+    unsigned long val( g_deltas[sample] );
     bool state = val & ((datatype)1 << (MSB - 1));
     val &= ((datatype)(-1)) >> 1;
     Serial.print( state ? "HL " : "LH " );
@@ -39,43 +46,95 @@ void printDeltas()
   Serial.println("");
 }
 
-
-bool          ledStatus(false);
-unsigned int  isrCounter(0);
-bool          in;
-
 void isr()
 {
-  static unsigned long curmicro;
+  static unsigned long  curmicro;
+  static bool           in;
 
   curmicro = micros();
-  
-  if( full ) {
-    lastedge = curmicro;
+
+  if ( g_full ) {
+    g_lastedge = curmicro;
     return;
   }
 
-  in = (digitalRead(inPin) == HIGH);
-  deltas[cursample++] = (curmicro - lastedge) | (((unsigned long)in) << (MSB-1));
-  if( cursample == NUMDELTAS ) {
-    full=true;
+  in = (digitalRead(g_inPin) == HIGH);
+  g_deltas[g_cursample++] = (curmicro - g_lastedge) | (((unsigned long)in) << (MSB - 1));
+  if ( g_cursample == NUMDELTAS ) {
+    g_full = true;
   }
-  lastedge = curmicro;
+  g_lastedge = curmicro;
+}
+
+char findcommand(unsigned char &inptr)
+{
+  while( inptr < g_serptr && g_serbuf[inptr] != ' ' && g_serbuf[inptr] != ',' && g_serbuf[inptr] != '\n' ) {
+    ++inptr;
+  }
+  
+  if (inptr == g_serptr) return -1;
+
+  for (char i = 0; i < ITEMCOUNT(g_commands); ++i) {
+    if (!strncmp(g_serbuf, g_commands[i], inptr)) {
+      ++inptr;
+      while( inptr < g_serptr && (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n') || g_serbuf[inptr] == ',' ) ++inptr;
+      return i;
+    }
+  }
+  return -1;
+}
+
+int getintparam(unsigned char &inptr)
+{
+  int retval(0);
+  bool found(false);
+  while (inptr < g_serptr && isdigit(g_serbuf[inptr])) {
+    retval *= 10;
+    retval += g_serbuf[inptr++] - '0';
+    found = true;
+  }
+  while( inptr < g_serptr && (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n') || g_serbuf[inptr] == ',' ) ++inptr;
+
+  return found ? retval : -1;
+}
+
+void processInput()
+{
+  unsigned char inptr(0);
+  int param(0);
+  char command = findcommand(inptr);
+
+  switch (command)
+  {
+    case 0:
+      param = getintparam( inptr );
+      if (param == -1) noTone( g_outPin );
+      else tone( g_outPin, param );
+  }
 }
 
 void loop()
 {
-  while( !full );
-  printDeltas();
-  cursample = 0;
-  full = false;
+  if ( g_full ) {
+    printDeltas();
+    g_cursample = 0;
+    g_full = false;
+  }
+  while ( Serial.available() ) {
+    char inc = Serial.read();
+    g_serbuf[g_serptr++] = inc;
+    if ( inc == '\n' || g_serptr == sizeof(g_serbuf) ) {
+      processInput();
+      g_serptr = 0;
+    }
+  }
 }
 
 void setup()
 {
-  pinMode(outPin, OUTPUT);
-  pinMode(ledPin, OUTPUT);
-  pinMode(inPin, INPUT);
+  pinMode(g_outPin, OUTPUT);
+  pinMode(g_ledPin, OUTPUT);
+  pinMode(g_inPin, INPUT);
   analogReference( DEFAULT );
 
   noInterrupts();           // disable all interrupts
@@ -83,10 +142,10 @@ void setup()
   interrupts();             // enable all interrupts
 
   Serial.begin(BAUDRATE);
-  attachInterrupt(digitalPinToInterrupt(inPin), isr, CHANGE);
-  tone( outPin, FREQ );
-  Serial.println( "Start" );
-  lastedge = micros();
+  attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
+  Serial.println( ">>> Start <<<" );
+  //g_serbuf[sizeof(g_serbuf) - 1] = 0;
+  g_lastedge = micros();
 }
 
 ISR( TIMER0_COMPA_vect )
@@ -94,8 +153,8 @@ ISR( TIMER0_COMPA_vect )
   unsigned long now;
 
   now = micros();
-  digitalWrite( ledPin, ( !full && now - lastedge < 100000 ) ? HIGH : LOW );
-  if( cursample && !full && now - lastedge > 1000000 )
-    full = true;
+  digitalWrite( g_ledPin, ( !g_full && now - g_lastedge < 100000 ) ? HIGH : LOW );
+  if ( g_cursample && !g_full && now - g_lastedge > 1000000 )
+    g_full = true;
 }
 
