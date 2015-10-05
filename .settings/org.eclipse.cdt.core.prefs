@@ -211,10 +211,10 @@ environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA
 environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.DTS/value=3600
 environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.LOCAL/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.LOCAL/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.LOCAL/value=1444060517
+environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.LOCAL/value=1444085722
 environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.UTC/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.UTC/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.UTC/value=1444053317
+environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.UTC/value=1444078522
 environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.ZONE/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.ZONE/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.1052410275/A.EXTRA.TIME.ZONE/value=3600
@@ -693,7 +693,7 @@ environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPI
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.C.EXTRA_FLAGS/value=
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.C.FLAGS/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.C.FLAGS/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.C.FLAGS/value=-c -g2  -w -ffunction-sections -fdata-sections -MMD
+environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.C.FLAGS/value=-c -g -Os ${A.COMPILER.WARNING_FLAGS} -ffunction-sections -fdata-sections -MMD
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.CPP.CMD/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.CPP.CMD/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.CPP.CMD/value=avr-g++
@@ -702,7 +702,7 @@ environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPI
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.CPP.EXTRA_FLAGS/value=
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.CPP.FLAGS/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.CPP.FLAGS/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.CPP.FLAGS/value=-c -g2  -w -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -MMD
+environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.CPP.FLAGS/value=-c -g -Os ${A.COMPILER.WARNING_FLAGS} -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -MMD
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.ELF2HEX.CMD/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.ELF2HEX.CMD/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.COMPILER.ELF2HEX.CMD/value=avr-objcopy
@@ -795,10 +795,10 @@ environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.DTS/value=3600
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.LOCAL/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.LOCAL/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.LOCAL/value=1444060514
+environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.LOCAL/value=1444083475
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.UTC/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.UTC/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.UTC/value=1444053314
+environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.UTC/value=1444076275
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.ZONE/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.ZONE/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.2123690429/A.EXTRA.TIME.ZONE/value=3600
