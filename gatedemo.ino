@@ -9,8 +9,8 @@ enum RcvState {
 	, STOP
 };
 
-volatile unsigned int	inbuf;
-volatile bool			inputready(false);
+volatile unsigned int	g_inbuf;
+volatile bool			g_inputready(false);
 
 void isr()
 {
@@ -27,44 +27,47 @@ void isr()
 	in = (digitalRead(g_inPin) == HIGH);
 	deltat = curedge - lastedge;
 
-	switch( state )
+	if( ! g_inputready )
 	{
-	case START:
-		if( lastlevel && !in && deltat > 420 && deltat < 450) {	//high to low
-			state = DATA;
-			curbit = 0;
-			inbuf = 0;
-		}
-		break;
-
-	case DATA:
-		if( deltat < 400 || deltat > 1000 ) {
-			state = START;
-		} else if( in ) { 	// low to high
-			lowdeltat = deltat;
-		} else	{			// high to low
-			highdeltat = deltat;
-			cyclet = lowdeltat + highdeltat;
-			timediff = (int)lowdeltat - (int)highdeltat;
-			if( timediff < 0 ) timediff = -timediff;
-			if( cyclet < 1200 || cyclet > 1500 || (unsigned int)timediff < (cyclet >> 2 ) ) {
-				state = START;
-				break;
+		switch( state )
+		{
+		case START:
+			if( !lastlevel && in && deltat > 420 && deltat < 450) {	//high to low
+				state = DATA;
+				curbit = 0;
+				g_inbuf = 0;
 			}
-			inbuf <<= 1;
-			if( highdeltat < lowdeltat )
-				inbuf |= 1;
-			if( ++curbit == 12 )
-				state = STOP;
-		}
-		break;
+			break;
 
-	case STOP:
-		if( !in && deltat > 15000) {		// high to low -> stop end
-			inputready = true;
+		case DATA:
+			if( deltat < 400 || deltat > 1000 ) {
+				state = START;
+			} else if( in ) { 	// l->h
+				lowdeltat = deltat;
+				cyclet = lowdeltat + highdeltat;
+				timediff = (int)lowdeltat - (int)highdeltat;
+				if (timediff < 0) timediff = -timediff;
+				if (cyclet < 1200 || cyclet > 1500 || (unsigned int)timediff < (cyclet >> 2)) {
+					state = START;
+					break;
+				}
+				g_inbuf <<= 1;
+				if (highdeltat < lowdeltat)
+					g_inbuf |= 1;
+				if (++curbit == 12)
+					state = STOP;
+			} else {			// h -> l
+				highdeltat = deltat;
+			}
+			break;
+
+		case STOP:
+			if( !in && deltat > 15000) {		// high to low -> stop end
+				g_inputready = true;
+			}
+			state = START;
+			break;
 		}
-		state = START;
-		break;
 	}
 
 	lastlevel = in;
