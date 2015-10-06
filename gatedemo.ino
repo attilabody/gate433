@@ -1,7 +1,7 @@
 #define BAUDRATE 57600
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
-const int g_inPin( 2 );
-const int g_ledPin( 13 );
+const uint8_t g_inPin( 2 );
+const uint8_t g_ledPin( 13 );
 
 enum RcvState {
 	  START = 0
