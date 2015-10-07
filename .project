@@ -27,6 +27,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>Libraries/EEPROM</name>
+			<type>2</type>
+			<locationURI>ArduinoHardwareLibPath/EEPROM</locationURI>
+		</link>
+		<link>
 			<name>arduino/core</name>
 			<type>2</type>
 			<locationURI>ArduinoPlatformPath/arduino</locationURI>
@@ -34,7 +39,7 @@
 		<link>
 			<name>arduino/variant</name>
 			<type>2</type>
-			<locationURI>ArduinoPinPath/standard</locationURI>
+			<locationURI>ArduinoPinPath/eightanaloginputs</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>

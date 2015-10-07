@@ -23,10 +23,10 @@ void isr()
 	static unsigned int		deltat, cyclet;
 	static int				timediff;
 
-	static unsigned long	lowdeltat, highdeltat;
+	static unsigned long	highdeltat, lowdeltat;
 
 	curedge = micros();
-	in = (digitalRead(g_inPin) != HIGH);
+	in = (digitalRead(g_inPin) == HIGH);
 	deltat = curedge - lastedge;
 
 	if( ! g_codeready )
@@ -34,7 +34,7 @@ void isr()
 		switch( state )
 		{
 		case START:
-			if( ! g_codeready && !lastlevel && in && deltat > 420 && deltat < 450) {	//high to low
+			if( ! g_codeready && lastlevel && !in && deltat > 420 && deltat < 450) {	// h->l
 				state = DATA;
 				curbit = 0;
 				g_code = 0;
@@ -44,27 +44,27 @@ void isr()
 		case DATA:
 			if( deltat < 400 || deltat > 1000 ) {
 				state = START;
-			} else if( in ) { 	// l->h
-				lowdeltat = deltat;
-				cyclet = lowdeltat + highdeltat;
-				timediff = (int)lowdeltat - (int)highdeltat;
+			} else if( !in ) { 	// h->l
+				highdeltat = deltat;
+				cyclet = highdeltat + lowdeltat;
+				timediff = (int)highdeltat - (int)lowdeltat;
 				if (timediff < 0) timediff = -timediff;
 				if (cyclet < 1200 || cyclet > 1500 || (unsigned int)timediff < (cyclet >> 2)) {
 					state = START;
 					break;
 				}
 				g_code <<= 1;
-				if (highdeltat < lowdeltat)
+				if (lowdeltat < highdeltat)
 					g_code |= 1;
 				if (++curbit == 12)
 					state = STOP;
 			} else {			// h -> l
-				highdeltat = deltat;
+				lowdeltat = deltat;
 			}
 			break;
 
 		case STOP:
-			if( !in && deltat > 15000) {		// high to low -> stop end
+			if( in && deltat > 15000) {		// l->h => stop end
 				g_codeready = true;
 				g_codetime = lastedge;
 			}
@@ -79,10 +79,7 @@ void isr()
 
 ISR( TIMER0_COMPA_vect )
 {
-	static unsigned long now;
-
-	now = micros();
-	digitalWrite( g_ledPin, ( now - g_codetime < 1000000 ) ? HIGH : LOW );
+	digitalWrite( g_ledPin, ( micros() - g_codetime  < 500000 ) ? HIGH : LOW );
 }
 
 //The setup function is called once at startup of the sketch
@@ -91,6 +88,11 @@ void setup()
 // Add your initialization code here
 	pinMode(g_ledPin, OUTPUT);
 	pinMode(g_inPin, INPUT);
+
+	noInterrupts();           // disable all interrupts
+	TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
+	interrupts();             // enable all interrupts
+
 	Serial.begin(BAUDRATE);
 	attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
 }
@@ -98,17 +100,15 @@ void setup()
 // The loop function is called in an endless loop
 void loop()
 {
-	static unsigned int code;
-	static bool			ls(false);
+	static unsigned int 	code, prevcode(-1);
+	static unsigned long	prevcodetime(0);
 	if( g_codeready )
 	{
 		code = g_code;
 		g_codeready = false;
-		String	s("Incoming code -> ID: " + String( code >>2, DEC ) + " button: " + String( code & 3, DEC));
-		Serial.println( s );
-	}
-	else
-	{
-		//Serial.println( (unsigned int)(micros - g_lastedge) );
+		if( code != prevcode || g_codetime - prevcodetime > 1000000 ) {
+			String	s("ID " + String( code >>2, DEC ) + " / " + String( code & 3, DEC));
+			Serial.println( s );
+		}
 	}
 }
