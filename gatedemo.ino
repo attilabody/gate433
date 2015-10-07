@@ -9,8 +9,9 @@ enum RcvState {
 	, STOP
 };
 
-volatile unsigned int	g_inbuf;
-volatile bool			g_inputready(false);
+volatile unsigned int	g_code;
+volatile bool			g_codeready(false);
+volatile unsigned long	g_codetime(0);
 volatile unsigned long	g_lastedge;
 
 void isr()
@@ -25,18 +26,18 @@ void isr()
 	static unsigned long	lowdeltat, highdeltat;
 
 	curedge = micros();
-	in = (digitalRead(g_inPin) == HIGH);
+	in = (digitalRead(g_inPin) != HIGH);
 	deltat = curedge - lastedge;
 
-	if( ! g_inputready )
+	if( ! g_codeready )
 	{
 		switch( state )
 		{
 		case START:
-			if( !lastlevel && in && deltat > 420 && deltat < 450) {	//high to low
+			if( ! g_codeready && !lastlevel && in && deltat > 420 && deltat < 450) {	//high to low
 				state = DATA;
 				curbit = 0;
-				g_inbuf = 0;
+				g_code = 0;
 			}
 			break;
 
@@ -52,9 +53,9 @@ void isr()
 					state = START;
 					break;
 				}
-				g_inbuf <<= 1;
+				g_code <<= 1;
 				if (highdeltat < lowdeltat)
-					g_inbuf |= 1;
+					g_code |= 1;
 				if (++curbit == 12)
 					state = STOP;
 			} else {			// h -> l
@@ -64,7 +65,8 @@ void isr()
 
 		case STOP:
 			if( !in && deltat > 15000) {		// high to low -> stop end
-				g_inputready = true;
+				g_codeready = true;
+				g_codetime = lastedge;
 			}
 			state = START;
 			break;
@@ -80,7 +82,7 @@ ISR( TIMER0_COMPA_vect )
 	static unsigned long now;
 
 	now = micros();
-	digitalWrite( g_ledPin, ( now - g_lastedge < 100000 ) ? HIGH : LOW );
+	digitalWrite( g_ledPin, ( now - g_codetime < 1000000 ) ? HIGH : LOW );
 }
 
 //The setup function is called once at startup of the sketch
@@ -97,11 +99,13 @@ void setup()
 void loop()
 {
 	static unsigned int code;
-	if( g_inputready )
+	static bool			ls(false);
+	if( g_codeready )
 	{
-		code = g_inbuf;
-		g_inputready = false;
-		Serial.println( code );
+		code = g_code;
+		g_codeready = false;
+		String	s("Incoming code -> ID: " + String( code >>2, DEC ) + " button: " + String( code & 3, DEC));
+		Serial.println( s );
 	}
 	else
 	{
