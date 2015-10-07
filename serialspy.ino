@@ -48,22 +48,22 @@ void printDeltas()
 
 void isr()
 {
-  static unsigned long  curmicro;
+  static unsigned long  now;
   static bool           in;
 
-  curmicro = micros();
+  now = micros();
 
   if ( g_full ) {
-    g_lastedge = curmicro;
+    g_lastedge = now;
     return;
   }
 
   in = (digitalRead(g_inPin) == HIGH);
-  g_deltas[g_cursample++] = (curmicro - g_lastedge) | (((unsigned long)in) << (MSB - 1));
+  g_deltas[g_cursample++] = (now - g_lastedge) | (((unsigned long)in) << (MSB - 1));
   if ( g_cursample == NUMDELTAS ) {
     g_full = true;
   }
-  g_lastedge = curmicro;
+  g_lastedge = now;
 }
 
 char findcommand(unsigned char &inptr)
