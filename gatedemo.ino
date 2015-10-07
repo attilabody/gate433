@@ -11,6 +11,7 @@ enum RcvState {
 
 volatile unsigned int	g_inbuf;
 volatile bool			g_inputready(false);
+volatile unsigned long	g_lastedge;
 
 void isr()
 {
@@ -71,7 +72,15 @@ void isr()
 	}
 
 	lastlevel = in;
-	lastedge = curedge;
+	g_lastedge = lastedge = curedge;
+}
+
+ISR( TIMER0_COMPA_vect )
+{
+	static unsigned long now;
+
+	now = micros();
+	digitalWrite( g_ledPin, ( now - g_lastedge < 100000 ) ? HIGH : LOW );
 }
 
 //The setup function is called once at startup of the sketch
@@ -87,5 +96,15 @@ void setup()
 // The loop function is called in an endless loop
 void loop()
 {
-//Add your repeated code here
+	static unsigned int code;
+	if( g_inputready )
+	{
+		code = g_inbuf;
+		g_inputready = false;
+		Serial.println( code );
+	}
+	else
+	{
+		//Serial.println( (unsigned int)(micros - g_lastedge) );
+	}
 }
