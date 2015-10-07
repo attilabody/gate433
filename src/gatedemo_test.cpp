@@ -13,8 +13,8 @@
 
 using namespace std;
 
-extern volatile unsigned int	g_inbuf;
-extern volatile bool			g_inputready;
+extern volatile unsigned int	g_code;
+extern volatile bool			g_codeready;
 
 unsigned long timetable_combined[] = {
 	0,
@@ -54,9 +54,9 @@ int main() {
 	set_time_table_delta( TIMETABLE, ITEMCOUNT( TIMETABLE ));
 	for( unsigned int cycle = 0; cycle < ITEMCOUNT( TIMETABLE ) - 1 ; ++cycle ) {
 		isr();
-		if( g_inputready ) {
-			cout << g_inbuf << endl;
-			g_inputready = false;
+		if( g_codeready ) {
+			cout << g_code << endl;
+			g_codeready = false;
 		}
 	}
 
