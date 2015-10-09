@@ -9,8 +9,8 @@ enum RcvState {
 	, STOP
 };
 
+volatile bool			g_codeready(false), g_overrun(false);
 volatile unsigned int	g_code;
-volatile bool			g_codeready(false);
 volatile unsigned long	g_codetime(0);
 volatile unsigned long	g_lastedge;
 
@@ -20,7 +20,7 @@ void isr()
 	static unsigned long	lastedge( micros()), curedge;
 	static bool				lastlevel(digitalRead(g_inPin) == HIGH), in;
 	static RcvState			state( START );
-	static unsigned int		deltat, cyclet;
+	static unsigned int		code, deltat, cyclet;
 	static int				timediff;
 
 	static unsigned long	highdeltat, lowdeltat;
@@ -29,48 +29,47 @@ void isr()
 	in = (digitalRead(g_inPin) == HIGH);
 	deltat = curedge - lastedge;
 
-	if( ! g_codeready )
+	switch( state )
 	{
-		switch( state )
-		{
-		case START:
-			if( ! g_codeready && lastlevel && !in && deltat > 420 && deltat < 450) {	// h->l
-				state = DATA;
-				curbit = 0;
-				g_code = 0;
-			}
-			break;
-
-		case DATA:
-			if( deltat < 400 || deltat > 1000 ) {
-				state = START;
-			} else if( !in ) { 	// h->l
-				highdeltat = deltat;
-				cyclet = highdeltat + lowdeltat;
-				timediff = (int)highdeltat - (int)lowdeltat;
-				if (timediff < 0) timediff = -timediff;
-				if (cyclet < 1200 || cyclet > 1500 || (unsigned int)timediff < (cyclet >> 2)) {
-					state = START;
-					break;
-				}
-				g_code <<= 1;
-				if (lowdeltat < highdeltat)
-					g_code |= 1;
-				if (++curbit == 12)
-					state = STOP;
-			} else {			// h -> l
-				lowdeltat = deltat;
-			}
-			break;
-
-		case STOP:
-			if( in && deltat > 15000) {		// l->h => stop end
-				g_codeready = true;
-				g_codetime = lastedge;
-			}
-			state = START;
-			break;
+	case START:
+		if( ! g_codeready && lastlevel && !in && deltat > 420 && deltat < 450) {	// h->l
+			state = DATA;
+			curbit = 0;
+			code = 0;
 		}
+		break;
+
+	case DATA:
+		if( deltat < 400 || deltat > 1000 ) {
+			state = START;
+		} else if( !in ) { 	// h->l
+			highdeltat = deltat;
+			cyclet = highdeltat + lowdeltat;
+			timediff = (int)highdeltat - (int)lowdeltat;
+			if (timediff < 0) timediff = -timediff;
+			if (cyclet < 1200 || cyclet > 1500 || (unsigned int)timediff < (cyclet >> 2)) {
+				state = START;
+				break;
+			}
+			code <<= 1;
+			if (lowdeltat < highdeltat)
+				code |= 1;
+			if (++curbit == 12)
+				state = STOP;
+		} else {			// h -> l
+			lowdeltat = deltat;
+		}
+		break;
+
+	case STOP:
+		if( in && deltat > 15000) {		// l->h => stop end
+			if( g_codeready ) g_overrun = true;
+			g_code = code;
+			g_codeready = true;
+			g_codetime = lastedge;
+		}
+		state = START;
+		break;
 	}
 
 	lastlevel = in;
