@@ -48,7 +48,10 @@ int digitalRead( uint8_t pin)
 
 void pinMode(uint8_t, uint8_t) {}
 void attachInterrupt(uint8_t, void (*)(void), int mode) {}
-
+void noInterrupts() {}
+void interrupts() {}
+void digitalWrite(uint8_t, uint8_t) {}
+unsigned char TIMSK0;
 
 
 

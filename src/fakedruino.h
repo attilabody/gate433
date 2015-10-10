@@ -94,6 +94,8 @@ class HardwareSerial
     inline size_t write(long n) { return write((uint8_t)n); }
     inline size_t write(unsigned int n) { return write((uint8_t)n); }
     inline size_t write(int n) { return write((uint8_t)n); }
+    template< typename T > void print(T&) {}
+    template< typename T > void println(T&) {}
 //    using Print::write; // pull in write(str) and write(buf, size) from Print
     operator bool() { return true; }
 
@@ -102,8 +104,27 @@ class HardwareSerial
 
 extern HardwareSerial Serial;
 
+
+#define DEC 1
+
+class String
+{
+public:
+	template< typename T > String( T ) {}
+	template< typename T, typename U > String( T, U ) {}
+	template< typename T > String& operator+( T ) { return *this; }
+};
+
 // Helper functions
 void set_time_table( unsigned long *table, unsigned long count );
 void set_time_table_delta( unsigned long *table, unsigned long count );
+
+#define TIMER0_COMPA_vect	void
+#define ISR(vect) void interruphadler()
+
+void noInterrupts();
+void interrupts();
+extern unsigned char TIMSK0;
+#define OCIE0A 1
 
 #endif /* FAKEDRUINO_H_ */
