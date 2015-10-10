@@ -32,7 +32,7 @@ void isr()
 	switch( state )
 	{
 	case START:
-		if( ! g_codeready && lastlevel && !in && deltat > 420 && deltat < 450) {	// h->l
+		if( ! g_codeready && lastlevel && !in && deltat > 400 && deltat < 500) {	// h->l
 			state = DATA;
 			curbit = 0;
 			code = 0;
@@ -106,7 +106,11 @@ void loop()
 		code = g_code;
 		g_codeready = false;
 		if( code != prevcode || g_codetime - prevcodetime > 1000000 ) {
-			String	s("ID " + String( code >>2, DEC ) + " / " + String( code & 3, DEC));
+			String	s(String( "ID " ) +
+					String( code >>2, DEC ) +
+					String( " / " ) +
+					String( code & 3, DEC)
+			);
 			Serial.println( s );
 		}
 	}
