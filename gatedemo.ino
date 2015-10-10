@@ -14,6 +14,22 @@ volatile unsigned int	g_code;
 volatile unsigned long	g_codetime(0);
 volatile unsigned long	g_lastedge;
 
+struct stats
+{
+	bool operator==( const stats &o ) {
+		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort;
+	}
+	bool operator==( stats &o ) {
+		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort;
+	}
+	stats& operator=( const stats &o ) {
+		startabort = o.startabort; dataabort = o.dataabort; stopabort = o.stopabort; return *this;
+	}
+	unsigned long	startabort, dataabort, stopabort, stopdeltat;
+};
+
+volatile stats	g_stats;
+
 void isr()
 {
 	static unsigned char	curbit;
@@ -32,16 +48,19 @@ void isr()
 	switch( state )
 	{
 	case START:
-		if( ! g_codeready && lastlevel && !in && deltat > 400 && deltat < 500) {	// h->l
+		if( ! g_codeready && lastlevel && !in && deltat > 390 && deltat < 500) {	// h->l
 			state = DATA;
 			curbit = 0;
 			code = 0;
-		}
+		} else
+			++g_stats.startabort;
+
 		break;
 
 	case DATA:
-		if( deltat < 400 || deltat > 1000 ) {
+		if( deltat < 390 || deltat > 1000 ) {
 			state = START;
+			++g_stats.dataabort;
 		} else if( !in ) { 	// h->l
 			highdeltat = deltat;
 			cyclet = highdeltat + lowdeltat;
@@ -49,6 +68,7 @@ void isr()
 			if (timediff < 0) timediff = -timediff;
 			if (cyclet < 1200 || cyclet > 1500 || (unsigned int)timediff < (cyclet >> 2)) {
 				state = START;
+				++g_stats.dataabort;
 				break;
 			}
 			code <<= 1;
@@ -67,7 +87,11 @@ void isr()
 			g_code = code;
 			g_codeready = true;
 			g_codetime = lastedge;
+		} else {
+			++g_stats.stopabort;
+			g_stats.stopdeltat = deltat;
 		}
+
 		state = START;
 		break;
 	}
@@ -93,6 +117,7 @@ void setup()
 	interrupts();             // enable all interrupts
 
 	Serial.begin(BAUDRATE);
+	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
 	attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
 }
 
@@ -101,6 +126,9 @@ void loop()
 {
 	static unsigned int 	code, prevcode(-1);
 	static unsigned long	prevcodetime(0);
+	static stats			prevstats;
+	static stats			*pp, *ps;
+
 	if( g_codeready )
 	{
 		code = g_code;
@@ -112,6 +140,20 @@ void loop()
 					String( code & 3, DEC)
 			);
 			Serial.println( s );
+		}
+	}
+	else
+	{
+		ps = (stats*)&g_stats;
+		if( !(prevstats == *ps) )
+		{
+			String s( String( g_stats.startabort )
+					+ String( " " ) + String( g_stats.dataabort )
+					+ String( " " ) + String( g_stats.stopabort )
+					+ String( " " ) + String( g_stats.stopdeltat )
+			);
+			Serial.println( s );
+			prevstats = *ps;
 		}
 	}
 }
