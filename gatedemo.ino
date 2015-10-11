@@ -1,5 +1,14 @@
 #define BAUDRATE 57600
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
+
+#define SHORT_MIN_TIME	340
+#define SHORT_MAX_TIME	510
+#define LONG_MIN_TIME	650
+#define LONG_MAX_TIME	1100
+#define CYCLE_MAX_TIME	( SHORT_MAX_TIME + LONG_MAX_TIME )
+#define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
+#define	STOP_MIN_TIME	13000
+
 const uint8_t g_inPin( 2 );
 const uint8_t g_ledPin( 13 );
 
@@ -48,7 +57,7 @@ void isr()
 	switch( state )
 	{
 	case START:
-		if( ! g_codeready && lastlevel && !in && deltat > 390 && deltat < 500) {	// h->l
+		if( ! g_codeready && lastlevel && !in && deltat >= SHORT_MIN_TIME && deltat <= SHORT_MAX_TIME) {	// h->l
 			state = DATA;
 			curbit = 0;
 			code = 0;
@@ -58,7 +67,7 @@ void isr()
 		break;
 
 	case DATA:
-		if( deltat < 390 || deltat > 1000 ) {
+		if( deltat < SHORT_MIN_TIME || deltat > LONG_MAX_TIME ) {
 			state = START;
 			++g_stats.dataabort;
 		} else if( !in ) { 	// h->l
@@ -66,7 +75,7 @@ void isr()
 			cyclet = highdeltat + lowdeltat;
 			timediff = (int)highdeltat - (int)lowdeltat;
 			if (timediff < 0) timediff = -timediff;
-			if (cyclet < 1200 || cyclet > 1500 || (unsigned int)timediff < (cyclet >> 2)) {
+			if (cyclet < CYCLE_MIN_TIME || cyclet > CYCLE_MAX_TIME || (unsigned int)timediff < (cyclet >> 2)) {
 				state = START;
 				++g_stats.dataabort;
 				break;
@@ -82,7 +91,7 @@ void isr()
 		break;
 
 	case STOP:
-		if( in && deltat > 15000) {		// l->h => stop end
+		if( in && deltat > STOP_MIN_TIME) {		// l->h => stop end
 			if( g_codeready ) g_overrun = true;
 			g_code = code;
 			g_codeready = true;
