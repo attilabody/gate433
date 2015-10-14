@@ -1,3 +1,5 @@
+#include <ds3231/ds3231.h>
+
 #define BAUDRATE 57600
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
@@ -44,6 +46,33 @@ struct stats
 volatile stats	g_stats;
 #endif	//	FAILSTATS
 
+char g_serbuf[32];
+unsigned char g_serptr(0);
+const char * g_commands[] = {
+  "settime"
+};
+
+
+void isr();
+void processInput();
+
+void setup()
+{
+// Add your initialization code here
+	pinMode(g_ledPin, OUTPUT);
+	pinMode(g_inPin, INPUT);
+
+	noInterrupts();           // disable all interrupts
+	TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
+	interrupts();             // enable all interrupts
+    DS3231_init(DS3231_INTCN);
+
+	Serial.begin(BAUDRATE);
+#ifdef FAILSTATS
+	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
+#endif
+	attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
+}
 
 void isr()
 {
@@ -129,24 +158,6 @@ ISR( TIMER0_COMPA_vect )
 	digitalWrite( g_ledPin, ( micros() - g_codetime  < 500000 ) ? HIGH : LOW );
 }
 
-//The setup function is called once at startup of the sketch
-void setup()
-{
-// Add your initialization code here
-	pinMode(g_ledPin, OUTPUT);
-	pinMode(g_inPin, INPUT);
-
-	noInterrupts();           // disable all interrupts
-	TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
-	interrupts();             // enable all interrupts
-
-	Serial.begin(BAUDRATE);
-#ifdef FAILSTATS
-	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
-#endif
-	attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
-}
-
 // The loop function is called in an endless loop
 void loop()
 {
@@ -200,3 +211,68 @@ void loop()
 	}
 #endif	//	FAILSTATS
 }
+
+char findcommand(unsigned char &inptr)
+{
+	while (inptr < g_serptr && g_serbuf[inptr] != ' ' && g_serbuf[inptr] != ','
+			&& g_serbuf[inptr] != '\n')
+		++inptr;
+
+	if (inptr == g_serptr) return -1;
+
+	for (char i = 0; i < ITEMCOUNT(g_commands); ++i)
+	{
+		if (!strncmp(g_serbuf, g_commands[i], inptr))
+		{
+			++inptr;
+			while (inptr < g_serptr
+					&& (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n')
+					|| g_serbuf[inptr] == ',')
+				++inptr;
+			return i;
+		}
+	}
+	return -1;
+}
+
+int getintparam(unsigned char &inptr)
+{
+	int retval(0);
+	bool found(false);
+	while (inptr < g_serptr && isdigit(g_serbuf[inptr]))
+	{
+		retval *= 10;
+		retval += g_serbuf[inptr++] - '0';
+		found = true;
+	}
+
+	while (inptr < g_serptr
+			&& (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n')
+			|| g_serbuf[inptr] == ',')
+		++inptr;
+
+	return found ? retval : -1;
+}
+
+void processInput()
+{
+	unsigned char inptr(0);
+	int param(0);
+
+	while (Serial.available())
+	{
+		char inc = Serial.read();
+		g_serbuf[g_serptr++] = inc;
+		if (inc == '\n' || g_serptr == sizeof(g_serbuf)) {
+			processInput();
+			g_serptr = 0;
+		}
+	}
+	char command = findcommand(inptr);
+
+	switch (command) {
+	case 0:		//settime
+		break;
+	}
+}
+
