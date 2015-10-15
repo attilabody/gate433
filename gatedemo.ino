@@ -49,7 +49,9 @@ volatile stats	g_stats;
 char g_serbuf[32];
 unsigned char g_serptr(0);
 const char * g_commands[] = {
-  "settime"
+	  "settime"
+	, "setdate"
+	, "getdatetime"
 };
 
 
@@ -68,6 +70,7 @@ void setup()
     DS3231_init(DS3231_INTCN);
 
 	Serial.begin(BAUDRATE);
+
 #ifdef FAILSTATS
 	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
 #endif
@@ -96,8 +99,9 @@ void isr()
 			state = DATA;
 			curbit = 0;
 			code = 0;
-		} else
+		}
 #ifdef FAILSTATS
+		else
 			++g_stats.startabort;
 #endif
 
@@ -239,6 +243,9 @@ int getintparam(unsigned char &inptr)
 {
 	int retval(0);
 	bool found(false);
+	while (inptr < g_serptr && !isdigit(g_serbuf[inptr]))
+		++g_serptr;
+
 	while (inptr < g_serptr && isdigit(g_serbuf[inptr]))
 	{
 		retval *= 10;
@@ -270,8 +277,20 @@ void processInput()
 	}
 	char command = findcommand(inptr);
 
+	ts	t;
+	DS3231_get( &t );
+
 	switch (command) {
-	case 0:		//settime
+	case 0:		//	settime
+
+		break;
+
+	case 1:		//	setdate
+		break;
+
+	case 2:		//getdatetime
+		Serial.print( "Y: "); Serial.println( t.year );
+
 		break;
 	}
 }
