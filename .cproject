@@ -3,6 +3,10 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="it.baeyens.arduino.core.toolChain.release.148898355">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="it.baeyens.arduino.core.toolChain.release.148898355" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<macros>
+					<stringMacro name="TFTHEIGHT" type="VALUE_TEXT" value="320"/>
+					<stringMacro name="TFTWIDTH" type="VALUE_TEXT" value="240"/>
+				</macros>
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -24,6 +28,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SD}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SD/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SPI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/Adafruit-GFX-Library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/Touch-Screen-Library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/TFTLCDplus-Library}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.509806420" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -60,5 +67,9 @@
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/interface"/>
+		</configuration>
+	</storageModule>
 </cproject>

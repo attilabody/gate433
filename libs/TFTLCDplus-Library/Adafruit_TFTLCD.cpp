@@ -21,8 +21,12 @@
 //#define TFTWIDTH   320
 //#define TFTHEIGHT  480
 
+#ifndef TFTWIDTH
 #define TFTWIDTH   240
+#endif
+#ifndef TFTHEIGHT
 #define TFTHEIGHT  320
+#endif
 
 // LCD controller chip identifiers
 #define ID_932X      0
