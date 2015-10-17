@@ -1,4 +1,4 @@
-#include <ds3231/ds3231.h>
+#include <ds3231.h>
 #include <Wire.h>
 
 #define BAUDRATE 57600
