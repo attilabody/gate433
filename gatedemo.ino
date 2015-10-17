@@ -1,4 +1,5 @@
 #include <ds3231/ds3231.h>
+#include <Wire.h>
 
 #define BAUDRATE 57600
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
@@ -13,6 +14,7 @@
 
 //#define FAILSTATS
 //#define VERBOSE
+//#define DBGSERIALIN
 
 const uint8_t g_inPin( 2 );
 const uint8_t g_ledPin( 13 );
@@ -51,7 +53,7 @@ unsigned char g_serptr(0);
 const char * g_commands[] = {
 	  "settime"
 	, "setdate"
-	, "getdatetime"
+	, "gdt"
 };
 
 
@@ -60,16 +62,16 @@ void processInput();
 
 void setup()
 {
-// Add your initialization code here
+	Serial.begin(BAUDRATE);
+	Wire.begin();
+    DS3231_init(DS3231_INTCN);
+
 	pinMode(g_ledPin, OUTPUT);
 	pinMode(g_inPin, INPUT);
 
 	noInterrupts();           // disable all interrupts
 	TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
 	interrupts();             // enable all interrupts
-    DS3231_init(DS3231_INTCN);
-
-	Serial.begin(BAUDRATE);
 
 #ifdef FAILSTATS
 	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
@@ -162,12 +164,64 @@ ISR( TIMER0_COMPA_vect )
 	digitalWrite( g_ledPin, ( micros() - g_codetime  < 500000 ) ? HIGH : LOW );
 }
 
+inline void halfbytetohex( unsigned char data, char* &buffer ) {
+	*buffer++ = data + ( data < 10 ? '0' : ('A' - 10));
+}
+inline void bytetohex( unsigned char data, char* &buffer, bool both ) {
+	if( both ) halfbytetohex( data >> 4, buffer );
+	halfbytetohex( data & 0x0f, buffer );
+}
+void uitohex( unsigned int data, char* &buffer, unsigned char digits )
+{
+	unsigned char	curbyte;
+	char			cc;
+	if( digits > 2 ) {
+		curbyte = (unsigned char)(data >> 8);
+		bytetohex( curbyte, buffer, digits >= 4 );
+	}
+	curbyte = (unsigned char)data;
+	bytetohex( curbyte, buffer, digits != 1 );
+}
+
+void serializedatetime( const ts &t, char *buffer )
+{
+	bytetohex( (byte)(t.year - 2000), buffer, true );
+	bytetohex( (byte)t.mon, buffer, false );
+	bytetohex( (byte)t.mday, buffer, true );
+	bytetohex( (byte)t.wday, buffer, false);
+	bytetohex( (byte)t.hour, buffer, true );
+	bytetohex( (byte)t.min, buffer, true );
+	bytetohex( (byte)t.sec, buffer, true );
+	*buffer++ = 0;
+}
+
+void datetimetoserial( const ts &t )
+{
+	Serial.print( t.year );
+	Serial.print( '.' );
+	Serial.print( t.mon );
+	Serial.print( '.' );
+	Serial.print( t.mday );
+	Serial.print( '/' );
+	Serial.print( t.wday );
+	Serial.print( '-' );
+	Serial.print( t.hour );
+	Serial.print( ':' );
+	Serial.print( t.min );
+	Serial.print( ':' );
+	Serial.print( t.sec );
+}
+
 // The loop function is called in an endless loop
 void loop()
 {
 	static unsigned int 	code, prevcode(-1);
 	static unsigned long	prevcodetime(0);
 	static unsigned long	cdt;
+	static ts				t;
+	static char 			dtbuffer[13];
+	static char				*dtbufptr;
+
 #ifdef FAILSTATS
 	static stats			prevstats;
 	static stats			*pp, *ps;
@@ -184,18 +238,24 @@ void loop()
 		{
 			prevcode = code;
 			prevcodetime = g_codetime;
-#ifndef VERBOSE
-			String	s( code >> 2 );
+
+			DS3231_get( &t );
+#ifdef VERBOSE
+			Serial.print( "ID " );
+			Serial.print( code >>2 );
+			Serial.print( " / " );
+			Serial.print( code & 3 );
+			Serial.print( " - " );
+			Serial.print( " ");
+			datetimetoserial( t );
+			Serial.println();
 #else
-			String	s(String( "ID " ));
-			s.concat( code >>2 );
-			s.concat( " / " );
-			s.concat( code & 3 );
-			s.concat( " - " );
-			s.concat( cdt );
+			dtbufptr = dtbuffer;
+			Serial.print( code >> 2, HEX );
+			serializedatetime( t, dtbuffer );
+			Serial.println( dtbuffer );
 #endif	//	VERBOSE
 
-			Serial.println( s );
 		}
 	}
 #ifdef FAILSTATS
@@ -214,6 +274,21 @@ void loop()
 		}
 	}
 #endif	//	FAILSTATS
+
+	while (Serial.available())
+	{
+		char inc = Serial.read();
+#if defined(VERBOSE) && defined(DBGSERIALIN)
+		Serial.print( inc );
+		Serial.print( ' ' );
+		Serial.println( g_serptr );
+#endif	//	VERBOSE
+		g_serbuf[g_serptr++] = inc;
+		if (inc == '\n' || g_serptr == sizeof(g_serbuf)) {
+			processInput();
+			g_serptr = 0;
+		}
+	}
 }
 
 char findcommand(unsigned char &inptr)
@@ -263,18 +338,12 @@ int getintparam(unsigned char &inptr)
 
 void processInput()
 {
+	static char	dtbuffer[13] = "miafaszez";
+	g_serbuf[ g_serptr ] = 0;
+
 	unsigned char inptr(0);
 	int param(0);
 
-	while (Serial.available())
-	{
-		char inc = Serial.read();
-		g_serbuf[g_serptr++] = inc;
-		if (inc == '\n' || g_serptr == sizeof(g_serbuf)) {
-			processInput();
-			g_serptr = 0;
-		}
-	}
 	char command = findcommand(inptr);
 
 	ts	t;
@@ -289,9 +358,15 @@ void processInput()
 		break;
 
 	case 2:		//getdatetime
-		Serial.print( "Y: "); Serial.println( t.year );
-
+		{
+			char	*bptr( dtbuffer );
+			ts		t;
+			DS3231_get( &t );
+			serializedatetime( t, dtbuffer );
+			Serial.print( dtbuffer );
+			Serial.print( ' ' );
+			datetimetoserial( t );
+		}
 		break;
 	}
 }
-
