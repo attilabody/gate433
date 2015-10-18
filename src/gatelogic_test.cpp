@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include "fakedruino.h"
-#include "../../gatedemo/gatedemo.ino"
+#include "../../gatelogic/gatelogic.cpp"
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
 using namespace std;

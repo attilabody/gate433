@@ -23,7 +23,7 @@
     <ClCompile Include="src\fakedruino.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gatedemo_test.cpp">
+    <ClCompile Include="src\gatelogic_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

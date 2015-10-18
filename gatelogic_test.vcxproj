@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E8005C38-DCD1-4159-8AE5-B54944A6B42F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>gatedemo_test</RootNamespace>
+    <RootNamespace>gatelogic_test</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -80,7 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fakedruino.cpp" />
-    <ClCompile Include="src\gatedemo_test.cpp" />
+    <ClCompile Include="src\gatelogic_test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
