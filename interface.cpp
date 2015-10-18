@@ -5,9 +5,8 @@
 #include <SPI.h>
 #include <SD.h>
 
-char g_serbuf[32];
-unsigned char g_serptr(0);
-
+#define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
+#define BAUDRATE 57600
 
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but we'll use the analog pins as this allows us to
@@ -54,20 +53,28 @@ Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 // a simpler declaration can optionally be used:
 // SWTFT tft;
 
-void printCode( int code ) {
-  tft.fillRect(0,0,240,40,BLACK);
-  tft.setCursor(0, 0);
-  tft.setTextColor(WHITE);    tft.setTextSize(5);
-  tft.println(code, DEC);
-}
+void printCode( int code );
+void processInput();
+
+char g_serbuf[64];
+unsigned char g_serptr(0);
+const char * g_commands[] = {
+	  "GET"
+	, "SET"
+	, "SHOW"
+};
+
 
 void setup(void) {
-  Serial.begin(57600);
+  Serial.begin( BAUDRATE );
   tft.reset();
-  tft.begin(tft.readID());
+  tft.begin( tft.readID() );
   tft.setRotation( 0 );
   delay( 100 );
   tft.fillScreen( BLACK );
+  if( !SD.begin(10) ) {
+	  Serial.println( "SD card initialization failed!" );
+  }
 }
 
 int getintparam(unsigned char &inptr)
@@ -90,13 +97,77 @@ void loop(void)
 	{
 		char inc = Serial.read();
 		g_serbuf[g_serptr++] = inc;
-		if (inc == '\n' || g_serptr == sizeof(g_serbuf))
-		{
-			unsigned char	inptr(0);
-			int code( getintparam( inptr ));
-			printCode( code );
+		if (inc == '\n' || g_serptr == sizeof(g_serbuf)) {
+			processInput();
 			g_serptr = 0;
 		}
 	}
 }
 
+void printCode( int code ) {
+  tft.fillRect(0,0,240,40,BLACK);
+  tft.setCursor(0, 0);
+  tft.setTextColor(WHITE);    tft.setTextSize(5);
+  tft.println(code, DEC);
+}
+
+char findcommand(unsigned char &inptr)
+{
+	while (inptr < g_serptr && g_serbuf[inptr] != ' ' && g_serbuf[inptr] != ','
+			&& g_serbuf[inptr] != '\n')
+		++inptr;
+
+	if (inptr == g_serptr) return -1;
+
+	for (char i = 0; i < ITEMCOUNT(g_commands); ++i)
+	{
+		if (!strncmp(g_serbuf, g_commands[i], inptr))
+		{
+			++inptr;
+			while (inptr < g_serptr
+					&& (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n')
+					|| g_serbuf[inptr] == ',')
+				++inptr;
+			return i;
+		}
+	}
+	return -1;
+}
+
+void processInput()
+{
+	static char linebuffer[25];
+
+	g_serbuf[ g_serptr ] = 0;
+
+	unsigned char inptr(0);
+	int param(0);
+
+	char command = findcommand(inptr);
+
+	switch (command) {
+	case 0:		//	GET
+		{
+			int code( getintparam(inptr));
+			if( code == -1 ) break;
+			File	file( SD.open( "db.txt", FILE_READ));
+			if( !file ) {
+				Serial.println( "ERROR" );
+				break;
+			}
+			if( file.seek( code * 24 ) && file.read( linebuffer, 24 ) == 24 ) {
+				linebuffer[23] = 0;
+				Serial.println( linebuffer );
+			}
+		}
+		break;
+
+	case 1:		//	SET
+		break;
+
+	case 2:		//	SHOW
+		int code( getintparam(inptr));
+		printCode( code );
+		break;
+	}
+}
