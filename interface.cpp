@@ -72,9 +72,13 @@ void setup(void) {
   tft.setRotation( 0 );
   delay( 100 );
   tft.fillScreen( BLACK );
+  tft.setTextSize(5);
   if( !SD.begin(10) ) {
-	  Serial.println( "SD card initialization failed!" );
+	  tft.setTextColor(RED);
+	  tft.println("SD FAIL");
   }
+  tft.setTextColor(GREEN);
+  tft.println("SD OK");
 }
 
 int getintparam(unsigned char &inptr)
@@ -107,7 +111,8 @@ void loop(void)
 void printCode( int code ) {
   tft.fillRect(0,0,240,40,BLACK);
   tft.setCursor(0, 0);
-  tft.setTextColor(WHITE);    tft.setTextSize(5);
+  tft.setTextColor(WHITE);
+  tft.setTextSize(5);
   tft.println(code, DEC);
 }
 
