@@ -53,46 +53,68 @@ Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 // a simpler declaration can optionally be used:
 // SWTFT tft;
 
-void printCode( int code );
-void processInput();
+void	printCode( int code );
+void	processInput();
+long	getintparam(unsigned char &sbindex, bool decimal = true );
 
-char g_serbuf[64];
-unsigned char g_serptr(0);
-const char * g_commands[] = {
+char 			g_serbuf[64];
+unsigned char	g_serptr(0);
+const char 		*g_commands[] = {
 	  "GET"
 	, "SET"
 	, "SHOW"
 };
 
 
-void setup(void) {
-  Serial.begin( BAUDRATE );
-  tft.reset();
-  tft.begin( tft.readID() );
-  tft.setRotation( 0 );
-  delay( 100 );
-  tft.fillScreen( BLACK );
-  tft.setTextSize(5);
-  if( !SD.begin(10) ) {
-	  tft.setTextColor(RED);
-	  tft.println("SD FAIL");
-  }
-  tft.setTextColor(GREEN);
-  tft.println("SD OK");
+void setup(void)
+{
+	Serial.begin( BAUDRATE);
+	tft.reset();
+	tft.begin(tft.readID());
+	tft.setRotation(0);
+	delay(100);
+	tft.fillScreen( BLACK);
+
+	tft.setTextSize(5);
+	if (!SD.begin(10)) {
+		tft.setTextColor(RED);
+		tft.println("SD FAIL");
+	} else {
+		tft.setTextColor(GREEN);
+		tft.println("SD OK");
+	}
 }
 
-int getintparam(unsigned char &inptr)
+inline char convertdigit( char c, bool decimal = true )
 {
-  int retval(0);
-  bool found(false);
-  while (inptr < g_serptr && isdigit(g_serbuf[inptr])) {
-    retval *= 10;
-    retval += g_serbuf[inptr++] - '0';
-    found = true;
-  }
-  while( inptr < g_serptr && (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n' || g_serbuf[inptr] == ',' )) ++inptr;
+	if( decimal )
+		return (c >= '0' && c <= '9') ? c - '0' : -1;
+	else {
+		if( c >= '0' && c <= '9' ) return c - '0';
+		if( c >= 'a' && c <= 'f' ) return c - 'a' + 10;
+		if( c >= 'A' && c <= 'F' ) return c - 'A' + 10;
+		return -1;
+	}
+}
 
-  return found ? retval : -1;
+long getintparam(unsigned char &sbidx, bool decimal)
+{
+	long	retval(0);
+	char	converted;
+	bool	found(false);
+
+	while( sbidx < g_serptr ) {
+		retval *=  decimal ? 10 : 16;
+		if(( converted = convertdigit( g_serbuf[sbidx++])) == -1) return -1;
+		retval += converted;
+		found = true;
+	}
+	while (sbidx < g_serptr
+			&& (g_serbuf[sbidx] == ' ' || g_serbuf[sbidx] == '\n'
+					|| g_serbuf[sbidx] == ','))
+		++sbidx;
+
+	return found ? retval : -1;
 }
 
 void loop(void)
@@ -108,12 +130,13 @@ void loop(void)
 	}
 }
 
-void printCode( int code ) {
-  tft.fillRect(0,0,240,40,BLACK);
-  tft.setCursor(0, 0);
-  tft.setTextColor(WHITE);
-  tft.setTextSize(5);
-  tft.println(code, DEC);
+void printCode( int code )
+{
+	tft.fillRect( 0, 0, 240, 40, BLACK );
+	tft.setCursor( 0, 0 );
+	tft.setTextColor( WHITE );
+	tft.setTextSize( 5 );
+	tft.println( code, DEC );
 }
 
 char findcommand(unsigned char &inptr)
@@ -151,7 +174,7 @@ void processInput()
 	char command = findcommand(inptr);
 
 	switch (command) {
-	case 0:		//	GET
+	case 0:		//	GET <CODE>
 		{
 			int code( getintparam(inptr));
 			if( code == -1 ) break;
@@ -167,10 +190,10 @@ void processInput()
 		}
 		break;
 
-	case 1:		//	SET
+	case 1:		//	SET <CODE> 000 59F 000 59F 0000000
 		break;
 
-	case 2:		//	SHOW
+	case 2:		//	SHOW <CODE>
 		int code( getintparam(inptr));
 		printCode( code );
 		break;
