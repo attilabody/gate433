@@ -33,6 +33,7 @@ volatile unsigned long	g_lastedge;
 #ifdef FAILSTATS
 struct stats
 {
+	stats() { startabort = dataabort = stopabort = stopdeltat = 0; }
 	bool operator==( const stats &o ) {
 		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort;
 	}
@@ -59,12 +60,20 @@ const char * g_commands[] = {
 
 void isr();
 void processInput();
+void datetimetoserial( const ts &t );
 
 void setup()
 {
 	Serial.begin(BAUDRATE);
+#ifdef VERBOSE
+	delay(100);
+	Serial.println("Initializing DS3231");
+#endif
 	Wire.begin();
     DS3231_init(DS3231_INTCN);
+#ifdef VERBOSE
+	Serial.println("DS3231");
+#endif
 
 	pinMode(g_ledPin, OUTPUT);
 	pinMode(g_inPin, INPUT);
@@ -73,9 +82,12 @@ void setup()
 	TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
 	interrupts();             // enable all interrupts
 
-#ifdef FAILSTATS
-	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
+#ifdef VERBOSE
+	ts		t;
+	DS3231_get( &t );
+	datetimetoserial( t );
 #endif
+
 	attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
 }
 
