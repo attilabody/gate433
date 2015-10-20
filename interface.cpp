@@ -49,19 +49,27 @@
 
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
-// If using the shield, all control and data lines are fixed, and
-// a simpler declaration can optionally be used:
-// SWTFT tft;
-
 void	printCode( int code );
 void	processInput();
 long	getintparam(unsigned char &sbindex, bool decimal = true );
+
+#ifdef VERBOSE
+template< typename T1, typename T2 > void dbgout( const T1 &a, const T2 &b, bool newline = true )
+{
+	Serial.print( a );
+	Serial.print( ": " );
+	Serial.print( b );
+	if( newline ) Serial.println();
+	else Serial.print( " - " );
+}
+#endif
 
 char 			g_serbuf[64];
 unsigned char	g_serptr(0);
 const char 		*g_commands[] = {
 	  "GET"
 	, "SET"
+	, "SETFLAGS"
 	, "SHOW"
 };
 
@@ -103,16 +111,18 @@ long getintparam(unsigned char &sbidx, bool decimal)
 	char	converted;
 	bool	found(false);
 
+
 	while( sbidx < g_serptr ) {
+		if(( converted = convertdigit( g_serbuf[sbidx++])) == -1) break;
 		retval *=  decimal ? 10 : 16;
-		if(( converted = convertdigit( g_serbuf[sbidx++])) == -1) return -1;
 		retval += converted;
 		found = true;
 	}
 	while (sbidx < g_serptr
 			&& (g_serbuf[sbidx] == ' ' || g_serbuf[sbidx] == '\n'
-					|| g_serbuf[sbidx] == ','))
+					|| g_serbuf[sbidx] == ',')) {
 		++sbidx;
+	}
 
 	return found ? retval : -1;
 }
@@ -152,9 +162,9 @@ char findcommand(unsigned char &inptr)
 		if (!strncmp(g_serbuf, g_commands[i], inptr))
 		{
 			++inptr;
-			while (inptr < g_serptr
-					&& (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n')
-					|| g_serbuf[inptr] == ',')
+			while(	inptr < g_serptr &&
+					( g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n' || g_serbuf[inptr] == ',' )
+				)
 				++inptr;
 			return i;
 		}
@@ -179,21 +189,24 @@ void processInput()
 			int code( getintparam(inptr));
 			if( code == -1 ) break;
 			File	file( SD.open( "db.txt", FILE_READ));
-			if( !file ) {
-				Serial.println( "ERROR" );
-				break;
-			}
-			if( file.seek( code * 24 ) && file.read( linebuffer, 24 ) == 24 ) {
+			if( file && file.seek( code * 24 ) && file.read( linebuffer, 24 ) == 24 ) {
 				linebuffer[23] = 0;
+				Serial.print( ':' );
 				Serial.println( linebuffer );
+			} else {
+				Serial.println( ":Error" );
 			}
+			file.close();
 		}
 		break;
 
 	case 1:		//	SET <CODE> 000 59F 000 59F 0000000
 		break;
 
-	case 2:		//	SHOW <CODE>
+	case 2:		//	SETFLAGS <CODE> 0000000
+		break;
+
+	case 3:		//	SHOW <CODE>3
 		int code( getintparam(inptr));
 		printCode( code );
 		break;
