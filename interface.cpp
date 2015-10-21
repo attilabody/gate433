@@ -132,8 +132,9 @@ void loop(void)
 	while (Serial.available())
 	{
 		char inc = Serial.read();
-		g_serbuf[g_serptr++] = inc;
-		if (inc == '\n' || g_serptr == sizeof(g_serbuf)) {
+		g_serbuf[g_serptr++] = ( inc == '\n' ? 0 : inc );
+		if (inc == '\n' || g_serptr >= sizeof( g_serbuf ) -1 ) {
+			g_serbuf[g_serptr] = 0;
 			processInput();
 			g_serptr = 0;
 		}
@@ -179,14 +180,16 @@ void processInput()
 	g_serbuf[ g_serptr ] = 0;
 
 	unsigned char inptr(0);
-	int param(0);
 
 	char command = findcommand(inptr);
+
+	int code( 0 );
+	int tmpptr( inptr );
 
 	switch (command) {
 	case 0:		//	GET <CODE>
 		{
-			int code( getintparam(inptr));
+			code = getintparam(inptr);
 			if( code == -1 ) break;
 			File	file( SD.open( "db.txt", FILE_READ));
 			if( file && file.seek( code * 24 ) && file.read( linebuffer, 24 ) == 24 ) {
@@ -201,13 +204,25 @@ void processInput()
 		break;
 
 	case 1:		//	SET <CODE> 000 59F 000 59F 0000000
+		code = getintparam(inptr);
+		if( code == -1 ) break;
+		while( tmpptr < g_serptr && g_serbuf[tmpptr] && g_serbuf[tmpptr] != '\n' ) {
+			++tmpptr;
+		}
+		if( tmpptr != inptr )
+			g_serbuf[tmpptr] = 0;
+		Serial.print( ':' );
+		Serial.print(code);
+		Serial.print(' ');
+		Serial.println( g_serbuf + inptr );
 		break;
 
 	case 2:		//	SETFLAGS <CODE> 0000000
+
 		break;
 
-	case 3:		//	SHOW <CODE>3
-		int code( getintparam(inptr));
+	case 3:		//	SHOW <CODE>
+		code = getintparam(inptr);
 		printCode( code );
 		break;
 	}
