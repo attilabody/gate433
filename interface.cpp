@@ -194,8 +194,8 @@ void processInput()
 				Serial.println( RESP "Error (open)" );
 				break;
 			}
-			if( file.seek( code * 24 )) {
-				if( file.read( linebuffer, 24 ) == 24 ) {
+			if( file.seek( code * RECORD_WIDTH )) {
+				if( file.read( linebuffer, RECORD_WIDTH ) == RECORD_WIDTH ) {
 					linebuffer[23] = 0;
 					Serial.print( ':' );
 					Serial.println( linebuffer );
@@ -215,7 +215,7 @@ void processInput()
 				break;
 			}
 			char* buf = g_serbuf + inptr;
-			if( strlen( buf ) != 23 ) {
+			if( strlen( buf ) != RECORD_WIDTH - 1 ) {
 				Serial.println( RESP "Error (length)" );
 				break;
 			}
@@ -226,7 +226,7 @@ void processInput()
 			}
 			if( !file.seek( code * 24 ) )
 				Serial.println( RESP "Error (seek)" );
-			else if( file.write( buf ) != 23 )
+			else if( file.write( buf ) != RECORD_WIDTH - 1 )
 				Serial.println( RESP "Error (file)" );
 			else Serial.println( RESP "OK");
 
@@ -247,9 +247,11 @@ void processInput()
 				break;
 			}
 			File	file( SD.open( "db.txt", FILE_WRITE ));
-			if(!( file && file.seek( code * 24 + 16 ) && file.write( buf ) == 7 )) {
+			if(!( 	file &&
+					file.seek( code * RECORD_WIDTH + (RECORD_WIDTH - FLAGS_WIDTH - 1) ) &&
+					file.write( buf ) == RECORD_WIDTH - FLAGS_WIDTH - 1 ))
 				Serial.println( RESP "Error (file)" );
-			} else Serial.println( RESP "OK" );
+			 else Serial.println( RESP "OK" );
 			file.close();
 		}
 		break;
