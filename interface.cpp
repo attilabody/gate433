@@ -7,6 +7,7 @@
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 #define BAUDRATE 57600
+#define RESP ":"
 
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but we'll use the analog pins as this allows us to
@@ -69,7 +70,7 @@ unsigned char	g_serptr(0);
 const char 		*g_commands[] = {
 	  "GET"
 	, "SET"
-	, "SETFLAGS"
+	, "SETF"
 	, "SHOW"
 };
 
@@ -175,55 +176,88 @@ char findcommand(unsigned char &inptr)
 
 void processInput()
 {
-	static char linebuffer[25];
-
-	g_serbuf[ g_serptr ] = 0;
-
-	unsigned char inptr(0);
-
-	char command = findcommand(inptr);
-
-	int code( 0 );
-	int tmpptr( inptr );
+	static char 	linebuffer[25];
+	unsigned char	inptr(0);
+	char			command( findcommand(inptr) );
+	int				code( 0 );
 
 	switch (command) {
 	case 0:		//	GET <CODE>
 		{
 			code = getintparam(inptr);
-			if( code == -1 ) break;
-			File	file( SD.open( "db.txt", FILE_READ));
-			if( file && file.seek( code * 24 ) && file.read( linebuffer, 24 ) == 24 ) {
-				linebuffer[23] = 0;
-				Serial.print( ':' );
-				Serial.println( linebuffer );
-			} else {
-				Serial.println( ":Error" );
+			if( code == -1 ) {
+				Serial.println( RESP "Error (code)" );
+				break;
 			}
+			File	file( SD.open( "db.txt", FILE_READ ));
+			if( !file ) {
+				Serial.println( RESP "Error (open)" );
+				break;
+			}
+			if( file.seek( code * 24 )) {
+				if( file.read( linebuffer, 24 ) == 24 ) {
+					linebuffer[23] = 0;
+					Serial.print( ':' );
+					Serial.println( linebuffer );
+				} else
+					Serial.println( RESP "Error (read)" );
+			} else
+				Serial.println( RESP "Error (seek)" );
 			file.close();
 		}
 		break;
 
 	case 1:		//	SET <CODE> 000 59F 000 59F 0000000
-		code = getintparam(inptr);
-		if( code == -1 ) break;
-		while( tmpptr < g_serptr && g_serbuf[tmpptr] && g_serbuf[tmpptr] != '\n' ) {
-			++tmpptr;
+	{
+			code = getintparam(inptr);
+			if( code == -1 ) {
+				Serial.println( RESP "Error (code)" );
+				break;
+			}
+			char* buf = g_serbuf + inptr;
+			if( strlen( buf ) != 23 ) {
+				Serial.println( RESP "Error (length)" );
+				break;
+			}
+			File	file( SD.open( "db.txt", FILE_WRITE ));
+			if( !file ) {
+				Serial.println( RESP "Error (open)" );
+				break;
+			}
+			if( !file.seek( code * 24 ) )
+				Serial.println( RESP "Error (seek)" );
+			else if( file.write( buf ) != 23 )
+				Serial.println( RESP "Error (file)" );
+			else Serial.println( RESP "OK");
+
+			file.close();
 		}
-		if( tmpptr != inptr )
-			g_serbuf[tmpptr] = 0;
-		Serial.print( ':' );
-		Serial.print(code);
-		Serial.print(' ');
-		Serial.println( g_serbuf + inptr );
 		break;
 
-	case 2:		//	SETFLAGS <CODE> 0000000
-
+	case 2:		//	SETF <CODE> 0000000
+		{
+			code = getintparam(inptr);
+			if( code == -1 ) {
+				Serial.println( RESP "Error (code)" );
+				break;
+			}
+			char* buf = g_serbuf + inptr;
+			if( strlen( buf ) != 7 ) {
+				Serial.println( RESP "Error (length)" );
+				break;
+			}
+			File	file( SD.open( "db.txt", FILE_WRITE ));
+			if(!( file && file.seek( code * 24 + 16 ) && file.write( buf ) == 7 )) {
+				Serial.println( RESP "Error (file)" );
+			} else Serial.println( RESP "OK" );
+			file.close();
+		}
 		break;
 
 	case 3:		//	SHOW <CODE>
 		code = getintparam(inptr);
 		printCode( code );
+		Serial.println( RESP "OK" );
 		break;
 	}
 }
