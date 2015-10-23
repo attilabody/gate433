@@ -25,12 +25,12 @@
 								<option id="it.baeyens.arduino.compiler.cpp.sketch.option.incpath.498425190" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.cpp.sketch.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/arduino/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SD}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SD/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/Adafruit-GFX-Library}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/Touch-Screen-Library}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/TFTLCDplus-Library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SD}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SD/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/Libraries/SPI}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.509806420" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
