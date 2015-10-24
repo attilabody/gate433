@@ -1,7 +1,7 @@
 #include <ds3231.h>
 #include <Wire.h>
+#include "../interface/interface.h"
 
-#define BAUDRATE 57600
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
 #define SHORT_MIN_TIME	340
@@ -60,6 +60,7 @@ const char * g_commands[] = {
 
 void isr();
 void processInput();
+bool getlinefromserial();
 void datetimetoserial( const ts &t );
 
 void setup()
@@ -86,6 +87,9 @@ void setup()
 	ts		t;
 	DS3231_get( &t );
 	datetimetoserial( t );
+#endif
+#ifdef FAILSTATS
+	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
 #endif
 
 	attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
@@ -183,18 +187,20 @@ inline void bytetohex( unsigned char data, char* &buffer, bool both ) {
 	if( both ) halfbytetohex( data >> 4, buffer );
 	halfbytetohex( data & 0x0f, buffer );
 }
-void uitohex( unsigned int data, char* &buffer, unsigned char digits )
+void uitohex( uint16_t data, char* &buffer, uint16_t digits )
 {
-	unsigned char	curbyte;
-	char			cc;
-	if( digits > 2 ) {
-		curbyte = (unsigned char)(data >> 8);
-		bytetohex( curbyte, buffer, digits >= 4 );
-	}
-	curbyte = (unsigned char)data;
-	bytetohex( curbyte, buffer, digits != 1 );
+	if( digits > 2 )
+		bytetohex( (unsigned char)(data >> 8), buffer, digits >= 4 );
+	bytetohex( (unsigned char)data, buffer, digits != 1 );
 }
-
+void ultohex( unsigned long data, char* &buffer, uint16_t digits )
+{
+	if( digits > 4 ) {
+		uitohex( (uint16_t)(data >> 16), buffer, digits-4 );
+		digits -= digits - 4;
+	}
+	uitohex( (uint16_t) data, buffer, digits );
+}
 void serializedatetime( const ts &t, char *buffer )
 {
 	bytetohex( (byte)(t.year - 2000), buffer, true );
@@ -231,8 +237,8 @@ void loop()
 	static unsigned long	prevcodetime(0);
 	static unsigned long	cdt;
 	static ts				t;
-	static char 			dtbuffer[13];
-	static char				*dtbufptr;
+	static char 			outbuf[25];
+	static char				*bufptr;
 
 #ifdef FAILSTATS
 	static stats			prevstats;
@@ -246,7 +252,7 @@ void loop()
 
 		cdt = g_codetime - prevcodetime;
 
-		if( code != prevcode || cdt > 1000000 )
+		if( code != prevcode || cdt > 5000000 )
 		{
 			prevcode = code;
 			prevcodetime = g_codetime;
@@ -262,12 +268,13 @@ void loop()
 			datetimetoserial( t );
 			Serial.println();
 #else
-			dtbufptr = dtbuffer;
-			Serial.print( code >> 2, HEX );
-			serializedatetime( t, dtbuffer );
-			Serial.println( dtbuffer );
+			bufptr = outbuf;
+			Serial.print( "CODE " );
+			Serial.println( code >> 2, DEC );
+			while( !getlinefromserial());
+			//process received database line here
+			g_serptr = 0;
 #endif	//	VERBOSE
-
 		}
 	}
 #ifdef FAILSTATS
@@ -287,25 +294,56 @@ void loop()
 	}
 #endif	//	FAILSTATS
 
-	while (Serial.available())
+	if( getlinefromserial())
+		processInput();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+bool getlinefromserial()
+{
+	bool lineready(false);
+	while (Serial.available() && !lineready )
 	{
 		char inc = Serial.read();
-#if defined(VERBOSE) && defined(DBGSERIALIN)
+#if defined(DBGSERIALIN)
+		g_serbuf[g_serptr ] = 0;
+		Serial.print( CMNT );
+		Serial.print( " " );
+		Serial.println( g_serbuf );
 		Serial.print( inc );
 		Serial.print( ' ' );
 		Serial.println( g_serptr );
-#endif	//	VERBOSE
+#endif	//	DBGSERIALIN
+		if( inc == '\n') inc = 0;
 		g_serbuf[g_serptr++] = inc;
-		if (inc == '\n' || g_serptr == sizeof(g_serbuf)) {
-			processInput();
-			g_serptr = 0;
+		if ( !inc || g_serptr >= sizeof( g_serbuf ) -1 )
+		{
+			if( inc ) g_serbuf[g_serptr] = 0;
+			lineready = true;
+#if defined(DBGSERIALIN)
+			Serial.print( CMNT "Line ready:" );
+			Serial.print( g_serbuf );
+			Serial.print( "|" );
+			Serial.print( (int)inc );
+			Serial.print( " " );
+			Serial.println( g_serptr );
+			Serial.print( CMNT );
+			for( char idx = 0; idx < g_serptr; ++idx ) {
+				Serial.print( (int) g_serbuf[idx] );
+				Serial.print( ' ' );
+			}
+			Serial.println();
+#endif	//	DBGSERIALIN
+
 		}
 	}
+	return lineready;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 char findcommand(unsigned char &inptr)
 {
-	while (inptr < g_serptr && g_serbuf[inptr] != ' ' && g_serbuf[inptr] != ','
+	while (inptr < g_serptr && g_serbuf[inptr] && g_serbuf[inptr] != ' ' && g_serbuf[inptr] != ','
 			&& g_serbuf[inptr] != '\n')
 		++inptr;
 
@@ -316,9 +354,9 @@ char findcommand(unsigned char &inptr)
 		if (!strncmp(g_serbuf, g_commands[i], inptr))
 		{
 			++inptr;
-			while (inptr < g_serptr
-					&& (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n')
-					|| g_serbuf[inptr] == ',')
+			while(	inptr < g_serptr &&
+					( g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n' || g_serbuf[inptr] == ',' )
+				)
 				++inptr;
 			return i;
 		}
@@ -326,6 +364,7 @@ char findcommand(unsigned char &inptr)
 	return -1;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 int getintparam(unsigned char &inptr)
 {
 	int retval(0);
@@ -348,20 +387,27 @@ int getintparam(unsigned char &inptr)
 	return found ? retval : -1;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void processInput()
 {
-	static char	dtbuffer[13] = "miafaszez";
-	g_serbuf[ g_serptr ] = 0;
+	static char	dtbuffer[13];
 
 	unsigned char inptr(0);
 	int param(0);
 
 	char command = findcommand(inptr);
-
+#ifdef VERBOSE
+	Serial.print( CMNT );
+	Serial.println( command );
+#endif
 	ts	t;
 	DS3231_get( &t );
 
 	switch (command) {
+	default:
+		Serial.print( ERR "Error (command) ");
+		Serial.println( g_serbuf );
+		break;
 	case 0:		//	settime
 
 		break;
@@ -369,16 +415,19 @@ void processInput()
 	case 1:		//	setdate
 		break;
 
-	case 2:		//getdatetime
+	case 2:		//gdt
 		{
 			char	*bptr( dtbuffer );
 			ts		t;
 			DS3231_get( &t );
 			serializedatetime( t, dtbuffer );
+			Serial.print( RESP );
 			Serial.print( dtbuffer );
 			Serial.print( ' ' );
 			datetimetoserial( t );
+			Serial.println();
 		}
 		break;
 	}
+	g_serptr = 0;
 }
