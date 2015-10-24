@@ -6,7 +6,11 @@
 
 #ifndef _interface_H_
 #define _interface_H_
-#include "Arduino.h"
+
+#define BAUDRATE 9600
+#define RESP ":"
+#define ERR "!"
+#define CMNT "#"
 
 /*
 000 59F 000 59F 000007F
