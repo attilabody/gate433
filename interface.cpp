@@ -51,7 +51,7 @@
 #define D_GREEN	0x03E0
 #define D_GREY	0x39e7
 
-Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+Adafruit_TFTLCD g_tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 #define YP A3  // must be an analog pin, use "An" notation!
 #define XM A2  // must be an analog pin, use "An" notation!
@@ -67,7 +67,7 @@ TouchScreen	g_ts( XP, YP, XM, YM, 258 );
 int16_t		g_bottom( TS_MINY ), g_left( TS_MINX ), g_top( TS_MAXY), g_right( TS_MAXX );
 bool		g_owner( true );
 
-void	printCode( int code );
+void	printCode( int code, uint16_t fgcolor = WHITE, uint16_t bgcolor = BLACK );
 void	processInput();
 long	getintparam(unsigned char &sbindex, bool decimal = true );
 void	drawbuttons( bool first, uint16_t color_h = D_GREEN, uint16_t color_l = D_GREY );
@@ -85,8 +85,10 @@ template< typename T1, typename T2 > void dbgout( const T1 &a, const T2 &b, bool
 }
 #endif
 
-char 			g_serbuf[256];
-unsigned char	g_serptr(0);
+char 			g_inbuf[256];
+unsigned char	g_inidx(0);
+//char 			g_outbuf[256];
+//unsigned char	g_outidx(0);
 const char 		*g_commands[] = {
 	  "CODE"
 	, "GET"
@@ -102,23 +104,23 @@ bool		g_recordmode( true );
 void setup(void)
 {
 	Serial.begin( BAUDRATE);
-	tft.reset();
-	tft.begin(tft.readID());
-	tft.setRotation(2);
+	g_tft.reset();
+	g_tft.begin(g_tft.readID());
+	g_tft.setRotation(2);
 	delay(100);
-	tft.fillScreen( BLACK);
+	g_tft.fillScreen( BLACK);
 
-	tft.setTextSize(5);
+	g_tft.setTextSize(5);
 	if (!SD.begin(10)) {
-		tft.setTextColor(RED);
-		tft.println("SD FAIL");
+		g_tft.setTextColor(RED);
+		g_tft.println("SD FAIL");
 	} else {
-		tft.setTextColor(GREEN);
-		tft.println("SD OK");
+		g_tft.setTextColor(GREEN);
+		g_tft.println("SD OK");
 	}
 	g_buttonheight = 40;
-	g_buttontop = tft.height() - g_buttonheight;
-	g_buttonwidth = tft.width() / 2;
+	g_buttontop = g_tft.height() - g_buttonheight;
+	g_buttonwidth = g_tft.width() / 2;
 
 	drawbuttons( true );
 	drawbuttons( true );
@@ -128,7 +130,6 @@ void setup(void)
 void loop(void)
 {
 	if( getlinefromserial()) {
-		printInput();
 		processInput();
 	}
 
@@ -168,30 +169,30 @@ bool getlinefromserial()
 	{
 		char inc = Serial.read();
 #if defined(DBGSERIALIN)
-		g_serbuf[g_serptr ] = 0;
+		g_inbuf[g_inidx ] = 0;
 		Serial.print( CMNT );
 		Serial.print( " " );
-		Serial.println( g_serbuf );
+		Serial.println( g_inbuf );
 		Serial.print( inc );
 		Serial.print( ' ' );
-		Serial.println( g_serptr );
+		Serial.println( g_inidx );
 #endif	//	DBGSERIALIN
 		if( inc == '\n') inc = 0;
-		g_serbuf[g_serptr++] = inc;
-		if ( !inc || g_serptr >= sizeof( g_serbuf ) -1 )
+		g_inbuf[g_inidx++] = inc;
+		if ( !inc || g_inidx >= sizeof( g_inbuf ) -1 )
 		{
-			if( inc ) g_serbuf[g_serptr] = 0;
+			if( inc ) g_inbuf[g_inidx] = 0;
 			lineready = true;
 #if defined(DBGSERIALIN)
 			Serial.print( CMNT "Line ready:" );
-			Serial.print( g_serbuf );
+			Serial.print( g_inbuf );
 			Serial.print( "|" );
 			Serial.print( (int)inc );
 			Serial.print( " " );
-			Serial.println( g_serptr );
+			Serial.println( g_inidx );
 			Serial.print( CMNT );
-			for( char idx = 0; idx < g_serptr; ++idx ) {
-				Serial.print( (int) g_serbuf[idx] );
+			for( char idx = 0; idx < g_inidx; ++idx ) {
+				Serial.print( (int) g_inbuf[idx] );
 				Serial.print( ' ' );
 			}
 			Serial.println();
@@ -205,31 +206,31 @@ bool getlinefromserial()
 //////////////////////////////////////////////////////////////////////////////
 void drawbuttons( bool first, uint16_t color_h, uint16_t color_l )
 {
-	tft.fillRect(0, g_buttontop, g_buttonwidth, g_buttonheight, first ? color_h : color_l );
-	tft.fillRect(g_buttonwidth, g_buttontop, g_buttonwidth, g_buttonheight, first ? color_l : color_h );
-	tft.setTextSize(3);
-	tft.setCursor( 27, g_buttontop + 8 ); tft.setTextColor( first ? WHITE : GREY ); tft.print( "lako" );
-	tft.setCursor( g_buttonwidth + 17, g_buttontop + 8); tft.setTextColor( first ? GREY : WHITE ); tft.print("berlo");
+	g_tft.fillRect(0, g_buttontop, g_buttonwidth, g_buttonheight, first ? color_h : color_l );
+	g_tft.fillRect(g_buttonwidth, g_buttontop, g_buttonwidth, g_buttonheight, first ? color_l : color_h );
+	g_tft.setTextSize(3);
+	g_tft.setCursor( 27, g_buttontop + 8 ); g_tft.setTextColor( first ? WHITE : GREY ); g_tft.print( "lako" );
+	g_tft.setCursor( g_buttonwidth + 17, g_buttontop + 8); g_tft.setTextColor( first ? GREY : WHITE ); g_tft.print("berlo");
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void printCode( int code )
+void printCode( int code, uint16_t color, uint16_t bgcolor )
 {
-	tft.fillRect( 0, 0, 240, 40, BLACK );
-	tft.setCursor( 0, 0 );
-	tft.setTextColor( WHITE );
-	tft.setTextSize( 5 );
-	tft.println( code, DEC );
+	g_tft.fillRect( 0, 0, 240, 40, bgcolor );
+	g_tft.setCursor( 0, 0 );
+	g_tft.setTextColor( color );
+	g_tft.setTextSize( 5 );
+	g_tft.println( code, DEC );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void printInput()
 {
-	tft.fillRect( 0, 40, 240, 240, BLACK );
-	tft.setCursor( 0, 42 );
-	tft.setTextColor( WHITE );
-	tft.setTextSize( 1 );
-	tft.println( g_serbuf );
+	g_tft.fillRect( 0, 40, 240, 240, BLACK );
+	g_tft.setCursor( 0, 42 );
+	g_tft.setTextColor( WHITE );
+	g_tft.setTextSize( 1 );
+	g_tft.println( g_inbuf );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -253,15 +254,15 @@ long getintparam(unsigned char &sbidx, bool decimal)
 	bool	found(false);
 
 
-	while( sbidx < g_serptr ) {
-		if(( converted = convertdigit( g_serbuf[sbidx++])) == -1) break;
+	while( sbidx < g_inidx ) {
+		if(( converted = convertdigit( g_inbuf[sbidx++])) == -1) break;
 		retval *=  decimal ? 10 : 16;
 		retval += converted;
 		found = true;
 	}
-	while (sbidx < g_serptr
-			&& (g_serbuf[sbidx] == ' ' || g_serbuf[sbidx] == '\n'
-					|| g_serbuf[sbidx] == ',')) {
+	while (sbidx < g_inidx
+			&& (g_inbuf[sbidx] == ' ' || g_inbuf[sbidx] == '\n'
+					|| g_inbuf[sbidx] == ',')) {
 		++sbidx;
 	}
 
@@ -271,17 +272,17 @@ long getintparam(unsigned char &sbidx, bool decimal)
 //////////////////////////////////////////////////////////////////////////////
 char findcommand(unsigned char &inptr)
 {
-	while (inptr < g_serptr && g_serbuf[inptr] && g_serbuf[inptr] != ' ' && g_serbuf[inptr] != ','
-			&& g_serbuf[inptr] != '\n')
+	while (inptr < g_inidx && g_inbuf[inptr] && g_inbuf[inptr] != ' ' && g_inbuf[inptr] != ','
+			&& g_inbuf[inptr] != '\n')
 		++inptr;
-	if (inptr == g_serptr) return -1;
+	if (inptr == g_inidx) return -1;
 
 	for (char i = 0; i < ITEMCOUNT(g_commands); ++i)
 	{
-		if (!strncmp(g_serbuf, g_commands[i], inptr))
+		if (!strncmp(g_inbuf, g_commands[i], inptr))
 		{
-			while(	inptr < g_serptr &&
-					( g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n' || g_serbuf[inptr] == ',' )
+			while(	inptr < g_inidx &&
+					( g_inbuf[inptr] == ' ' || g_inbuf[inptr] == '\n' || g_inbuf[inptr] == ',' )
 				)
 				++inptr;
 			return i;
@@ -293,66 +294,58 @@ char findcommand(unsigned char &inptr)
 //////////////////////////////////////////////////////////////////////////////
 void processInput()
 {
-//	Serial.println( g_serbuf );
+	printInput();
 
-	static char 	linebuffer[25];
+	static char 	linebuffer[26];
 	unsigned char	inptr(0);
 	char			command( findcommand(inptr) );
 	int				code( 0 );
+	const char		*output( NULL );
 
 	switch (command) {
 	default:
-		Serial.println( ERR "Eror (command)");
+		output = ERR "Error (command)";
 		break;
 	case 0:		//	CODE <CODE>
 		{
 			code = getintparam(inptr);
 
 			if( code == -1 ) {
-				Serial.println( ERR "Error (code)" );
+				output = ERR "Error (code)";
 				break;
 			}
-			bool	fail = true;
 			File	file;
 			if( g_recordmode )
 			{
 				file = SD.open( "db.txt", FILE_WRITE );
 				if( !file ) {
-					Serial.println( ERR "Error (open)" );
+					output = ERR "Error (open)";
 					break;
 				}
-				strcpy( linebuffer, g_owner ? "000 59F 000 59F 000007F\n" : "1E0 455 1E0 455 000001F\n" );
+				output = g_owner ? ":000 59F 000 59F 000007F" : ":1E0 455 1E0 455 000001F";
 				if( !file.seek( code * RECORD_WIDTH ) )
-					Serial.println( ERR "Error (seek)" );
-				else if( file.write( linebuffer ) != RECORD_WIDTH )
-					Serial.println( ERR "Error (file)" );
-				else {
-					fail = false;
-				}
+					output = ERR "Error (seek)";
+				else if( file.write( output + 1 ) != RECORD_WIDTH -1  )
+					output = ERR "Error (file)";
 			}
 			else
 			{
 				file = SD.open( "db.txt", FILE_READ );
 				if( !file ) {
-					Serial.println( ERR "Error (open)" );
+					output = ERR "Error (open)";
 					break;
 				}
 				if( !file.seek( code * RECORD_WIDTH ))
-					Serial.println( ERR "Error (seek)" );
-				else if( file.read( linebuffer, RECORD_WIDTH ) != RECORD_WIDTH )
-					Serial.println( ERR "Error (read)" );
+					output = ERR "Error (seek)";
+				else if( file.read( linebuffer+1, RECORD_WIDTH ) != RECORD_WIDTH )
+					output = ERR "Error (read)";
 				else {
-					linebuffer[24] = 0;
-					fail = false;
+					output = linebuffer;
+					linebuffer[0] = RESP[0];
+					linebuffer[24] = 0;	//	clamp trailing \n
 				}
 			}
 			file.close();
-
-			if( !fail ) {
-				printCode( code );
-				Serial.print( RESP );
-				Serial.print( linebuffer );
-			}
 		}
 		break;
 
@@ -360,23 +353,23 @@ void processInput()
 		{
 			code = getintparam(inptr);
 			if( code == -1 ) {
-				Serial.println( RESP "Error (code)" );
+				output = RESP "Error (code)";
 				break;
 			}
 			File	file( SD.open( "db.txt", FILE_READ ));
 			if( !file ) {
-				Serial.println( RESP "Error (open)" );
+				output = RESP "Error (open)";
 				break;
 			}
 			if( file.seek( code * RECORD_WIDTH )) {
-				if( file.read( linebuffer, RECORD_WIDTH ) == RECORD_WIDTH ) {
+				if( file.read( linebuffer+1, RECORD_WIDTH ) == RECORD_WIDTH ) {
+					output = linebuffer;
+					linebuffer[0] = RESP[0];
 					linebuffer[24] = 0;
-					Serial.print( ':' );
-					Serial.println( linebuffer );
 				} else
-					Serial.println( RESP "Error (read)" );
+					output = RESP "Error (read)";
 			} else
-				Serial.println( RESP "Error (seek)" );
+				output = RESP "Error (seek)";
 			file.close();
 		}
 		break;
@@ -385,24 +378,24 @@ void processInput()
 		{
 			code = getintparam(inptr);
 			if( code == -1 ) {
-				Serial.println( ERR "Error (code)" );
+				output = ERR "Error (code)";
 				break;
 			}
-			char* buf = g_serbuf + inptr;
+			char* buf = g_inbuf + inptr;
 			if( strlen( buf ) != RECORD_WIDTH - 1 ) {
-				Serial.println( ERR "Error (length)" );
+				output = ERR "Error (length)";
 				break;
 			}
 			File	file( SD.open( "db.txt", FILE_WRITE ));
 			if( !file ) {
-				Serial.println( ERR "Error (open)" );
+				output = ERR "Error (open)";
 				break;
 			}
 			if( !file.seek( code * 24 ) )
-				Serial.println( ERR "Error (seek)" );
+				output = ERR "Error (seek)";
 			else if( file.write( buf ) != RECORD_WIDTH - 1 )
-				Serial.println( ERR "Error (file)" );
-			else Serial.println( RESP "OK");
+				output = ERR "Error (file)";
+			else output = RESP "OK";
 
 			file.close();
 		}
@@ -412,27 +405,34 @@ void processInput()
 		{
 			code = getintparam(inptr);
 			if( code == -1 ) {
-				Serial.println( ERR "Error (code)" );
+				output = ERR "Error (code)";
 				break;
 			}
-			char* buf = g_serbuf + inptr;
+			char* buf = g_inbuf + inptr;
 			if( strlen( buf ) != 7 ) {
-				Serial.println( ERR "Error (length)" );
+				output = ERR "Error (length)";
 				break;
 			}
 			File	file( SD.open( "db.txt", FILE_WRITE ));
 			if(!( 	file &&
 					file.seek( code * RECORD_WIDTH + (RECORD_WIDTH - FLAGS_WIDTH - 1) ) &&
 					file.write( buf ) == RECORD_WIDTH - FLAGS_WIDTH - 1 ))
-				Serial.println( ERR "Error (file)" );
-			 else Serial.println( RESP "OK" );
+				output = ERR "Error (file)";
+			 else output = RESP "OK";
 			file.close();
 		}
 		break;
 
 	case 4:		//	LOG Text to log
-		Serial.println( RESP "OK" );
+		output = RESP "OK";
 		break;
 	}	//	switch
-	g_serptr = 0;
+
+	if( output ) {
+		g_tft.println( output );
+		Serial.println( output );
+		if( code != -1 )
+			printCode( code, output[0] == RESP[0] ? WHITE : RED );
+	}
+	g_inidx = 0;
 }
