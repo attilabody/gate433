@@ -1,5 +1,13 @@
-#include <ds3231.h>
+//#define USE_DS3231
+//#define FAILSTATS
+//#define VERBOSE
+//#define DBGSERIALIN
+
+#ifdef USE_DS3231
 #include <Wire.h>
+#include <ds3231.h>
+#endif	//	USE_DS3231
+#include "gatelogic.h"
 #include "../interface/interface.h"
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
@@ -11,10 +19,6 @@
 #define CYCLE_MAX_TIME	( SHORT_MAX_TIME + LONG_MAX_TIME )
 #define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
 #define	STOP_MIN_TIME	13000
-
-//#define FAILSTATS
-//#define VERBOSE
-//#define DBGSERIALIN
 
 const uint8_t g_inPin( 2 );
 const uint8_t g_ledPin( 13 );
@@ -61,12 +65,15 @@ const char * g_commands[] = {
 void isr();
 void processInput();
 bool getlinefromserial();
+#ifdef USE_DS3231
 void datetimetoserial( const ts &t );
+#endif	//	USE_DS3231
 
 void setup()
 {
 	Serial.begin(BAUDRATE);
-#ifdef VERBOSE
+#ifdef USE_DS3231
+	#ifdef VERBOSE
 	delay(100);
 	Serial.println("Initializing DS3231");
 #endif
@@ -75,6 +82,7 @@ void setup()
 #ifdef VERBOSE
 	Serial.println("DS3231");
 #endif
+#endif	//	USE_DS3231
 
 	pinMode(g_ledPin, OUTPUT);
 	pinMode(g_inPin, INPUT);
@@ -83,11 +91,11 @@ void setup()
 	TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
 	interrupts();             // enable all interrupts
 
-#ifdef VERBOSE
+#if defined(VERBOSE) && defined(USE_DS3231)
 	ts		t;
 	DS3231_get( &t );
 	datetimetoserial( t );
-#endif
+#endif	//	defined(VERBOSE) && defined(USE_DS3231)
 #ifdef FAILSTATS
 	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
 #endif
@@ -201,6 +209,8 @@ void ultohex( unsigned long data, char* &buffer, uint16_t digits )
 	}
 	uitohex( (uint16_t) data, buffer, digits );
 }
+
+#ifdef USE_DS3231
 void serializedatetime( const ts &t, char *buffer )
 {
 	bytetohex( (byte)(t.year - 2000), buffer, true );
@@ -229,16 +239,18 @@ void datetimetoserial( const ts &t )
 	Serial.print( ':' );
 	Serial.print( t.sec );
 }
-
+#endif	//	USE_DS3231
 // The loop function is called in an endless loop
 void loop()
 {
 	static unsigned int 	code, prevcode(-1);
 	static unsigned long	prevcodetime(0);
 	static unsigned long	cdt;
-	static ts				t;
 	static char 			outbuf[25];
 	static char				*bufptr;
+#ifdef USE_DS3231
+	static ts				t;
+#endif	//	USE_DS3231
 
 #ifdef FAILSTATS
 	static stats			prevstats;
@@ -257,7 +269,6 @@ void loop()
 			prevcode = code;
 			prevcodetime = g_codetime;
 
-			DS3231_get( &t );
 #ifdef VERBOSE
 			Serial.print( "ID " );
 			Serial.print( code >>2 );
@@ -265,7 +276,10 @@ void loop()
 			Serial.print( code & 3 );
 			Serial.print( " - " );
 			Serial.print( " ");
+#ifdef USE_DS3231
+			DS3231_get( &t );
 			datetimetoserial( t );
+#endif	//	USE_DS3231
 			Serial.println();
 #else
 			bufptr = outbuf;
@@ -400,8 +414,6 @@ void processInput()
 	Serial.print( CMNT );
 	Serial.println( command );
 #endif
-	ts	t;
-	DS3231_get( &t );
 
 	switch (command) {
 	default:
@@ -415,6 +427,7 @@ void processInput()
 	case 1:		//	setdate
 		break;
 
+#ifdef USE_DS3231
 	case 2:		//gdt
 		{
 			char	*bptr( dtbuffer );
@@ -428,6 +441,7 @@ void processInput()
 			Serial.println();
 		}
 		break;
+#endif	//	USE_DS3231
 	}
 	g_serptr = 0;
 }
