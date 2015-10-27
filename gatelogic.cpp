@@ -2,6 +2,7 @@
 //#define FAILSTATS
 //#define VERBOSE
 //#define DBGSERIALIN
+#define EXPECT_RESPONSE
 
 #ifdef USE_DS3231
 #include <Wire.h>
@@ -11,6 +12,7 @@
 #include "../interface/interface.h"
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
+
 
 #define SHORT_MIN_TIME	340
 #define SHORT_MAX_TIME	510
@@ -29,9 +31,10 @@ enum RcvState {
 	, STOP
 };
 
-volatile bool			g_codeready(false), g_overrun(false);
+volatile bool			g_codeready(false);
 volatile unsigned int	g_code;
 volatile unsigned long	g_codetime(0);
+
 volatile unsigned long	g_lastedge;
 
 #ifdef FAILSTATS
@@ -69,6 +72,7 @@ bool getlinefromserial();
 void datetimetoserial( const ts &t );
 #endif	//	USE_DS3231
 
+//////////////////////////////////////////////////////////////////////////////
 void setup()
 {
 	Serial.begin(BAUDRATE);
@@ -103,16 +107,82 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+void loop()
+{
+	static uint16_t 	code, prevcode(-1);
+	static uint32_t		cdt;
+	static char 		outbuf[25];
+	static char			*bufptr;
+#ifdef USE_DS3231
+	static ts				t;
+#endif	//	USE_DS3231
+
+#ifdef FAILSTATS
+	static stats			prevstats;
+	static stats			*pp, *ps;
+#endif
+
+	if( g_codeready )
+	{
+#ifdef VERBOSE
+		Serial.print( "ID " );
+		Serial.print( g_code >>2 );
+		Serial.print( " / " );
+		Serial.print( g_code & 3 );
+		Serial.print( " - " );
+		Serial.print( " ");
+#ifdef USE_DS3231
+		DS3231_get( &t );
+		datetimetoserial( t );
+#endif	//	USE_DS3231
+		Serial.println();
+#else
+		bufptr = outbuf;
+		Serial.print( "CODE " );
+		Serial.println( g_code >> 2, DEC );
+#ifdef EXPECT_RESPONSE
+		while( !getlinefromserial());
+#endif	//	EXPECT_RESPONSE
+		//process received info here
+		g_serptr = 0;
+		g_codeready = false;
+#endif	//	VERBOSE
+	}
+#ifdef FAILSTATS
+	else
+	{
+		ps = (stats*)&g_stats;
+		if( !(prevstats == *ps) )
+		{
+			String s( String( g_stats.startabort )
+					+ String( " " ) + String( g_stats.dataabort )
+					+ String( " " ) + String( g_stats.stopabort )
+					+ String( " " ) + String( g_stats.stopdeltat )
+			);
+			Serial.println( s );
+			prevstats = *ps;
+		}
+	}
+#endif	//	FAILSTATS
+
+	if( getlinefromserial())
+		processInput();
+}
+
+//////////////////////////////////////////////////////////////////////////////
 void isr()
 {
-	static unsigned char	curbit;
-	static unsigned long	lastedge( micros()), curedge;
-	static bool				lastlevel(digitalRead(g_inPin) == HIGH), in;
-	static RcvState			state( START );
-	static unsigned int		code, deltat, cyclet;
-	static int				timediff;
+	static int8_t	curbit;
+	static uint32_t	lastedge( micros()), curedge;
+	static bool		lastlevel(digitalRead(g_inPin) == HIGH), in;
+	static RcvState	state( START );
+	static uint16_t	code, deltat, cyclet;
+	static int		timediff;
+	static uint16_t	prevcode(0);
+	static uint32_t	prevcodetime(0);
 
-	static unsigned long	highdeltat, lowdeltat;
+	static uint32_t	highdeltat, lowdeltat;
 
 	curedge = micros();
 	in = (digitalRead(g_inPin) == HIGH);
@@ -162,8 +232,11 @@ void isr()
 		break;
 
 	case STOP:
-		if( in && deltat > STOP_MIN_TIME) {		// l->h => stop end
-			if( g_codeready ) g_overrun = true;
+		if( in && deltat > STOP_MIN_TIME
+				&&	(!g_codeready)
+				&&	( (code != g_code) || (lastedge - g_codetime > 500000) )
+				)
+		{		// l->h => stop end
 			g_code = code;
 			g_codeready = true;
 			g_codetime = lastedge;
@@ -174,7 +247,6 @@ void isr()
 			g_stats.stopdeltat = deltat;
 		}
 #endif
-
 		state = START;
 		break;
 	}
@@ -183,24 +255,32 @@ void isr()
 	g_lastedge = lastedge = curedge;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 ISR( TIMER0_COMPA_vect )
 {
 	digitalWrite( g_ledPin, ( micros() - g_codetime  < 500000 ) ? HIGH : LOW );
 }
 
+//////////////////////////////////////////////////////////////////////////////
 inline void halfbytetohex( unsigned char data, char* &buffer ) {
 	*buffer++ = data + ( data < 10 ? '0' : ('A' - 10));
 }
+
+//////////////////////////////////////////////////////////////////////////////
 inline void bytetohex( unsigned char data, char* &buffer, bool both ) {
 	if( both ) halfbytetohex( data >> 4, buffer );
 	halfbytetohex( data & 0x0f, buffer );
 }
+
+//////////////////////////////////////////////////////////////////////////////
 void uitohex( uint16_t data, char* &buffer, uint16_t digits )
 {
 	if( digits > 2 )
 		bytetohex( (unsigned char)(data >> 8), buffer, digits >= 4 );
 	bytetohex( (unsigned char)data, buffer, digits != 1 );
 }
+
+//////////////////////////////////////////////////////////////////////////////
 void ultohex( unsigned long data, char* &buffer, uint16_t digits )
 {
 	if( digits > 4 ) {
@@ -240,77 +320,6 @@ void datetimetoserial( const ts &t )
 	Serial.print( t.sec );
 }
 #endif	//	USE_DS3231
-// The loop function is called in an endless loop
-void loop()
-{
-	static unsigned int 	code, prevcode(-1);
-	static unsigned long	prevcodetime(0);
-	static unsigned long	cdt;
-	static char 			outbuf[25];
-	static char				*bufptr;
-#ifdef USE_DS3231
-	static ts				t;
-#endif	//	USE_DS3231
-
-#ifdef FAILSTATS
-	static stats			prevstats;
-	static stats			*pp, *ps;
-#endif
-
-	if( g_codeready )
-	{
-		code = g_code;
-		g_codeready = false;
-
-		cdt = g_codetime - prevcodetime;
-
-		if( code != prevcode || cdt > 5000000 )
-		{
-			prevcode = code;
-			prevcodetime = g_codetime;
-
-#ifdef VERBOSE
-			Serial.print( "ID " );
-			Serial.print( code >>2 );
-			Serial.print( " / " );
-			Serial.print( code & 3 );
-			Serial.print( " - " );
-			Serial.print( " ");
-#ifdef USE_DS3231
-			DS3231_get( &t );
-			datetimetoserial( t );
-#endif	//	USE_DS3231
-			Serial.println();
-#else
-			bufptr = outbuf;
-			Serial.print( "CODE " );
-			Serial.println( code >> 2, DEC );
-			while( !getlinefromserial());
-			//process received database line here
-			g_serptr = 0;
-#endif	//	VERBOSE
-		}
-	}
-#ifdef FAILSTATS
-	else
-	{
-		ps = (stats*)&g_stats;
-		if( !(prevstats == *ps) )
-		{
-			String s( String( g_stats.startabort )
-					+ String( " " ) + String( g_stats.dataabort )
-					+ String( " " ) + String( g_stats.stopabort )
-					+ String( " " ) + String( g_stats.stopdeltat )
-			);
-			Serial.println( s );
-			prevstats = *ps;
-		}
-	}
-#endif	//	FAILSTATS
-
-	if( getlinefromserial())
-		processInput();
-}
 
 //////////////////////////////////////////////////////////////////////////////
 bool getlinefromserial()
