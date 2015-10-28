@@ -54,8 +54,8 @@
 Adafruit_TFTLCD g_tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 #define YP A3  // must be an analog pin, use "An" notation!
-#define XM A2  // must be an analog pin, use "An" notation!
 #define YM 9   // can be a digital pin
+#define XM A2  // must be an analog pin, use "An" notation!
 #define XP 8   // can be a digital pin
 
 #define TS_MINX 189

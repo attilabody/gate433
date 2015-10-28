@@ -7,7 +7,7 @@
 #ifndef _interface_H_
 #define _interface_H_
 
-#define BAUDRATE 9600
+#define BAUDRATE 38400
 #define RESP ":"
 #define ERR "!"
 #define CMNT "#"
