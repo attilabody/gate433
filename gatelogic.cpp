@@ -1,18 +1,15 @@
-//#define USE_DS3231
+#define USE_DS3231
 //#define FAILSTATS
 //#define VERBOSE
 //#define DBGSERIALIN
-#define EXPECT_RESPONSE
+//#define EXPECT_RESPONSE
 
-#ifdef USE_DS3231
 #include <Wire.h>
 #include <ds3231.h>
-#endif	//	USE_DS3231
 #include "gatelogic.h"
 #include "../interface/interface.h"
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
-
 
 #define SHORT_MIN_TIME	340
 #define SHORT_MAX_TIME	510
@@ -26,21 +23,19 @@ const uint8_t g_inPin( 2 );
 const uint8_t g_ledPin( 13 );
 
 enum RcvState {
-	  START = 0
-	, DATA
-	, STOP
+	START = 0, DATA, STOP
 };
 
-volatile bool			g_codeready(false);
-volatile unsigned int	g_code;
-volatile unsigned long	g_codetime(0);
+volatile bool g_codeready( false );
+volatile unsigned int g_code;
+volatile unsigned long g_codetime( 0 );
 
-volatile unsigned long	g_lastedge;
+volatile unsigned long g_lastedge;
 
 #ifdef FAILSTATS
 struct stats
 {
-	stats() { startabort = dataabort = stopabort = stopdeltat = 0; }
+	stats() {startabort = dataabort = stopabort = stopdeltat = 0;}
 	bool operator==( const stats &o ) {
 		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort;
 	}
@@ -50,53 +45,50 @@ struct stats
 	stats& operator=( const stats &o ) {
 		startabort = o.startabort; dataabort = o.dataabort; stopabort = o.stopabort; return *this;
 	}
-	unsigned long	startabort, dataabort, stopabort, stopdeltat;
+	unsigned long startabort, dataabort, stopabort, stopdeltat;
 };
 
-volatile stats	g_stats;
+volatile stats g_stats;
 #endif	//	FAILSTATS
 
-char g_serbuf[32];
-unsigned char g_serptr(0);
-const char * g_commands[] = {
-	  "settime"
-	, "setdate"
-	, "gdt"
-};
-
+char g_inbuf[32];
+unsigned char g_inidx( 0 );
+const char * g_commands[] = { "gdt", "sdt" };
 
 void isr();
 void processInput();
 bool getlinefromserial();
+int getintparam( unsigned char &inptr );
 #ifdef USE_DS3231
 void datetimetoserial( const ts &t );
 #endif	//	USE_DS3231
 
 //////////////////////////////////////////////////////////////////////////////
-void setup()
-{
-	Serial.begin(BAUDRATE);
+void setup() {
+	Serial.begin( BAUDRATE );
 #ifdef USE_DS3231
-	#ifdef VERBOSE
+#ifdef VERBOSE
 	delay(100);
 	Serial.println("Initializing DS3231");
 #endif
 	Wire.begin();
-    DS3231_init(DS3231_INTCN);
+	DS3231_init( DS3231_INTCN );
 #ifdef VERBOSE
 	Serial.println("DS3231");
 #endif
 #endif	//	USE_DS3231
 
-	pinMode(g_ledPin, OUTPUT);
-	pinMode(g_inPin, INPUT);
+	pinMode( g_ledPin, OUTPUT );
+	pinMode( g_inPin, INPUT );
 
-	noInterrupts();           // disable all interrupts
-	TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
-	interrupts();             // enable all interrupts
+	noInterrupts();
+	// disable all interrupts
+	TIMSK0 |= ( 1 << OCIE0A );  // enable timer compare interrupt
+	interrupts();
+	// enable all interrupts
 
 #if defined(VERBOSE) && defined(USE_DS3231)
-	ts		t;
+	ts t;
 	DS3231_get( &t );
 	datetimetoserial( t );
 #endif	//	defined(VERBOSE) && defined(USE_DS3231)
@@ -104,27 +96,25 @@ void setup()
 	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
 #endif
 
-	attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
+	attachInterrupt( digitalPinToInterrupt( g_inPin ), isr, CHANGE );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void loop()
-{
-	static uint16_t 	code, prevcode(-1);
-	static uint32_t		cdt;
-	static char 		outbuf[25];
-	static char			*bufptr;
+void loop() {
+	static uint16_t code, prevcode( -1 );
+	static uint32_t cdt;
+	static char outbuf[25];
+	static char *bufptr;
 #ifdef USE_DS3231
-	static ts				t;
+	static ts t;
 #endif	//	USE_DS3231
 
 #ifdef FAILSTATS
-	static stats			prevstats;
-	static stats			*pp, *ps;
+	static stats prevstats;
+	static stats *pp, *ps;
 #endif
 
-	if( g_codeready )
-	{
+	if( g_codeready ) {
 #ifdef VERBOSE
 		Serial.print( "ID " );
 		Serial.print( g_code >>2 );
@@ -145,7 +135,7 @@ void loop()
 		while( !getlinefromserial());
 #endif	//	EXPECT_RESPONSE
 		//process received info here
-		g_serptr = 0;
+		g_inidx = 0;
 		g_codeready = false;
 #endif	//	VERBOSE
 	}
@@ -166,39 +156,38 @@ void loop()
 	}
 #endif	//	FAILSTATS
 
-	if( getlinefromserial())
+	if( getlinefromserial() )
 		processInput();
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void isr()
-{
-	static int8_t	curbit;
-	static uint32_t	lastedge( micros()), curedge;
-	static bool		lastlevel(digitalRead(g_inPin) == HIGH), in;
-	static RcvState	state( START );
-	static uint16_t	code, deltat, cyclet;
-	static int		timediff;
-	static uint16_t	prevcode(0);
-	static uint32_t	prevcodetime(0);
+void isr() {
+	static int8_t curbit;
+	static uint32_t lastedge( micros() ), curedge;
+	static bool lastlevel( digitalRead( g_inPin ) == HIGH ), in;
+	static RcvState state( START );
+	static uint16_t code, deltat, cyclet;
+	static int timediff;
+	static uint16_t prevcode( 0 );
+	static uint32_t prevcodetime( 0 );
 
-	static uint32_t	highdeltat, lowdeltat;
+	static uint32_t highdeltat, lowdeltat;
 
 	curedge = micros();
-	in = (digitalRead(g_inPin) == HIGH);
+	in = ( digitalRead( g_inPin ) == HIGH );
 	deltat = curedge - lastedge;
 
-	switch( state )
-	{
+	switch( state ) {
 	case START:
-		if( ! g_codeready && lastlevel && !in && deltat >= SHORT_MIN_TIME && deltat <= SHORT_MAX_TIME) {	// h->l
+		if( !g_codeready && lastlevel && !in && deltat >= SHORT_MIN_TIME
+		        && deltat <= SHORT_MAX_TIME ) {	// h->l
 			state = DATA;
 			curbit = 0;
 			code = 0;
 		}
 #ifdef FAILSTATS
 		else
-			++g_stats.startabort;
+		++g_stats.startabort;
 #endif
 
 		break;
@@ -213,8 +202,10 @@ void isr()
 			highdeltat = deltat;
 			cyclet = highdeltat + lowdeltat;
 			timediff = (int)highdeltat - (int)lowdeltat;
-			if (timediff < 0) timediff = -timediff;
-			if (cyclet < CYCLE_MIN_TIME || cyclet > CYCLE_MAX_TIME || (unsigned int)timediff < (cyclet >> 2)) {
+			if( timediff < 0 )
+				timediff = -timediff;
+			if( cyclet < CYCLE_MIN_TIME || cyclet > CYCLE_MAX_TIME
+			        || (unsigned int)timediff < ( cyclet >> 2 ) ) {
 				state = START;
 #ifdef FAILSTATS
 				++g_stats.dataabort;
@@ -222,9 +213,9 @@ void isr()
 				break;
 			}
 			code <<= 1;
-			if (lowdeltat < highdeltat)
+			if( lowdeltat < highdeltat )
 				code |= 1;
-			if (++curbit == 12)
+			if( ++curbit == 12 )
 				state = STOP;
 		} else {			// h -> l
 			lowdeltat = deltat;
@@ -232,11 +223,8 @@ void isr()
 		break;
 
 	case STOP:
-		if( in && deltat > STOP_MIN_TIME
-				&&	(!g_codeready)
-				&&	( (code != g_code) || (lastedge - g_codetime > 500000) )
-				)
-		{		// l->h => stop end
+		if( in && deltat > STOP_MIN_TIME && ( !g_codeready )
+		        && ( ( code != g_code ) || ( lastedge - g_codetime > 500000 ) ) ) {	// l->h => stop end
 			g_code = code;
 			g_codeready = true;
 			g_codetime = lastedge;
@@ -256,55 +244,53 @@ void isr()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-ISR( TIMER0_COMPA_vect )
-{
-	digitalWrite( g_ledPin, ( micros() - g_codetime  < 500000 ) ? HIGH : LOW );
+ISR( TIMER0_COMPA_vect ) {
+	digitalWrite( g_ledPin, ( micros() - g_codetime < 500000 ) ? HIGH : LOW );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 inline void halfbytetohex( unsigned char data, char* &buffer ) {
-	*buffer++ = data + ( data < 10 ? '0' : ('A' - 10));
+	*buffer++ = data + ( data < 10 ? '0' : ( 'A' - 10 ) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 inline void bytetohex( unsigned char data, char* &buffer, bool both ) {
-	if( both ) halfbytetohex( data >> 4, buffer );
+	if( both )
+		halfbytetohex( data >> 4, buffer );
 	halfbytetohex( data & 0x0f, buffer );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void uitohex( uint16_t data, char* &buffer, uint16_t digits )
-{
+void uitohex( uint16_t data, char* &buffer, uint16_t digits ) {
 	if( digits > 2 )
-		bytetohex( (unsigned char)(data >> 8), buffer, digits >= 4 );
+		bytetohex( (unsigned char)( data >> 8 ), buffer, digits >= 4 );
 	bytetohex( (unsigned char)data, buffer, digits != 1 );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void ultohex( unsigned long data, char* &buffer, uint16_t digits )
-{
+void ultohex( unsigned long data, char* &buffer, uint16_t digits ) {
 	if( digits > 4 ) {
-		uitohex( (uint16_t)(data >> 16), buffer, digits-4 );
+		uitohex( (uint16_t)( data >> 16 ), buffer, digits - 4 );
 		digits -= digits - 4;
 	}
-	uitohex( (uint16_t) data, buffer, digits );
+	uitohex( (uint16_t)data, buffer, digits );
 }
 
 #ifdef USE_DS3231
-void serializedatetime( const ts &t, char *buffer )
-{
-	bytetohex( (byte)(t.year - 2000), buffer, true );
+//////////////////////////////////////////////////////////////////////////////
+void serializedatetime( const ts &t, char *buffer ) {
+	bytetohex( (byte)( t.year - 2000 ), buffer, true );
 	bytetohex( (byte)t.mon, buffer, false );
 	bytetohex( (byte)t.mday, buffer, true );
-	bytetohex( (byte)t.wday, buffer, false);
+	bytetohex( (byte)t.wday, buffer, false );
 	bytetohex( (byte)t.hour, buffer, true );
 	bytetohex( (byte)t.min, buffer, true );
 	bytetohex( (byte)t.sec, buffer, true );
 	*buffer++ = 0;
 }
 
-void datetimetoserial( const ts &t )
-{
+//////////////////////////////////////////////////////////////////////////////
+void datetimetoserial( const ts &t ) {
 	Serial.print( t.year );
 	Serial.print( '.' );
 	Serial.print( t.mon );
@@ -319,67 +305,84 @@ void datetimetoserial( const ts &t )
 	Serial.print( ':' );
 	Serial.print( t.sec );
 }
+
+//////////////////////////////////////////////////////////////////////////////
+bool parsedatetime( ts &t, unsigned char &inptr ) {
+	//	"2015.10.28-3 16:37:05"
+	t.year = getintparam( inptr );
+	if( t.year == -1 ) return false;
+	t.mon = getintparam( inptr );
+	if( t.mon == -1 ) return false;
+	t.mday = getintparam( inptr );
+	if( t.mday == -1 ) return false;
+	t.wday = getintparam( inptr );
+	if( t.wday == -1 ) return false;
+	t.hour = getintparam( inptr );
+	if( t.hour == -1 ) return false;
+	t.min = getintparam( inptr );
+	if( t.min == -1 ) return false;
+	t.sec = getintparam( inptr );
+	if( t.sec == -1 ) t.sec = 0;
+	return true;
+}
+
 #endif	//	USE_DS3231
 
 //////////////////////////////////////////////////////////////////////////////
-bool getlinefromserial()
-{
-	bool lineready(false);
-	while (Serial.available() && !lineready )
-	{
+bool getlinefromserial() {
+	bool lineready( false );
+	while( Serial.available() && !lineready ) {
 		char inc = Serial.read();
 #if defined(DBGSERIALIN)
-		g_serbuf[g_serptr ] = 0;
+		g_inbuf[g_inidx ] = 0;
 		Serial.print( CMNT );
 		Serial.print( " " );
-		Serial.println( g_serbuf );
+		Serial.println( g_inbuf );
 		Serial.print( inc );
 		Serial.print( ' ' );
-		Serial.println( g_serptr );
+		Serial.println( g_inidx );
 #endif	//	DBGSERIALIN
-		if( inc == '\n') inc = 0;
-		g_serbuf[g_serptr++] = inc;
-		if ( !inc || g_serptr >= sizeof( g_serbuf ) -1 )
-		{
-			if( inc ) g_serbuf[g_serptr] = 0;
+		if( inc == '\n' )
+			inc = 0;
+		g_inbuf[g_inidx++] = inc;
+		if( !inc || g_inidx >= sizeof(g_inbuf) - 1 ) {
+			if( inc )
+				g_inbuf[g_inidx] = 0;
 			lineready = true;
 #if defined(DBGSERIALIN)
 			Serial.print( CMNT "Line ready:" );
-			Serial.print( g_serbuf );
+			Serial.print( g_inbuf );
 			Serial.print( "|" );
 			Serial.print( (int)inc );
 			Serial.print( " " );
-			Serial.println( g_serptr );
+			Serial.println( g_inidx );
 			Serial.print( CMNT );
-			for( char idx = 0; idx < g_serptr; ++idx ) {
-				Serial.print( (int) g_serbuf[idx] );
+			for( char idx = 0; idx < g_inidx; ++idx ) {
+				Serial.print( (int) g_inbuf[idx] );
 				Serial.print( ' ' );
 			}
 			Serial.println();
 #endif	//	DBGSERIALIN
-
 		}
 	}
 	return lineready;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-char findcommand(unsigned char &inptr)
-{
-	while (inptr < g_serptr && g_serbuf[inptr] && g_serbuf[inptr] != ' ' && g_serbuf[inptr] != ','
-			&& g_serbuf[inptr] != '\n')
+char findcommand( unsigned char &inptr ) {
+	while( inptr < g_inidx && g_inbuf[inptr] && g_inbuf[inptr] != ' '
+	        && g_inbuf[inptr] != ',' && g_inbuf[inptr] != '\n' )
 		++inptr;
 
-	if (inptr == g_serptr) return -1;
+	if( inptr == g_inidx )
+		return -1;
 
-	for (char i = 0; i < ITEMCOUNT(g_commands); ++i)
-	{
-		if (!strncmp(g_serbuf, g_commands[i], inptr))
-		{
+	for( char i = 0; i < ITEMCOUNT( g_commands ); ++i ) {
+		if( !strncmp( g_inbuf, g_commands[i], inptr ) ) {
 			++inptr;
-			while(	inptr < g_serptr &&
-					( g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n' || g_serbuf[inptr] == ',' )
-				)
+			while( inptr < g_inidx
+			        && ( g_inbuf[inptr] == ' ' || g_inbuf[inptr] == '\n'
+			                || g_inbuf[inptr] == ',' ) )
 				++inptr;
 			return i;
 		}
@@ -388,69 +391,76 @@ char findcommand(unsigned char &inptr)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-int getintparam(unsigned char &inptr)
-{
-	int retval(0);
-	bool found(false);
-	while (inptr < g_serptr && !isdigit(g_serbuf[inptr]))
-		++g_serptr;
+int getintparam( unsigned char &inptr ) {
+	int retval( 0 );
+	bool found( false );
 
-	while (inptr < g_serptr && isdigit(g_serbuf[inptr]))
-	{
+	while( inptr < g_inidx && !isdigit( g_inbuf[inptr] ) )
+		++inptr;
+
+	while( inptr < g_inidx && isdigit( g_inbuf[inptr] ) ) {
 		retval *= 10;
-		retval += g_serbuf[inptr++] - '0';
+		retval += g_inbuf[inptr++] - '0';
 		found = true;
 	}
 
-	while (inptr < g_serptr
-			&& (g_serbuf[inptr] == ' ' || g_serbuf[inptr] == '\n')
-			|| g_serbuf[inptr] == ',')
+	while( inptr < g_inidx
+	        && ( g_inbuf[inptr] == ' ' || g_inbuf[inptr] == '\n' )
+	        || g_inbuf[inptr] == ',' )
 		++inptr;
 
 	return found ? retval : -1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void processInput()
-{
-	static char	dtbuffer[13];
+void processInput() {
+	static char dtbuffer[13];
 
-	unsigned char inptr(0);
-	int param(0);
+	unsigned char inptr( 0 );
+	int param( 0 );
 
-	char command = findcommand(inptr);
+	char command = findcommand( inptr );
 #ifdef VERBOSE
 	Serial.print( CMNT );
-	Serial.println( command );
+	Serial.println( (int)command );
 #endif
 
-	switch (command) {
+	switch( command ) {
 	default:
-		Serial.print( ERR "Error (command) ");
-		Serial.println( g_serbuf );
+		Serial.print( ERR "Error (command) " );
+		Serial.println( g_inbuf );
 		break;
-	case 0:		//	settime
-
-		break;
-
-	case 1:		//	setdate
-		break;
-
+	case 0:		//	gdt
 #ifdef USE_DS3231
-	case 2:		//gdt
-		{
-			char	*bptr( dtbuffer );
-			ts		t;
-			DS3231_get( &t );
-			serializedatetime( t, dtbuffer );
-			Serial.print( RESP );
-			Serial.print( dtbuffer );
-			Serial.print( ' ' );
-			datetimetoserial( t );
-			Serial.println();
-		}
-		break;
-#endif	//	USE_DS3231
+	{
+		ts t;
+		DS3231_get( &t );
+		serializedatetime( t, dtbuffer );
+		Serial.print( RESP );
+		Serial.print( dtbuffer );
+		Serial.print( ' ' );
+		datetimetoserial( t );
+		Serial.println();
 	}
-	g_serptr = 0;
+#else	//	USE_DS3231
+		Serial.println( ERR "Not implemented" );
+#endif	//	USE_DS3231
+
+	case 1:		//sdt
+#ifdef USE_DS3231
+	{
+		ts t;
+		if( parsedatetime( t, inptr )) {
+			DS3231_set( t );
+			Serial.println( RESP "OK" );
+		} else {
+			Serial.println( ERR "Datetime" );
+		}
+
+	}
+#else	//	USE_DS3231
+#endif	//	USE_DS3231
+		break;
+	}
+	g_inidx = 0;
 }
