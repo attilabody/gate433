@@ -27,4 +27,21 @@
 #define FLAGS_WIDTH			7
 #define RECORD_WIDTH		24	// \n added
 
+struct dbrecord
+{
+	dbrecord( const char* dbstring );
+	uint16_t	in_start;
+	uint16_t	in_end;
+	uint16_t	out_start;
+	uint16_t	out_end;
+	uint8_t		days;
+	enum POSITION : uint8_t
+	{
+		  unknown
+		, outside
+		, inside
+	}			position;
+};
+
+
 #endif /* _interface_H_ */
