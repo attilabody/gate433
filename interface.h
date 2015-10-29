@@ -30,6 +30,7 @@
 struct dbrecord
 {
 	dbrecord( const char* dbstring );
+	dbrecord();
 	uint16_t	in_start;
 	uint16_t	in_end;
 	uint16_t	out_start;
@@ -43,5 +44,7 @@ struct dbrecord
 	}			position;
 };
 
+long getintparam( const char* &input, bool decimal = true );
+char findcommand( const char* &inptr, const char **commands );
 
 #endif /* _interface_H_ */

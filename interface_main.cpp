@@ -95,6 +95,7 @@ const char 		*g_commands[] = {
 	, "SET"
 	, "SETF"
 	, "LOG"
+	, ""
 };
 
 uint16_t	g_buttonheight, g_buttonwidth, g_buttontop;
@@ -234,71 +235,13 @@ void printInput()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline char convertdigit( char c, bool decimal = true )
-{
-	if( decimal )
-		return (c >= '0' && c <= '9') ? c - '0' : -1;
-	else {
-		if( c >= '0' && c <= '9' ) return c - '0';
-		if( c >= 'a' && c <= 'f' ) return c - 'a' + 10;
-		if( c >= 'A' && c <= 'F' ) return c - 'A' + 10;
-		return -1;
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-long getintparam(unsigned char &sbidx, bool decimal)
-{
-	long	retval(0);
-	char	converted;
-	bool	found(false);
-
-
-	while( sbidx < g_inidx ) {
-		if(( converted = convertdigit( g_inbuf[sbidx++])) == -1) break;
-		retval *=  decimal ? 10 : 16;
-		retval += converted;
-		found = true;
-	}
-	while (sbidx < g_inidx
-			&& (g_inbuf[sbidx] == ' ' || g_inbuf[sbidx] == '\n'
-					|| g_inbuf[sbidx] == ',')) {
-		++sbidx;
-	}
-
-	return found ? retval : -1;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-char findcommand(unsigned char &inptr)
-{
-	while (inptr < g_inidx && g_inbuf[inptr] && g_inbuf[inptr] != ' ' && g_inbuf[inptr] != ','
-			&& g_inbuf[inptr] != '\n')
-		++inptr;
-	if (inptr == g_inidx) return -1;
-
-	for (char i = 0; i < ITEMCOUNT(g_commands); ++i)
-	{
-		if (!strncmp(g_inbuf, g_commands[i], inptr))
-		{
-			while(	inptr < g_inidx &&
-					( g_inbuf[inptr] == ' ' || g_inbuf[inptr] == '\n' || g_inbuf[inptr] == ',' )
-				)
-				++inptr;
-			return i;
-		}
-	}
-	return -1;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 void processInput()
 {
 	printInput();
 
 	static char 	linebuffer[26];
-	unsigned char	inptr(0);
-	char			command( findcommand(inptr) );
+	const char		*inptr(g_inbuf);
+	char			command( findcommand( inptr, g_commands ));
 	int				code( 0 );
 	const char		*output( NULL );
 
@@ -381,8 +324,7 @@ void processInput()
 				output = ERR "Error (code)";
 				break;
 			}
-			char* buf = g_inbuf + inptr;
-			if( strlen( buf ) != RECORD_WIDTH - 1 ) {
+			if( strlen( inptr ) != RECORD_WIDTH - 1 ) {
 				output = ERR "Error (length)";
 				break;
 			}
@@ -393,7 +335,7 @@ void processInput()
 			}
 			if( !file.seek( code * 24 ) )
 				output = ERR "Error (seek)";
-			else if( file.write( buf ) != RECORD_WIDTH - 1 )
+			else if( file.write( inptr ) != RECORD_WIDTH - 1 )
 				output = ERR "Error (file)";
 			else output = RESP "OK";
 
@@ -408,15 +350,14 @@ void processInput()
 				output = ERR "Error (code)";
 				break;
 			}
-			char* buf = g_inbuf + inptr;
-			if( strlen( buf ) != 7 ) {
+			if( strlen( inptr ) != 7 ) {
 				output = ERR "Error (length)";
 				break;
 			}
 			File	file( SD.open( "db.txt", FILE_WRITE ));
 			if(!( 	file &&
 					file.seek( code * RECORD_WIDTH + (RECORD_WIDTH - FLAGS_WIDTH - 1) ) &&
-					file.write( buf ) == RECORD_WIDTH - FLAGS_WIDTH - 1 ))
+					file.write( inptr ) == RECORD_WIDTH - FLAGS_WIDTH - 1 ))
 				output = ERR "Error (file)";
 			 else output = RESP "OK";
 			file.close();
