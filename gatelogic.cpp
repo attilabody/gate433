@@ -58,12 +58,12 @@ unsigned char g_inidx( 0 );
 const char * g_commands[] = {
 		  "gdt"
 		, "sdt"
+		, ""
 };
 
 void isr();
 void processInput();
 bool getlinefromserial();
-int getintparam( unsigned char &inptr );
 #ifdef USE_DS3231
 void datetimetoserial( const ts &t );
 #endif	//	USE_DS3231
@@ -317,7 +317,7 @@ void datetimetoserial( const ts &t )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool parsedatetime( ts &t, unsigned char &inptr )
+bool parsedatetime( ts &t, const char *inptr )
 {
 	//	"2015.10.28-3 16:37:05"
 	t.year = getintparam( inptr );
@@ -431,10 +431,10 @@ void processInput()
 {
 	static char dtbuffer[13];
 
-	unsigned char inptr( 0 );
+	const char *inptr( g_inbuf );
 	int param( 0 );
 
-	char command = findcommand( inptr );
+	char command = findcommand( inptr, g_commands );
 #ifdef VERBOSE
 	Serial.print( CMNT );
 	Serial.println( (int)command );
