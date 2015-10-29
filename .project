@@ -27,6 +27,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>interface.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/interface/interface.cpp</locationURI>
+		</link>
+		<link>
+			<name>interface.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/interface/interface.h</locationURI>
+		</link>
+		<link>
 			<name>Libraries/EEPROM</name>
 			<type>2</type>
 			<locationURI>ArduinoHardwareLibPath/EEPROM</locationURI>

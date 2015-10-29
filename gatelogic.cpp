@@ -4,9 +4,9 @@
 //#define DBGSERIALIN
 //#define EXPECT_RESPONSE
 
+#include "gatelogic.h"
 #include <Wire.h>
 #include <ds3231.h>
-#include "gatelogic.h"
 #include "../interface/interface.h"
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
@@ -22,8 +22,10 @@
 const uint8_t g_inPin( 2 );
 const uint8_t g_ledPin( 13 );
 
-enum RcvState {
-	START = 0, DATA, STOP
+enum RcvState : uint8_t {
+	  START
+	, DATA
+	, STOP
 };
 
 volatile bool g_codeready( false );
@@ -53,7 +55,10 @@ volatile stats g_stats;
 
 char g_inbuf[32];
 unsigned char g_inidx( 0 );
-const char * g_commands[] = { "gdt", "sdt" };
+const char * g_commands[] = {
+		  "gdt"
+		, "sdt"
+};
 
 void isr();
 void processInput();
@@ -64,7 +69,8 @@ void datetimetoserial( const ts &t );
 #endif	//	USE_DS3231
 
 //////////////////////////////////////////////////////////////////////////////
-void setup() {
+void setup()
+{
 	Serial.begin( BAUDRATE );
 #ifdef USE_DS3231
 #ifdef VERBOSE
@@ -100,11 +106,9 @@ void setup() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void loop() {
-	static uint16_t code, prevcode( -1 );
-	static uint32_t cdt;
-	static char outbuf[25];
-	static char *bufptr;
+void loop()
+{
+	static bool	flipflop(false);
 #ifdef USE_DS3231
 	static ts t;
 #endif	//	USE_DS3231
@@ -128,11 +132,15 @@ void loop() {
 #endif	//	USE_DS3231
 		Serial.println();
 #else
-		bufptr = outbuf;
 		Serial.print( "CODE " );
 		Serial.println( g_code >> 2, DEC );
 #ifdef EXPECT_RESPONSE
 		while( !getlinefromserial());
+		Serial.println( (int) g_inidx);
+#else
+		strcpy( g_inbuf, flipflop ? ":000 59F 000 59F 000007F" : ":1E0 455 1E0 455 000001F");
+		flipflop = ! flipflop;
+		g_inidx = strlen( g_inbuf ) + 1;
 #endif	//	EXPECT_RESPONSE
 		//process received info here
 		g_inidx = 0;
@@ -161,7 +169,8 @@ void loop() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void isr() {
+void isr()
+{
 	static int8_t curbit;
 	static uint32_t lastedge( micros() ), curedge;
 	static bool lastlevel( digitalRead( g_inPin ) == HIGH ), in;
@@ -182,8 +191,7 @@ void isr() {
 		if( !g_codeready && lastlevel && !in && deltat >= SHORT_MIN_TIME
 		        && deltat <= SHORT_MAX_TIME ) {	// h->l
 			state = DATA;
-			curbit = 0;
-			code = 0;
+			curbit = code = 0;
 		}
 #ifdef FAILSTATS
 		else
@@ -278,7 +286,8 @@ void ultohex( unsigned long data, char* &buffer, uint16_t digits ) {
 
 #ifdef USE_DS3231
 //////////////////////////////////////////////////////////////////////////////
-void serializedatetime( const ts &t, char *buffer ) {
+void serializedatetime( const ts &t, char *buffer )
+{
 	bytetohex( (byte)( t.year - 2000 ), buffer, true );
 	bytetohex( (byte)t.mon, buffer, false );
 	bytetohex( (byte)t.mday, buffer, true );
@@ -290,7 +299,8 @@ void serializedatetime( const ts &t, char *buffer ) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void datetimetoserial( const ts &t ) {
+void datetimetoserial( const ts &t )
+{
 	Serial.print( t.year );
 	Serial.print( '.' );
 	Serial.print( t.mon );
@@ -307,7 +317,8 @@ void datetimetoserial( const ts &t ) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool parsedatetime( ts &t, unsigned char &inptr ) {
+bool parsedatetime( ts &t, unsigned char &inptr )
+{
 	//	"2015.10.28-3 16:37:05"
 	t.year = getintparam( inptr );
 	if( t.year == -1 ) return false;
@@ -329,7 +340,8 @@ bool parsedatetime( ts &t, unsigned char &inptr ) {
 #endif	//	USE_DS3231
 
 //////////////////////////////////////////////////////////////////////////////
-bool getlinefromserial() {
+bool getlinefromserial()
+{
 	bool lineready( false );
 	while( Serial.available() && !lineready ) {
 		char inc = Serial.read();
@@ -369,7 +381,8 @@ bool getlinefromserial() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-char findcommand( unsigned char &inptr ) {
+char findcommand( unsigned char &inptr )
+{
 	while( inptr < g_inidx && g_inbuf[inptr] && g_inbuf[inptr] != ' '
 	        && g_inbuf[inptr] != ',' && g_inbuf[inptr] != '\n' )
 		++inptr;
@@ -391,7 +404,8 @@ char findcommand( unsigned char &inptr ) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-int getintparam( unsigned char &inptr ) {
+int getintparam( unsigned char &inptr )
+{
 	int retval( 0 );
 	bool found( false );
 
@@ -413,7 +427,8 @@ int getintparam( unsigned char &inptr ) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void processInput() {
+void processInput()
+{
 	static char dtbuffer[13];
 
 	unsigned char inptr( 0 );
