@@ -46,5 +46,6 @@ struct dbrecord
 
 long getintparam( const char* &input, bool decimal = true );
 char findcommand( const char* &inptr, const char **commands );
+bool getlinefromserial( char* buffer, uint8_t buflen, uint8_t &idx );
 
 #endif /* _interface_H_ */

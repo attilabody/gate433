@@ -67,8 +67,10 @@ char findcommand( const char* &inptr, const char **commands )
 
 	while( *commands )
 	{
-		if (!strcmp(inptr, *commands ))
+		int cmdlen = strlen( *commands );
+		if (!strncmp(inptr, *commands, cmdlen))
 		{
+			inptr += cmdlen;
 			while( *inptr && (isspace(*inptr) || ispunct(*inptr)) )
 				++inptr;
 			return ret;
@@ -77,5 +79,46 @@ char findcommand( const char* &inptr, const char **commands )
 		++commands;
 	}
 	return -1;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+bool getlinefromserial( char* buffer, uint8_t buflen, uint8_t &idx )
+{
+	bool lineready( false );
+	while( Serial.available() && !lineready ) {
+		char inc = Serial.read();
+#if defined(DBGSERIALIN)
+		buffer[idx ] = 0;
+		Serial.print( CMNT );
+		Serial.print( " " );
+		Serial.println( buffer );
+		Serial.print( inc );
+		Serial.print( ' ' );
+		Serial.println( idx );
+#endif	//	DBGSERIALIN
+		if( inc == '\n' )
+			inc = 0;
+		buffer[idx++] = inc;
+		if( !inc || idx >= buflen - 1 ) {
+			if( inc )
+				buffer[idx] = 0;
+			lineready = true;
+#if defined(DBGSERIALIN)
+			Serial.print( CMNT "Line ready:" );
+			Serial.print( buffer );
+			Serial.print( "|" );
+			Serial.print( (int)inc );
+			Serial.print( " " );
+			Serial.println( idx );
+			Serial.print( CMNT );
+			for( uint8_t _idx = 0; _idx < idx; ++_idx ) {
+				Serial.print( (int) buffer[_idx] );
+				Serial.print( ' ' );
+			}
+			Serial.println();
+#endif	//	DBGSERIALIN
+		}
+	}
+	return lineready;
 }
 

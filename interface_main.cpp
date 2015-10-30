@@ -69,9 +69,7 @@ bool		g_owner( true );
 
 void	printCode( int code, uint16_t fgcolor = WHITE, uint16_t bgcolor = BLACK );
 void	processInput();
-long	getintparam(unsigned char &sbindex, bool decimal = true );
 void	drawbuttons( bool first, uint16_t color_h = D_GREEN, uint16_t color_l = D_GREY );
-bool	getlinefromserial();
 void	printInput();
 
 #ifdef VERBOSE
@@ -130,7 +128,7 @@ void setup(void)
 //////////////////////////////////////////////////////////////////////////////
 void loop(void)
 {
-	if( getlinefromserial()) {
+	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
 	}
 
@@ -160,48 +158,6 @@ void loop(void)
 			}
 		}
 	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-bool getlinefromserial()
-{
-	bool lineready(false);
-	while (Serial.available() && !lineready )
-	{
-		char inc = Serial.read();
-#if defined(DBGSERIALIN)
-		g_inbuf[g_inidx ] = 0;
-		Serial.print( CMNT );
-		Serial.print( " " );
-		Serial.println( g_inbuf );
-		Serial.print( inc );
-		Serial.print( ' ' );
-		Serial.println( g_inidx );
-#endif	//	DBGSERIALIN
-		if( inc == '\n') inc = 0;
-		g_inbuf[g_inidx++] = inc;
-		if ( !inc || g_inidx >= sizeof( g_inbuf ) -1 )
-		{
-			if( inc ) g_inbuf[g_inidx] = 0;
-			lineready = true;
-#if defined(DBGSERIALIN)
-			Serial.print( CMNT "Line ready:" );
-			Serial.print( g_inbuf );
-			Serial.print( "|" );
-			Serial.print( (int)inc );
-			Serial.print( " " );
-			Serial.println( g_inidx );
-			Serial.print( CMNT );
-			for( char idx = 0; idx < g_inidx; ++idx ) {
-				Serial.print( (int) g_inbuf[idx] );
-				Serial.print( ' ' );
-			}
-			Serial.println();
-#endif	//	DBGSERIALIN
-
-		}
-	}
-	return lineready;
 }
 
 //////////////////////////////////////////////////////////////////////////////
