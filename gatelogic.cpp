@@ -63,7 +63,6 @@ const char * g_commands[] = {
 
 void isr();
 void processInput();
-bool getlinefromserial();
 #ifdef USE_DS3231
 void datetimetoserial( const ts &t );
 #endif	//	USE_DS3231
@@ -164,7 +163,7 @@ void loop()
 	}
 #endif	//	FAILSTATS
 
-	if( getlinefromserial() )
+	if( getlinefromserial( g_inbuf, sizeof(g_inbuf ), g_inidx) )
 		processInput();
 }
 
@@ -340,93 +339,6 @@ bool parsedatetime( ts &t, const char *inptr )
 #endif	//	USE_DS3231
 
 //////////////////////////////////////////////////////////////////////////////
-bool getlinefromserial()
-{
-	bool lineready( false );
-	while( Serial.available() && !lineready ) {
-		char inc = Serial.read();
-#if defined(DBGSERIALIN)
-		g_inbuf[g_inidx ] = 0;
-		Serial.print( CMNT );
-		Serial.print( " " );
-		Serial.println( g_inbuf );
-		Serial.print( inc );
-		Serial.print( ' ' );
-		Serial.println( g_inidx );
-#endif	//	DBGSERIALIN
-		if( inc == '\n' )
-			inc = 0;
-		g_inbuf[g_inidx++] = inc;
-		if( !inc || g_inidx >= sizeof(g_inbuf) - 1 ) {
-			if( inc )
-				g_inbuf[g_inidx] = 0;
-			lineready = true;
-#if defined(DBGSERIALIN)
-			Serial.print( CMNT "Line ready:" );
-			Serial.print( g_inbuf );
-			Serial.print( "|" );
-			Serial.print( (int)inc );
-			Serial.print( " " );
-			Serial.println( g_inidx );
-			Serial.print( CMNT );
-			for( char idx = 0; idx < g_inidx; ++idx ) {
-				Serial.print( (int) g_inbuf[idx] );
-				Serial.print( ' ' );
-			}
-			Serial.println();
-#endif	//	DBGSERIALIN
-		}
-	}
-	return lineready;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-char findcommand( unsigned char &inptr )
-{
-	while( inptr < g_inidx && g_inbuf[inptr] && g_inbuf[inptr] != ' '
-	        && g_inbuf[inptr] != ',' && g_inbuf[inptr] != '\n' )
-		++inptr;
-
-	if( inptr == g_inidx )
-		return -1;
-
-	for( char i = 0; i < ITEMCOUNT( g_commands ); ++i ) {
-		if( !strncmp( g_inbuf, g_commands[i], inptr ) ) {
-			++inptr;
-			while( inptr < g_inidx
-			        && ( g_inbuf[inptr] == ' ' || g_inbuf[inptr] == '\n'
-			                || g_inbuf[inptr] == ',' ) )
-				++inptr;
-			return i;
-		}
-	}
-	return -1;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-int getintparam( unsigned char &inptr )
-{
-	int retval( 0 );
-	bool found( false );
-
-	while( inptr < g_inidx && !isdigit( g_inbuf[inptr] ) )
-		++inptr;
-
-	while( inptr < g_inidx && isdigit( g_inbuf[inptr] ) ) {
-		retval *= 10;
-		retval += g_inbuf[inptr++] - '0';
-		found = true;
-	}
-
-	while( inptr < g_inidx
-	        && ( g_inbuf[inptr] == ' ' || g_inbuf[inptr] == '\n' )
-	        || g_inbuf[inptr] == ',' )
-		++inptr;
-
-	return found ? retval : -1;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 void processInput()
 {
 	static char dtbuffer[13];
@@ -460,6 +372,7 @@ void processInput()
 #else	//	USE_DS3231
 		Serial.println( ERR "Not implemented" );
 #endif	//	USE_DS3231
+		break;
 
 	case 1:		//sdt
 #ifdef USE_DS3231
