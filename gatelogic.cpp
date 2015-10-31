@@ -1,15 +1,13 @@
-#define USE_DS3231
+//#define USE_DS3231
 //#define FAILSTATS
 //#define VERBOSE
 //#define DBGSERIALIN
-//#define EXPECT_RESPONSE
+#define EXPECT_RESPONSE
 
 #include "gatelogic.h"
 #include <Wire.h>
 #include <ds3231.h>
-#include "../interface/interface.h"
-
-#define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
+#include <interface.h>
 
 #define SHORT_MIN_TIME	340
 #define SHORT_MAX_TIME	510
@@ -28,11 +26,10 @@ enum RcvState : uint8_t {
 	, STOP
 };
 
-volatile bool g_codeready( false );
-volatile unsigned int g_code;
-volatile unsigned long g_codetime( 0 );
-
-volatile unsigned long g_lastedge;
+volatile bool 			g_codeready( false );
+volatile unsigned int 	g_code;
+volatile unsigned long 	g_codetime( 0 );
+volatile unsigned long 	g_lastedge;
 
 #ifdef FAILSTATS
 struct stats
@@ -53,9 +50,9 @@ struct stats
 volatile stats g_stats;
 #endif	//	FAILSTATS
 
-char g_inbuf[32];
-unsigned char g_inidx( 0 );
-const char * g_commands[] = {
+char 		g_inbuf[32];
+uint16_t	g_inidx( 0 );
+const char*	g_commands[] = {
 		  "gdt"
 		, "sdt"
 		, ""
@@ -134,8 +131,7 @@ void loop()
 		Serial.print( "CODE " );
 		Serial.println( g_code >> 2, DEC );
 #ifdef EXPECT_RESPONSE
-		while( !getlinefromserial());
-		Serial.println( (int) g_inidx);
+		while( !getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx ));
 #else
 		strcpy( g_inbuf, flipflop ? ":000 59F 000 59F 000007F" : ":1E0 455 1E0 455 000001F");
 		flipflop = ! flipflop;
