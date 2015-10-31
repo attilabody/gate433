@@ -17,5 +17,5 @@ fakeserial::~fakeserial()
 void fakeserial::setdata( const std::string &s )
 {
 	m_data.clear();
-	m_data.insert(begin(m_data), s.c_str(), s.c_str() + s.length());
+	m_data.insert(m_data.begin(), s.c_str(), s.c_str() + s.length());
 }

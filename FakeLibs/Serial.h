@@ -27,6 +27,7 @@ public:
 
 	bool 	available() { return m_index < m_data.size(); }
 	char	read() { return ( m_index < m_data.size() ) ? m_data.at( m_index++ ) : -1; }
+	void	begin( unsigned long speed, uint8_t config = 0 ) {}
 
 private:
 	std::vector<char>	m_data;
