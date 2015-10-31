@@ -7,8 +7,6 @@
 #include <SPI.h>
 #include <SD.h>
 
-#define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
-
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but we'll use the analog pins as this allows us to
 // double up the pins with the touch screen (see the TFT paint example).
@@ -84,9 +82,8 @@ template< typename T1, typename T2 > void dbgout( const T1 &a, const T2 &b, bool
 #endif
 
 char 			g_inbuf[256];
-unsigned char	g_inidx(0);
-//char 			g_outbuf[256];
-//unsigned char	g_outidx(0);
+uint16_t		g_inidx(0);
+
 const char 		*g_commands[] = {
 	  "CODE"
 	, "GET"

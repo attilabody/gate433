@@ -19,6 +19,13 @@ dbrecord::dbrecord()
 
 dbrecord::dbrecord( const char *dbstring )
 {
+	in_start = getintparam( dbstring );
+	in_end = getintparam( dbstring );
+	out_start = getintparam( dbstring );
+	out_end = getintparam( dbstring );
+	uint32_t	flags( getintparam( dbstring ));
+	days = flags & 0x7f;
+	position = (POSITION)((flags >> 7) & 3);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -82,8 +89,17 @@ char findcommand( const char* &inptr, const char **commands )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool getlinefromserial( char* buffer, uint8_t buflen, uint8_t &idx )
+bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx )
 {
+#if defined(DBGSERIALIN)
+	if( Serial.available() )
+	{
+		Serial.print( CMNT "called with buflen ");
+		Serial.print( (int)buflen );
+		Serial.print( " and idx ");
+		Serial.println( (int) idx );
+	}
+#endif	//	DBGSERIALIN
 	bool lineready( false );
 	while( Serial.available() && !lineready ) {
 		char inc = Serial.read();

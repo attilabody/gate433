@@ -3,9 +3,11 @@
 // - include files
 // - extern variable definitions
 // In the appropriate section
-
 #ifndef _interface_H_
 #define _interface_H_
+//#define DBGSERIALIN	1
+
+#define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
 #define BAUDRATE 38400
 #define RESP ":"
@@ -46,6 +48,6 @@ struct dbrecord
 
 long getintparam( const char* &input, bool decimal = true );
 char findcommand( const char* &inptr, const char **commands );
-bool getlinefromserial( char* buffer, uint8_t buflen, uint8_t &idx );
+bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
 
 #endif /* _interface_H_ */
