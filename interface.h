@@ -46,7 +46,7 @@ struct dbrecord
 	}			position;
 };
 
-long getintparam( const char* &input, bool decimal = true );
+long getintparam( const char* &input, bool decimal = true, bool ff = true );
 char findcommand( const char* &inptr, const char **commands );
 bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
 

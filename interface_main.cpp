@@ -191,6 +191,17 @@ void printInput()
 void processInput()
 {
 	printInput();
+	if( g_inbuf[0] == CMNT[0] ) {
+		g_inidx = 0;
+		return;
+	}
+#ifdef VERBOSE
+	else {
+	}
+		Serial.print( CMNT );
+		Serial.println( g_inbuf );
+	}
+#endif	//	VERBOSE
 
 	static char 	linebuffer[26];
 	const char		*inptr(g_inbuf);

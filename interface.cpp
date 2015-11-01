@@ -19,11 +19,11 @@ dbrecord::dbrecord()
 
 dbrecord::dbrecord( const char *dbstring )
 {
-	in_start = getintparam( dbstring );
-	in_end = getintparam( dbstring );
-	out_start = getintparam( dbstring );
-	out_end = getintparam( dbstring );
-	uint32_t	flags( getintparam( dbstring ));
+	in_start = getintparam( dbstring, false );
+	in_end = getintparam( dbstring, false );
+	out_start = getintparam( dbstring, false );
+	out_end = getintparam( dbstring, false );
+	uint32_t	flags( getintparam( dbstring, false ));
 	days = flags & 0x7f;
 	position = (POSITION)((flags >> 7) & 3);
 }
@@ -42,24 +42,23 @@ inline char convertdigit( char c, bool decimal = true )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-long getintparam( const char* &input, bool decimal)
+long getintparam( const char* &input, bool decimal, bool ff )
 {
 	long	retval(0);
 	char	converted;
 	bool	found(false);
 
-	while( *input && convertdigit( * input, decimal ) == -1 )
-		++input;
+	if( ff )
+		while( *input && convertdigit( * input, decimal ) == -1 )
+			++input;
 
 	while( *input ) {
-		if(( converted = convertdigit( *input++, decimal )) == -1) break;
+		if(( converted = convertdigit( *input, decimal )) == -1) break;
 		retval *=  decimal ? 10 : 16;
 		retval += converted;
 		found = true;
+		++input;
 	}
-	while( *input )
-		if( isspace( *input ) || ispunct( *input ))
-			++input;
 
 	return found ? retval : -1;
 }
@@ -106,8 +105,8 @@ bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx )
 #if defined(DBGSERIALIN)
 		buffer[idx ] = 0;
 		Serial.print( CMNT );
+		Serial.print( buffer );
 		Serial.print( " " );
-		Serial.println( buffer );
 		Serial.print( inc );
 		Serial.print( ' ' );
 		Serial.println( idx );
