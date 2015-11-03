@@ -9,13 +9,13 @@
 #include <ds3231.h>
 #include <interface.h>
 
-#define SHORT_MIN_TIME	340
+#define SHORT_MIN_TIME	220
 #define SHORT_MAX_TIME	510
-#define LONG_MIN_TIME	650
+#define LONG_MIN_TIME	580
 #define LONG_MAX_TIME	1100
 #define CYCLE_MAX_TIME	( SHORT_MAX_TIME + LONG_MAX_TIME )
 #define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
-#define	STOP_MIN_TIME	13000
+#define	STOP_MIN_TIME	12000
 
 const uint8_t g_inPin( 2 );
 const uint8_t g_ledPin( 13 );
@@ -27,7 +27,7 @@ enum RcvState : uint8_t {
 };
 
 volatile bool 			g_codeready( false );
-volatile unsigned int 	g_code;
+volatile unsigned int 	g_code(0x55aa);
 volatile unsigned long 	g_codetime( 0 );
 volatile unsigned long 	g_lastedge;
 
@@ -183,8 +183,12 @@ void isr()
 
 	switch( state ) {
 	case START:
-		if( !g_codeready && lastlevel && !in && deltat >= SHORT_MIN_TIME
-		        && deltat <= SHORT_MAX_TIME ) {	// h->l
+		if( !g_codeready
+				&& lastlevel
+				&& !in
+				&& deltat >= SHORT_MIN_TIME
+		        && deltat <= SHORT_MAX_TIME )
+		{	// h->l
 			state = DATA;
 			curbit = code = 0;
 		}
@@ -201,14 +205,16 @@ void isr()
 #ifdef FAILSTATS
 			++g_stats.dataabort;
 #endif
-		} else if( !in ) { 	// h->l
+		} else if( in ) { 	//	l->h
+			lowdeltat = deltat;
+		} else {			//	h->l
 			highdeltat = deltat;
 			cyclet = highdeltat + lowdeltat;
 			timediff = (int)highdeltat - (int)lowdeltat;
 			if( timediff < 0 )
 				timediff = -timediff;
 			if( cyclet < CYCLE_MIN_TIME || cyclet > CYCLE_MAX_TIME
-			        || (unsigned int)timediff < ( cyclet >> 2 ) ) {
+			        || (unsigned int)timediff < ( cyclet >> 4 ) ) {
 				state = START;
 #ifdef FAILSTATS
 				++g_stats.dataabort;
@@ -220,14 +226,15 @@ void isr()
 				code |= 1;
 			if( ++curbit == 12 )
 				state = STOP;
-		} else {			// h -> l
-			lowdeltat = deltat;
 		}
 		break;
 
 	case STOP:
-		if( in && deltat > STOP_MIN_TIME && ( !g_codeready )
-		        && ( ( code != g_code ) || ( lastedge - g_codetime > 500000 ) ) ) {	// l->h => stop end
+		if( in
+			&& deltat > STOP_MIN_TIME
+			&& ( !g_codeready )
+		    && ( ( code != g_code ) || ( lastedge - g_codetime > 500000 ) ) )
+		{	// l->h => stop end
 			g_code = code;
 			g_codeready = true;
 			g_codetime = lastedge;
