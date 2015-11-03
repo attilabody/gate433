@@ -7,11 +7,12 @@
 #include "fakedruino.h"
 #include <vector>
 
+
 using namespace std;
 vector< unsigned long >	g_times;
 unsigned long	g_times_idx(0);
 
-int				g_instatus( LOW );
+int				g_instatus( HIGH );
 
 void set_time_table( unsigned long *table, unsigned long count )
 {
@@ -54,5 +55,3 @@ void digitalWrite(uint8_t, uint8_t) {}
 unsigned char TIMSK0;
 
 
-
-HardwareSerial	Serial;

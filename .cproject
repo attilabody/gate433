@@ -25,6 +25,8 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1862630834" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1569149525" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/FakeLibs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface_test/FakeLibs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1531538620" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

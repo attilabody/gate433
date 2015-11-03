@@ -30,8 +30,8 @@ unsigned long timetable_combined[] = {
 
 unsigned long timetable_zeros[] = {
 	0,
-	120,1300,14000,5,
-	436,948,436,16156,
+//	120,1300,14000,5,
+//	436,948,436,16156,
 	436,940,444,944,440,940,440,948,436,944,440,944,440,
 	944,440,944,440,944,440,944,440,944,436,948,436,16156
 };
@@ -46,10 +46,14 @@ unsigned long timetable_mixed[] = {
 	488,900,484,896,492,896,488,896,948,436,952,432,16164
 };
 
-#define TIMETABLE timetable_combined
+unsigned long timetable_extreme[] = { 0
+		, 268, 464, 624, 828, 260, 460, 628, 812, 276, 820, 264, 456, 632, 820, 268
+		, 820, 268, 456, 632, 816, 272, 824, 264, 824, 264, 12792
+};
+
+#define TIMETABLE timetable_extreme
 
 int main() {
-
 	cout << hex;
 	set_time_table_delta( TIMETABLE, ITEMCOUNT( TIMETABLE ));
 	for( unsigned int cycle = 0; cycle < ITEMCOUNT( TIMETABLE ) - 1 ; ++cycle ) {
