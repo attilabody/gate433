@@ -7,7 +7,7 @@
 
 #include <Serial.h>
 
-fakeserial	Serial;
+FakeSerial	Serial;
 
 fakeserial::~fakeserial()
 {

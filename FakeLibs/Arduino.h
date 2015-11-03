@@ -9,5 +9,9 @@
 #define ARDUINO_H_
 
 #include <stdint.h>
+#include <cstring>
+#include <cctype>
+
+#include <Serial.h>
 
 #endif /* ARDUINO_H_ */

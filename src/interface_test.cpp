@@ -24,14 +24,15 @@ const char 		*g_commands[] = {
 	, ""
 };
 
-const char cmdline[] = "CODE 1";
-
+const char 	cmdline[] = "CODE 1";
+const char	response[] = ":000 59F 000 59F 000007F";
 int main()
 {
 	const char*	bufptr( cmdline );
 	int cmd = findcommand( bufptr, g_commands );
 	int code = getintparam( bufptr, true );
 
+	dbrecord	rec( response + 1 );
 	int dummy(0);
 	++dummy;
 }
