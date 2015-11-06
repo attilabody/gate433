@@ -1,8 +1,8 @@
-//#define USE_DS3231
+#define USE_DS3231
 //#define FAILSTATS
 //#define VERBOSE
 //#define DBGSERIALIN
-#define EXPECT_RESPONSE
+//#define EXPECT_RESPONSE
 
 #include "gatelogic.h"
 #include <Wire.h>
@@ -26,10 +26,10 @@ enum RcvState : uint8_t {
 	, STOP
 };
 
-volatile bool 			g_codeready( false );
-volatile unsigned int 	g_code(0x55aa);
-volatile unsigned long 	g_codetime( 0 );
-volatile unsigned long 	g_lastedge;
+volatile bool 		g_codeready( false );
+volatile uint16_t 	g_code(0x55aa);
+volatile uint32_t 	g_codetime( 0 );
+volatile uint32_t 	g_lastedge;
 
 #ifdef FAILSTATS
 struct stats
@@ -271,14 +271,14 @@ inline void bytetohex( unsigned char data, char* &buffer, bool both ) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void uitohex( uint16_t data, char* &buffer, uint16_t digits ) {
+void uitohex( uint16_t data, char* &buffer, uint8_t digits ) {
 	if( digits > 2 )
 		bytetohex( (unsigned char)( data >> 8 ), buffer, digits >= 4 );
 	bytetohex( (unsigned char)data, buffer, digits != 1 );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void ultohex( unsigned long data, char* &buffer, uint16_t digits ) {
+void ultohex( uint32_t data, char* &buffer, uint8_t digits ) {
 	if( digits > 4 ) {
 		uitohex( (uint16_t)( data >> 16 ), buffer, digits - 4 );
 		digits -= digits - 4;
