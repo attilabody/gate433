@@ -1,0 +1,10 @@
+Release/
+Debug/
+.ino.cpp
+*.d
+.settings/
+Debug_AVaRICE/
+.metadata/
+/*
+!.gitignore
+
