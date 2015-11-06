@@ -1,0 +1,3 @@
+adafruitgfx		libs/Adafruit-GFX-Library	git@github.com:adafruit/Adafruit-GFX-Library.git
+adafruittouch	libs/Touch-Screen-Library	git@github.com:adafruit/Touch-Screen-Library.git
+tftplus			libs/TFTLCDplus-Library		git@github.com:compihu/TFTLCD-Library.git
