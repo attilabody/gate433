@@ -7,7 +7,7 @@
 #include <SdFat.h>
 
 #define VERBOSE
-#define VERBOSE_SETUP
+//#define VERBOSE_SETUP
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but we'll use the analog pins as this allows us to
 // double up the pins with the touch screen (see the TFT paint example).
@@ -146,11 +146,11 @@ void setup(void)
 #endif
 	}
 	if( sf ) sf.close();
-#ifdef VERBOSE
+#ifdef VERBOSE_SETUP
 	else Serial.println("Opening status.txt failed");
 #endif
 	if( df ) df.close();
-#ifdef VERBOSE
+#ifdef VERBOSE_SETUP
 	else Serial.println("Opening backup_0.txt failed");
 #endif
 
@@ -238,10 +238,7 @@ void processInput()
 		return;
 	}
 #ifdef VERBOSE
-	else {
-		Serial.print( CMNT );
-		Serial.println( g_inbuf );
-	}
+	else serialout( CMNT, g_inbuf );
 #endif	//	VERBOSE
 
 	static char 	linebuffer[INFORECORD_WIDTH + STATUSRECORD_WIDTH + 2];
@@ -267,10 +264,11 @@ void processInput()
 				}
 				status = g_sd.open( "status.txt", FILE_READ );
 				if( !status ) {
-					output = ERRS "Error (open)";
+					output = ERRS "Error (open status)";
 					break;
 				}
-#ifdef VERBOSE
+#if false
+//#ifdef VERBOSE
 				serialout( CMNTS " ", code, " ", code * INFORECORD_WIDTH, " ", code * STATUSRECORD_WIDTH );
 				memset( linebuffer, 0, sizeof(linebuffer) );
 				linebuffer[0] = ' ';
@@ -281,7 +279,7 @@ void processInput()
 					output = ERRS "Error (seek status)";
 				} else if( g_info.read( linebuffer+1, INFORECORD_WIDTH ) != INFORECORD_WIDTH ) {
 					output = ERRS "Error (read info)";
-				} else if( status.read( linebuffer + 1 + STATUSRECORD_WIDTH, STATUSRECORD_WIDTH ) != STATUSRECORD_WIDTH) {
+				} else if( status.read( linebuffer + 1 + INFORECORD_WIDTH, STATUSRECORD_WIDTH ) != STATUSRECORD_WIDTH) {
 					output = ERRS "Error (read status)";
 				} else {
 					output = linebuffer;
@@ -300,22 +298,33 @@ void processInput()
 					output = ERRS "Error (code)";
 					break;
 				}
-				if( strlen( inptr ) != INFORECORD_WIDTH - 1 ) {
+
+				while( *inptr && isspace( *inptr )) ++inptr;
+
+				if( strlen( inptr ) != INFORECORD_WIDTH + STATUSRECORD_WIDTH - 1 ) {
 					output = ERRS "Error (length)";
 					break;
 				}
-				g_info = g_sd.open( "db.txt", FILE_WRITE );
-				if( !g_info ) {
-					output = ERRS "Error (open)";
-					break;
-				}
-				if( !g_info.seek( code * 24 ) )
-					output = ERRS "Error (seek)";
-				else if( g_info.write( inptr ) != INFORECORD_WIDTH - 1 )
-					output = ERRS "Error (g_info)";
-				else output = RESPS "OK";
-
 				g_info.close();
+				if( !(g_info = g_sd.open( "info.txt", FILE_WRITE ))) {
+					output = ERRS "Error (open info)";
+					g_initok = false;
+				} else if( !(status = g_sd.open( "status.txt", FILE_WRITE ))) {
+					output = ERRS "Error (open status)";
+				} else if( !g_info.seek( code * INFORECORD_WIDTH ) ) {
+					output = ERRS "Error (seek info)";
+				} else if( !status.seek(code * STATUSRECORD_WIDTH)) {
+					output = ERRS "Error (seek status)";
+				} else if( g_info.write( inptr, INFORECORD_WIDTH - 1 ) != INFORECORD_WIDTH - 1 ) {
+					output = ERRS "Error (write info)";
+				} else if(status.write( inptr + INFORECORD_WIDTH, STATUSRECORD_WIDTH -1 ) != STATUSRECORD_WIDTH -1 ) {
+					output = ERRS "Error (write status)";
+				} else output = RESPS "OK";
+
+				status.close();
+				g_info.close();
+				if( !(g_info = g_sd.open( "info.txt", FILE_READ )))
+					g_initok = false;
 			}
 			break;
 
@@ -326,17 +335,19 @@ void processInput()
 					output = ERRS "Error (code)";
 					break;
 				}
-				if( strlen( inptr ) != 7 ) {
+
+				while( *inptr && isspace( *inptr )) ++inptr;
+
+				if( strlen( inptr ) != STATUSRECORD_WIDTH - 1 ) {
 					output = ERRS "Error (length)";
-					break;
-				}
-				g_info = g_sd.open( "db.txt", FILE_WRITE );
-				if(!( 	g_info &&
-						g_info.seek( code * INFORECORD_WIDTH + (INFORECORD_WIDTH - FLAGS_WIDTH - 1) ) &&
-						g_info.write( inptr ) == INFORECORD_WIDTH - FLAGS_WIDTH - 1 ))
-					output = ERRS "Error (g_info)";
-				 else output = RESPS "OK";
-				g_info.close();
+				} else if( !(status = g_sd.open( "status.txt", FILE_WRITE ))) {
+					output = ERRS "Error (open status)";
+				} else if( !( status.seek( code * STATUSRECORD_WIDTH))) {
+					output = ERRS "Error (seek status)";
+				} else if( status.write( inptr, STATUSRECORD_WIDTH - 1 ) != STATUSRECORD_WIDTH - 1 ) {
+					output = ERRS "Error (write status)";
+				} else output = RESPS "OK";
+				status.close();
 			}
 			break;
 
