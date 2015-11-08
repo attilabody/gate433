@@ -9,25 +9,65 @@
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
-#define BAUDRATE 38400
-#define RESP ":"
-#define ERR "!"
-#define CMNT "#"
+#define BAUDRATE 57600
+#define RESP ':'
+#define ERR '!'
+#define CMNT '#'
+#define RESPS ":"
+#define ERRS "!"
+#define CMNTS "#"
+
+//template< typename T1, typename T2 > void serialout( const T1 &a, const T2 &b, bool newline = true )
+//{
+//	Serial.print( a );
+//	Serial.print( b );
+//	if( newline ) Serial.println();
+//	else Serial.print( " - " );
+//}
+//
+//template< typename T1, typename T2, typename T3> void serialout( const T1 &a, const T2 &b, const T3 &c, bool newline = true )
+//{
+//	Serial.print( a );
+//	Serial.print( b );
+//	Serial.print( c );
+//	if( newline ) Serial.println();
+//	else Serial.print( " - " );
+//}
+//
+//template< typename T1, typename T2, typename T3, typename T4> void serialout( const T1 &a, const T2 &b, const T3 &c, const T4 &d, bool newline = true )
+//{
+//	Serial.print( a );
+//	Serial.print( b );
+//	Serial.print( c );
+//	Serial.print( d );
+//	if( newline ) Serial.println();
+//	else Serial.print( " - " );
+//}
+
+inline void serialout() { Serial.println(); }
+template< typename Arg1, typename... Args> void serialout( const Arg1& arg1, const Args&... args)
+{
+	Serial.print( arg1 );
+	serialout( args...);
+}
+
 
 /*
 000 59F 000 59F 000007F
 */
 #define IN_START_OFFSET		0
 #define IN_START_WIDTH		3
-#define IN_END_OFFSET		4
+#define IN_END_OFFSET		(IN_START_OFFSET + IN_START_WIDTH + 1)
 #define IN_END_WIDTH		3
-#define OUT_START_OFFSET	8
+#define OUT_START_OFFSET	(IN_END_OFFSET + IN_END_WIDTH + 1)
 #define OUT_START_WIDTH		3
-#define OUT_END_OFFSET		12
+#define OUT_END_OFFSET		(OUT_START_OFFSET + OUT_START_WIDTH + 1)
 #define OUT_END_WIDTH		3
-#define FLAGS_OFFSET		16
-#define FLAGS_WIDTH			7
-#define RECORD_WIDTH		24	// \n added
+#define FLAGS_OFFSET		(OUT_END_OFFSET + OUT_END_WIDTH + 1)
+#define FLAGS_WIDTH			3
+#define INFORECORD_WIDTH	(FLAGS_OFFSET + FLAGS_WIDTH + 1)	// \n added
+
+#define STATUSRECORD_WIDTH	4
 
 struct dbrecord
 {

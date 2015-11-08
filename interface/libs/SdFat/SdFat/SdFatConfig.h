@@ -46,7 +46,7 @@
  *  * (asterisk)
  *
  */
-#define USE_LONG_FILE_NAMES 1
+#define USE_LONG_FILE_NAMES 0
 //------------------------------------------------------------------------------
 /**
  * Set ARDUINO_FILE_USES_STREAM nonzero to use Stream as the base class
@@ -133,7 +133,7 @@ uint8_t const SOFT_SPI_SCK_PIN = 13;
  *
  * Causes use of lots of heap in ARM.
  */
-#define DESTRUCTOR_CLOSES_FILE 0
+#define DESTRUCTOR_CLOSES_FILE 1
 //------------------------------------------------------------------------------
 /**
  * Call flush for endl if ENDL_CALLS_FLUSH is nonzero

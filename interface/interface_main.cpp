@@ -4,9 +4,10 @@
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 #include <TouchScreen.h>
-#include <SPI.h>
-#include <SD.h>
+#include <SdFat.h>
 
+#define VERBOSE
+#define VERBOSE_SETUP
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but we'll use the analog pins as this allows us to
 // double up the pins with the touch screen (see the TFT paint example).
@@ -70,35 +71,28 @@ void	processInput();
 void	drawbuttons( bool first, uint16_t color_h = D_GREEN, uint16_t color_l = D_GREY );
 void	printInput();
 
-#ifdef VERBOSE
-template< typename T1, typename T2 > void dbgout( const T1 &a, const T2 &b, bool newline = true )
-{
-	Serial.print( a );
-	Serial.print( ": " );
-	Serial.print( b );
-	if( newline ) Serial.println();
-	else Serial.print( " - " );
-}
-#endif
-
 char 			g_inbuf[256];
 uint16_t		g_inidx(0);
 
 const char 		*g_commands[] = {
-	  "CODE"
-	, "GET"
+	  "GET"
 	, "SET"
-	, "SETF"
+	, "SETS"
 	, "LOG"
 	, ""
 };
 
 uint16_t	g_buttonheight, g_buttonwidth, g_buttontop;
-bool		g_recordmode( true );
+SdFat		g_sd;
+File		g_info;
+bool		g_initok(false);
 
 //////////////////////////////////////////////////////////////////////////////
 void setup(void)
 {
+	static char srcname[] = "backup_9.txt";
+	static char dstname[] = "backup_9.txt";
+
 	Serial.begin( BAUDRATE);
 	g_tft.reset();
 	g_tft.begin(g_tft.readID());
@@ -107,13 +101,59 @@ void setup(void)
 	g_tft.fillScreen( BLACK);
 
 	g_tft.setTextSize(5);
-	if (!SD.begin(10)) {
-		g_tft.setTextColor(RED);
-		g_tft.println("SD FAIL");
-	} else {
+	bool	sdsucc(true);
+	if( g_sd.begin( SS, SPI_HALF_SPEED )) {
+		g_info = g_sd.open( "info.txt", FILE_READ );
+		sdsucc = g_info;
+	}
+
+	if( sdsucc ) {
 		g_tft.setTextColor(GREEN);
 		g_tft.println("SD OK");
+		g_initok = true;
+	} else {
+		g_tft.setTextColor(RED);
+		g_tft.println("SD FAIL");
+		return;
 	}
+	srcname[7] = '9';
+#ifdef VERBOSE_SETUP
+	serialout( "Removing ", srcname );
+	delay(100);
+#endif
+	g_sd.remove( srcname );
+	for( char id = '8'; id >= '0'; --id ) {
+		srcname[7] = id;
+		dstname[7] = id + 1;
+#ifdef VERBOSE_SETUP
+		serialout( "Renaming ", srcname, " to ", dstname);
+		delay(100);
+#endif
+		g_sd.rename( srcname, dstname );
+	}
+	File	df( g_sd.open( srcname, FILE_WRITE ));
+	File	sf( g_sd.open( "status.txt", FILE_READ ));
+	int		nread;
+
+	uint32_t	total(0);
+	if( sf && df ) {
+		while( (nread = sf.read(g_inbuf, sizeof( g_inbuf ))) > 0 ) {
+			df.write( g_inbuf, nread );
+			total += nread;
+		}
+#ifdef VERBOSE_SETUP
+		serialout( "Copied ", total, " bytes" );
+#endif
+	}
+	if( sf ) sf.close();
+#ifdef VERBOSE
+	else Serial.println("Opening status.txt failed");
+#endif
+	if( df ) df.close();
+#ifdef VERBOSE
+	else Serial.println("Opening backup_0.txt failed");
+#endif
+
 	g_buttonheight = 40;
 	g_buttontop = g_tft.height() - g_buttonheight;
 	g_buttonwidth = g_tft.width() / 2;
@@ -125,6 +165,8 @@ void setup(void)
 //////////////////////////////////////////////////////////////////////////////
 void loop(void)
 {
+	if( !g_initok ) return;
+
 	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
 	}
@@ -191,153 +233,123 @@ void printInput()
 void processInput()
 {
 	printInput();
-	if( g_inbuf[0] == CMNT[0] ) {
+	if( g_inbuf[0] == CMNT ) {
 		g_inidx = 0;
 		return;
 	}
 #ifdef VERBOSE
 	else {
-	}
 		Serial.print( CMNT );
 		Serial.println( g_inbuf );
 	}
 #endif	//	VERBOSE
 
-	static char 	linebuffer[26];
+	static char 	linebuffer[INFORECORD_WIDTH + STATUSRECORD_WIDTH + 2];
 	const char		*inptr(g_inbuf);
 	char			command( findcommand( inptr, g_commands ));
-	int				code( 0 );
-	const char		*output( NULL );
+	int				code(-1);
+	const char		*output( ERRS "Error (init)" );
+	File			status;
 
-	switch (command) {
-	default:
-		output = ERR "Error (command)";
-		break;
-	case 0:		//	CODE <CODE>
+	if( g_initok )
+	{
+		switch (command)
 		{
-			code = getintparam(inptr);
-
-			if( code == -1 ) {
-				output = ERR "Error (code)";
-				break;
-			}
-			File	file;
-			if( g_recordmode )
+		default:
+			output = ERRS "Error (command)";
+			break;
+		case 0:		//	GET <CODE>
 			{
-				file = SD.open( "db.txt", FILE_WRITE );
-				if( !file ) {
-					output = ERR "Error (open)";
+				code = getintparam(inptr);
+				if( code == -1 ) {
+					output = ERRS "Error (code)";
 					break;
 				}
-				output = g_owner ? ":000 59F 000 59F 000007F" : ":1E0 455 1E0 455 000001F";
-				if( !file.seek( code * RECORD_WIDTH ) )
-					output = ERR "Error (seek)";
-				else if( file.write( output + 1 ) != RECORD_WIDTH -1  )
-					output = ERR "Error (file)";
-			}
-			else
-			{
-				file = SD.open( "db.txt", FILE_READ );
-				if( !file ) {
-					output = ERR "Error (open)";
+				status = g_sd.open( "status.txt", FILE_READ );
+				if( !status ) {
+					output = ERRS "Error (open)";
 					break;
 				}
-				if( !file.seek( code * RECORD_WIDTH ))
-					output = ERR "Error (seek)";
-				else if( file.read( linebuffer+1, RECORD_WIDTH ) != RECORD_WIDTH )
-					output = ERR "Error (read)";
-				else {
+#ifdef VERBOSE
+				serialout( CMNTS " ", code, " ", code * INFORECORD_WIDTH, " ", code * STATUSRECORD_WIDTH );
+				memset( linebuffer, 0, sizeof(linebuffer) );
+				linebuffer[0] = ' ';
+#endif
+				if( !g_info.seek( code * INFORECORD_WIDTH )) {
+					output = ERRS "Error (seek info)";
+				} else if( !status.seek( code * STATUSRECORD_WIDTH )) {
+					output = ERRS "Error (seek status)";
+				} else if( g_info.read( linebuffer+1, INFORECORD_WIDTH ) != INFORECORD_WIDTH ) {
+					output = ERRS "Error (read info)";
+				} else if( status.read( linebuffer + 1 + STATUSRECORD_WIDTH, STATUSRECORD_WIDTH ) != STATUSRECORD_WIDTH) {
+					output = ERRS "Error (read status)";
+				} else {
 					output = linebuffer;
-					linebuffer[0] = RESP[0];
-					linebuffer[24] = 0;	//	clamp trailing \n
+					linebuffer[0] = RESP;
+					linebuffer[INFORECORD_WIDTH] = ' ';						//	replace \n with ' '
+					linebuffer[INFORECORD_WIDTH + STATUSRECORD_WIDTH] = 0;	//	clamp trailing \n
 				}
+				status.close();
 			}
-			file.close();
-		}
-		break;
+			break;
 
-	case 1:		//	GET <CODE>
-		{
-			code = getintparam(inptr);
-			if( code == -1 ) {
-				output = RESP "Error (code)";
-				break;
-			}
-			File	file( SD.open( "db.txt", FILE_READ ));
-			if( !file ) {
-				output = RESP "Error (open)";
-				break;
-			}
-			if( file.seek( code * RECORD_WIDTH )) {
-				if( file.read( linebuffer+1, RECORD_WIDTH ) == RECORD_WIDTH ) {
-					output = linebuffer;
-					linebuffer[0] = RESP[0];
-					linebuffer[24] = 0;
-				} else
-					output = RESP "Error (read)";
-			} else
-				output = RESP "Error (seek)";
-			file.close();
-		}
-		break;
+		case 1:		//	SET <CODE> 000 59F 000 59F 0000000
+			{
+				code = getintparam(inptr);
+				if( code == -1 ) {
+					output = ERRS "Error (code)";
+					break;
+				}
+				if( strlen( inptr ) != INFORECORD_WIDTH - 1 ) {
+					output = ERRS "Error (length)";
+					break;
+				}
+				g_info = g_sd.open( "db.txt", FILE_WRITE );
+				if( !g_info ) {
+					output = ERRS "Error (open)";
+					break;
+				}
+				if( !g_info.seek( code * 24 ) )
+					output = ERRS "Error (seek)";
+				else if( g_info.write( inptr ) != INFORECORD_WIDTH - 1 )
+					output = ERRS "Error (g_info)";
+				else output = RESPS "OK";
 
-	case 2:		//	SET <CODE> 000 59F 000 59F 0000000
-		{
-			code = getintparam(inptr);
-			if( code == -1 ) {
-				output = ERR "Error (code)";
-				break;
+				g_info.close();
 			}
-			if( strlen( inptr ) != RECORD_WIDTH - 1 ) {
-				output = ERR "Error (length)";
-				break;
-			}
-			File	file( SD.open( "db.txt", FILE_WRITE ));
-			if( !file ) {
-				output = ERR "Error (open)";
-				break;
-			}
-			if( !file.seek( code * 24 ) )
-				output = ERR "Error (seek)";
-			else if( file.write( inptr ) != RECORD_WIDTH - 1 )
-				output = ERR "Error (file)";
-			else output = RESP "OK";
+			break;
 
-			file.close();
-		}
-		break;
-
-	case 3:		//	SETF <CODE> 0000000
-		{
-			code = getintparam(inptr);
-			if( code == -1 ) {
-				output = ERR "Error (code)";
-				break;
+		case 2:		//	SETS <CODE> 0000000
+			{
+				code = getintparam(inptr);
+				if( code == -1 ) {
+					output = ERRS "Error (code)";
+					break;
+				}
+				if( strlen( inptr ) != 7 ) {
+					output = ERRS "Error (length)";
+					break;
+				}
+				g_info = g_sd.open( "db.txt", FILE_WRITE );
+				if(!( 	g_info &&
+						g_info.seek( code * INFORECORD_WIDTH + (INFORECORD_WIDTH - FLAGS_WIDTH - 1) ) &&
+						g_info.write( inptr ) == INFORECORD_WIDTH - FLAGS_WIDTH - 1 ))
+					output = ERRS "Error (g_info)";
+				 else output = RESPS "OK";
+				g_info.close();
 			}
-			if( strlen( inptr ) != 7 ) {
-				output = ERR "Error (length)";
-				break;
-			}
-			File	file( SD.open( "db.txt", FILE_WRITE ));
-			if(!( 	file &&
-					file.seek( code * RECORD_WIDTH + (RECORD_WIDTH - FLAGS_WIDTH - 1) ) &&
-					file.write( inptr ) == RECORD_WIDTH - FLAGS_WIDTH - 1 ))
-				output = ERR "Error (file)";
-			 else output = RESP "OK";
-			file.close();
-		}
-		break;
+			break;
 
-	case 4:		//	LOG Text to log
-		output = RESP "OK";
-		break;
-	}	//	switch
+		case 3:		//	LOG Text to log
+			output = RESPS "OK";
+			break;
+		}	//	switch
+	}	//	if( g_initok )
 
-	if( output ) {
-		g_tft.println( output );
-		Serial.println( output );
-		if( code != -1 )
-			printCode( code, output[0] == RESP[0] ? WHITE : RED );
-	}
+	g_tft.println( output );
+	Serial.println( output );
+	if( code != -1 )
+		printCode( code, output[0] == RESP ? WHITE : RED );
+
 	g_inidx = 0;
 }

@@ -11,20 +11,12 @@
 #include <Arduino.h>
 #include <Serial.h>
 #include "interface.cpp"
+#include "interface_main.cpp"
 
 using namespace std;
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
-const char 		*g_commands[] = {
-	  "CODE"
-	, "GET"
-	, "SET"
-	, "SETF"
-	, "LOG"
-	, ""
-};
-
-const char 	cmdline[] = "CODE 1";
+const char 	cmdline[] = "GET 1";
 const char	response[] = ":000 59F 000 59F 000007F";
 int main()
 {

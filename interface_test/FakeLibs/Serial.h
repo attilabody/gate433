@@ -60,6 +60,7 @@ class FakeSerial
     inline size_t write(long n) { return write((uint8_t)n); }
     inline size_t write(unsigned int n) { return write((uint8_t)n); }
     inline size_t write(int n) { return write((uint8_t)n); }
+    inline void println() {}
 //    template< typename T > void print(T&, int) {}
 //    template< typename T > void println(T&, int) {}
     template< typename T > void print(const T&) {}
