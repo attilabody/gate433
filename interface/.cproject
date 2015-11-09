@@ -60,7 +60,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libs/ds3231|libs/SdFat/AnalogBinLoggerExtras|libs/SdFat/SdFatTestSuite|libs/SdFat/SdFat/examples|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libs/Touch-Screen-Library/examples|libs/TFTLCDplus-Library/examples|libs/ds3231|libs/SdFat/AnalogBinLoggerExtras|libs/SdFat/SdFatTestSuite|libs/SdFat/SdFat/examples|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
