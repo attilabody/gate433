@@ -73,7 +73,9 @@ char findcommand( const char* &inptr, const char **commands )
 
 	while( *commands )
 	{
-		int cmdlen = strlen( *commands );
+		int cmdlen(0);
+		while( inptr[cmdlen] && !isspace(inptr[cmdlen]))
+			++cmdlen;
 		if (!strncmp(inptr, *commands, cmdlen))
 		{
 			inptr += cmdlen;
