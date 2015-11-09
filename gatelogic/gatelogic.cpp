@@ -357,7 +357,7 @@ void processInput()
 
 	switch( command ) {
 	default:
-		Serial.print( ERR "Error (command) " );
+		Serial.print( ERRS "Error (command) " );
 		Serial.println( g_inbuf );
 		break;
 	case 0:		//	gdt
@@ -383,9 +383,9 @@ void processInput()
 		ts t;
 		if( parsedatetime( t, inptr )) {
 			DS3231_set( t );
-			Serial.println( RESP "OK" );
+			Serial.println( RESPS "OK" );
 		} else {
-			Serial.println( ERR "Datetime" );
+			Serial.println( ERRS "Datetime" );
 		}
 
 	}

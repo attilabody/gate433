@@ -23,7 +23,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/EEPROM}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/Wire}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/Wire/utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/ds3231}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatelogic/arduino/core}&quot;"/>
@@ -38,7 +37,6 @@
 								<option id="it.baeyens.arduino.compiler.c.sketch.option.incpath.653484166" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.c.sketch.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/arduino/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/Wire/utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatelogic/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatelogic/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatelogic/Libraries/EEPROM}&quot;"/>
