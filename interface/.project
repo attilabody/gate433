@@ -27,6 +27,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>libs</name>
+			<type>2</type>
+			<locationURI>WORKSPACE_LOC/gate433/libs</locationURI>
+		</link>
+		<link>
 			<name>arduino/core</name>
 			<type>2</type>
 			<locationURI>ArduinoPlatformPath/arduino</locationURI>
