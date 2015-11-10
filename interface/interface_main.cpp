@@ -1,6 +1,6 @@
 // Do not remove the include below
 #include "Arduino.h"
-#include "interface.h"
+#include <interface.h>
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 #include <TouchScreen.h>

@@ -24,7 +24,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/EEPROM}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Libraries/Wire}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/ds3231}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/common}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatelogic/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatelogic/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatelogic/Libraries/EEPROM}&quot;"/>
@@ -51,18 +51,6 @@
 							<tool id="it.baeyens.arduino.tool.objcopy.eep.2141183153" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep"/>
 							<tool id="it.baeyens.arduino.tool.objcopy.flash.659495173" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash"/>
 							<tool id="it.baeyens.arduino.tool.size.985935824" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
-						</toolChain>
-					</folderInfo>
-					<folderInfo id="it.baeyens.arduino.core.toolChain.release.573214013.1665528957" name="/" resourcePath="libs/TFTLCDplus-Library">
-						<toolChain id="it.baeyens.arduino.core.toolChain.release.879272924" name="Arduino Toolchain" superClass="it.baeyens.arduino.core.toolChain.release" unusedChildren="">
-							<tool id="it.baeyens.arduino.tool.sketch.compiler.cpp.1845951622" name="Arduino C++ Compiler" superClass="it.baeyens.arduino.tool.sketch.compiler.cpp.1097379431"/>
-							<tool id="it.baeyens.arduino.tool.compiler.c.352142477" name="Arduino C Compiler" superClass="it.baeyens.arduino.tool.compiler.c.720145318"/>
-							<tool id="it.baeyens.arduino.tool.sketch.compiler.s.668658863" name="Arduino Assembler" superClass="it.baeyens.arduino.tool.sketch.compiler.s.148957830"/>
-							<tool id="it.baeyens.arduino.tool.ar.1458746933" name="Arduino archiver" superClass="it.baeyens.arduino.tool.ar.594016589"/>
-							<tool id="it.baeyens.arduino.tool.combine.1850794927" name="Arduino combiner" superClass="it.baeyens.arduino.tool.combine.1437960695"/>
-							<tool id="it.baeyens.arduino.tool.objcopy.eep.1972424399" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep.2141183153"/>
-							<tool id="it.baeyens.arduino.tool.objcopy.flash.255910005" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash.659495173"/>
-							<tool id="it.baeyens.arduino.tool.size.1568454191" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size.985935824"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>

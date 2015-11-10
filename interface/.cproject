@@ -23,11 +23,14 @@
 							<builder buildPath="${workspace_loc:/interface}/Release" id="it.baeyens.arduino.sketch.builder.1983454030" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="it.baeyens.arduino.sketch.builder"/>
 							<tool id="it.baeyens.arduino.tool.sketch.compiler.cpp.999039596" name="Arduino C++ Compiler" superClass="it.baeyens.arduino.tool.sketch.compiler.cpp">
 								<option id="it.baeyens.arduino.compiler.cpp.sketch.option.incpath.498425190" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.cpp.sketch.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/arduino/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/arduino/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/Adafruit-GFX-Library}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/Touch-Screen-Library}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/TFTLCDplus-Library}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/SdFat/SdFat}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/common}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/interface/arduino/variant}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.509806420" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
@@ -45,18 +48,6 @@
 							<tool id="it.baeyens.arduino.tool.objcopy.eep.126869770" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep"/>
 							<tool id="it.baeyens.arduino.tool.objcopy.flash.1551366509" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash"/>
 							<tool id="it.baeyens.arduino.tool.size.1496404732" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
-						</toolChain>
-					</folderInfo>
-					<folderInfo id="it.baeyens.arduino.core.toolChain.release.148898355.1118556480" name="/" resourcePath="libs/ds3231">
-						<toolChain id="it.baeyens.arduino.core.toolChain.release.341999319" name="Arduino Toolchain" superClass="it.baeyens.arduino.core.toolChain.release" unusedChildren="">
-							<tool id="it.baeyens.arduino.tool.sketch.compiler.cpp.83442646" name="Arduino C++ Compiler" superClass="it.baeyens.arduino.tool.sketch.compiler.cpp.999039596"/>
-							<tool id="it.baeyens.arduino.tool.compiler.c.218252651" name="Arduino C Compiler" superClass="it.baeyens.arduino.tool.compiler.c.1254770821"/>
-							<tool id="it.baeyens.arduino.tool.sketch.compiler.s.1654131015" name="Arduino Assembler" superClass="it.baeyens.arduino.tool.sketch.compiler.s.716420881"/>
-							<tool id="it.baeyens.arduino.tool.ar.950936838" name="Arduino archiver" superClass="it.baeyens.arduino.tool.ar.13823391"/>
-							<tool id="it.baeyens.arduino.tool.combine.633618499" name="Arduino combiner" superClass="it.baeyens.arduino.tool.combine.1595576081"/>
-							<tool id="it.baeyens.arduino.tool.objcopy.eep.1222562390" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep.126869770"/>
-							<tool id="it.baeyens.arduino.tool.objcopy.flash.1257666608" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash.1551366509"/>
-							<tool id="it.baeyens.arduino.tool.size.648368904" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size.1496404732"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
