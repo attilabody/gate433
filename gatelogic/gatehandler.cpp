@@ -5,6 +5,7 @@
  *      Author: compi
  */
 
+#include "config.h"
 #include "gatehandler.h"
 
 gatehandler::~gatehandler() {

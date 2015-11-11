@@ -15,7 +15,7 @@ public:
 	gatehandler( bool use_loops = false ) : m_use_loops( use_loops ) {};
 	virtual ~gatehandler();
 
-	enum GATESTATE : uint8_t {
+	enum GATESTATUS : uint8_t {
 		  closed = 0
 		, opening
 		, open
@@ -26,7 +26,7 @@ public:
 protected:
 
 	bool		canopen();
-	GATESTATE	m_state;
+	GATESTATUS	m_state;
 	bool		m_use_loops;
 };
 

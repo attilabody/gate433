@@ -1,9 +1,4 @@
-#define USE_DS3231
-//#define FAILSTATS
-//#define VERBOSE
-//#define DBGSERIALIN
-//#define EXPECT_RESPONSE
-
+#include "config.h"
 #include "gatelogic.h"
 #include <Wire.h>
 #include <ds3231.h>
@@ -17,7 +12,7 @@
 #define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
 #define	STOP_MIN_TIME	12000
 
-const uint8_t g_inPin( 2 );
+const uint8_t g_radioIn( 2 );
 const uint8_t g_ledPin( 13 );
 
 enum RcvState : uint8_t {
@@ -59,10 +54,6 @@ const char*	g_commands[] = {
 };
 
 void isr();
-void processInput();
-#ifdef USE_DS3231
-void datetimetoserial( const ts &t );
-#endif	//	USE_DS3231
 
 //////////////////////////////////////////////////////////////////////////////
 void setup()
@@ -76,12 +67,12 @@ void setup()
 	Wire.begin();
 	DS3231_init( DS3231_INTCN );
 #ifdef VERBOSE
-	Serial.println("DS3231");
+	Serial.println("Done.");
 #endif
 #endif	//	USE_DS3231
 
 	pinMode( g_ledPin, OUTPUT );
-	pinMode( g_inPin, INPUT );
+	pinMode( g_radioIn, INPUT );
 
 	noInterrupts();
 	// disable all interrupts
@@ -98,13 +89,12 @@ void setup()
 	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
 #endif
 
-	attachInterrupt( digitalPinToInterrupt( g_inPin ), isr, CHANGE );
+	attachInterrupt( digitalPinToInterrupt( g_radioIn ), isr, CHANGE );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	static bool	flipflop(false);
 #ifdef USE_DS3231
 	static ts t;
 #endif	//	USE_DS3231
@@ -128,11 +118,12 @@ void loop()
 #endif	//	USE_DS3231
 		Serial.println();
 #else
-		Serial.print( "CODE " );
+		Serial.print( "get " );
 		Serial.println( g_code >> 2, DEC );
 #ifdef EXPECT_RESPONSE
 		while( !getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx ));
 #else
+		static bool	flipflop(false);
 		strcpy( g_inbuf, flipflop ? ":000 59F 000 59F 000007F" : ":1E0 455 1E0 455 000001F");
 		flipflop = ! flipflop;
 		g_inidx = strlen( g_inbuf ) + 1;
@@ -159,8 +150,8 @@ void loop()
 	}
 #endif	//	FAILSTATS
 
-	if( getlinefromserial( g_inbuf, sizeof(g_inbuf ), g_inidx) )
-		processInput();
+//	if( getlinefromserial( g_inbuf, sizeof(g_inbuf ), g_inidx) )
+//		processInput();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -168,7 +159,7 @@ void isr()
 {
 	static int8_t curbit;
 	static uint32_t lastedge( micros() ), curedge;
-	static bool lastlevel( digitalRead( g_inPin ) == HIGH ), in;
+	static bool lastlevel( digitalRead( g_radioIn ) == HIGH ), in;
 	static RcvState state( START );
 	static uint16_t code, deltat, cyclet;
 	static int timediff;
@@ -178,7 +169,7 @@ void isr()
 	static uint32_t highdeltat, lowdeltat;
 
 	curedge = micros();
-	in = ( digitalRead( g_inPin ) == HIGH );
+	in = ( digitalRead( g_radioIn ) == HIGH );
 	deltat = curedge - lastedge;
 
 	switch( state ) {
@@ -287,111 +278,5 @@ void ultohex( uint32_t data, char* &buffer, uint8_t digits ) {
 }
 
 #ifdef USE_DS3231
-//////////////////////////////////////////////////////////////////////////////
-void serializedatetime( const ts &t, char *buffer )
-{
-	bytetohex( (byte)( t.year - 2000 ), buffer, true );
-	bytetohex( (byte)t.mon, buffer, false );
-	bytetohex( (byte)t.mday, buffer, true );
-	bytetohex( (byte)t.wday, buffer, false );
-	bytetohex( (byte)t.hour, buffer, true );
-	bytetohex( (byte)t.min, buffer, true );
-	bytetohex( (byte)t.sec, buffer, true );
-	*buffer++ = 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-void datetimetoserial( const ts &t )
-{
-	Serial.print( t.year );
-	Serial.print( '.' );
-	Serial.print( t.mon );
-	Serial.print( '.' );
-	Serial.print( t.mday );
-	Serial.print( '/' );
-	Serial.print( t.wday );
-	Serial.print( '-' );
-	Serial.print( t.hour );
-	Serial.print( ':' );
-	Serial.print( t.min );
-	Serial.print( ':' );
-	Serial.print( t.sec );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-bool parsedatetime( ts &t, const char *inptr )
-{
-	//	"2015.10.28-3 16:37:05"
-	t.year = getintparam( inptr );
-	if( t.year == -1 ) return false;
-	t.mon = getintparam( inptr );
-	if( t.mon == -1 ) return false;
-	t.mday = getintparam( inptr );
-	if( t.mday == -1 ) return false;
-	t.wday = getintparam( inptr );
-	if( t.wday == -1 ) return false;
-	t.hour = getintparam( inptr );
-	if( t.hour == -1 ) return false;
-	t.min = getintparam( inptr );
-	if( t.min == -1 ) return false;
-	t.sec = getintparam( inptr );
-	if( t.sec == -1 ) t.sec = 0;
-	return true;
-}
-
 #endif	//	USE_DS3231
 
-//////////////////////////////////////////////////////////////////////////////
-void processInput()
-{
-	static char dtbuffer[13];
-
-	const char *inptr( g_inbuf );
-	int param( 0 );
-
-	char command = findcommand( inptr, g_commands );
-#ifdef VERBOSE
-	Serial.print( CMNT );
-	Serial.println( (int)command );
-#endif
-
-	switch( command ) {
-	default:
-		Serial.print( ERRS "Error (command) " );
-		Serial.println( g_inbuf );
-		break;
-	case 0:		//	gdt
-#ifdef USE_DS3231
-	{
-		ts t;
-		DS3231_get( &t );
-		serializedatetime( t, dtbuffer );
-		Serial.print( RESP );
-		Serial.print( dtbuffer );
-		Serial.print( ' ' );
-		datetimetoserial( t );
-		Serial.println();
-	}
-#else	//	USE_DS3231
-		Serial.println( ERR "Not implemented" );
-#endif	//	USE_DS3231
-		break;
-
-	case 1:		//sdt
-#ifdef USE_DS3231
-	{
-		ts t;
-		if( parsedatetime( t, inptr )) {
-			DS3231_set( t );
-			Serial.println( RESPS "OK" );
-		} else {
-			Serial.println( ERRS "Datetime" );
-		}
-
-	}
-#else	//	USE_DS3231
-#endif	//	USE_DS3231
-		break;
-	}
-	g_inidx = 0;
-}
