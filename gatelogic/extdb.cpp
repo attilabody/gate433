@@ -7,11 +7,13 @@
 
 #include "config.h"
 #include "extdb.h"
+#include "interface.h"
 
-extdb::extdb()
+extdb::extdb( char *buffer, uint16_t buflen )
+	: m_buffer( buffer )
+	, m_buflen( buflen )
 {
 	// TODO Auto-generated constructor stub
-
 }
 
 extdb::~extdb()
@@ -19,19 +21,35 @@ extdb::~extdb()
 	// TODO Auto-generated destructor stub
 }
 
-bool extdb::getParams( int code, int &inStart, int &inEnd, int &outStart, int &outEnd, uint8_t &days, POS &pos )
+bool extdb::getParams( int code, dbrecord &out )
+{
+	uint16_t	bufidx;
+
+	m_bufptr = m_buffer + 1;
+	Serial.print( CMD_GET );
+	Serial.println( code );
+	do
+	{
+		bufidx = 0;
+		while( ! getlinefromserial( m_buffer, m_buflen, bufidx ) );
+		if( *m_buffer == ERR )
+			return false;
+	}
+	while( *m_buffer != RESP );
+	if( (out.in_start = getintparam( m_bufptr, false, true )) == - 1)
+
+	return false;
+}
+
+
+bool extdb::setParams( int code, const dbrecord &in )
 {
 	return false;
 }
 
 
-bool extdb::setParams( int code, int inStart, int inEnd, int outStart, int outEnd, uint8_t days, POS pos )
-{
-	return false;
-}
+bool extdb::setParams( int code, dbrecord::POSITION pos )
 
-
-bool extdb::setParams( int code, POS pos )
 {
 	return false;
 }

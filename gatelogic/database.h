@@ -8,14 +8,14 @@
 #ifndef DATABASE_H_
 #define DATABASE_H_
 #include <Arduino.h>
+#include "interface.h"
 
 class database
 {
 public:
-	enum POS { UNKNOWN = 0, OUT, IN };
-	virtual bool getParams( int code, int &inStart, int &inEnd, int &outStart, int &outEnd, uint8_t &days, POS &pos ) = 0;
-	virtual bool setParams( int code, int inStart, int inEnd, int outStart, int outEnd, uint8_t days, POS pos ) = 0;
-	virtual bool setParams( int code, POS pos ) = 0;
+	virtual bool getParams( int code, dbrecord &out ) = 0;
+	virtual bool setParams( int code, const dbrecord &in ) = 0;
+	virtual bool setParams( int code, dbrecord::POSITION pos ) = 0;
 };
 
 #endif /* DATABASE_H_ */

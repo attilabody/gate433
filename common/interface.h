@@ -17,32 +17,10 @@
 #define ERRS "!"
 #define CMNTS "#"
 
-//template< typename T1, typename T2 > void serialout( const T1 &a, const T2 &b, bool newline = true )
-//{
-//	Serial.print( a );
-//	Serial.print( b );
-//	if( newline ) Serial.println();
-//	else Serial.print( " - " );
-//}
-//
-//template< typename T1, typename T2, typename T3> void serialout( const T1 &a, const T2 &b, const T3 &c, bool newline = true )
-//{
-//	Serial.print( a );
-//	Serial.print( b );
-//	Serial.print( c );
-//	if( newline ) Serial.println();
-//	else Serial.print( " - " );
-//}
-//
-//template< typename T1, typename T2, typename T3, typename T4> void serialout( const T1 &a, const T2 &b, const T3 &c, const T4 &d, bool newline = true )
-//{
-//	Serial.print( a );
-//	Serial.print( b );
-//	Serial.print( c );
-//	Serial.print( d );
-//	if( newline ) Serial.println();
-//	else Serial.print( " - " );
-//}
+#define CMD_GET		"get"
+#define CMD_SET		"set"
+#define CMD_SETS	"sets"
+#define CMD_LOG		"log"
 
 inline void serialout() { Serial.println(); }
 template< typename Arg1, typename... Args> void serialout( const Arg1& arg1, const Args&... args)
@@ -53,7 +31,8 @@ template< typename Arg1, typename... Args> void serialout( const Arg1& arg1, con
 
 
 /*
-000 59F 000 59F 000007F
+INS INE OUS OUE FLG
+000 59F 000 59F 07F
 */
 #define IN_START_OFFSET		0
 #define IN_START_WIDTH		3
@@ -86,7 +65,7 @@ struct dbrecord
 	}			position;
 };
 
-long getintparam( const char* &input, bool decimal = true, bool ff = true );
+long getintparam( const char* &input, bool decimal = true, bool trimstart = true );
 char findcommand( const char* &inptr, const char **commands );
 bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
 

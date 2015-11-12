@@ -42,13 +42,13 @@ inline char convertdigit( char c, bool decimal = true )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-long getintparam( const char* &input, bool decimal, bool ff )
+long getintparam( const char* &input, bool decimal, bool trimstart )
 {
 	long	retval(0);
 	char	converted;
 	bool	found(false);
 
-	if( ff )
+	if( trimstart )
 		while( *input && convertdigit( * input, decimal ) == -1 )
 			++input;
 

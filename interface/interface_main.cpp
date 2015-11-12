@@ -75,10 +75,10 @@ char 			g_inbuf[256];
 uint16_t		g_inidx(0);
 
 const char 		*g_commands[] = {
-	  "GET"
-	, "SET"
-	, "SETS"
-	, "LOG"
+	  CMD_GET
+	, CMD_SET
+	, CMD_SETS
+	, CMD_LOG
 	, ""
 };
 
