@@ -7,7 +7,8 @@
 //============================================================================
 
 #include <iostream>
-#include "fakedruino.h"
+#include <Arduino.h>
+
 #include "../../gatelogic/gatelogic.cpp"
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 

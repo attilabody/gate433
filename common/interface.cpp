@@ -17,17 +17,31 @@ dbrecord::dbrecord()
 {
 }
 
-dbrecord::dbrecord( const char *dbstring )
+dbrecord::dbrecord( const char *&dbstring )
 {
-	in_start = getintparam( dbstring, false );
-	in_end = getintparam( dbstring, false );
-	out_start = getintparam( dbstring, false );
-	out_end = getintparam( dbstring, false );
-	uint32_t	flags( getintparam( dbstring, false ));
-	days = flags & 0x7f;
-	position = (POSITION)((flags >> 7) & 3);
+	parse( dbstring );
 }
 
+bool dbrecord::parse( const char* &dbstring )
+{
+	int16_t	sflags, dflags;
+
+	if( (in_start = getintparam( dbstring, false, true )) == - 1
+			|| (in_end = getintparam( dbstring, false, true )) ==  -1
+			|| (out_start = getintparam( dbstring, false, true )) ==  -1
+			|| (out_end = getintparam( dbstring, false, true )) ==  -1
+			|| (sflags = getintparam( dbstring, false, true )) ==  -1
+			|| (dflags = getintparam( dbstring, false, true )) ==  -1
+	) {
+		in_start = -1;
+		return false;
+	} else {
+		days = sflags & 0x7f;
+		position = (POSITION)(dflags & 3);
+		return true;
+	}
+
+}
 //////////////////////////////////////////////////////////////////////////////
 inline char convertdigit( char c, bool decimal = true )
 {

@@ -50,19 +50,20 @@ INS INE OUS OUE FLG
 
 struct dbrecord
 {
-	dbrecord( const char* dbstring );
+	dbrecord( const char* &dbstring );
 	dbrecord();
-	uint16_t	in_start;
-	uint16_t	in_end;
-	uint16_t	out_start;
-	uint16_t	out_end;
-	uint8_t		days;
+	bool parse( const char *&dbstring);
+	int16_t	in_start;
+	int16_t	in_end;
+	int16_t	out_start;
+	int16_t	out_end;
+	uint8_t	days;
 	enum POSITION : uint8_t
 	{
 		  unknown
 		, outside
 		, inside
-	}			position;
+	}		position;
 };
 
 long getintparam( const char* &input, bool decimal = true, bool trimstart = true );

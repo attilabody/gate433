@@ -24,6 +24,7 @@ extdb::~extdb()
 bool extdb::getParams( int code, dbrecord &out )
 {
 	uint16_t	bufidx;
+	int16_t		tmp1, tmp2;
 
 	m_bufptr = m_buffer + 1;
 	Serial.print( CMD_GET );
@@ -36,9 +37,16 @@ bool extdb::getParams( int code, dbrecord &out )
 			return false;
 	}
 	while( *m_buffer != RESP );
-	if( (out.in_start = getintparam( m_bufptr, false, true )) == - 1)
-
-	return false;
+	if( (out.in_start = getintparam( m_bufptr, false, true )) == - 1
+			|| (out.in_end = getintparam( m_bufptr, false, true )) ==  -1
+			|| (out.out_start = getintparam( m_bufptr, false, true )) ==  -1
+			|| (out.out_end = getintparam( m_bufptr, false, true )) ==  -1
+			|| (tmp1 = getintparam( m_bufptr, false, true )) ==  -1
+			|| (tmp2 = getintparam( m_bufptr, false, true )) ==  -1
+	) {
+		out.in_start = -1;
+		return false;
+	}
 }
 
 
