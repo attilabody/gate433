@@ -9,7 +9,7 @@
 #include <iostream>
 #include <Arduino.h>
 
-#include "../../gatelogic/gatelogic.cpp"
+#include "../../common/interface.cpp"
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
 using namespace std;
