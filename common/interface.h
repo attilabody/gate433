@@ -22,13 +22,19 @@
 #define CMD_SETS	"sets"
 #define CMD_LOG		"log"
 
-inline void serialout() { Serial.println(); }
+inline void serialoutln() { Serial.println(); }
+template< typename Arg1, typename... Args> void serialoutln( const Arg1& arg1, const Args&... args)
+{
+	Serial.print( arg1 );
+	serialoutln( args...);
+}
+
+inline void serialout() {}
 template< typename Arg1, typename... Args> void serialout( const Arg1& arg1, const Args&... args)
 {
 	Serial.print( arg1 );
 	serialout( args...);
 }
-
 
 /*
 INS INE OUS OUE FLG
@@ -69,5 +75,5 @@ struct dbrecord
 long getintparam( const char* &input, bool decimal = true, bool trimstart = true );
 char findcommand( const char* &inptr, const char **commands );
 bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
-
+void hex2serial( uint16_t out, uint8_t digits, const char* prefix );
 #endif /* _interface_H_ */

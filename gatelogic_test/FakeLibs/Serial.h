@@ -9,6 +9,7 @@
 #define SERIAL_H_
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <stdint.h>
@@ -39,15 +40,15 @@
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
-
-class FakeSerial
+/*
+class __FakeSerial
 {
   public:
-    inline FakeSerial(
+    inline __FakeSerial(
       volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
       volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
       volatile uint8_t *ucsrc, volatile uint8_t *udr) {}
-    inline FakeSerial() {}
+    inline __FakeSerial() {}
     void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
     void begin(unsigned long, uint8_t) {};
     void end();
@@ -70,32 +71,38 @@ class FakeSerial
 
     // Interrupt handlers - Not intended to be called externally
 };
-
-extern FakeSerial Serial;
+*/
 
 class fakeserial
 {
 public:
-	fakeserial() : m_index(0) {}
+	fakeserial() : m_inidx(0) {}
 	virtual ~fakeserial();
 
-	template<typename T> size_t print(T input) { std::cout << input; return 0; }
-	template<typename T> size_t println(T input) { std::cout << input << std::endl; return 0; }
-	template<typename T> size_t print(T input, int format) { std::cout << input; return 0; }
-	template<typename T> size_t println(T input, int format) { std::cout << input << std::endl; return 0; }
+	template<typename T> size_t print(T input) { m_output << input; std::cout << input; return 0; }
+	template<typename T> size_t println(T input) { m_output << input << std::endl; std::cout << input << std::endl; return 0; }
+	template<typename T> size_t print(T input, int format) { m_output << input; std::cout << input; return 0; }
+	template<typename T> size_t println(T input, int format) { m_output << input << std::endl; std::cout << input << std::endl; return 0; }
+	size_t println() { m_output << std::endl; std::cout << std::endl; return 0; }
 
 	void	setdata( const std::string &s );
-	void	setdata( const std::vector<char> &v ) { m_data = v; }
+	void	setdata( const std::vector<char> &v ) { m_input = v; }
+	void	setdata( void *v, size_t(s) ) { char* p((char*)v); m_input.assign(p, p+s); }
+	std::ostringstream&	getoutput() { return m_output; }
+	void	clearoutput() { m_output.str( std::string()); }
+	void	reset( void *v, size_t(s) ) { setdata(v, s); clearoutput(); }
+	template<typename T> void reset( T data ) { setdata(data); clearoutput(); }
 
-	bool 	available() { return m_index < m_data.size(); }
-	char	read() { return ( m_index < m_data.size() ) ? m_data.at( m_index++ ) : -1; }
+	bool 	available() { return m_inidx < m_input.size(); }
+	char	read() { return ( m_inidx < m_input.size() ) ? m_input.at( m_inidx++ ) : -1; }
 	void	begin( unsigned long speed, uint8_t config = 0 ) {}
 
 private:
-	std::vector<char>	m_data;
-	uint16_t			m_index;
+	std::vector<char>	m_input;
+	uint16_t			m_inidx;
+	std::ostringstream	m_output;
 };
 
-extern FakeSerial Serial;
+extern fakeserial Serial;
 
 #endif /* SERIAL_H_ */

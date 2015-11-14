@@ -42,6 +42,7 @@ bool dbrecord::parse( const char* &dbstring )
 	}
 
 }
+
 //////////////////////////////////////////////////////////////////////////////
 inline char convertdigit( char c, bool decimal = true )
 {
@@ -153,3 +154,15 @@ bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx )
 	return lineready;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+void hex2serial( uint16_t out, uint8_t digits, const char* prefix )
+{
+	if( !digits ) return;
+	if( digits > 4 ) digits = 4;
+	if( prefix ) Serial.print( prefix );
+	uint8_t	digit( digits-1 );
+	do {
+		char	cd( (out >> (digit << 2)) & 0x0f );
+		Serial.print((char)( cd < 10 ? cd + '0' : cd - 10 + 'A' ));
+	} while( digit-- );
+}

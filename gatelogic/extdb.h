@@ -19,9 +19,11 @@ public:
 
 	virtual bool getParams( int code, dbrecord &out );
 	virtual bool setParams( int code, const dbrecord &in );
-	virtual bool setParams( int code, dbrecord::POSITION pos );
+	virtual bool setStatus( int code, dbrecord::POSITION pos );
 
 private:
+	bool	getresponse();
+
 	char		*m_buffer;
 	const char	*m_bufptr;
 	uint16_t	m_buflen;

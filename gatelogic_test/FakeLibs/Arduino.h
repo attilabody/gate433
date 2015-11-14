@@ -8,8 +8,8 @@
 #ifndef ARDUINO_H_
 #define ARDUINO_H_
 
-
-
+#include <Serial.h>
+#include <string.h>
 
 
 #endif /* ARDUINO_H_ */
