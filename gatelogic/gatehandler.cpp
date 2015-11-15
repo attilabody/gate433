@@ -12,3 +12,7 @@ gatehandler::~gatehandler() {
 	// TODO Auto-generated destructor stub
 }
 
+void gatehandler::codereceived( uint16_t code, bool innerloop, bool outerloop )
+{
+
+}

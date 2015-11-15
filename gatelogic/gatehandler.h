@@ -9,10 +9,12 @@
 #define GATEHANDLER_H_
 
 #include <Arduino.h>
+#include "database.h"
+#include "serialbuf.h"
 
 class gatehandler {
 public:
-	gatehandler( bool use_loops = false ) : m_use_loops( use_loops ) {};
+	gatehandler( database &db, bool use_loops = false ) : m_use_loops( use_loops ), m_db( db ) {};
 	virtual ~gatehandler();
 
 	enum GATESTATUS : uint8_t {
@@ -22,9 +24,10 @@ public:
 		, closing
 	};
 
-	void rfevent( uint16_t code, const char *dbresponse, bool innerloop, bool outerloop );
+	void codereceived( uint16_t code, bool innerloop, bool outerloop );
 protected:
 
+	database	&m_db;
 	bool		canopen();
 	GATESTATUS	m_state;
 	bool		m_use_loops;

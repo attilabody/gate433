@@ -1,16 +1,11 @@
 #include "config.h"
-#include "gatelogic.h"
 #include <Wire.h>
 #include <ds3231.h>
 #include <interface.h>
-
-#define SHORT_MIN_TIME	220
-#define SHORT_MAX_TIME	510
-#define LONG_MIN_TIME	580
-#define LONG_MAX_TIME	1100
-#define CYCLE_MAX_TIME	( SHORT_MAX_TIME + LONG_MAX_TIME )
-#define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
-#define	STOP_MIN_TIME	12000
+#include "serialbuf.h"
+#include "gatelogic.h"
+#include "gatehandler.h"
+#include "extdb.h"
 
 const uint8_t g_radioIn( 2 );
 const uint8_t g_ledPin( 13 );
@@ -45,13 +40,8 @@ struct stats
 volatile stats g_stats;
 #endif	//	FAILSTATS
 
-char 		g_inbuf[32];
-uint16_t	g_inidx( 0 );
-const char*	g_commands[] = {
-		  "gdt"
-		, "sdt"
-		, ""
-};
+extdb		g_db( g_inbuf, sizeof( g_inbuf ));
+gatehandler	g_gatehadler( g_db );
 
 void isr();
 
@@ -104,34 +94,10 @@ void loop()
 	static stats *pp, *ps;
 #endif
 
-	if( g_codeready ) {
-#ifdef VERBOSE
-		Serial.print( "ID " );
-		Serial.print( g_code >>2 );
-		Serial.print( " / " );
-		Serial.print( g_code & 3 );
-		Serial.print( " - " );
-		Serial.print( " ");
-#ifdef USE_DS3231
-		DS3231_get( &t );
-		datetimetoserial( t );
-#endif	//	USE_DS3231
-		Serial.println();
-#else
-		Serial.print( "get " );
-		Serial.println( g_code >> 2, DEC );
-#ifdef EXPECT_RESPONSE
-		while( !getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx ));
-#else
-		static bool	flipflop(false);
-		strcpy( g_inbuf, flipflop ? ":000 59F 000 59F 000007F" : ":1E0 455 1E0 455 000001F");
-		flipflop = ! flipflop;
-		g_inidx = strlen( g_inbuf ) + 1;
-#endif	//	EXPECT_RESPONSE
+	if( g_codeready ){
 		//process received info here
-		g_inidx = 0;
+		g_gatehadler.codereceived( g_code >> 2, false, false );
 		g_codeready = false;
-#endif	//	VERBOSE
 	}
 #ifdef FAILSTATS
 	else
@@ -248,35 +214,4 @@ void isr()
 ISR( TIMER0_COMPA_vect ) {
 	digitalWrite( g_ledPin, ( micros() - g_codetime < 500000 ) ? HIGH : LOW );
 }
-
-//////////////////////////////////////////////////////////////////////////////
-inline void halfbytetohex( unsigned char data, char* &buffer ) {
-	*buffer++ = data + ( data < 10 ? '0' : ( 'A' - 10 ) );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-inline void bytetohex( unsigned char data, char* &buffer, bool both ) {
-	if( both )
-		halfbytetohex( data >> 4, buffer );
-	halfbytetohex( data & 0x0f, buffer );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-void uitohex( uint16_t data, char* &buffer, uint8_t digits ) {
-	if( digits > 2 )
-		bytetohex( (unsigned char)( data >> 8 ), buffer, digits >= 4 );
-	bytetohex( (unsigned char)data, buffer, digits != 1 );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-void ultohex( uint32_t data, char* &buffer, uint8_t digits ) {
-	if( digits > 4 ) {
-		uitohex( (uint16_t)( data >> 16 ), buffer, digits - 4 );
-		digits -= digits - 4;
-	}
-	uitohex( (uint16_t)data, buffer, digits );
-}
-
-#ifdef USE_DS3231
-#endif	//	USE_DS3231
 

@@ -166,3 +166,32 @@ void hex2serial( uint16_t out, uint8_t digits, const char* prefix )
 		Serial.print((char)( cd < 10 ? cd + '0' : cd - 10 + 'A' ));
 	} while( digit-- );
 }
+
+//////////////////////////////////////////////////////////////////////////////
+inline void halfbytetohex( unsigned char data, char* &buffer ) {
+	*buffer++ = data + ( data < 10 ? '0' : ( 'A' - 10 ) );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+inline void bytetohex( unsigned char data, char* &buffer, bool both ) {
+	if( both )
+		halfbytetohex( data >> 4, buffer );
+	halfbytetohex( data & 0x0f, buffer );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void uitohex( uint16_t data, char* &buffer, uint8_t digits ) {
+	if( digits > 2 )
+		bytetohex( (unsigned char)( data >> 8 ), buffer, digits >= 4 );
+	bytetohex( (unsigned char)data, buffer, digits != 1 );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void ultohex( uint32_t data, char* &buffer, uint8_t digits ) {
+	if( digits > 4 ) {
+		uitohex( (uint16_t)( data >> 16 ), buffer, digits - 4 );
+		digits -= digits - 4;
+	}
+	uitohex( (uint16_t)data, buffer, digits );
+}
+

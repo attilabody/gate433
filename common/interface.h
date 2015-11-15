@@ -76,4 +76,6 @@ long getintparam( const char* &input, bool decimal = true, bool trimstart = true
 char findcommand( const char* &inptr, const char **commands );
 bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
 void hex2serial( uint16_t out, uint8_t digits, const char* prefix );
+void uitohex( uint16_t data, char* &buffer, uint8_t digits );
+void ultohex( uint32_t data, char* &buffer, uint8_t digits );
 #endif /* _interface_H_ */

@@ -12,14 +12,10 @@
 extdb::extdb( char *buffer, uint16_t buflen )
 	: m_buffer( buffer )
 	, m_buflen( buflen )
-{
-	// TODO Auto-generated constructor stub
-}
+{}
 
 extdb::~extdb()
-{
-	// TODO Auto-generated destructor stub
-}
+{}
 
 bool extdb::getresponse()
 {
