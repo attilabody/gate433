@@ -11,7 +11,7 @@
 #include <Arduino.h>
 #include <Serial.h>
 #include "interface.cpp"
-#include "interface_main.cpp"
+#include "../../interface/interface_main.cpp"
 
 using namespace std;
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
