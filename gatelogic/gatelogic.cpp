@@ -7,8 +7,6 @@
 #include "gatehandler.h"
 #include "extdb.h"
 
-const uint8_t g_radioIn( 2 );
-const uint8_t g_ledPin( 13 );
 
 enum RcvState : uint8_t {
 	  START
@@ -61,8 +59,9 @@ void setup()
 #endif
 #endif	//	USE_DS3231
 
-	pinMode( g_ledPin, OUTPUT );
-	pinMode( g_radioIn, INPUT );
+	pinMode( PIN_LED, OUTPUT );
+	pinMode( PIN_RFIN, INPUT );
+	pinMode( PIN_GATE, OUTPUT );
 
 	noInterrupts();
 	// disable all interrupts
@@ -79,16 +78,12 @@ void setup()
 	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
 #endif
 
-	attachInterrupt( digitalPinToInterrupt( g_radioIn ), isr, CHANGE );
+	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-#ifdef USE_DS3231
-	static ts t;
-#endif	//	USE_DS3231
-
 #ifdef FAILSTATS
 	static stats prevstats;
 	static stats *pp, *ps;
@@ -125,7 +120,7 @@ void isr()
 {
 	static int8_t curbit;
 	static uint32_t lastedge( micros() ), curedge;
-	static bool lastlevel( digitalRead( g_radioIn ) == HIGH ), in;
+	static bool lastlevel( digitalRead( PIN_RFIN ) == HIGH ), in;
 	static RcvState state( START );
 	static uint16_t code, deltat, cyclet;
 	static int timediff;
@@ -135,7 +130,7 @@ void isr()
 	static uint32_t highdeltat, lowdeltat;
 
 	curedge = micros();
-	in = ( digitalRead( g_radioIn ) == HIGH );
+	in = ( digitalRead( PIN_RFIN ) == HIGH );
 	deltat = curedge - lastedge;
 
 	switch( state ) {
@@ -212,6 +207,6 @@ void isr()
 
 //////////////////////////////////////////////////////////////////////////////
 ISR( TIMER0_COMPA_vect ) {
-	digitalWrite( g_ledPin, ( micros() - g_codetime < 500000 ) ? HIGH : LOW );
+	digitalWrite( PIN_LED, ( micros() - g_codetime < 500000 ) ? HIGH : LOW );
 }
 

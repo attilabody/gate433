@@ -24,4 +24,9 @@
 #define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
 #define	STOP_MIN_TIME	12000
 
+#define PIN_RFIN	2
+#define PIN_GATE	4
+#define PIN_LED		13
+
+
 #endif /* CONFIG_H_ */
