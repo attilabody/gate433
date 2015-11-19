@@ -24,7 +24,7 @@ public:
 		, closing
 	};
 
-	void codereceived( uint16_t code, bool innerloop, bool outerloop );
+	void codereceived( uint16_t code, bool inside );
 protected:
 
 	database	&m_db;

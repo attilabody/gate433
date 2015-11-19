@@ -41,6 +41,7 @@ volatile stats g_stats;
 extdb		g_db( g_inbuf, sizeof( g_inbuf ));
 gatehandler	g_gatehadler( g_db );
 
+uint8_t		g_relayports[8] = RELAY_PORTS;
 void isr();
 
 //////////////////////////////////////////////////////////////////////////////
@@ -59,15 +60,26 @@ void setup()
 #endif
 #endif	//	USE_DS3231
 
+#ifdef PIN_LED
 	pinMode( PIN_LED, OUTPUT );
+#endif
 	pinMode( PIN_RFIN, INPUT );
-	pinMode( PIN_GATE, OUTPUT );
+	pinMode( PIN_INNERLOOP, INPUT );
+	pinMode( PIN_OUTERLOOP, INPUT );
+	//activating pullups
+	digitalWrite( PIN_INNERLOOP, HIGH );
+	digitalWrite( PIN_OUTERLOOP, HIGH );
+
+	for( uint8_t pin = 0 ; pin < sizeof(g_relayports); ++pin ) {
+		pinMode( g_relayports[pin], OUTPUT);
+		digitalWrite( g_relayports[pin], HIGH );
+	}
 
 	noInterrupts();
 	// disable all interrupts
 	TIMSK0 |= ( 1 << OCIE0A );  // enable timer compare interrupt
 	interrupts();
-	// enable all interrupts
+	// enable all interrupts5 utan
 
 #if defined(VERBOSE) && defined(USE_DS3231)
 	ts t;
@@ -91,7 +103,7 @@ void loop()
 
 	if( g_codeready ){
 		//process received info here
-		g_gatehadler.codereceived( g_code >> 2, false, false );
+		g_gatehadler.codereceived( g_code >> 2, false );
 		g_codeready = false;
 	}
 #ifdef FAILSTATS
@@ -207,6 +219,8 @@ void isr()
 
 //////////////////////////////////////////////////////////////////////////////
 ISR( TIMER0_COMPA_vect ) {
+#ifdef PIN_LED
 	digitalWrite( PIN_LED, ( micros() - g_codetime < 500000 ) ? HIGH : LOW );
+#endif
 }
 
