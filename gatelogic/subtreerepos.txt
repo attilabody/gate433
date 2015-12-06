@@ -1,2 +1,0 @@
-ds3231	git@github.com:rodan/ds3231.git	libs/ds3231
-
