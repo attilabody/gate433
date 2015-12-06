@@ -7,11 +7,11 @@
 
 #include "inductiveloop.h"
 
-uint8_t inductiveloop::m_outerpins[3] = {4,5,6};
-uint8_t inductiveloop::m_innerpins[3] = {7,8,9};
-
-inductiveloop::inductiveloop()
+inductiveloop::inductiveloop( uint8_t innerpin, uint8_t outerpin, uint8_t activelevel )
 	: m_prevstatus( NONE )
+	, m_innerpin( innerpin )
+	, m_outerpin( outerpin )
+	, m_activelevel( activelevel )
 {
 }
 
@@ -19,17 +19,21 @@ inductiveloop::~inductiveloop()
 {
 }
 
-inductiveloop::LOOPSTATUS inductiveloop::update()
+inductiveloop::LOOPSTATUS inductiveloop::update( LOOPSTATUS &rawstatus )
 {
-	LOOPSTATUS	curstatus(NONE);
-	if( loopcheck( true )) curstatus = ((LOOPSTATUS)( curstatus | INNER ));
-	if( loopcheck( false )) curstatus = ((LOOPSTATUS)( curstatus | OUTER ));
+	rawstatus = NONE;
+	if( getstatus( m_innerpin ) == m_activelevel ) {
+		rawstatus = ((LOOPSTATUS)( rawstatus | INNER ));
+	}
+	if( getstatus( m_outerpin ) == m_activelevel ) {
+		rawstatus = ((LOOPSTATUS)( rawstatus | OUTER ));
+	}
 
-	if( curstatus == BOTH ) {
+	if( rawstatus == BOTH ) {
 		if( m_prevstatus == NONE )
 			m_prevstatus = INNER;
 	} else
-		m_prevstatus = curstatus;
+		m_prevstatus = rawstatus;
 
 	//......
 
