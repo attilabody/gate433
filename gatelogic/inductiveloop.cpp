@@ -5,21 +5,21 @@
  *      Author: abody
  */
 
-#include "lightshandler.h"
+#include "inductiveloop.h"
 
-uint8_t lightshandler::m_outerpins[3] = {4,5,6};
-uint8_t lightshandler::m_innerpins[3] = {7,8,9};
+uint8_t inductiveloop::m_outerpins[3] = {4,5,6};
+uint8_t inductiveloop::m_innerpins[3] = {7,8,9};
 
-lightshandler::lightshandler()
+inductiveloop::inductiveloop()
 	: m_prevstatus( NONE )
 {
 }
 
-lightshandler::~lightshandler()
+inductiveloop::~inductiveloop()
 {
 }
 
-lightshandler::LOOPSTATUS lightshandler::update()
+inductiveloop::LOOPSTATUS inductiveloop::update()
 {
 	LOOPSTATUS	curstatus(NONE);
 	if( loopcheck( true )) curstatus = ((LOOPSTATUS)( curstatus | INNER ));

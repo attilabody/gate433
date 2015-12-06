@@ -5,19 +5,19 @@
  *      Author: abody
  */
 
-#ifndef LIGHTSHANDLER_H_
-#define LIGHTSHANDLER_H_
+#ifndef INDUCTIVELOOP_H_
+#define INDUCTIVELOOP_H_
 #include <Arduino.h>
 #include "config.h"
 
-class lightshandler
+class inductiveloop
 {
 public:
 	enum COLORS { GREEN = 0, YELLOW = 1, RED = 2 };
 	enum LOOPSTATUS : uint8_t { NONE = 0, INNER = 1, OUTER = 2, BOTH = 3 };
 
-	lightshandler();
-	virtual ~lightshandler();
+	inductiveloop();
+	virtual ~inductiveloop();
 	LOOPSTATUS	update();
 
 
@@ -28,4 +28,4 @@ private:
 	LOOPSTATUS		m_prevstatus;
 };
 
-#endif /* LIGHTSHANDLER_H_ */
+#endif /* INDUCTIVELOOP_H_ */
