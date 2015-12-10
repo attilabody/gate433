@@ -1,11 +1,10 @@
 // Do not remove the include below
 #include <Wire.h>
 #include <ds3231.h>
-
+#include <LiquidCrystal_I2C.h>
 #include "boardtest.h"
 
 SdFat	g_sd;
-bool	g_sdInit(false);
 
 File 	g_info;
 File 	g_status;
@@ -13,17 +12,56 @@ char	g_buffer[256+1];
 int		g_nread(0), g_ntotal(0);
 uint8_t	pins[8] = { 9,8,7,6,5,4,A3,A2 };
 
-inline void serialout() { Serial.println(); }
+LiquidCrystal_I2C g_lcd(0x3f,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+
+inline void serialout() {}
 template< typename Arg1, typename... Args> void serialout( const Arg1& arg1, const Args&... args)
 {
 	Serial.print( arg1 );
 	serialout( args...);
 }
 
+inline void lcdout() {}
+template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const Args&... args)
+{
+	g_lcd.print( arg1 );
+	lcdout( args...);
+}
+
+void printstatus( uint8_t pin )
+{
+	ts	t;
+	DS3231_get( &t );
+
+	g_lcd.clear();
+	lcdout( (uint16_t)t.year, F("."));
+	lcdout( (uint16_t)t.mon,F("."));
+	lcdout( (uint16_t)t.mday, F("/" ),(uint16_t)t.wday);
+	g_lcd.setCursor(0,1);
+	lcdout( (uint16_t)t.hour);
+	lcdout(F(":" ), (uint16_t)(t.min));
+	lcdout(F(":" ), (uint16_t)(t.sec));
+	g_lcd.setCursor(14,1);
+	g_lcd.print( pin );
+
+	serialout( (uint16_t)t.year, F("."));
+	serialout( (uint16_t)t.mon,F("."));
+	serialout( (uint16_t)t.mday, F("/" ),(uint16_t)t.wday);
+	serialout( F("    "), (uint16_t)t.hour);
+	serialout(F(":" ), (uint16_t)(t.min));
+	serialout(F(":" ), (uint16_t)(t.sec));
+	serialout(F("    "), pin );
+	Serial.println();
+}
+
 //The setup function is called once at startup of the sketch
 void setup()
 {
-// Add your initialization code here
+	bool	sdpass(true);
+
+	g_lcd.init();                      // initialize the lcd
+	g_lcd.backlight();
 	Serial.begin( 115200 );
 	for( int pin=0; pin<sizeof(pins); ++pin ) {
 		pinMode( pins[pin], OUTPUT);
@@ -32,9 +70,9 @@ void setup()
 	Wire.begin();
 	DS3231_init( DS3231_INTCN );
 
-	g_sdInit = g_sd.begin( SS, SPI_HALF_SPEED );
-	serialout( F("SD card initialization "), g_sdInit ? F("succeeded.") : F("failed.") );
-
+	sdpass = g_sd.begin( SS, SPI_HALF_SPEED );
+	serialout( F("SD card initialization "), sdpass ? F("succeeded.") : F("failed.") );
+	Serial.println();
 	g_info = g_sd.open("info.txt", FILE_READ );
 	if( g_info )
 	{
@@ -49,22 +87,19 @@ void setup()
 
 		if(!g_info.seek( 0 )) {
 			Serial.println(F("seek failed"));
+			sdpass = false;
 		}
 
 		g_info.close();
-	} else
+	} else {
 		Serial.println( F("Opening info.txt failed."));
+		sdpass = false;
+	}
 
-	ts	t;
-	DS3231_get( &t );
-	Serial.print( (uint16_t)t.year); Serial.print("." );
-	Serial.print( (uint16_t)t.mon ); Serial.print("." );
-	Serial.print( (uint16_t)t.mday ); Serial.print("/" ); Serial.print((uint16_t)t.wday);
-	Serial.print("    "); Serial.print( (uint16_t)t.hour);
-	Serial.print(":" ); Serial.print( (uint16_t)(t.min));
-	Serial.print(":" ); Serial.print( (uint16_t)(t.sec));
-	Serial.println();
+	lcdout( F("SD "), sdpass ? F("OK") : F("FAIL"));
+	delay(5000);
 
+	printstatus( 0 );
 }
 
 // The loop function is called in an endless loop
@@ -73,7 +108,7 @@ void loop()
 //Add your repeated code here
 	for( int pin=0; pin<sizeof(pins); ++pin)
 	{
-		Serial.println(pins[pin]);
+		printstatus(pins[pin]);
 		delay(5);
 		digitalWrite( pins[pin], LOW );
 		delay(995);
