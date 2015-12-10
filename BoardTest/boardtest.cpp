@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <ds3231.h>
 #include <LiquidCrystal_I2C.h>
+#include "interface.h"
 #include "boardtest.h"
 
 SdFat	g_sd;
@@ -13,14 +14,6 @@ int		g_nread(0), g_ntotal(0);
 uint8_t	pins[8] = { 9,8,7,6,5,4,A3,A2 };
 
 LiquidCrystal_I2C g_lcd(0x3f,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
-
-
-inline void serialout() {}
-template< typename Arg1, typename... Args> void serialout( const Arg1& arg1, const Args&... args)
-{
-	Serial.print( arg1 );
-	serialout( args...);
-}
 
 inline void lcdout() {}
 template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const Args&... args)

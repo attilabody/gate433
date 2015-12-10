@@ -27,6 +27,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>common</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/common</locationURI>
+		</link>
+		<link>
 			<name>libs</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/libs</locationURI>
