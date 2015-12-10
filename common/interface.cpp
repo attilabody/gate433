@@ -199,7 +199,8 @@ void ultohex( uint32_t data, char* &buffer, uint8_t digits ) {
 void uitodec( uint16_t data, char* &buffer, uint8_t digits )
 {
 	char *ptr( buffer + digits - 1 );
-	while( digits-- ) {
+	uint8_t	cntr( digits );
+	while( cntr-- ) {
 		*ptr-- = ( data%10 ) + '0';
 		data /= 10;
 	}
@@ -210,7 +211,8 @@ void uitodec( uint16_t data, char* &buffer, uint8_t digits )
 void ultodec( uint32_t data, char* &buffer, uint8_t digits )
 {
 	char *ptr( buffer + digits - 1);
-	while( digits-- ) {
+	uint8_t	cntr( digits );
+	while( cntr-- ) {
 		*ptr-- = ( data%10 ) + '0';
 		data /= 10;
 	}
@@ -220,7 +222,7 @@ void ultodec( uint32_t data, char* &buffer, uint8_t digits )
 //////////////////////////////////////////////////////////////////////////////
 void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, char datesep, char dowsep )
 {
-	uitodec( year, buffer, 2 ); *buffer++ = datesep;
+	uitodec( year, buffer, 4 ); *buffer++ = datesep;
 	uitodec( month, buffer, 2 ); *buffer++ = datesep;
 	uitodec( day, buffer, 2 ); *buffer++ = dowsep;
 	uitodec( dow, buffer, 1);

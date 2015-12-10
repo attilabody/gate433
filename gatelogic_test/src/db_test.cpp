@@ -39,7 +39,7 @@ bool test_db_setstatus( extdb &db )
 	return result && str == "set 0 002\n";
 }
 
-int main()
+bool dbtest_main()
 {
 	extdb		db( g_serialbuffer, sizeof( g_serialbuffer ));
 	dbrecord	dbr;

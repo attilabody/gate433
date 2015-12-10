@@ -24,15 +24,18 @@ template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const 
 
 void printstatus( uint8_t pin )
 {
+	static ts	prevt = {0,0,0,0,0,0,0,0,0,0};
 	ts	t;
 	char	lcdbuffer[17];
 	char	*lbp(lcdbuffer);
 
 	DS3231_get( &t );
 
-	datetostring( lbp, t.year, t.mon, t.mday, t.wday, '.', '/' ); *lbp = 0;
-	g_lcd.clear();
-	g_lcd.print( lcdbuffer );
+	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ) {
+		g_lcd.setCursor(0,0);
+		datetostring( lbp, t.year, t.mon, t.mday, t.wday, '.', '/' ); *lbp = 0;
+		g_lcd.print( lcdbuffer );
+	}
 
 	g_lcd.setCursor(0,1);
 	lbp = lcdbuffer;
