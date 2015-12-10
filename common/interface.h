@@ -78,4 +78,8 @@ bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
 void hex2serial( uint16_t out, uint8_t digits, const char* prefix );
 void uitohex( uint16_t data, char* &buffer, uint8_t digits );
 void ultohex( uint32_t data, char* &buffer, uint8_t digits );
+void uitodec( uint16_t data, char* &buffer, uint8_t digits );
+void ultodec( uint32_t data, char* &buffer, uint8_t digits );
+void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, char datesep, char dowsep );
+void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char sep );
 #endif /* _interface_H_ */

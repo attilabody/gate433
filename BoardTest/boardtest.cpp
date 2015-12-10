@@ -25,18 +25,24 @@ template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const 
 void printstatus( uint8_t pin )
 {
 	ts	t;
+	char	lcdbuffer[17];
+	char	*lbp(lcdbuffer);
+
 	DS3231_get( &t );
 
+	datetostring( lbp, t.year, t.mon, t.mday, t.wday, '.', '/' ); *lbp = 0;
 	g_lcd.clear();
-	lcdout( (uint16_t)t.year, F("."));
-	lcdout( (uint16_t)t.mon,F("."));
-	lcdout( (uint16_t)t.mday, F("/" ),(uint16_t)t.wday);
+	g_lcd.print( lcdbuffer );
+
 	g_lcd.setCursor(0,1);
-	lcdout( (uint16_t)t.hour);
-	lcdout(F(":" ), (uint16_t)(t.min));
-	lcdout(F(":" ), (uint16_t)(t.sec));
+	lbp = lcdbuffer;
+	timetostring( lbp, t.hour, t.min, t.sec, ':' ); *lbp++ = 0;
+	g_lcd.print( lcdbuffer);
+
+	lbp = lcdbuffer;
+	uitodec( pin, lbp, 2 ); *lbp++ = 0;
 	g_lcd.setCursor(14,1);
-	g_lcd.print( pin );
+	g_lcd.print( lcdbuffer );
 
 	serialout( (uint16_t)t.year, F("."));
 	serialout( (uint16_t)t.mon,F("."));

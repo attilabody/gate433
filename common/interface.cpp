@@ -195,3 +195,41 @@ void ultohex( uint32_t data, char* &buffer, uint8_t digits ) {
 	uitohex( (uint16_t)data, buffer, digits );
 }
 
+//////////////////////////////////////////////////////////////////////////////
+void uitodec( uint16_t data, char* &buffer, uint8_t digits )
+{
+	char *ptr( buffer + digits - 1 );
+	while( digits-- ) {
+		*ptr-- = ( data%10 ) + '0';
+		data /= 10;
+	}
+	buffer += digits;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void ultodec( uint32_t data, char* &buffer, uint8_t digits )
+{
+	char *ptr( buffer + digits - 1);
+	while( digits-- ) {
+		*ptr-- = ( data%10 ) + '0';
+		data /= 10;
+	}
+	buffer += digits;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, char datesep, char dowsep )
+{
+	uitodec( year, buffer, 2 ); *buffer++ = datesep;
+	uitodec( month, buffer, 2 ); *buffer++ = datesep;
+	uitodec( day, buffer, 2 ); *buffer++ = dowsep;
+	uitodec( dow, buffer, 1);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char sep )
+{
+	uitodec( hour, buffer, 2 ); *buffer++ = sep;
+	uitodec( min, buffer, 2 ); *buffer++ = sep;
+	uitodec( sec, buffer, 2 );
+}
