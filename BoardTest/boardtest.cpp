@@ -37,8 +37,13 @@ void processInput()
 	char 		command( findcommand( inptr, g_commands ));
 	switch( command ) {
 	case 0:		//sdt
-		if( parsedatetime( t, inptr ))
+		if( parsedatetime( t, inptr )) {
 			DS3231_set( t );
+			Serial.println( F(RESPS "OK"));
+		} else {
+			serialout( F(ERRS "ERROR (DATETIMEFMT)"));
+		}
+
 		break;
 	}
 	g_inidx = 0;
@@ -66,7 +71,7 @@ void printstatus( uint8_t pin )
 	g_lcd.print( lcdbuffer);
 
 	lbp = lcdbuffer;
-	uitodec( pin, lbp, 2 ); *lbp++ = 0;
+	uitodec( lbp, pin, 2 ); *lbp++ = 0;
 	g_lcd.setCursor(14,1);
 	g_lcd.print( lcdbuffer );
 

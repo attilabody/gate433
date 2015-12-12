@@ -7,6 +7,7 @@
 #include <Arduino.h>
 #include "interface.h"
 
+//////////////////////////////////////////////////////////////////////////////
 dbrecord::dbrecord()
 	: in_start(0)
 	, in_end(0)
@@ -17,11 +18,13 @@ dbrecord::dbrecord()
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////
 dbrecord::dbrecord( const char *&dbstring )
 {
 	parse( dbstring );
 }
 
+//////////////////////////////////////////////////////////////////////////////
 bool dbrecord::parse( const char* &dbstring )
 {
 	int16_t	sflags, dflags;
@@ -41,6 +44,30 @@ bool dbrecord::parse( const char* &dbstring )
 		return true;
 	}
 
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void dbrecord::serializeinfo( char *&buffer ) const
+{
+	uitohex( buffer, in_start, 3 ); *buffer++ = ' ';
+	uitohex( buffer, in_end, 3 ); *buffer++ = ' ';
+	uitohex( buffer, out_start, 3 ); *buffer++ = ' ';
+	uitohex( buffer, out_end, 3 ); *buffer++ = ' ';
+	uitohex( buffer, (uint16_t)days, 3);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void dbrecord::serializestatus( char *&buffer ) const
+{
+	uitohex( buffer, (uint16_t) position, 3 );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void dbrecord::serialize( char *&buffer ) const
+{
+	serializeinfo( buffer );
+	*buffer++ = ' ';
+	serializestatus( buffer );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -168,35 +195,35 @@ void hex2serial( uint16_t out, uint8_t digits, const char* prefix )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline void halfbytetohex( unsigned char data, char* &buffer ) {
+inline void halfbytetohex( char* &buffer, unsigned char data ) {
 	*buffer++ = data + ( data < 10 ? '0' : ( 'A' - 10 ) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline void bytetohex( unsigned char data, char* &buffer, bool both ) {
+inline void bytetohex( char* &buffer, unsigned char data, bool both ) {
 	if( both )
-		halfbytetohex( data >> 4, buffer );
-	halfbytetohex( data & 0x0f, buffer );
+		halfbytetohex( buffer, data >> 4 );
+	halfbytetohex( buffer, data & 0x0f );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void uitohex( uint16_t data, char* &buffer, uint8_t digits ) {
+void uitohex( char* &buffer, uint16_t data, uint8_t digits ) {
 	if( digits > 2 )
-		bytetohex( (unsigned char)( data >> 8 ), buffer, digits >= 4 );
-	bytetohex( (unsigned char)data, buffer, digits != 1 );
+		bytetohex( buffer, (unsigned char)( data >> 8 ), digits >= 4 );
+	bytetohex( buffer, (unsigned char)data, digits != 1 );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void ultohex( uint32_t data, char* &buffer, uint8_t digits ) {
+void ultohex( char* &buffer, uint32_t data, uint8_t digits ) {
 	if( digits > 4 ) {
-		uitohex( (uint16_t)( data >> 16 ), buffer, digits - 4 );
+		uitohex( buffer, (uint16_t)( data >> 16 ), digits - 4 );
 		digits -= digits - 4;
 	}
-	uitohex( (uint16_t)data, buffer, digits );
+	uitohex( buffer, (uint16_t)data, digits );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void uitodec( uint16_t data, char* &buffer, uint8_t digits )
+void uitodec( char* &buffer, uint16_t data, uint8_t digits )
 {
 	char *ptr( buffer + digits - 1 );
 	uint8_t	cntr( digits );
@@ -208,7 +235,7 @@ void uitodec( uint16_t data, char* &buffer, uint8_t digits )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void ultodec( uint32_t data, char* &buffer, uint8_t digits )
+void ultodec( char* &buffer, uint32_t data, uint8_t digits )
 {
 	char *ptr( buffer + digits - 1);
 	uint8_t	cntr( digits );
@@ -222,18 +249,18 @@ void ultodec( uint32_t data, char* &buffer, uint8_t digits )
 //////////////////////////////////////////////////////////////////////////////
 void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, char datesep, char dowsep )
 {
-	uitodec( year, buffer, 4 ); *buffer++ = datesep;
-	uitodec( month, buffer, 2 ); *buffer++ = datesep;
-	uitodec( day, buffer, 2 ); *buffer++ = dowsep;
-	uitodec( dow, buffer, 1);
+	uitodec( buffer, year, 4 ); *buffer++ = datesep;
+	uitodec( buffer, month, 2 ); *buffer++ = datesep;
+	uitodec( buffer, day, 2 ); *buffer++ = dowsep;
+	uitodec( buffer, dow, 1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char sep )
 {
-	uitodec( hour, buffer, 2 ); *buffer++ = sep;
-	uitodec( min, buffer, 2 ); *buffer++ = sep;
-	uitodec( sec, buffer, 2 );
+	uitodec( buffer, hour, 2 ); *buffer++ = sep;
+	uitodec( buffer, min, 2 ); *buffer++ = sep;
+	uitodec( buffer, sec, 2 );
 }
 
 //////////////////////////////////////////////////////////////////////////////

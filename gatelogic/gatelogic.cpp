@@ -4,8 +4,9 @@
 #include <interface.h>
 #include "serialbuf.h"
 #include "gatelogic.h"
+
 #include "gatehandler.h"
-#include "extdb.h"
+#include "intdb.h"
 
 
 enum RcvState : uint8_t {
@@ -38,7 +39,7 @@ struct stats
 volatile stats g_stats;
 #endif	//	FAILSTATS
 
-extdb		g_db( g_inbuf, sizeof( g_inbuf ));
+intdb		g_db( g_inbuf, sizeof( g_inbuf ));
 gatehandler	g_gatehadler( g_db );
 
 uint8_t		g_relayports[8] = RELAY_PORTS;

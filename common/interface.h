@@ -12,10 +12,10 @@
 
 #define BAUDRATE 57600
 #define RESP ':'
-#define ERR '!'
-#define CMNT '#'
 #define RESPS ":"
+#define ERR '!'
 #define ERRS "!"
+#define CMNT '#'
 #define CMNTS "#"
 
 #define CMD_GET		"get"
@@ -60,6 +60,9 @@ struct dbrecord
 	dbrecord( const char* &dbstring );
 	dbrecord();
 	bool parse( const char *&dbstring);
+	void serializeinfo( char *&buffer ) const;
+	void serializestatus( char *&buffer ) const;
+	void serialize( char *&buffer ) const;
 	int16_t	in_start;
 	int16_t	in_end;
 	int16_t	out_start;
@@ -77,10 +80,10 @@ long getintparam( const char* &input, bool decimal = true, bool trimstart = true
 char findcommand( const char* &inptr, const char **commands );
 bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
 void hex2serial( uint16_t out, uint8_t digits, const char* prefix );
-void uitohex( uint16_t data, char* &buffer, uint8_t digits );
-void ultohex( uint32_t data, char* &buffer, uint8_t digits );
-void uitodec( uint16_t data, char* &buffer, uint8_t digits );
-void ultodec( uint32_t data, char* &buffer, uint8_t digits );
+void uitohex( char* &buffer, uint16_t data, uint8_t digits );
+void ultohex( char* &buffer, uint32_t data, uint8_t digits );
+void uitodec( char* &buffer, uint16_t data, uint8_t digits );
+void ultodec( char* &buffer, uint32_t data, uint8_t digits );
 void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, char datesep, char dowsep );
 void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char sep );
 bool parsedatetime( ts &t, const char *&inptr );
