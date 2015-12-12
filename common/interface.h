@@ -6,6 +6,7 @@
 #ifndef _interface_H_
 #define _interface_H_
 //#define DBGSERIALIN	1
+#include <ds3231.h>
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
@@ -82,4 +83,6 @@ void uitodec( uint16_t data, char* &buffer, uint8_t digits );
 void ultodec( uint32_t data, char* &buffer, uint8_t digits );
 void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, char datesep, char dowsep );
 void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char sep );
+bool parsedatetime( ts &t, const char *&inptr );
+
 #endif /* _interface_H_ */

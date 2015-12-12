@@ -20,7 +20,18 @@ bool test_datetostring()
 	timetostring( bufptr, 12, 34, 56, ':' );
 	return true;
 }
+
+bool test_parsedatetime()
+{	ts	t;
+	const char	textdt[] = "2015.10.28-3 16:37:05";
+	const char* ptr(textdt);
+	return parsedatetime( t, ptr );
+}
 bool commontest_main()
 {
-	return test_datetostring();
+	bool ret( true );
+	ret &= test_datetostring();
+	ret &= test_parsedatetime();
+
+	return ret;
 }

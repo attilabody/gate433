@@ -5,16 +5,23 @@
 #include "interface.h"
 #include "boardtest.h"
 
-SdFat	g_sd;
+//char 		g_inbuf[256];
+char		g_inbuf[256+1];
+uint16_t	g_inidx(0);
+const char 		*g_commands[] = {
+		  "sdt"
+		, ""
+};
+SdFat		g_sd;
 
-File 	g_info;
-File 	g_status;
-char	g_buffer[256+1];
-int		g_nread(0), g_ntotal(0);
-uint8_t	pins[8] = { 9,8,7,6,5,4,A3,A2 };
+File 		g_info;
+File 		g_status;
+int			g_nread(0), g_ntotal(0);
+uint8_t		pins[8] = { 9,8,7,6,5,4,A3,A2 };
 
 LiquidCrystal_I2C g_lcd(0x3f,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
+//////////////////////////////////////////////////////////////////////////////
 inline void lcdout() {}
 template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const Args&... args)
 {
@@ -22,6 +29,22 @@ template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const 
 	lcdout( args...);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+void processInput()
+{
+	ts			t;
+	const char	*inptr( g_inbuf );
+	char 		command( findcommand( inptr, g_commands ));
+	switch( command ) {
+	case 0:		//sdt
+		if( parsedatetime( t, inptr ))
+			DS3231_set( t );
+		break;
+	}
+	g_inidx = 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 void printstatus( uint8_t pin )
 {
 	static ts	prevt = {0,0,0,0,0,0,0,0,0,0};
@@ -57,7 +80,7 @@ void printstatus( uint8_t pin )
 	Serial.println();
 }
 
-//The setup function is called once at startup of the sketch
+//////////////////////////////////////////////////////////////////////////////
 void setup()
 {
 	bool	sdpass(true);
@@ -79,9 +102,9 @@ void setup()
 	if( g_info )
 	{
 
-		g_buffer[sizeof(g_buffer)-1] = 0;
+		g_inbuf[sizeof(g_inbuf)-1] = 0;
 
-		while( (g_nread = g_info.read(g_buffer, sizeof(g_buffer)-1))) {
+		while( (g_nread = g_info.read(g_inbuf, sizeof(g_inbuf)-1))) {
 			g_ntotal += g_nread;
 		}
 		Serial.print( g_ntotal );
@@ -104,16 +127,24 @@ void setup()
 	printstatus( 0 );
 }
 
-// The loop function is called in an endless loop
+//////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-//Add your repeated code here
 	for( int pin=0; pin<sizeof(pins); ++pin)
 	{
+		unsigned long	start( millis() );
 		printstatus(pins[pin]);
-		delay(5);
+		while( millis() - start < 5 ) {
+			if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
+				processInput();
+			}
+		}
 		digitalWrite( pins[pin], LOW );
-		delay(995);
+		while( millis() - start < 1000 ) {
+			if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
+				processInput();
+			}
+		}
 		digitalWrite( pins[pin], HIGH );
 	}
 }
