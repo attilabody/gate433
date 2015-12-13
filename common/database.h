@@ -13,6 +13,29 @@
 class database
 {
 public:
+	struct dbrecord
+	{
+		dbrecord( const char* &dbstring );
+		dbrecord();
+		bool parse( const char *&dbstring);
+		void serializeinfo( char *&buffer ) const;
+		void serializestatus( char *&buffer ) const;
+		void serialize( char *&buffer ) const;
+		void serialize( char *buffer ) const;
+
+		int16_t	in_start;
+		int16_t	in_end;
+		int16_t	out_start;
+		int16_t	out_end;
+		uint8_t	days;
+		enum POSITION : uint8_t
+		{
+			  unknown
+			, outside
+			, inside
+		}		position;
+	};
+
 	virtual bool getParams( int code, dbrecord &out ) = 0;
 	virtual bool setParams( int code, const dbrecord &in ) = 0;
 	virtual bool setStatus( int code, dbrecord::POSITION pos ) = 0;

@@ -17,8 +17,9 @@
 class intdb: public database
 {
 public:
-	intdb( char *buffer, uint16_t buflen );
+	intdb();
 	virtual ~intdb();
+	SdFat&	getsdfat() { return m_sd; }
 
 	bool isinitsucceeded() { return m_initok; }
 

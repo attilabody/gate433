@@ -39,7 +39,7 @@ struct stats
 volatile stats g_stats;
 #endif	//	FAILSTATS
 
-intdb		g_db( g_inbuf, sizeof( g_inbuf ));
+intdb		g_db;
 gatehandler	g_gatehadler( g_db );
 
 uint8_t		g_relayports[8] = RELAY_PORTS;

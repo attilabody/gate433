@@ -10,7 +10,7 @@
 #include "config.h"
 #include "interface.h"
 
-intdb::intdb( char *buffer, uint16_t buflen )
+intdb::intdb()
 	: m_initok( false )
 {
 	if( m_sd.begin( SS, SPI_HALF_SPEED )) {

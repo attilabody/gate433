@@ -55,27 +55,6 @@ INS INE OUS OUE FLG
 
 #define STATUSRECORD_WIDTH	4
 
-struct dbrecord
-{
-	dbrecord( const char* &dbstring );
-	dbrecord();
-	bool parse( const char *&dbstring);
-	void serializeinfo( char *&buffer ) const;
-	void serializestatus( char *&buffer ) const;
-	void serialize( char *&buffer ) const;
-	int16_t	in_start;
-	int16_t	in_end;
-	int16_t	out_start;
-	int16_t	out_end;
-	uint8_t	days;
-	enum POSITION : uint8_t
-	{
-		  unknown
-		, outside
-		, inside
-	}		position;
-};
-
 long getintparam( const char* &input, bool decimal = true, bool trimstart = true );
 char findcommand( const char* &inptr, const char **commands );
 bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );

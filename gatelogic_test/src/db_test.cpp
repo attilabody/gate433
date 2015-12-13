@@ -7,7 +7,7 @@
 #include <Serial.h>
 #include <string>
 
-#include "../../gatelogic/intdb.cpp"
+#include "../../common/intdb.cpp"
 
 using namespace std;
 
