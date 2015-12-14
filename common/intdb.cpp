@@ -105,19 +105,17 @@ bool intdb::setParams( int code, const dbrecord &recin )
 
 bool intdb::setStatus( int code, dbrecord::POSITION pos )
 {
-	char statusbuffer[STATUSRECORD_WIDTH];
-	char *sbptr(statusbuffer);
-	const char *errstr( NULL );
+	char	statusbuffer[STATUSRECORD_WIDTH];
+	char	*sbptr(statusbuffer);
+	bool	ret( false );
 
 	uitohex( sbptr, (uint16_t) pos, 3 );
 
-	if( !(m_status = m_sd.open( "status.txt", FILE_WRITE ))) {
-		errstr = ERRS "Error (open status)";
-	} else if( !m_status.seek(code * STATUSRECORD_WIDTH)) {
-		errstr = ERRS "Error (seek status)";
-	} else if(m_status.write( statusbuffer, STATUSRECORD_WIDTH -1 ) != STATUSRECORD_WIDTH -1 ) {
-		errstr = ERRS "Error (write status)";
+	if( (m_status = m_sd.open( "status.txt", FILE_WRITE ))
+		&& m_status.seek(code * STATUSRECORD_WIDTH)
+		&& m_status.write( statusbuffer, STATUSRECORD_WIDTH -1 ) == STATUSRECORD_WIDTH -1 ) {
+		ret = true;
 	}
 	if( m_status ) m_status.close();
-
+	return ret;
 }

@@ -7,13 +7,13 @@
 #include <Serial.h>
 #include <string>
 
-#include "../../common/intdb.cpp"
+#include "../../common/extdb.h"
 
 using namespace std;
 
 char	g_serialbuffer[256];
 
-bool test_db_getParams( intdb &db, dbrecord &dbr )
+bool test_db_getParams( extdb &db, database::dbrecord &dbr )
 {
 	Serial.reset( ":1C2 438 000 59F 07F 001\n" );
 
@@ -24,7 +24,7 @@ bool test_db_getParams( intdb &db, dbrecord &dbr )
 	return succ && Serial.getoutput().str() == "get 0\n";
 }
 
-bool test_db_setparams( intdb &db, const dbrecord &dbr )
+bool test_db_setparams( extdb &db, const database::dbrecord &dbr )
 {
 	Serial.reset(":OK\n");
 	bool result( db.setParams(0, dbr ));
@@ -32,18 +32,18 @@ bool test_db_setparams( intdb &db, const dbrecord &dbr )
 	return result && str == "set 0 1C2 438 000 59F 07F 001\n";
 }
 
-bool test_db_setstatus( intdb &db )
+bool test_db_setstatus( extdb &db )
 {
 	Serial.reset( ":OK\n" );
-	bool result( db.setStatus( 0, dbrecord::inside ));
+	bool result( db.setStatus( 0, database::dbrecord::inside ));
 	auto str( Serial.getoutput().str());
 	return result && str == "set 0 002\n";
 }
 
 bool dbtest_main()
 {
-	intdb		db( g_serialbuffer, sizeof( g_serialbuffer ));
-	dbrecord	dbr;
+	extdb		db( g_serialbuffer, sizeof( g_serialbuffer ));
+	database::dbrecord	dbr;
 	bool succ( true );
 	succ &= test_db_getParams( db, dbr );
 	succ &= test_db_setparams( db, dbr );
