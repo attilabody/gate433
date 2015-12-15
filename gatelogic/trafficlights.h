@@ -10,6 +10,17 @@
 
 #include <Arduino.h>
 
+class lamp {
+public:
+	lamp( uint8_t iopin );
+	void loop( unsigned long curmilli );
+
+private:
+	uint8_t			m_iopin;
+	bool			m_on;
+	unsigned long	m_lastmilli;
+};
+
 class trafficlights {
 public:
 	enum COLORINDEX { IDX_GREEN = 0, IDX_YELLOW = 1, IDX_RED = 2 };
