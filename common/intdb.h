@@ -17,8 +17,9 @@
 class intdb: public database
 {
 public:
-	intdb();
+	intdb( bool initialize = false );
 	virtual ~intdb();
+	bool	init();
 	SdFat&	getsdfat() { return m_sd; }
 
 	bool isinitsucceeded() { return m_initok; }

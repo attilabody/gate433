@@ -6,7 +6,10 @@
 #include "intdb.h"
 #include "boardtest.h"
 
-//char 		g_inbuf[256];
+#define TEST_SDCARD
+#define TEST_LCD
+#define TEST_DS3231
+
 char		g_inbuf[256+1];
 uint16_t	g_inidx(0);
 const char 		*g_commands[] = {
@@ -17,24 +20,28 @@ const char 		*g_commands[] = {
 	, ""
 };
 
-intdb		g_db;
+#ifdef TEST_SDCARD
+intdb		g_db( false );
+#endif	//	TEST_SDCARD
 
 uint8_t			g_pins[8] = { 9,8,7,6,5,4,A3,A2 };
 uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
 
+#ifdef	TEST_LCD
 LiquidCrystal_I2C g_lcd(0x3f,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
-//////////////////////////////////////////////////////////////////////////////
-void printpin( uint8_t pin );
-
-//////////////////////////////////////////////////////////////////////////////
 inline void lcdout() {}
 template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const Args&... args)
 {
 	g_lcd.print( arg1 );
 	lcdout( args...);
 }
+
+#endif	//	TEST_LCD
+
+//////////////////////////////////////////////////////////////////////////////
+void printpin( uint8_t pin );
 
 //////////////////////////////////////////////////////////////////////////////
 void relaysoff()
@@ -51,22 +58,26 @@ void processInput()
 	ts			t;
 	const char	*inptr( g_inbuf );
 	char 		command( findcommand( inptr, g_commands ));
+
+	relaysoff();
+
 	switch( command ) {
 	case 0:		//	sdt
-		relaysoff();
-
+#ifdef	TEST_DS3231
 		if( parsedatetime( t, inptr )) {
 			DS3231_set( t );
 			Serial.println( F(RESPS "OK"));
 		} else
 			Serial.println( F(ERRS ERRS " (DATETIMEFMT)"));
+#else	//	TEST_DS3231
+		Serial.println( F(ERRS "NOTIMPL"))
+#endif	//	TEST_DS3231
 		break;
 
 	case 1:		//	ddb
+#ifdef TEST_SDCARD
 		{
 			char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
-
-			relaysoff();
 
 			for( int code = 0; code < 1024; ++code )
 			{
@@ -76,17 +87,20 @@ void processInput()
 					rec.serialize( recbuf );
 					Serial.println( recbuf );
 				} else {
-					Serial.println( F(ERRS " (GETPARAMS)" ));
+					Serial.println( F(ERRS "GETPARAMS" ));
 				}
 
 			}
-			break;
 		}
+#else	//	TEST_SDCARD
+		Serial.println( F(ERRS "NOTIMPL"));
+#endif	//	TEST_SDCARD
+			break;
+
 	case 2:		//	relay
 		g_pinindex = sizeof( g_pins ) - 1;
 		break;
 	case 3:
-		relaysoff();
 		break;
 	}
 	g_inidx = 0;
@@ -95,6 +109,7 @@ void processInput()
 //////////////////////////////////////////////////////////////////////////////
 void printdatetime()
 {
+#ifdef	TEST_DS3231
 	static ts		prevt = {0,0,0,0,0,0,0,0,0,0};
 
 	ts	t;
@@ -103,6 +118,7 @@ void printdatetime()
 
 	DS3231_get( &t );
 
+#ifdef	TEST_LCD
 	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ) {
 		g_lcd.setCursor(0,0);
 		datetostring( lbp, t.year, t.mon, t.mday, t.wday, '.', '/' ); *lbp = 0;
@@ -115,6 +131,7 @@ void printdatetime()
 		timetostring( lbp, t.hour, t.min, t.sec, ':' ); *lbp++ = 0;
 		g_lcd.print( lcdbuffer);
 	}
+#endif	//	TEST_LCD
 
 	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ||
 		prevt.hour != t.hour || prevt.min != t.min || prevt.sec != t.sec )
@@ -129,6 +146,7 @@ void printdatetime()
 	}
 
 	prevt = t;
+#endif	//	TEST_DS3231
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -155,26 +173,39 @@ void printpin( uint8_t pin )
 //////////////////////////////////////////////////////////////////////////////
 void setup()
 {
+	Serial.begin( 115200 );
+	delay(100);
+	serialout("Setup\n");
+	delay(100);
 
+#ifdef	TEST_LCD
 	g_lcd.init();                      // initialize the lcd
 	g_lcd.backlight();
-	Serial.begin( 115200 );
+	lcdout("Setup");
+#endif	//	TEST_LCD
+
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
 		pinMode( g_pins[pin], OUTPUT);
 		digitalWrite( g_pins[pin], HIGH );
 	}
+#ifdef TEST_DS3231
+#ifndef TEST_LCD
 	Wire.begin();
+#endif	//	TEST_LCD
 	DS3231_init( DS3231_INTCN );
+#endif	//	TEST_DS3231
 
-	lcdout( F("DB "), g_db.isinitsucceeded() ? F("OK") : F("FAIL"));
+#ifdef TEST_SDCARD
+	lcdout( F("DB "), g_db.init() ? F("OK") : F("FAIL"));
 	delay(3000);
-
+#endif	//	TEST_SDCARD
 	printdatetime();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
+	delay(100);
 	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
 	}
