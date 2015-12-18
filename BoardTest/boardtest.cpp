@@ -131,7 +131,8 @@ void printdatetime()
 		timetostring( lbp, t.hour, t.min, t.sec, ':' ); *lbp++ = 0;
 		g_lcd.print( lcdbuffer);
 	}
-#endif	//	TEST_LCD
+
+#else	//	TEST_LCD
 
 	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ||
 		prevt.hour != t.hour || prevt.min != t.min || prevt.sec != t.sec )
@@ -144,6 +145,7 @@ void printdatetime()
 		serialout(F(":" ), (uint16_t)(t.sec));
 		Serial.println();
 	}
+#endif	//	TEST_LCD
 
 	prevt = t;
 #endif	//	TEST_DS3231
@@ -152,6 +154,7 @@ void printdatetime()
 //////////////////////////////////////////////////////////////////////////////
 void printpin( uint8_t pin )
 {
+#ifdef TEST_LCD
 	static uint8_t	prevpin( 0xff );
 	char	lcdbuffer[3];
 	char	*lbp(lcdbuffer);
@@ -168,6 +171,7 @@ void printpin( uint8_t pin )
 		g_lcd.print( lcdbuffer );
 		prevpin = pin;
 	}
+#endif	//	TEST_LCD
 }
 
 //////////////////////////////////////////////////////////////////////////////
