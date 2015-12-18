@@ -29,7 +29,8 @@ uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
 
 #ifdef	TEST_LCD
-LiquidCrystal_I2C g_lcd(0x3f,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C g_lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+//LiquidCrystal_I2C g_lcd(0x3f,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 inline void lcdout() {}
 template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const Args&... args)
@@ -167,7 +168,7 @@ void printpin( uint8_t pin )
 		} else {
 			lcdbuffer[0] = ' '; lcdbuffer[1] = ' '; lcdbuffer[2] = 0;
 		}
-		g_lcd.setCursor(14,1);
+		g_lcd.setCursor(10,1);
 		g_lcd.print( lcdbuffer );
 		prevpin = pin;
 	}
@@ -179,13 +180,12 @@ void setup()
 {
 	Serial.begin( 115200 );
 	delay(100);
-	serialout("Setup\n");
+	serialout(CMNTS "Setup\n");
 	delay(100);
 
 #ifdef	TEST_LCD
 	g_lcd.init();                      // initialize the lcd
 	g_lcd.backlight();
-	lcdout("Setup");
 #endif	//	TEST_LCD
 
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
@@ -200,7 +200,11 @@ void setup()
 #endif	//	TEST_DS3231
 
 #ifdef TEST_SDCARD
-	lcdout( F("DB "), g_db.init() ? F("OK") : F("FAIL"));
+	bool dbinit( g_db.init() );
+#ifdef TEST_LCD
+	lcdout( F("DB "), dbinit ? F("OK") : F("FAIL"));
+#endif	//	TEST_LCD
+	serialout( CMNTS "DB ", dbinit ? F("OK") : F("FAIL"));
 	delay(3000);
 #endif	//	TEST_SDCARD
 	printdatetime();
