@@ -2,8 +2,11 @@
 #include <Wire.h>
 #include <ds3231.h>
 #include <LiquidCrystal_I2C.h>
+#include "config.h"
 #include "interface.h"
 #include "intdb.h"
+#include "decode433.h"
+#include "trafficlights.h"
 #include "boardtest.h"
 
 #define TEST_SDCARD
@@ -16,6 +19,7 @@ const char 		*g_commands[] = {
 	  "sdt"		//set datetime
 	, "ddb"		//dump db
 	, "rt"		//relay test
+	, "bt"		//blink test
 	, "rs"		//relay stop
 	, ""
 };
@@ -27,6 +31,7 @@ intdb		g_db( false );
 uint8_t			g_pins[8] = { 9,8,7,6,5,4,A3,A2 };
 uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
+lamp			g_lamps[8];
 
 #ifdef	TEST_LCD
 LiquidCrystal_I2C g_lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -48,7 +53,7 @@ void printpin( uint8_t pin );
 void relaysoff()
 {
 	for( uint8_t pin = 0; pin < sizeof( g_pins ); ++pin )
-		digitalWrite( g_pins[pin], HIGH );
+		g_lamps[ pin ].set( false, 0, 0 );
 	g_pinindex = 0xff;
 	printpin( 0xff );
 }
@@ -102,6 +107,12 @@ void processInput()
 		g_pinindex = sizeof( g_pins ) - 1;
 		break;
 	case 3:
+		for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
+			g_lamps[pin].set(pin&1 == 1, 500, 10 );
+		}
+		break;	//blink
+
+	case 4:
 		break;
 	}
 	g_inidx = 0;
@@ -189,8 +200,7 @@ void setup()
 #endif	//	TEST_LCD
 
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
-		pinMode( g_pins[pin], OUTPUT);
-		digitalWrite( g_pins[pin], HIGH );
+		g_lamps[pin].init( g_pins[pin] );
 	}
 #ifdef TEST_DS3231
 #ifndef TEST_LCD
@@ -207,15 +217,19 @@ void setup()
 	serialout( CMNTS "DB ", dbinit ? F("OK") : F("FAIL"));
 	delay(3000);
 #endif	//	TEST_SDCARD
+	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );
 	printdatetime();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	delay(100);
 	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
+	}
+	unsigned long curmilli( millis() );
+	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
+		g_lamps[pin].loop( curmilli );
 	}
 
 	printdatetime();
@@ -227,10 +241,12 @@ void loop()
 			uint8_t	prevpin = g_pinindex++;
 			if( g_pinindex >= sizeof( g_pins ))
 				g_pinindex = 0;
-			digitalWrite( g_pins[prevpin], HIGH );
-			digitalWrite( g_pins[g_pinindex], LOW );
-			g_rtstart = millis();
+			g_lamps[prevpin].set( false, 0, 0 );
+			g_lamps[g_pinindex].set( true, 0, 0 );
+			g_rtstart = curmilli;
 			printpin( g_pins[g_pinindex] );
 		}
 	}
+
+	delay(10);
 }

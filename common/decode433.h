@@ -21,4 +21,6 @@ enum RcvState : uint8_t {
 	, STOP
 };
 
+void isr();
+
 #endif /* DECODE433_H_ */

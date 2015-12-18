@@ -33,7 +33,6 @@ intdb		g_db;
 gatehandler	g_gatehadler( g_db );
 
 uint8_t		g_relayports[8] = RELAY_PORTS;
-void isr();
 
 //////////////////////////////////////////////////////////////////////////////
 void setup()

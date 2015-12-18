@@ -32,5 +32,7 @@
 #define PIN_INNERLOOP	A1
 
 #define RELAY_PORTS { 9, 8, 7, 6, 5, 4, A3, A2 }
+#define RELAY_OFF	HIGH
+#define RELAY_ON	LOW
 
 #endif /* CONFIG_H_ */
