@@ -19,13 +19,14 @@ public:
 	void loop( unsigned long curmilli );
 	bool get() { return m_on; }
 
-	void set( bool on, unsigned long cycle, uint8_t repeat );
+	void set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis = 0 );
 
 private:
 	uint8_t			m_iopin;
 	bool			m_on;
-	unsigned long	m_cycle;
-	uint8_t			m_repeat;
+	unsigned long	m_cyclelen;
+	uint8_t			m_cyclecount;
+	bool			m_endoff;
 	unsigned long	m_lastmilli;
 };
 

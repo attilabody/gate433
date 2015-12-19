@@ -6,7 +6,7 @@
 #include "interface.h"
 #include "intdb.h"
 #include "decode433.h"
-#include "trafficlights.h"
+#include "../gatelogic/trafficlights.h"
 #include "boardtest.h"
 
 #define TEST_SDCARD
@@ -18,9 +18,9 @@ uint16_t	g_inidx(0);
 const char 		*g_commands[] = {
 	  "sdt"		//set datetime
 	, "ddb"		//dump db
+	, "rs"		//relay stop
 	, "rt"		//relay test
 	, "bt"		//blink test
-	, "rs"		//relay stop
 	, ""
 };
 
@@ -28,7 +28,7 @@ const char 		*g_commands[] = {
 intdb		g_db( false );
 #endif	//	TEST_SDCARD
 
-uint8_t			g_pins[8] = { 9,8,7,6,5,4,A3,A2 };
+uint8_t			g_pins[] = { 9,8,7,6,5,4,A3,A2 };
 uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
 lamp			g_lamps[8];
@@ -53,7 +53,7 @@ void printpin( uint8_t pin );
 void relaysoff()
 {
 	for( uint8_t pin = 0; pin < sizeof( g_pins ); ++pin )
-		g_lamps[ pin ].set( false, 0, 0 );
+		g_lamps[ pin ].set( false, 0, 0, true );
 	g_pinindex = 0xff;
 	printpin( 0xff );
 }
@@ -66,6 +66,8 @@ void processInput()
 	char 		command( findcommand( inptr, g_commands ));
 
 	relaysoff();
+
+	serialoutln( CMNT, (uint16_t)command );
 
 	switch( command ) {
 	case 0:		//	sdt
@@ -103,17 +105,29 @@ void processInput()
 #endif	//	TEST_SDCARD
 			break;
 
-	case 2:		//	relay
+	case 2:		// relay stop
+		break;
+
+	case 3:		//	relay
 		g_pinindex = sizeof( g_pins ) - 1;
 		break;
-	case 3:
-		for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
-			g_lamps[pin].set(pin&1 == 1, 500, 10 );
+
+	case 4:
+		{
+			long	cyclelen, cyclecount, endoff;
+			cyclelen = getintparam( inptr );
+			cyclecount = getintparam( inptr );
+			endoff = getintparam( inptr );
+			if( cyclelen == -1) cyclelen = cyclecount = endoff = 0;
+			else if( cyclecount == -1 ) cyclecount = endoff = 0;
+			else if( endoff == -1 ) endoff = 0;
+			unsigned long currmillis( millis());
+			for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
+				g_lamps[pin].set( !(bool)(pin&1), cyclelen, cyclecount, (bool) endoff, currmillis );
+			}
 		}
 		break;	//blink
 
-	case 4:
-		break;
 	}
 	g_inidx = 0;
 }
@@ -227,9 +241,9 @@ void loop()
 	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
 	}
-	unsigned long curmilli( millis() );
+	unsigned long curmillis( millis() );
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
-		g_lamps[pin].loop( curmilli );
+		g_lamps[pin].loop( curmillis );
 	}
 
 	printdatetime();
@@ -241,9 +255,9 @@ void loop()
 			uint8_t	prevpin = g_pinindex++;
 			if( g_pinindex >= sizeof( g_pins ))
 				g_pinindex = 0;
-			g_lamps[prevpin].set( false, 0, 0 );
-			g_lamps[g_pinindex].set( true, 0, 0 );
-			g_rtstart = curmilli;
+//			g_lamps[prevpin].set( false, 0, 0, false );
+			g_lamps[g_pinindex].set( true, 1200, 0, true );
+			g_rtstart = curmillis;
 			printpin( g_pins[g_pinindex] );
 		}
 	}
