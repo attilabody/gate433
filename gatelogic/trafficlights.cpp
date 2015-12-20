@@ -6,7 +6,7 @@
  */
 
 #include "trafficlights.h"
-#include "config.h"
+//#include "config.h"
 
 //////////////////////////////////////////////////////////////////////////////
 uint8_t trafficlights::m_outerpins[3] = {4,5,6};
@@ -27,21 +27,23 @@ trafficlights::~trafficlights()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-lamp::lamp( uint8_t iopin )
+lamp::lamp( uint8_t iopin, bool highon )
 {
-	init( iopin );
+	init( iopin, highon );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void lamp::init( uint8_t iopin )
+void lamp::init( uint8_t iopin, bool highon )
 {
 	m_iopin = iopin;
+	m_onvalue = highon ? HIGH : LOW;
+	m_offvalue = highon ? LOW : HIGH;
 	m_on = false;
 	m_cyclelen = 0;
 	m_lastmilli = millis();
 	if( m_iopin != 0xff ) {
 		pinMode( m_iopin, OUTPUT );
-		digitalWrite( m_iopin, RELAY_OFF );
+		digitalWrite( m_iopin, m_offvalue );
 	}
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -52,12 +54,12 @@ void lamp::loop( unsigned long curmilli )
 	{
 		if( m_cyclecount ) {
 			m_on = !m_on;
-			digitalWrite( m_iopin, m_on ? RELAY_ON : RELAY_OFF);
+			digitalWrite( m_iopin, m_on ? m_onvalue : m_offvalue );
 			if( m_cyclecount != 0xff ) --m_cyclecount;
 		} else {
 			if( m_on && m_endoff ) {
 				m_on = false;
-				digitalWrite( m_iopin, RELAY_OFF );
+				digitalWrite( m_iopin, m_offvalue );
 			}
 			m_cyclelen = 0;
 		}
@@ -73,5 +75,5 @@ void lamp::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff
 	m_cyclecount = cyclecount;
 	m_on = on;
 	m_endoff = endoff;
-	digitalWrite( m_iopin, on ? RELAY_ON : RELAY_OFF);
+	digitalWrite( m_iopin, on ? m_onvalue : m_offvalue );
 }

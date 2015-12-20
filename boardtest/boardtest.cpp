@@ -214,7 +214,7 @@ void setup()
 #endif	//	TEST_LCD
 
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
-		g_lamps[pin].init( g_pins[pin] );
+		g_lamps[pin].init( g_pins[pin], RELAY_ON == HIGH );
 	}
 #ifdef TEST_DS3231
 #ifndef TEST_LCD
