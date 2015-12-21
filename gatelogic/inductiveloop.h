@@ -12,11 +12,12 @@
 class inductiveloop
 {
 public:
-	enum LOOPSTATUS : uint8_t { NONE = 0, INNER = 1, OUTER = 2, BOTH = 3 };
+	enum LOOPSTATUS : uint8_t { NONE = 0, INNER = 1, OUTER = 2 };
 
-	inductiveloop( uint8_t innerpin, uint8_t outerpin, uint8_t activelevel );
+			inductiveloop( uint8_t innerpin, uint8_t outerpin, uint8_t activelevel );
 	virtual ~inductiveloop();
-	LOOPSTATUS	update( LOOPSTATUS &rawstatus );
+	bool	update( LOOPSTATUS &status );
+	bool	update();
 
 
 private:

@@ -19,23 +19,25 @@ inductiveloop::~inductiveloop()
 {
 }
 
-inductiveloop::LOOPSTATUS inductiveloop::update( LOOPSTATUS &rawstatus )
+bool inductiveloop::update( LOOPSTATUS &status )
 {
-	rawstatus = NONE;
-	if( getstatus( m_innerpin ) == m_activelevel ) {
-		rawstatus = ((LOOPSTATUS)( rawstatus | INNER ));
-	}
-	if( getstatus( m_outerpin ) == m_activelevel ) {
-		rawstatus = ((LOOPSTATUS)( rawstatus | OUTER ));
-	}
+	bool ret( update() );
+	status = m_prevstatus;
+	return ret;
+}
 
-	if( rawstatus == BOTH ) {
+bool inductiveloop::update()
+{
+	uint8_t rawstatus( 0 );
+
+	if( getstatus( m_innerpin ) == m_activelevel ) rawstatus |= (uint8_t) INNER;
+	if( getstatus( m_outerpin ) == m_activelevel ) rawstatus |= (uint8_t) OUTER;
+
+	if( rawstatus == ( INNER | OUTER )) {
 		if( m_prevstatus == NONE )
 			m_prevstatus = INNER;
 	} else
-		m_prevstatus = rawstatus;
+		m_prevstatus = (LOOPSTATUS)rawstatus;
 
-	//......
-
-	return m_prevstatus;
+	return rawstatus == ( INNER | OUTER );
 }
