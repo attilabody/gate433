@@ -31,7 +31,7 @@ intdb		g_db( false );
 uint8_t			g_pins[] = { 9,8,7,6,5,4,A3,A2 };
 uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
-lamp			g_lamps[8];
+light			g_lamps[8];
 
 #ifdef	TEST_LCD
 LiquidCrystal_I2C g_lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -241,7 +241,9 @@ void loop()
 	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
 	}
+
 	unsigned long curmillis( millis() );
+
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
 		g_lamps[pin].loop( curmillis );
 	}

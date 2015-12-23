@@ -9,31 +9,52 @@
 //#include "config.h"
 
 //////////////////////////////////////////////////////////////////////////////
-uint8_t trafficlights::m_outerpins[3] = {4,5,6};
-uint8_t trafficlights::m_innerpins[3] = {7,8,9};
-
-
+//
 //////////////////////////////////////////////////////////////////////////////
-trafficlights::trafficlights()
+trafficlight::trafficlight()
 {
-	// TODO Auto-generated constructor stub
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
-trafficlights::~trafficlights()
+void trafficlight::init( const uint8_t *pins, bool highon )
 {
-	// TODO Auto-generated destructor stub
+	for( uint8_t idx = 0; idx<3; ++idx ) {
+		m_lights[idx].init( *pins++, highon );
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
-lamp::lamp( uint8_t iopin, bool highon )
+void trafficlight::loop( unsigned long currmillis )
+{
+	for( uint8_t idx = 0; idx < 3; ++idx ) {
+		m_lights[idx].loop( currmillis );
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void trafficlight::set( COLORS color, bool on, unsigned long cyclelen )
+{
+	m_lights[color].set( on, cyclelen, 0xff, true );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void trafficlight::set( bool r, unsigned long rc, bool y, unsigned long yc, bool g, unsigned long gc )
+{
+	set( RED, r, rc );
+	set( YELLOW, y, yc );
+	set( GREEN, g, gc );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//////////////////////////////////////////////////////////////////////////////
+light::light( uint8_t iopin, bool highon )
 {
 	init( iopin, highon );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void lamp::init( uint8_t iopin, bool highon )
+void light::init( uint8_t iopin, bool highon )
 {
 	m_iopin = iopin;
 	m_onvalue = highon ? HIGH : LOW;
@@ -47,10 +68,10 @@ void lamp::init( uint8_t iopin, bool highon )
 	}
 }
 //////////////////////////////////////////////////////////////////////////////
-void lamp::loop( unsigned long curmilli )
+void light::loop( unsigned long curmillis )
 {
 	if( !m_cyclelen ) return;
-	if( m_lastmilli + m_cyclelen <= curmilli )
+	if( m_lastmilli + m_cyclelen <= curmillis )
 	{
 		if( m_cyclecount ) {
 			m_on = !m_on;
@@ -63,12 +84,12 @@ void lamp::loop( unsigned long curmilli )
 			}
 			m_cyclelen = 0;
 		}
-		m_lastmilli = curmilli;
+		m_lastmilli = curmillis;
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void lamp::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis )
+void light::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis )
 {
 	m_lastmilli = currmillis ? currmillis : millis();
 	m_cyclelen = cyclelen;
@@ -76,4 +97,26 @@ void lamp::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff
 	m_on = on;
 	m_endoff = endoff;
 	digitalWrite( m_iopin, on ? m_onvalue : m_offvalue );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//////////////////////////////////////////////////////////////////////////////
+trafficlights::trafficlights() : m_state( OFF )
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void trafficlights::init( const uint8_t *innerpins, const uint8_t *outerpins, bool highon )
+{
+	m_inner.init( innerpins, highon );
+	m_outer.init( outerpins, highon );
+	m_state = OFF;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void trafficlights::set( STATES state, bool side )
+{
+	trafficlight	&master( side ? m_inner : m_outer);
+	trafficlight	&slave( side ? m_outer : m_inner);
 }
