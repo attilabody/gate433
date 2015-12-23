@@ -12,6 +12,7 @@ volatile uint16_t 	g_code(0x55aa);
 volatile uint32_t 	g_codetime( 0 );
 volatile uint32_t 	g_lastedge;
 
+
 //////////////////////////////////////////////////////////////////////////////
 void isr()
 {

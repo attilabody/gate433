@@ -10,25 +10,6 @@
 #include "intdb.h"
 
 
-#ifdef FAILSTATS
-struct stats
-{
-	stats() {startabort = dataabort = stopabort = stopdeltat = 0;}
-	bool operator==( const stats &o ) {
-		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort;
-	}
-	bool operator==( stats &o ) {
-		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort;
-	}
-	stats& operator=( const stats &o ) {
-		startabort = o.startabort; dataabort = o.dataabort; stopabort = o.stopabort; return *this;
-	}
-	unsigned long startabort, dataabort, stopabort, stopdeltat;
-};
-
-volatile stats g_stats;
-#endif	//	FAILSTATS
-
 intdb		g_db;
 gatehandler	g_gatehadler( g_db );
 
