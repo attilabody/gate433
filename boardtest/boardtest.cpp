@@ -12,6 +12,7 @@
 #define TEST_SDCARD
 #define TEST_LCD
 #define TEST_DS3231
+#define TEST_TRAFFICLIGHTS
 
 char		g_inbuf[256+1];
 uint16_t	g_inidx(0);
@@ -31,7 +32,9 @@ intdb		g_db( false );
 uint8_t			g_pins[] = { 9,8,7,6,5,4,A3,A2 };
 uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
+#ifdef TEST_TRAFFICLIGHTS
 light			g_lamps[8];
+#endif	//	TEST_TRAFFICLIGHTS
 
 #ifdef	TEST_LCD
 LiquidCrystal_I2C g_lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -52,8 +55,10 @@ void printpin( uint8_t pin );
 //////////////////////////////////////////////////////////////////////////////
 void relaysoff()
 {
+#ifdef TEST_TRAFFICLIGHTS
 	for( uint8_t pin = 0; pin < sizeof( g_pins ); ++pin )
 		g_lamps[ pin ].set( false, 0, 0, true );
+#endif	// TEST_TRAFFICLIGHTS
 	g_pinindex = 0xff;
 	printpin( 0xff );
 }
@@ -108,10 +113,11 @@ void processInput()
 	case 2:		// relay stop
 		break;
 
-	case 3:		//	relay
+	case 3:		// relay test
 		g_pinindex = sizeof( g_pins ) - 1;
 		break;
 
+#ifdef TEST_TRAFFICLIGHTS
 	case 4:
 		{
 			long	cyclelen, cyclecount, endoff;
@@ -126,7 +132,10 @@ void processInput()
 				g_lamps[pin].set( !(bool)(pin&1), cyclelen, cyclecount, (bool) endoff, currmillis );
 			}
 		}
-		break;	//blink
+		break;	//blink test
+#endif	//	TEST_TRAFFICLIGHTS
+	default:
+		Serial.println( ERRS "CMD");
 
 	}
 	g_inidx = 0;
@@ -213,9 +222,17 @@ void setup()
 	g_lcd.backlight();
 #endif	//	TEST_LCD
 
+#ifdef TEST_TRAFFICLIGHTS
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
 		g_lamps[pin].init( g_pins[pin], RELAY_ON == HIGH );
 	}
+#else	//	TEST_TRAFFICLIGHTS
+	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
+		pinMode( g_pins[pin], OUTPUT);
+		digitalWrite( g_pins[pin], HIGH );
+	}
+#endif	//	TEST_TRAFFICLIGHTS
+
 #ifdef TEST_DS3231
 #ifndef TEST_LCD
 	Wire.begin();
@@ -244,9 +261,11 @@ void loop()
 
 	unsigned long curmillis( millis() );
 
+#ifdef TEST_TRAFFICLIGHTS
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
 		g_lamps[pin].loop( curmillis );
 	}
+#endif	//	TEST_TRAFFICLIGHTS
 
 	printdatetime();
 
@@ -257,8 +276,12 @@ void loop()
 			uint8_t	prevpin = g_pinindex++;
 			if( g_pinindex >= sizeof( g_pins ))
 				g_pinindex = 0;
-//			g_lamps[prevpin].set( false, 0, 0, false );
+#ifdef TEST_TRAFFICLIGHTS
 			g_lamps[g_pinindex].set( true, 1200, 0, true );
+#else
+			digitalWrite( g_pins[prevpin], HIGH );
+			digitalWrite( g_pins[g_pinindex], LOW );
+#endif
 			g_rtstart = curmillis;
 			printpin( g_pins[g_pinindex] );
 		}

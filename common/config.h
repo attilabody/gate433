@@ -27,11 +27,14 @@
 #define LOOP_ACTIVE	HIGH
 
 #define PIN_RFIN		2
+#define PIN_INNERLOOP	A0
+#define PIN_OUTERLOOP	A1
+#define	PIN_RELAY_SPARE	A2
 #define PIN_GATE		A3
-#define PIN_OUTERLOOP	A0
-#define PIN_INNERLOOP	A1
 
-#define RELAY_PORTS { 9, 8, 7, 6, 5, 4, A3, A2 }
+#define INNER_LIGHTS_PINS { 4,5,6 }
+#define OUTER_LIGHTS_PINS { 7,8,9 }
+
 #define RELAY_OFF	HIGH
 #define RELAY_ON	LOW
 

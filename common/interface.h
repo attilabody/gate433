@@ -10,7 +10,7 @@
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
-#define BAUDRATE 57600
+#define BAUDRATE 112500
 #define RESP ':'
 #define RESPS ":"
 #define ERR '!'
@@ -23,7 +23,15 @@
 #define CMD_SETS	"sets"
 #define CMD_LOG		"log"
 
-inline void serialoutln() { Serial.println(); }
+inline void serialoutlncs( ) { Serial.println(); }
+template< typename Arg1, typename... Args> void serialoutlncs( const Arg1& arg1, const Args&... args)
+{
+	Serial.print( arg1 );
+	Serial.print( ", " );
+	serialoutlncs( args...);
+}
+
+inline void serialoutln( ) { Serial.println(); }
 template< typename Arg1, typename... Args> void serialoutln( const Arg1& arg1, const Args&... args)
 {
 	Serial.print( arg1 );

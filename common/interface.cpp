@@ -74,7 +74,7 @@ bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx )
 #if defined(DBGSERIALIN)
 	if( Serial.available() )
 	{
-		Serial.print( CMNT "called with buflen ");
+		Serial.print( CMNTS "called with buflen ");
 		Serial.print( (int)buflen );
 		Serial.print( " and idx ");
 		Serial.println( (int) idx );
@@ -100,7 +100,7 @@ bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx )
 				buffer[idx] = 0;
 			lineready = true;
 #if defined(DBGSERIALIN)
-			Serial.print( CMNT "Line ready:" );
+			Serial.print( CMNTS "Line ready:" );
 			Serial.print( buffer );
 			Serial.print( "|" );
 			Serial.print( (int)inc );

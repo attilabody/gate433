@@ -7,6 +7,7 @@
 
 #include "trafficlights.h"
 #include "config.h"
+#define DEBUG_TRAFFICLIGHTS
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -17,7 +18,7 @@ light::light( uint8_t iopin, bool highon )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void light::init( uint8_t iopin, bool highon )
+bool light::init( uint8_t iopin, bool highon )
 {
 	m_iopin = iopin;
 	m_onvalue = highon ? HIGH : LOW;
@@ -25,10 +26,19 @@ void light::init( uint8_t iopin, bool highon )
 	m_on = false;
 	m_cyclelen = 0;
 	m_lastmilli = millis();
+	bool ret(false);
+
 	if( m_iopin != 0xff ) {
 		pinMode( m_iopin, OUTPUT );
 		digitalWrite( m_iopin, m_offvalue );
+		ret = true;
 	}
+#ifdef DEBUG_TRAFFICLIGHTS
+	Serial.print( m_iopin );
+	Serial.print(": light::init return ");
+	Serial.println( ret ? "true" : "false");
+#endif
+	return ret;
 }
 //////////////////////////////////////////////////////////////////////////////
 void light::loop( unsigned long curmillis )
@@ -71,16 +81,19 @@ void light::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endof
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-trafficlight::trafficlight()
+trafficlight::trafficlight( const uint8_t *pins, bool highon )
 {
+	init( pins, highon );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void trafficlight::init( const uint8_t *pins, bool highon )
+bool trafficlight::init( const uint8_t *pins, bool highon )
 {
+	bool ret( true );
 	for( uint8_t idx = 0; idx<3; ++idx ) {
-		m_lights[idx].init( *pins++, highon );
+		ret &= m_lights[idx].init( *pins++, highon );
 	}
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -121,17 +134,22 @@ const uint16_t	trafficlights::m_compstates[trafficlights::NUMSTATES] = {
 };
 
 //////////////////////////////////////////////////////////////////////////////
-trafficlights::trafficlights() : m_state( OFF ), m_cyclelen( 500 )
+//
+//////////////////////////////////////////////////////////////////////////////
+trafficlights::trafficlights( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen )
 {
+	init( innerpins, outerpins, highon, cyclelen );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void trafficlights::init( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen )
+bool trafficlights::init( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen )
 {
-	m_inner.init( innerpins, highon );
-	m_outer.init( outerpins, highon );
+	bool ret( true );
 	m_state = OFF;
 	m_cyclelen = cyclelen;
+	ret = m_inner.init( innerpins, highon ) & ret;
+	ret = m_outer.init( outerpins, highon ) & ret;
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -144,18 +162,25 @@ void trafficlights::set( STATES state, bool inner )
 void trafficlights::set( uint16_t state, bool inner )
 {
 	unsigned long	currmillis( millis());
-	trafficlight	&master( inner ? m_inner : m_outer);
-	trafficlight	&slave( inner ? m_outer : m_inner);
+	trafficlight	&primary( inner ? m_inner : m_outer);
+	trafficlight	&secondary( inner ? m_outer : m_inner);
 
-	uint8_t	mastervals( (state >> 8 ) &0xf );
-	uint8_t	masterblinks( (state >> 12 ) &0xf );
-	uint8_t	slavevals( state &0xf );
-	uint8_t	slaveblinks( ( state >> 4 ) &0xf );
-	uint8_t	mask(1);
+	uint8_t	primaryvals( (state >> 8 ) &0xf );
+	uint8_t	primaryblinkmask( (state >> 12 ) &0xf );
+	uint8_t	secondaryvals( state &0xf );
+	uint8_t	secondaryblinkmask( ( state >> 4 ) &0xf );
+	uint8_t	curcolormask(1);
 
-	for( uint8_t color = trafficlight::GREEN; color <= trafficlight::RED; ++color, mask <<= 1 ) {
-		master.set( (trafficlight::COLORS) color, (mastervals & mask) != 0, (masterblinks & mask) != 0 ? m_cyclelen : 0, currmillis );
-		slave.set( (trafficlight::COLORS) color, (slavevals & mask) != 0, (slaveblinks & mask) != 0 ? m_cyclelen : 0, currmillis );
+	for( uint8_t color = trafficlight::GREEN; color <= trafficlight::RED; ++color, curcolormask <<= 1 ) {
+		primary.set( (trafficlight::COLORS) color, (primaryvals & curcolormask) != 0, (primaryblinkmask & curcolormask) != 0 ? m_cyclelen : 0, currmillis );
+		secondary.set( (trafficlight::COLORS) color, (secondaryvals & curcolormask) != 0, (secondaryblinkmask & curcolormask) != 0 ? m_cyclelen : 0, currmillis );
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////
+void trafficlights::loop( unsigned long currmillis )
+{
+	if( !currmillis ) currmillis = millis();
+	m_inner.loop( currmillis );
+	m_outer.loop( currmillis );
+}

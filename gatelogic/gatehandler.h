@@ -14,7 +14,7 @@
 
 class gatehandler {
 public:
-	gatehandler( database &db, bool use_loops = false ) : m_use_loops( use_loops ), m_db( db ) {};
+	gatehandler( database &db, bool use_loops ) : m_db( db ), m_use_loops( use_loops ) {};
 	virtual ~gatehandler();
 
 	enum GATESTATUS : uint8_t {

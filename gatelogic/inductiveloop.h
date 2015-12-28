@@ -12,11 +12,13 @@
 class inductiveloop
 {
 public:
-	enum LOOPSTATUS : uint8_t { NONE = 0, INNER = 1, OUTER = 2 };
+	enum STATUS : uint8_t { NONE = 0, INNER = 1, OUTER = 2 };
 
+			inductiveloop() {};
 			inductiveloop( uint8_t innerpin, uint8_t outerpin, uint8_t activelevel );
-	virtual ~inductiveloop();
-	bool	update( LOOPSTATUS &status );
+	// returns true in case of conflict (both loops signaled)
+	bool	init( uint8_t innerpin, uint8_t outerpin, uint8_t activelevel );
+	bool	update( STATUS &status );
 	bool	update();
 
 
@@ -26,9 +28,9 @@ private:
 		else return analogRead( pin ) > 256 ? HIGH : LOW;
 	}
 
-	LOOPSTATUS		m_prevstatus;
-	uint8_t			m_innerpin, m_outerpin;
-	const uint8_t	m_activelevel;
+	STATUS	m_prevstatus;
+	uint8_t		m_innerpin, m_outerpin;
+	uint8_t		m_activelevel;
 };
 
 #endif /* INDUCTIVELOOP_H_ */

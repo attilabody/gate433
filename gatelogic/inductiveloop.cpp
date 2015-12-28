@@ -8,18 +8,25 @@
 #include "inductiveloop.h"
 
 inductiveloop::inductiveloop( uint8_t innerpin, uint8_t outerpin, uint8_t activelevel )
-	: m_prevstatus( NONE )
-	, m_innerpin( innerpin )
-	, m_outerpin( outerpin )
-	, m_activelevel( activelevel )
 {
+	init( innerpin, outerpin, activelevel );
 }
 
-inductiveloop::~inductiveloop()
+bool inductiveloop::init( uint8_t innerpin, uint8_t outerpin, uint8_t activelevel )
 {
+	m_prevstatus = NONE;
+	m_innerpin = innerpin;
+	m_outerpin = outerpin;
+	m_activelevel = activelevel;
+
+	pinMode( m_innerpin, INPUT );
+	digitalWrite( m_innerpin, HIGH );	//	activate pullup;
+	pinMode( m_outerpin, INPUT );
+	digitalWrite( m_outerpin, HIGH );	//	activate pullup;
+	return true;
 }
 
-bool inductiveloop::update( LOOPSTATUS &status )
+bool inductiveloop::update( STATUS &status )
 {
 	bool ret( update() );
 	status = m_prevstatus;
@@ -37,7 +44,7 @@ bool inductiveloop::update()
 		if( m_prevstatus == NONE )
 			m_prevstatus = INNER;
 	} else
-		m_prevstatus = (LOOPSTATUS)rawstatus;
+		m_prevstatus = (STATUS)rawstatus;
 
 	return rawstatus == ( INNER | OUTER );
 }
