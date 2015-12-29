@@ -7,7 +7,7 @@
 
 #include "trafficlights.h"
 #include "config.h"
-#define DEBUG_TRAFFICLIGHTS
+//#define DEBUG_LIGHT
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -33,7 +33,7 @@ bool light::init( uint8_t iopin, bool highon )
 		digitalWrite( m_iopin, m_offvalue );
 		ret = true;
 	}
-#ifdef DEBUG_TRAFFICLIGHTS
+#ifdef DEBUG_LIGHT
 	Serial.print( m_iopin );
 	Serial.print(": light::init return ");
 	Serial.println( ret ? "true" : "false");
@@ -64,12 +64,12 @@ void light::loop( unsigned long curmillis )
 //////////////////////////////////////////////////////////////////////////////
 void light::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis )
 {
-#ifdef DEBUG_TRAFFICLIGHTS
+#ifdef DEBUG_LIGHT
 	Serial.print( m_iopin ); Serial.print( ": ");
 	Serial.print( on ? " on " : "off ");
 	Serial.print( cyclelen ); Serial.print( ' ' );
 	Serial.print( cyclecount ); Serial.println( endoff ? " true" : " false" );
-#endif	//	DEBUG_TRAFFICLIGHTS
+#endif	//	DEBUG_LIGHT
 	m_lastmilli = currmillis ? currmillis : millis();
 	m_cyclelen = cyclelen;
 	m_cyclecount = cyclecount;

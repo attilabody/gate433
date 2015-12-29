@@ -1,11 +1,10 @@
-#include <config.h>
+#include "config.h"
 #include <Wire.h>
 #include <ds3231.h>
-#include <interface.h>
+#include "globals.h"
+#include "interface.h"
 #include "serialbuf.h"
 #include "decode433.h"
-#include "inductiveloop.h"
-#include "trafficlights.h"
 #include "gatelogic.h"
 
 
@@ -13,20 +12,10 @@
 #include "intdb.h"
 
 
-intdb		g_db;
-gatehandler	g_gatehadler( g_db, true );
-
-uint8_t		g_innerlightspins[3] = INNER_LIGHTS_PINS;
-uint8_t		g_outerlightspins[3] = OUTER_LIGHTS_PINS;
-uint8_t		g_otherrelaypins[] = { PIN_GATE, PIN_RELAY_SPARE };
-
-trafficlights	g_lights;
-inductiveloop	g_indloop( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
-
 enum SYSSTATUS { INHIBITED, CODE, PASS };
 
 //////////////////////////////////////////////////////////////////////////////
-void setuprelaypins( uint8_t *pins, uint8_t size )
+void setuprelaypins( const uint8_t *pins, uint8_t size )
 {
 	while( size > 0 ) {
 		pinMode( *pins, OUTPUT );
@@ -56,6 +45,16 @@ void setup()
 #endif
 	pinMode( PIN_RFIN, INPUT );
 
+	g_lcd.init();
+	g_lcd.backlight();
+
+	g_dbinitfail = !g_db.init();
+
+	if( g_dbinitfail ) {
+		g_lcd.print( "DB init FAILED!!" );
+	}
+
+	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 	g_lights.init( g_innerlightspins, g_outerlightspins, RELAY_ON == HIGH, 500 );
 	setuprelaypins( g_otherrelaypins, sizeof(g_otherrelaypins));
 
@@ -85,11 +84,6 @@ void loop()
 	static stats *pp, *ps;
 #endif
 
-	if( g_codeready ){
-		//process received info here
-		g_gatehadler.codereceived( g_code >> 2, false );
-		g_codeready = false;
-	}
 #ifdef FAILSTATS
 	else
 	{
@@ -109,6 +103,7 @@ void loop()
 
 //	if( getlinefromserial( g_inbuf, sizeof(g_inbuf ), g_inidx) )
 //		processInput();
+	static gatehandler				handler( g_db, g_lights, g_indloop, ENFORCE_POS, ENFORCE_DT );
 	static inductiveloop::STATUS	prevls( inductiveloop::NONE );
 	static bool						prevconflict( false );
 

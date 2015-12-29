@@ -1,56 +1,87 @@
 // Do not remove the include below
 #include "Arduino.h"
+#include "interface.h"
 #include "trafficlights.h"
 
 #define STEP_LEN 5000
 
-uint8_t	innerpins[3] = { 4,5,6 };
-uint8_t	outerpins[3] = { 7,8,9 };
+struct serinit
+{
+	serinit( unsigned long baud = 115200) { Serial.begin( baud ); }
+};// g_si;
 
-//trafficlight	g_innerlights;
-//trafficlight	g_outerlights;
-trafficlights	g_lights;
+const uint8_t	g_innerpins[3] = { 4,5,6 };
+const uint8_t	g_outerpins[3] = { 7,8,9 };
+const uint16_t	g_testvals[] = { 0x0104, 0x1144, 0x0202, 0x2222, 0x0401, 0x4411 };
+const char 		*g_phasenames[] = { "OFF", "NEEDCODE", "CONFLICT", "ACCEPTED", "DENIED", "PASS" };
+char			g_buf[32];
+
+#define PREP_LEN 6
+#define PREP1_START 0
+#define PREP1_END (PREP1_START + PREP_LEN - 1)
+#define PREP2_START (PREP1_START + PREP_LEN)
+#define PREP2_END (PREP2_START + PREP_LEN - 1)
+#define RAW_LEN	6
+#define RAW1_START (PREP2_START + PREP_LEN)
+#define RAW1_END (RAW1_START + RAW_LEN - 1)
+#define RAW2_START (RAW1_START + RAW_LEN)
+#define RAW2_END (RAW2_START + RAW_LEN - 1)
+
+
 //The setup function is called once at startup of the sketch
 void setup()
 {
 	Serial.begin( 115200 );
-//	g_innerlights.init( innerpins, false );
-//	g_outerlights.init( outerpins, false );
-	g_lights.init( innerpins, outerpins, false, 500 );
+//	g_lights.init( g_innerpins, g_outerpins, false, 500 );
 }
 
 // The loop function is called in an endless loop
 void loop()
 {
-	static uint8_t	phase(0);
-	static const uint16_t	testvals[] = { 0x0104, 0x1144, 0x0202, 0x2222, 0x0401, 0x4411 };
+	static trafficlights	lights( g_innerpins, g_outerpins, false, 500 );
+	static uint8_t			phase(0);
 	static unsigned long	laststart( millis() - STEP_LEN - 1 );
+	char					*bufptr;
+
 	if( millis() - laststart  > STEP_LEN )
 	{
 		laststart = millis();
 		Serial.println(phase);
 
-
-
-//		if( phase < trafficlights::NUMSTATES - 1)
-//			g_lights.set( (trafficlights::STATES) (phase+1), true );
-//		else
-//			g_lights.set( (trafficlights::STATES) 0, true);
-//	OFF=0, NEEDCODE, CONFLICT, ACCEPTED, DENIED, PASS
 		switch( phase )
 		{
-		case 0 ... 5:
-			g_lights.set( testvals[phase], true );
-			break;
-		case 6 ... 11:
-		g_lights.set( testvals[phase-6], false );
+		case PREP1_START ... PREP1_END:
+			lights.set( (trafficlights::STATES) (phase-PREP1_START), true);
+			Serial.print( g_phasenames[phase-PREP1_START] ); Serial.println(", true");
 			break;
 
-		case 12:
-			g_lights.set( 0, false );
+		case PREP2_START ...PREP2_END:
+			lights.set( (trafficlights::STATES) (phase-PREP2_START), false);
+			Serial.print( g_phasenames[phase-PREP2_START] ); Serial.println(", false");
+			break;
+
+		case RAW1_START ... RAW1_END:
+			lights.set( g_testvals[phase-RAW1_START], true );
+			bufptr = g_buf;
+			uitohex( bufptr, g_testvals[phase-RAW1_START], 4 );
+			*bufptr = 0;
+			Serial.print( g_buf ); Serial.println(", true");
+			break;
+
+		case RAW2_START ... RAW2_END:
+			lights.set( g_testvals[phase-RAW2_START], false );
+			bufptr = g_buf;
+			uitohex( bufptr, g_testvals[phase-RAW2_START], 4 );
+			*bufptr = 0;
+			Serial.print( g_buf ); Serial.println(", false");
+			break;
+
+		case RAW2_END + 1:
+			lights.set( 0, false );
 			break;
 
 		default:
+			phase = -1;
 			break;
 		}
 
@@ -58,7 +89,5 @@ void loop()
 	}
 
 	unsigned long currmillis( millis());
-//	g_innerlights.loop( currmillis );
-//	g_outerlights.loop( currmillis );
-	g_lights.loop( currmillis );
+	lights.loop( currmillis );
 }

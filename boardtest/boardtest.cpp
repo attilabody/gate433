@@ -29,7 +29,7 @@ const char 		*g_commands[] = {
 intdb		g_db( false );
 #endif	//	TEST_SDCARD
 
-uint8_t			g_pins[] = { 9,8,7,6,5,4,A3,A2 };
+uint8_t			g_pins[8] = { 9,8,7,6,5,4,A3,A2 };
 uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
 #ifdef TEST_TRAFFICLIGHTS

@@ -8,11 +8,17 @@
 #include "config.h"
 #include "gatehandler.h"
 
-gatehandler::~gatehandler() {
-	// TODO Auto-generated destructor stub
-}
-
-void gatehandler::codereceived( uint16_t code, bool inside )
+gatehandler::gatehandler( database &db
+			, trafficlights &lights
+			, inductiveloop &loop
+			, bool enforcepos
+			, bool enforcedt )
+: m_db( db )
+, m_lights( lights )
+, m_loop( loop )
+, m_enforcepos( enforcepos )
+, m_enforcedt( enforcedt )
+, m_status( CLOSED )
 {
-
 }
+

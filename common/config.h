@@ -38,4 +38,11 @@
 #define RELAY_OFF	HIGH
 #define RELAY_ON	LOW
 
+#define LCD_ADDRESS	0x27	//	usually 0x27 or 0x3f
+#define LCD_WIDTH	16		//	in characters
+#define LCD_HEIGHT	2		//	in lines
+
+#define	ENFORCE_POS	false	//	enforce position requirements
+#define	ENFORCE_DT	true	//	enforce date-time requirements
+
 #endif /* CONFIG_H_ */
