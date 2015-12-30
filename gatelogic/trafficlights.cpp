@@ -8,6 +8,7 @@
 #include "trafficlights.h"
 #include "config.h"
 //#define DEBUG_LIGHT
+//#define DEBUG_LIGHT_INIT
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -33,7 +34,7 @@ bool light::init( uint8_t iopin, bool highon )
 		digitalWrite( m_iopin, m_offvalue );
 		ret = true;
 	}
-#ifdef DEBUG_LIGHT
+#ifdef DEBUG_LIGHT_INIT
 	Serial.print( m_iopin );
 	Serial.print(": light::init return ");
 	Serial.println( ret ? "true" : "false");
@@ -125,12 +126,13 @@ void trafficlight::set( bool r, unsigned long rc, bool y, unsigned long yc, bool
 //////////////////////////////////////////////////////////////////////////////
 //OFF=0, NEEDCODE, CONFLICT, ACCEPTED, DENIED, PASS
 const uint16_t	trafficlights::m_compstates[trafficlights::NUMSTATES] = {
-	  0x0000
-	, 0x0204
-	, 0x2244
-	, 0x0104
-	, 0x4404
-	, 0x0404
+	  0x0000	//	OFF
+	, 0x0204	//	NEEDCODE
+	, 0x2244	//	CONFLLICT
+	, 0x0104	//	ACCEPTED
+	, 0x1104	//	WARNED
+	, 0x4404	//	DENIED
+	, 0x0404	//	PASS
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -153,9 +155,10 @@ bool trafficlights::init( const uint8_t *innerpins, const uint8_t *outerpins, bo
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void trafficlights::set( STATES state, bool inner )
+uint16_t trafficlights::set( STATES state, bool inner )
 {
 	set( m_compstates[state], inner );
+	return m_compstates[state];
 }
 
 //////////////////////////////////////////////////////////////////////////////

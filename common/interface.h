@@ -23,14 +23,34 @@
 #define CMD_SETS	"sets"
 #define CMD_LOG		"log"
 
-inline void serialoutlncs( ) { Serial.println(); }
-template< typename Arg1, typename... Args> void serialoutlncs( const Arg1& arg1, const Args&... args)
-{
+template<typename Sep, typename Arg1> void serialoutsepln( const Sep sep, const Arg1 arg1 ) {
 	Serial.print( arg1 );
-	Serial.print( ", " );
-	serialoutlncs( args...);
+	Serial.println();
+}
+template< typename Sep, typename Arg1, typename... Args> void serialoutsepln(const Sep sep, const Arg1& arg1, const Args&... args) {
+	Serial.print( arg1 );
+	Serial.print( sep );
+	serialoutsepln( sep, args...);
 }
 
+template<typename Sep, typename Arg1> void serialoutsep( const Sep sep, const Arg1 arg1 ) {
+	Serial.print( arg1 );
+	Serial.print( sep );
+}
+template< typename Sep, typename Arg1, typename... Args> void serialoutsep(const Sep sep, const Arg1& arg1, const Args&... args) {
+	Serial.print( arg1 );
+	Serial.print( sep );
+	serialoutsep( sep, args...);
+}
+
+//inline void serialoutlncs( ) { Serial.println(); }
+//template< typename Arg1, typename... Args> void serialoutlncs( const Arg1& arg1, const Args&... args)
+//{
+//	Serial.print( arg1 );
+//	Serial.print( ", " );
+//	serialoutlncs( args...);
+//}
+//
 inline void serialoutln( ) { Serial.println(); }
 template< typename Arg1, typename... Args> void serialoutln( const Arg1& arg1, const Args&... args)
 {

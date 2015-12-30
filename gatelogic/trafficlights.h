@@ -57,14 +57,14 @@ protected:
 class trafficlights
 {
 public:
-	enum STATES { OFF=0, NEEDCODE, CONFLICT, ACCEPTED, DENIED, PASS, NUMSTATES };
+	enum STATES { OFF=0, NEEDCODE, CONFLICT, ACCEPTED, WARNED, DENIED, PASS, NUMSTATES };
 
 	trafficlights() {}
 	trafficlights( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen );
-	bool 	init( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen );
-	void	loop( unsigned long currmillis = 0 );
-	void	set( STATES state, bool inner );
-	void	set( uint16_t state, bool inner );
+	bool 		init( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen );
+	void		loop( unsigned long currmillis = 0 );
+	uint16_t	set( STATES state, bool inner );
+	void		set( uint16_t state, bool inner );
 
 protected:
 	trafficlight			m_inner, m_outer;
