@@ -113,7 +113,7 @@ void loop()
 	conflict = g_indloop.update( ls );
 	if( ls != prevls || conflict != prevconflict )
 	{
-		serialoutlncs( (int) ls, conflict );
+		serialoutsepln( ", ", (int) ls, conflict );
 		prevls = ls;
 		prevconflict = conflict;
 	}

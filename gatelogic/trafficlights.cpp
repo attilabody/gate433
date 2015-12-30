@@ -155,7 +155,7 @@ bool trafficlights::init( const uint8_t *innerpins, const uint8_t *outerpins, bo
 }
 
 //////////////////////////////////////////////////////////////////////////////
-uint16_t trafficlights::set( STATES state, bool inner )
+uint16_t trafficlights::set( STATUS state, bool inner )
 {
 	set( m_compstates[state], inner );
 	return m_compstates[state];
