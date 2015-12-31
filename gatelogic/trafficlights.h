@@ -57,7 +57,7 @@ protected:
 class trafficlights
 {
 public:
-	enum STATUS { OFF=0, NEEDCODE, CONFLICT, ACCEPTED, WARNED, DENIED, PASS, NUMSTATES };
+	enum STATUS { OFF=0, CODEWAIT, CONFLICT, ACCEPTED, WARNED, DENIED, PASS, NUMSTATES };
 
 	trafficlights() {}
 	trafficlights( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen );

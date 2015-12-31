@@ -5,6 +5,7 @@
 #include "interface.h"
 #include "trafficlights.h"
 #include "inductiveloop.h"
+#include "decode433.h"
 
 #define STEP_LEN 5000
 
@@ -13,22 +14,16 @@ struct serinit
 	serinit( unsigned long baud = 115200) { Serial.begin( baud ); }
 };// g_si;
 
-enum STATUS { WAITSETTLE, NEEDCODE, PASS, RETREAT };
+enum STATUS { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 const uint8_t		g_innerpins[3] = { 4,5,6 };
 const uint8_t		g_outerpins[3] = { 7,8,9 };
-const char 			*g_phasenames[] = { "OFF", "NEEDCODE", "CONFLICT", "ACCEPTED", "WARNED", "DENIED", "PASS" };
+const char 			*g_phasenames[] = { "OFF", "CODEWAIT", "CONFLICT", "ACCEPTED", "WARNED", "DENIED", "PASS" };
 char				g_buf[5];
-
-
-char		g_inbuf[128+1];
-uint16_t	g_inidx(0);
-const char 		*g_commands[] = {
-	  "sdt"		//set datetime
-	, "ddb"		//dump db
-	, "rs"		//relay stop
-	, "rt"		//relay test
-	, "bt"		//blink test
+char				g_inbuf[128+1];
+uint16_t			g_inidx(0);
+const char 			*g_commands[] = {
+	  "code"	//simulate incoming code
 	, ""
 };
 
@@ -134,9 +129,6 @@ void loop()
 
 		++phase;
 	}
-
-	unsigned long currmillis( millis());
-	g_lights.loop( currmillis );
 #else	//	SIMPLE_TEST
 	static STATUS					status( WAITSETTLE );
 	static trafficlights::STATUS	tlstatus(trafficlights::OFF );
@@ -169,18 +161,28 @@ void loop()
 			break;
 		} else if( ilstatus != inductiveloop::NONE ) {
 			inner = ilstatus == inductiveloop::INNER;
-			g_lights.set( trafficlights::NEEDCODE, inner );
-			tlstatus = trafficlights::NEEDCODE;
-			status = NEEDCODE;
+			g_lights.set( trafficlights::CODEWAIT, inner );
+			tlstatus = trafficlights::CODEWAIT;
+			status = CODEWAIT;
 		}
 		break;
 
-	case NEEDCODE:
+	case CODEWAIT:
 		if( ilchanged ) {
 			status = WAITSETTLE;
 			break;
 		}
-		//TODO:
+		if( g_codeready ) {
+			if( g_code & 1 ) {
+				status = RETREAT;
+				g_lights.set( trafficlights::DENIED, inner );
+				tlstatus = trafficlights::DENIED;
+			} else {
+				status = PASS;
+				g_lights.set( trafficlights::PASS, inner );
+				tlstatus = trafficlights::PASS;
+			}
+		}
 		break;
 
 	case PASS:
@@ -196,23 +198,28 @@ void loop()
 		break;
 
 	case RETREAT:
-		if( ! ilchanged ) break;
+		if( !ilchanged ) break;
 		//TODO: lights
 		if( ilstatus != (inner ? inductiveloop::INNER : inductiveloop::OUTER)) {
 			if( ilstatus == inductiveloop::NONE ) {
 				g_lights.set( trafficlights::OFF, inner );
 				tlstatus = trafficlights::OFF;
+				status = WAITSETTLE;
 			} else {
-				g_lights.set( trafficlights::OFF, inner );
-				tlstatus = trafficlights::OFF;
+				g_lights.set( trafficlights::CODEWAIT, !inner );
+				tlstatus = trafficlights::CODEWAIT;
+				status = CODEWAIT;
 			}
 		}
 		break;
 	}
 
+	ilstatussaved = ilstatus;
+	ilconflictsaved = ilconflict;
 
 
-	unsigned long curmillis( millis() );
+	unsigned long currmillis( millis());
+	g_lights.loop( currmillis );
 #endif	//	SIMPLE_TEST
 }
 
@@ -235,11 +242,17 @@ void processInput()
 {
 	const char	*inptr( g_inbuf );
 	char 		command( findcommand( inptr, g_commands ));
+	long		code;
 
 	serialoutln( CMNT, (uint16_t)command );
 
 	switch( command ) {
-	case 0:		//	sdt
+	case 0:		//	code
+		code = getintparam( inptr );
+		if( code != -1 ) {
+			g_code = code;
+			g_codeready = true;
+		}
 		break;
 
 	default:

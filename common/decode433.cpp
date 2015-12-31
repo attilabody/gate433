@@ -8,7 +8,7 @@
 #include "config.h"
 
 volatile bool 		g_codeready( false );
-volatile uint16_t 	g_code(0x55aa);
+volatile uint16_t 	g_code(-1);
 volatile uint32_t 	g_codetime( 0 );
 volatile uint32_t 	g_lastedge;
 
