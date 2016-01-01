@@ -6,7 +6,7 @@
 #include "interface.h"
 #include "intdb.h"
 #include "decode433.h"
-#include "../gatelogic/trafficlights.h"
+#include "trafficlights.h"
 #include "boardtest.h"
 
 #define TEST_SDCARD

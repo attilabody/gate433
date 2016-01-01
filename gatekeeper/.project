@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>trafficlights_test</name>
+	<name>gatekeeper</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -32,29 +32,14 @@
 			<locationURI>PARENT-1-PROJECT_LOC/common</locationURI>
 		</link>
 		<link>
-			<name>inductiveloop.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatelogic/inductiveloop.cpp</locationURI>
-		</link>
-		<link>
-			<name>inductiveloop.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatelogic/inductiveloop.h</locationURI>
-		</link>
-		<link>
 			<name>libs</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/libs</locationURI>
+			<locationURI>WORKSPACE_LOC/gate433/libs</locationURI>
 		</link>
 		<link>
-			<name>trafficlights.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatelogic/trafficlights.cpp</locationURI>
-		</link>
-		<link>
-			<name>trafficlights.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatelogic/trafficlights.h</locationURI>
+			<name>Libraries/EEPROM</name>
+			<type>2</type>
+			<locationURI>ArduinoHardwareLibPath/EEPROM</locationURI>
 		</link>
 		<link>
 			<name>Libraries/Wire</name>
@@ -84,6 +69,10 @@
 		<variable>
 			<name>ArduinoPlatformPath</name>
 			<value>file:/opt/arduino-1.6.5-r5/hardware/arduino/avr/cores</value>
+		</variable>
+		<variable>
+			<name>copy_PARENT</name>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D/gate433</value>
 		</variable>
 	</variableList>
 </projectDescription>
