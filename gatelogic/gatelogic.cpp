@@ -28,17 +28,7 @@ void setuprelaypins( const uint8_t *pins, uint8_t size )
 void setup()
 {
 	Serial.begin( BAUDRATE );
-#ifdef USE_DS3231
-#ifdef VERBOSE
-	delay(100);
-	Serial.println("Initializing DS3231");
-#endif
-	Wire.begin();
-	DS3231_init( DS3231_INTCN );
-#ifdef VERBOSE
-	Serial.println("Done.");
-#endif
-#endif	//	USE_DS3231
+
 
 #ifdef PIN_LED
 	pinMode( PIN_LED, OUTPUT );
@@ -58,20 +48,13 @@ void setup()
 	g_lights.init( g_innerlightspins, g_outerlightspins, RELAY_ON == HIGH, 500 );
 	setuprelaypins( g_otherrelaypins, sizeof(g_otherrelaypins));
 
+#ifdef PIN_LED
 	noInterrupts();
 	// disable all interrupts
 	TIMSK0 |= ( 1 << OCIE0A );  // enable timer compare interrupt
 	interrupts();
 	// enable all interrupts
-
-#if defined(VERBOSE) && defined(USE_DS3231)
-	ts t;
-	DS3231_get( &t );
-	datetimetoserial( t );
-#endif	//	defined(VERBOSE) && defined(USE_DS3231)
-#ifdef FAILSTATS
-	memset( (void*) &g_stats, sizeof( g_stats ), 0 );
-#endif
+#endif	//	PIN_LED
 
 	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );
 }
@@ -79,52 +62,17 @@ void setup()
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-#ifdef FAILSTATS
-	static stats prevstats;
-	static stats *pp, *ps;
-#endif
-
-#ifdef FAILSTATS
-	else
-	{
-		ps = (stats*)&g_stats;
-		if( !(prevstats == *ps) )
-		{
-			String s( String( g_stats.startabort )
-					+ String( " " ) + String( g_stats.dataabort )
-					+ String( " " ) + String( g_stats.stopabort )
-					+ String( " " ) + String( g_stats.stopdeltat )
-			);
-			Serial.println( s );
-			prevstats = *ps;
-		}
-	}
-#endif	//	FAILSTATS
-
 //	if( getlinefromserial( g_inbuf, sizeof(g_inbuf ), g_inidx) )
 //		processInput();
-	static gatehandler				handler( g_db, g_lights, g_indloop, ENFORCE_POS, ENFORCE_DT );
-	static inductiveloop::STATUS	prevls( inductiveloop::NONE );
-	static bool						prevconflict( false );
+	static gatehandler				handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
 
-	inductiveloop::STATUS			ls;
-	bool							conflict( false );
-
-	conflict = g_indloop.update( ls );
-	if( ls != prevls || conflict != prevconflict )
-	{
-		serialoutsepln( ", ", (int) ls, conflict );
-		prevls = ls;
-		prevconflict = conflict;
-	}
-
-	g_lights.loop();
+	handler.loop( millis() );
 }
 
+#ifdef PIN_LED
 //////////////////////////////////////////////////////////////////////////////
 ISR( TIMER0_COMPA_vect ) {
-#ifdef PIN_LED
 	digitalWrite( PIN_LED, ( micros() - g_codetime < 500000 ) ? HIGH : LOW );
-#endif
 }
+#endif
 

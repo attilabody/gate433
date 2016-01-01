@@ -147,7 +147,7 @@ trafficlights::trafficlights( const uint8_t *innerpins, const uint8_t *outerpins
 bool trafficlights::init( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen )
 {
 	bool ret( true );
-	m_state = OFF;
+	m_status = OFF;
 	m_cyclelen = cyclelen;
 	ret = m_inner.init( innerpins, highon ) & ret;
 	ret = m_outer.init( outerpins, highon ) & ret;
