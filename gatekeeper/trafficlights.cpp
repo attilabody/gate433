@@ -36,8 +36,8 @@ bool light::init( uint8_t iopin, bool highon )
 	}
 #ifdef DEBUG_LIGHT_INIT
 	Serial.print( m_iopin );
-	Serial.print(": light::init return ");
-	Serial.println( ret ? "true" : "false");
+	Serial.print(F(": light::init return "));
+	Serial.println( ret ? F("true") : F("false"));
 #endif
 	return ret;
 }
@@ -67,9 +67,9 @@ void light::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endof
 {
 #ifdef DEBUG_LIGHT
 	Serial.print( m_iopin ); Serial.print( ": ");
-	Serial.print( on ? " on " : "off ");
+	Serial.print( on ? F(" on ") : F("off "));
 	Serial.print( cyclelen ); Serial.print( ' ' );
-	Serial.print( cyclecount ); Serial.println( endoff ? " true" : " false" );
+	Serial.print( cyclecount ); Serial.println( endoff ? F(" true") : F(" false") );
 #endif	//	DEBUG_LIGHT
 	m_lastmilli = currmillis ? currmillis : millis();
 	m_cyclelen = cyclelen;

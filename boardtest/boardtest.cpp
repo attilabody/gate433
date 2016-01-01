@@ -91,12 +91,10 @@ void processInput()
 #ifdef TEST_SDCARD
 		{
 			char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
+			database::dbrecord	rec;
 
-			for( int code = 0; code < 1024; ++code )
-			{
-				database::dbrecord	rec;
-				if( g_db.getParams( code, rec ))
-				{
+			for( int code = 0; code < 1024; ++code ) {
+				if( g_db.getParams( code, rec )) {
 					rec.serialize( recbuf );
 					Serial.println( recbuf );
 				} else {

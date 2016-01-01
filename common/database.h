@@ -28,12 +28,9 @@ public:
 		int16_t	out_start;
 		int16_t	out_end;
 		uint8_t	days;
-		enum POSITION : uint8_t
-		{
-			  unknown
-			, outside
-			, inside
-		}		position;
+		enum POSITION : uint8_t {
+			  unknown , outside , inside
+		} position;
 	};
 
 	virtual bool getParams( int code, dbrecord &out ) = 0;

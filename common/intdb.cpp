@@ -10,8 +10,9 @@
 #include "config.h"
 #include "interface.h"
 
-intdb::intdb( bool initialize )
-	: m_initok( false )
+intdb::intdb( SdFat &sd, bool initialize )
+: m_sd( sd )
+, m_initok( false )
 {
 	if( initialize ) init();
 }
@@ -24,10 +25,8 @@ intdb::~intdb()
 
 bool intdb::init()
 {
-	if( m_sd.begin( SS, SPI_HALF_SPEED )) {
-		m_info = m_sd.open( "info.txt", FILE_READ );
-		m_initok = m_info;
-	}
+	m_info = m_sd.open( "info.txt", FILE_READ );
+	m_initok = m_info;
 }
 
 bool intdb::getParams( int code, dbrecord &recout )

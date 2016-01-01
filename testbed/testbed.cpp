@@ -1,35 +1,42 @@
 // Do not remove the include below
 #include "Arduino.h"
 #include <LiquidCrystal_I2C.h>
+#include <SdFat.h>
+#include <MemoryFree.h>
 #include "config.h"
 #include "interface.h"
 #include "trafficlights.h"
 #include "inductiveloop.h"
 #include "decode433.h"
+#include "intdb.h"
 
 #define STEP_LEN 5000
 
-struct serinit
-{
-	serinit( unsigned long baud = 115200) { Serial.begin( baud ); }
-};// g_si;
+//struct serinit
+//{
+//	serinit( unsigned long baud = 115200) { Serial.begin( baud ); }
+//} g_si;
 
 enum STATUS { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 const uint8_t		g_innerpins[3] = { 4,5,6 };
 const uint8_t		g_outerpins[3] = { 7,8,9 };
-const char 			*g_tlstatusnames[] = { "OFF", "CODEWAIT", "CONFLICT", "ACCEPTED", "WARNED", "DENIED", "PASS" };
-const char 			*g_statusnames[] = { "WAITSETTLE", "CODEWAIT", "PASS", "RETREAT" };
-const char			*g_ilstatusnames[] = { "NONE", "INNER", "OUTER" };
+const char 			*g_tlstatusnames[] = { "OFF", "CODEW", "CONFL", "ACC", "WARN", "DENY", "PASS" };
+const char 			*g_statusnames[] = { "WAITS", "CODEW", "PASS", "RETR" };
+const char			*g_ilstatusnames[] = { "NONE", "IN", "OUT" };
 char				g_buf[5];
-char				g_inbuf[128+1];
+char				g_inbuf[64+1];
 uint16_t			g_inidx(0);
 const char 			*g_commands[] = {
-	  "code"	//simulate incoming code
+	  "inj"	//inj <int> simulate (inject) incoming code
+	, "get"	//get <int> dump data for a code
+	, "set"		//set data for a code
 	, ""
 };
 
-
+SdFat				g_sd;
+intdb				g_db( g_sd, false );
+File				g_log;
 LiquidCrystal_I2C 	g_lcd(LCD_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 inductiveloop		g_indloop( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 trafficlights		g_lights( g_innerpins, g_outerpins, false, 500 );
@@ -57,9 +64,26 @@ void processInput();
 void setup()
 {
 	Serial.begin( 115200 );
+	Serial.println( freeMemory());
+	delay(100);
+	Serial.println( F("Initilalizing database..."));
+	delay(1000);
+	g_sd.begin( SS );
+	if( !g_db.init() ) {
+		Serial.println( F("Database initialization FAILED!") );
+		for(;;);
+	} else {
+		Serial.println( F("Database initialization SUCCEEDED!") );
+	}
+	Serial.println( freeMemory());
+	g_log = g_sd.open( "log.txt", FILE_WRITE );
+	if( !g_log )
+		Serial.println(F("Logfile creation failed!"));
 	g_lcd.init();
 	g_lcd.backlight();
 	g_indloop.update();
+	Serial.println( freeMemory());
+	Serial.println( F("setup() finished."));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -231,23 +255,23 @@ void loop()
 		}
 		break;
 	}
-
+#ifdef VERBOSE
 	if( ilchanged || statussaved != status || tlstatussaved != tlstatus || innersaved != inner )
 	{
 		Serial.println("--------------------------------------------");
 		if( ilstatussaved != ilstatus )
-			serialoutln( "Induction loop state changed from ", g_ilstatusnames[ilstatussaved], " to ", g_ilstatusnames[ilstatus] );
+			serialoutln( F("Induction loop state changed from "), g_ilstatusnames[ilstatussaved], " to ", g_ilstatusnames[ilstatus] );
 		if( ilconflictsaved != ilconflict )
-			serialoutln( "Conflict changed from ", ilconflictsaved ? "true" : "false", " to ", ilconflict ? "true" : "false" );
+			serialoutln( F("Conflict changed from "), ilconflictsaved ? "true" : "false", " to ", ilconflict ? "true" : "false" );
 		if( statussaved != status )
-			serialoutln( "Status changed from ", g_statusnames[statussaved], " to ", g_statusnames[status]);
+			serialoutln( F("Status changed from "), g_statusnames[statussaved], " to ", g_statusnames[status]);
 		if( tlstatussaved != tlstatus )
-			serialoutln( "Traffic lights Status changed from ", g_tlstatusnames[tlstatussaved], innersaved ? " (true)" : " (false)",
+			serialoutln( F("Traffic lights Status changed from "), g_tlstatusnames[tlstatussaved], innersaved ? " (true)" : " (false)",
 					" to ", g_tlstatusnames[tlstatus], inner ? " (true)" : " (false)");
 		if( innersaved != inner )
-			serialoutln( "Inner changed from ", innersaved ? "true" : "false", " to ", inner ? "true" : "false" );
+			serialoutln( F("Inner changed from "), innersaved ? "true" : "false", " to ", inner ? "true" : "false" );
 	}
-
+#endif	//	VERBOSE
 	ilstatussaved = ilstatus;
 	ilconflictsaved = ilconflict;
 	statussaved = status;
@@ -276,18 +300,35 @@ uint8_t LCDprint( uint8_t row, uint8_t startpos, const char *buffer, uint8_t len
 //////////////////////////////////////////////////////////////////////////////
 void processInput()
 {
-	const char	*inptr( g_inbuf );
-	char 		command( findcommand( inptr, g_commands ));
-	long		code;
+	const char			*inptr( g_inbuf );
+	char 				command( findcommand( inptr, g_commands ));
+	long				code;
+	database::dbrecord	rec;
+	char 				recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
 
 	serialoutln( CMNT, (uint16_t)command );
 
 	switch( command ) {
-	case 0:		//	code
+	case 0:		//	inj
 		code = getintparam( inptr );
 		if( code != -1 ) {
 			g_code = code;
 			g_codeready = true;
+		}
+		break;
+	case 1:		//get
+		code = getintparam( inptr );
+		if( code != -1 ) {
+			g_db.getParams( code, rec );
+			rec.serialize( recbuf );
+			Serial.println( recbuf );
+		}
+		break;
+
+	case 2:		//set 0 0 59f 0 59f 7f 0
+		code = getintparam( inptr );
+		if( code != -1 && rec.parse( inptr )) {
+			g_db.setParams( code, rec );
 		}
 		break;
 

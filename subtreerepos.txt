@@ -1,4 +1,7 @@
-adafruitgfx		libs/Adafruit-GFX-Library	git@github.com:adafruit/Adafruit-GFX-Library.git
+#git subtree add --prefix colimn2 column3 master --squash
+adafruitgfx	libs/Adafruit-GFX-Library	git@github.com:adafruit/Adafruit-GFX-Library.git
 adafruittouch	libs/Touch-Screen-Library	git@github.com:adafruit/Touch-Screen-Library.git
-tftplus			libs/TFTLCDplus-Library		git@github.com:compihu/TFTLCD-Library.git
-ds3231			libs/ds3231					git@github.com:rodan/ds3231.git
+tftplus		libs/TFTLCDplus-Library		git@github.com:compihu/TFTLCD-Library.git
+ds3231		libs/ds3231			git@github.com:rodan/ds3231.git
+MemoryFree	libs/MemoryFree			git@github.com:McNeight/MemoryFree.git
+

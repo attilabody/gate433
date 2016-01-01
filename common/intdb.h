@@ -17,7 +17,7 @@
 class intdb: public database
 {
 public:
-	intdb( bool initialize = false );
+	intdb( SdFat &sd, bool initialize = false );
 	virtual ~intdb();
 	bool	init();
 	SdFat&	getsdfat() { return m_sd; }
@@ -29,7 +29,7 @@ public:
 	virtual bool setStatus( int code, dbrecord::POSITION pos );
 
 private:
-	SdFat	m_sd;
+	SdFat	&m_sd;
 	File	m_info;
 	File	m_status;
 	bool	m_initok;

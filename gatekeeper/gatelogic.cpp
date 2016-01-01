@@ -38,7 +38,8 @@ void setup()
 	g_lcd.init();
 	g_lcd.backlight();
 
-	g_dbinitfail = !g_db.init();
+	if( g_sd.begin( SS ))
+		g_dbinitfail = !g_db.init();
 
 	if( g_dbinitfail ) {
 		g_lcd.print( "DB init FAILED!!" );

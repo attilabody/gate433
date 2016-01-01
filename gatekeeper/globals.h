@@ -19,6 +19,7 @@ extern const uint8_t	g_outerlightspins[3];
 extern const uint8_t	g_otherrelaypins[2];
 
 extern LiquidCrystal_I2C	g_lcd;
+extern SdFat				g_sd;
 extern intdb				g_db;
 extern bool					g_dbinitfail;
 extern trafficlights		g_lights;
