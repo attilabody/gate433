@@ -5,8 +5,8 @@
  *      Author: compi
  */
 
-#include "trafficlights.h"
 #include "config.h"
+#include "trafficlights.h"
 //#define DEBUG_LIGHT
 //#define DEBUG_LIGHT_INIT
 

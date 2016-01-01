@@ -18,7 +18,9 @@ enum STATUS { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 const uint8_t		g_innerpins[3] = { 4,5,6 };
 const uint8_t		g_outerpins[3] = { 7,8,9 };
-const char 			*g_phasenames[] = { "OFF", "CODEWAIT", "CONFLICT", "ACCEPTED", "WARNED", "DENIED", "PASS" };
+const char 			*g_tlstatusnames[] = { "OFF", "CODEWAIT", "CONFLICT", "ACCEPTED", "WARNED", "DENIED", "PASS" };
+const char 			*g_statusnames[] = { "WAITSETTLE", "CODEWAIT", "PASS", "RETREAT" };
+const char			*g_ilstatusnames[] = { "NONE", "INNER", "OUTER" };
 char				g_buf[5];
 char				g_inbuf[128+1];
 uint16_t			g_inidx(0);
@@ -83,8 +85,8 @@ void loop()
 			rawcode = g_lights.set( (trafficlights::STATUS) (offset), true);
 			uitohex( bufptr, rawcode, 4 );
 			*bufptr = 0;
-			Serial.print( g_phasenames[offset] ); Serial.print( " (" ); Serial.print(g_buf); Serial.println("), true");
-			LCDprint( 0, LCDprint( 0, 0, g_phasenames[offset], 0, false ), ", true", 0, true);
+			Serial.print( g_tlstatusnames[offset] ); Serial.print( " (" ); Serial.print(g_buf); Serial.println("), true");
+			LCDprint( 0, LCDprint( 0, 0, g_tlstatusnames[offset], 0, false ), ", true", 0, true);
 			LCDprint( 1, 0, g_buf, 4, true );
 			break;
 
@@ -93,8 +95,8 @@ void loop()
 			rawcode = g_lights.set( (trafficlights::STATUS) (offset), false);
 			uitohex( bufptr, rawcode, 4 );
 			*bufptr = 0;
-			Serial.print( g_phasenames[offset] ); Serial.print( " (" ); Serial.print(g_buf); Serial.println("), false");
-			LCDprint( 0, LCDprint( 0, 0, g_phasenames[offset], 0, false ), ", false", 0, true);
+			Serial.print( g_tlstatusnames[offset] ); Serial.print( " (" ); Serial.print(g_buf); Serial.println("), false");
+			LCDprint( 0, LCDprint( 0, 0, g_tlstatusnames[offset], 0, false ), ", false", 0, true);
 			LCDprint( 1, 0, g_buf, 4, true );
 			break;
 
@@ -131,10 +133,13 @@ void loop()
 	}
 #else	//	SIMPLE_TEST
 	static STATUS					status( WAITSETTLE );
+	static STATUS					statussaved( WAITSETTLE );
 	static trafficlights::STATUS	tlstatus(trafficlights::OFF );
+	static trafficlights::STATUS	tlstatussaved(trafficlights::OFF );
 	static inductiveloop::STATUS	ilstatussaved( inductiveloop::NONE );
 	static bool						ilconflictsaved( false );
 	static bool						inner;
+	static bool						innersaved;
 
 	inductiveloop::STATUS			ilstatus;
 	bool							ilconflict, ilchanged;
@@ -144,7 +149,7 @@ void loop()
 	}
 
 	ilconflict = g_indloop.update( ilstatus );
-	ilchanged = (ilstatus == ilstatussaved) && (ilconflict == ilconflictsaved );
+	ilchanged = (ilstatus != ilstatussaved) || (ilconflict != ilconflictsaved );
 
 	switch( status )
 	{
@@ -169,7 +174,19 @@ void loop()
 
 	case CODEWAIT:
 		if( ilchanged ) {
-			status = WAITSETTLE;
+			if( ilconflict ) {
+				g_lights.set( trafficlights::CONFLICT, inner );
+				tlstatus = trafficlights::CONFLICT;
+				status = WAITSETTLE;
+			} else if( ilstatus == inductiveloop::NONE ) {
+				g_lights.set( trafficlights::OFF, inner );
+				tlstatus = trafficlights::OFF;
+				status = WAITSETTLE;
+			} else {
+				g_lights.set( trafficlights::OFF, inner );
+				tlstatus = trafficlights::OFF;
+				status = CODEWAIT;
+			}
 			break;
 		}
 		if( g_codeready ) {
@@ -179,9 +196,10 @@ void loop()
 				tlstatus = trafficlights::DENIED;
 			} else {
 				status = PASS;
-				g_lights.set( trafficlights::PASS, inner );
-				tlstatus = trafficlights::PASS;
+				g_lights.set( trafficlights::ACCEPTED, inner );
+				tlstatus = trafficlights::ACCEPTED;
 			}
+			g_codeready = false;
 		}
 		break;
 
@@ -214,9 +232,27 @@ void loop()
 		break;
 	}
 
+	if( ilchanged || statussaved != status || tlstatussaved != tlstatus || innersaved != inner )
+	{
+		Serial.println("--------------------------------------------");
+		if( ilstatussaved != ilstatus )
+			serialoutln( "Induction loop state changed from ", g_ilstatusnames[ilstatussaved], " to ", g_ilstatusnames[ilstatus] );
+		if( ilconflictsaved != ilconflict )
+			serialoutln( "Conflict changed from ", ilconflictsaved ? "true" : "false", " to ", ilconflict ? "true" : "false" );
+		if( statussaved != status )
+			serialoutln( "Status changed from ", g_statusnames[statussaved], " to ", g_statusnames[status]);
+		if( tlstatussaved != tlstatus )
+			serialoutln( "Traffic lights Status changed from ", g_tlstatusnames[tlstatussaved], innersaved ? " (true)" : " (false)",
+					" to ", g_tlstatusnames[tlstatus], inner ? " (true)" : " (false)");
+		if( innersaved != inner )
+			serialoutln( "Inner changed from ", innersaved ? "true" : "false", " to ", inner ? "true" : "false" );
+	}
+
 	ilstatussaved = ilstatus;
 	ilconflictsaved = ilconflict;
-
+	statussaved = status;
+	tlstatussaved = tlstatus;
+	innersaved = inner;
 
 	unsigned long currmillis( millis());
 	g_lights.loop( currmillis );
