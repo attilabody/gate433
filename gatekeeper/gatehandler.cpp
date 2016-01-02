@@ -32,28 +32,23 @@ gatehandler::gatehandler( database &db
 
 void gatehandler::loop( unsigned long currmillis )
 {
-	static trafficlights::STATUS	tlstatus(trafficlights::OFF );
-	static bool						inner;
-
-	inductiveloop::STATUS			ilstatus;
-	bool							conflict, ilchanged;
+	inductiveloop::STATUS	ilstatus;
+	bool					conflict, ilchanged, inner;
 
 	conflict = m_indloop.update( ilstatus );
 	ilchanged = (ilstatus != m_ilstatus) || (conflict != m_conflict );
+	inner = ilstatus == inductiveloop::INNER;
 
 	switch( m_status )
 	{
 	case WAITSETTLE:
 		if( !ilchanged ) break;
-		if( ilstatus == inductiveloop::NONE && tlstatus != trafficlights::OFF ) {
+		if( ilstatus == inductiveloop::NONE && m_lights != trafficlights::OFF ) {
 			m_lights.set( trafficlights::OFF, inner );
 		} else if( conflict ) {
-			inner = ilstatus == inductiveloop::INNER;
 			m_lights.set( trafficlights::CONFLICT, inner );
 		} else if( ilstatus != inductiveloop::NONE ) {
-			inner = ilstatus == inductiveloop::INNER;
-			m_lights.set( trafficlights::CODEWAIT, inner );
-			m_status = CODEWAIT;
+			startcodewait( inner );
 		}
 		break;
 
@@ -66,20 +61,20 @@ void gatehandler::loop( unsigned long currmillis )
 				m_lights.set( trafficlights::OFF, inner );
 				m_status = WAITSETTLE;
 			} else {
-				m_lights.set( trafficlights::OFF, inner );
-				m_status = CODEWAIT;
+				startcodewait( inner );	// wtf???
 			}
 			break;
 		}
 		if( g_codeready ) {
-			if( g_code & 1 ) {
-				m_status = RETREAT;
-				m_lights.set( trafficlights::DENIED, inner );
-			} else {
-				m_status = PASS;
+			serialoutln( F(CMNTS "Code received: "), g_code >> 2);
+			if( authorize( g_code, inner ) ) {
 				m_lights.set( trafficlights::ACCEPTED, inner );
+				m_status = PASS;
+			} else {
+				m_lights.set( trafficlights::DENIED, inner );
+				m_inner = inner;
+				m_status = RETREAT;
 			}
-			g_codeready = false;
 		}
 		break;
 
@@ -95,14 +90,12 @@ void gatehandler::loop( unsigned long currmillis )
 
 	case RETREAT:
 		if( !ilchanged ) break;
-		//TODO: lights
-		if( ilstatus != (inner ? inductiveloop::INNER : inductiveloop::OUTER)) {
+		if( ilstatus != ( m_inner ? inductiveloop::INNER : inductiveloop::OUTER)) {
 			if( ilstatus == inductiveloop::NONE ) {
 				m_lights.set( trafficlights::OFF, inner );
 				m_status = WAITSETTLE;
 			} else {
-				m_lights.set( trafficlights::CODEWAIT, !inner );
-				m_status = CODEWAIT;
+				startcodewait( inner );
 			}
 		}
 		break;
@@ -112,5 +105,10 @@ void gatehandler::loop( unsigned long currmillis )
 	m_conflict = conflict;
 
 	m_lights.loop( currmillis );
+}
 
+bool gatehandler::authorize( uint16_t code, bool inner )
+{
+	uint16_t	id( code >> 2 );
+	return (id&1) == 0;
 }

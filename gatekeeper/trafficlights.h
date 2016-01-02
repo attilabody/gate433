@@ -65,7 +65,8 @@ public:
 	void		loop( unsigned long currmillis = 0 );
 	uint16_t	set( STATUS state, bool inner );
 	void		set( uint16_t state, bool inner );
-	STATUS		getstatus() { return m_status; }
+	STATUS		getstatus() const { return m_status; }
+	operator STATUS() const { return m_status; }
 
 protected:
 	trafficlight			m_inner, m_outer;

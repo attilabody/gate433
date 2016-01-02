@@ -5,9 +5,6 @@
 #include "interface.h"
 #include "serialbuf.h"
 #include "decode433.h"
-#include "gatelogic.h"
-
-
 #include "gatehandler.h"
 #include "intdb.h"
 

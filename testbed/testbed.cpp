@@ -56,6 +56,10 @@ const uint16_t		g_testvals[] = { 0x0104, 0x1144, 0x0202, 0x2222, 0x0401, 0x4411 
 #endif	//	SIMPLE_TEST
 
 uint8_t LCDprint( uint8_t row, uint8_t startpos, const char *buffer, uint8_t len, bool erase );
+void inline printfree()
+{
+	serialoutln( F("Free memory: "), freeMemory() );
+}
 #ifndef SIMPLE_TEST
 void processInput();
 #endif	//	SIMPLE_TEST
@@ -64,7 +68,7 @@ void processInput();
 void setup()
 {
 	Serial.begin( 115200 );
-	Serial.println( freeMemory());
+	printfree();
 	delay(100);
 	Serial.println( F("Initilalizing database..."));
 	delay(1000);
@@ -75,14 +79,14 @@ void setup()
 	} else {
 		Serial.println( F("Database initialization SUCCEEDED!") );
 	}
-	Serial.println( freeMemory());
+	printfree();
 	g_log = g_sd.open( "log.txt", FILE_WRITE );
 	if( !g_log )
 		Serial.println(F("Logfile creation failed!"));
 	g_lcd.init();
 	g_lcd.backlight();
 	g_indloop.update();
-	Serial.println( freeMemory());
+	printfree();
 	Serial.println( F("setup() finished."));
 }
 
@@ -207,21 +211,20 @@ void loop()
 				tlstatus = trafficlights::OFF;
 				status = WAITSETTLE;
 			} else {
-				g_lights.set( trafficlights::OFF, inner );
-				tlstatus = trafficlights::OFF;
-				status = CODEWAIT;
+				g_lights.set( trafficlights::CODEWAIT, inner );
+				tlstatus = trafficlights::CODEWAIT;
 			}
 			break;
 		}
 		if( g_codeready ) {
 			if( g_code & 1 ) {
-				status = RETREAT;
 				g_lights.set( trafficlights::DENIED, inner );
 				tlstatus = trafficlights::DENIED;
+				status = RETREAT;
 			} else {
-				status = PASS;
 				g_lights.set( trafficlights::ACCEPTED, inner );
 				tlstatus = trafficlights::ACCEPTED;
+				status = PASS;
 			}
 			g_codeready = false;
 		}
@@ -276,6 +279,7 @@ void loop()
 	ilconflictsaved = ilconflict;
 	statussaved = status;
 	tlstatussaved = tlstatus;
+
 	innersaved = inner;
 
 	unsigned long currmillis( millis());
@@ -306,7 +310,8 @@ void processInput()
 	database::dbrecord	rec;
 	char 				recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
 
-	serialoutln( CMNT, (uint16_t)command );
+	serialoutln( F(CMNTS "Command ID: "), (uint16_t)command );
+	printfree();
 
 	switch( command ) {
 	case 0:		//	inj

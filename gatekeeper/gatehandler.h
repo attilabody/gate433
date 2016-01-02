@@ -15,6 +15,7 @@
 #include "trafficlights.h"
 #include "inductiveloop.h"
 #include "serialbuf.h"
+#include "decode433.h"
 
 class gatehandler {
 public:
@@ -29,6 +30,11 @@ public:
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 protected:
+	bool		authorize( uint16_t code, bool inner );
+	inline void	startcodewait( bool inner ) {
+		m_lights.set( trafficlights::CODEWAIT, inner ); g_codeready = false; m_status = CODEWAIT;
+	}
+
 	database			&m_db;
 	trafficlights		&m_lights;
 	inductiveloop		&m_indloop;
@@ -41,12 +47,6 @@ protected:
 	inductiveloop::STATUS	m_ilstatus;
 	bool					m_conflict;
 	bool					m_inner;
-//	bool					m_innersaved;
-
-	inline void settlstatus( trafficlights::STATUS status, bool inner ) {
-		m_lights.set( status, inner );
-		m_tlstatus = status;
-	}
 };
 
 #endif /* GATEHANDLER_H_ */
