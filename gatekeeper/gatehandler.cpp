@@ -4,7 +4,7 @@
  *  Created on: Oct 29, 2015
  *      Author: compi
  */
-
+#include <ds3231.h>
 #include "config.h"
 #include "gatehandler.h"
 #include "decode433.h"
@@ -110,5 +110,10 @@ void gatehandler::loop( unsigned long currmillis )
 bool gatehandler::authorize( uint16_t code, bool inner )
 {
 	uint16_t	id( code >> 2 );
+	ts			dt;
+
+	DS3231_get( &dt );
+	uint16_t	mod( dt.min + dt.hour * 60 );
+
 	return (id&1) == 0;
 }
