@@ -1,6 +1,6 @@
-#include "config.h"
 #include <Wire.h>
 #include <ds3231.h>
+#include "config.h"
 #include "globals.h"
 #include "interface.h"
 #include "serialbuf.h"

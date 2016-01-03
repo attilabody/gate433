@@ -30,7 +30,9 @@ public:
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 protected:
-	bool		authorize( uint16_t code, bool inner );
+	enum AUTHRES : uint8_t { GRANTED, UNREGISTERED, DAY, TIME, POSITION };
+
+	AUTHRES 	authorize( uint16_t code, bool inner );
 	inline void	startcodewait( bool inner ) {
 		m_lights.set( trafficlights::CODEWAIT, inner ); g_codeready = false; m_status = CODEWAIT;
 	}

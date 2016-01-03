@@ -9,6 +9,9 @@
 #include "gatehandler.h"
 #include "decode433.h"
 
+//////////////////////////////////////////////////////////////////////////////
+//
+//////////////////////////////////////////////////////////////////////////////
 gatehandler::gatehandler( database &db
 			, trafficlights &lights
 			, inductiveloop &loop
@@ -26,10 +29,10 @@ gatehandler::gatehandler( database &db
 , m_ilstatus( inductiveloop::NONE )
 , m_conflict( false )
 , m_inner( false )
-//, m_innersaved( false )
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void gatehandler::loop( unsigned long currmillis )
 {
 	inductiveloop::STATUS	ilstatus;
@@ -67,7 +70,7 @@ void gatehandler::loop( unsigned long currmillis )
 		}
 		if( g_codeready ) {
 			serialoutln( F(CMNTS "Code received: "), g_code >> 2);
-			if( authorize( g_code, inner ) ) {
+			if( authorize( g_code, inner ) == GRANTED ) {
 				m_lights.set( trafficlights::ACCEPTED, inner );
 				m_status = PASS;
 			} else {
@@ -107,13 +110,30 @@ void gatehandler::loop( unsigned long currmillis )
 	m_lights.loop( currmillis );
 }
 
-bool gatehandler::authorize( uint16_t code, bool inner )
+//////////////////////////////////////////////////////////////////////////////
+gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 {
-	uint16_t	id( code >> 2 );
-	ts			dt;
+	uint16_t			id( code >> 2 );
+	ts					dt;
+	database::dbrecord	rec;
 
 	DS3231_get( &dt );
 	uint16_t	mod( dt.min + dt.hour * 60 );
+	uint8_t		dow( 1<<(dt.wday - 1));	//TODO exceptions, holidays
+	if( !m_db.getParams(id, rec ) )
+		return GRANTED;
+	if( !rec.in_start && !rec.in_end )
+		return UNREGISTERED;
+	if( rec.position == ( inner ? database::dbrecord::outside : database::dbrecord::inside ) )
+		return POSITION;
+	if( !( rec.days & dow ))
+		return DAY;
 
-	return (id&1) == 0;
+	uint16_t	start( inner ? rec.out_start : rec.in_start );
+	uint16_t	end( inner ? rec.out_end : rec.in_end );
+
+	if( mod < start || mod > end )
+		return TIME;
+
+	return GRANTED;
 }
