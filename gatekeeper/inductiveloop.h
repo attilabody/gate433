@@ -12,7 +12,7 @@
 class inductiveloop
 {
 public:
-	enum STATUS : uint8_t { NONE = 0, INNER = 1, OUTER = 2 };
+	enum STATUS : uint8_t { NONE = 0, OUTER = 1, INNER = 2 };
 
 			inductiveloop() {};
 			inductiveloop( uint8_t innerpin, uint8_t outerpin, uint8_t activelevel );

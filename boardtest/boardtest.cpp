@@ -1,4 +1,6 @@
 // Do not remove the include below
+#include <Arduino.h>
+#include <SdFat.h>
 #include <Wire.h>
 #include <ds3231.h>
 #include <LiquidCrystal_I2C.h>
@@ -6,7 +8,6 @@
 #include "interface.h"
 #include "intdb.h"
 #include "decode433.h"
-#include "boardtest.h"
 
 #define TEST_SDCARD
 #define TEST_LCD
@@ -26,6 +27,7 @@ const char 		*g_commands[] = {
 #ifdef TEST_SDCARD
 SdFat		g_sd;
 intdb		g_db( g_sd, false );
+//#else
 #endif	//	TEST_SDCARD
 
 uint8_t			g_pins[8] = { 9,8,7,6,5,4,A3,A2 };

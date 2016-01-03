@@ -63,7 +63,7 @@ public:
 	trafficlights( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen );
 	bool 		init( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen );
 	void		loop( unsigned long currmillis = 0 );
-	uint16_t	set( STATUS state, bool inner );
+	uint16_t	set( STATUS status, bool inner );
 	void		set( uint16_t state, bool inner );
 	STATUS		getstatus() const { return m_status; }
 	operator STATUS() const { return m_status; }

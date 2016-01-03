@@ -18,3 +18,6 @@ intdb				g_db( g_sd );
 bool				g_dbinitfail( true );
 trafficlights		g_lights;
 inductiveloop		g_indloop;
+
+//char				g_iobuf[32];
+//uint8_t				g_inidx(0);

@@ -25,7 +25,9 @@ void setuprelaypins( const uint8_t *pins, uint8_t size )
 void setup()
 {
 	Serial.begin( BAUDRATE );
-
+	delay(10);
+	for( char c = 0; c < 79; ++c ) Serial.print('-');
+	Serial.println();
 
 #ifdef PIN_LED
 	pinMode( PIN_LED, OUTPUT );
@@ -38,9 +40,12 @@ void setup()
 	if( g_sd.begin( SS ))
 		g_dbinitfail = !g_db.init();
 
-	if( g_dbinitfail ) {
-		g_lcd.print( "DB init FAILED!!" );
-	}
+	g_lcd.print( F("DBinit ") );
+	if( g_dbinitfail )
+		g_lcd.print( F("FAILURE!!") );
+	else
+		g_lcd.print( F("SUCCESS!!") );
+	delay(3000);
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 	g_lights.init( g_innerlightspins, g_outerlightspins, RELAY_ON == HIGH, 500 );
@@ -62,6 +67,7 @@ void loop()
 {
 //	if( getlinefromserial( g_inbuf, sizeof(g_inbuf ), g_inidx) )
 //		processInput();
+
 	static gatehandler				handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
 
 	handler.loop( millis() );

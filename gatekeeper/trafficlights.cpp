@@ -155,10 +155,11 @@ bool trafficlights::init( const uint8_t *innerpins, const uint8_t *outerpins, bo
 }
 
 //////////////////////////////////////////////////////////////////////////////
-uint16_t trafficlights::set( STATUS state, bool inner )
+uint16_t trafficlights::set( STATUS status, bool inner )
 {
-	set( m_compstates[state], inner );
-	return m_compstates[state];
+	set( m_compstates[status], inner );
+	m_status = status;
+	return m_compstates[status];
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -178,6 +179,7 @@ void trafficlights::set( uint16_t state, bool inner )
 		primary.set( (trafficlight::COLORS) color, (primaryvals & curcolormask) != 0, (primaryblinkmask & curcolormask) != 0 ? m_cyclelen : 0, currmillis );
 		secondary.set( (trafficlight::COLORS) color, (secondaryvals & curcolormask) != 0, (secondaryblinkmask & curcolormask) != 0 ? m_cyclelen : 0, currmillis );
 	}
+	m_status = NUMSTATES;
 }
 
 //////////////////////////////////////////////////////////////////////////////

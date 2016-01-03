@@ -30,11 +30,16 @@ public:
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 protected:
-	enum AUTHRES : uint8_t { GRANTED, UNREGISTERED, DAY, TIME, POSITION };
+	enum AUTHRES : uint8_t { GRANTED = 0, UNREGISTERED, DAY, TIME, POSITION };
 
 	AUTHRES 	authorize( uint16_t code, bool inner );
-	inline void	startcodewait( bool inner ) {
+	void		updatelcd( uint16_t id, bool inner, AUTHRES decision );
+	inline void	tocodewait( bool inner ) {
 		m_lights.set( trafficlights::CODEWAIT, inner ); g_codeready = false; m_status = CODEWAIT;
+	}
+	inline void topass( bool inner ) {
+		m_lights.set( trafficlights::ACCEPTED, inner );
+		m_inner = inner; m_dbupdated = false; m_status = PASS;
 	}
 
 	database			&m_db;
@@ -44,11 +49,13 @@ protected:
 	bool				m_enforcepos;
 	bool				m_enforcedt;
 
+//		char					m_lcdbuf[LCD_WIDTH + 1];
 	STATUS					m_status;
 	trafficlights::STATUS	m_tlstatus;
 	inductiveloop::STATUS	m_ilstatus;
 	bool					m_conflict;
 	bool					m_inner;
+	bool					m_dbupdated;
 };
 
 #endif /* GATEHANDLER_H_ */
