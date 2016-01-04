@@ -41,11 +41,9 @@ void setup()
 		g_dbinitfail = !g_db.init();
 
 	g_lcd.print( F("DBinit ") );
-	if( g_dbinitfail )
-		g_lcd.print( F("FAILURE!!") );
-	else
-		g_lcd.print( F("SUCCESS!!") );
+	g_lcd.print( g_dbinitfail ? F("FAILURE!!") : F("SUCCESS!!") );
 	delay(3000);
+	g_lcd.clear();
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 	g_lights.init( g_innerlightspins, g_outerlightspins, RELAY_ON == HIGH, 500 );

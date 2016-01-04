@@ -34,9 +34,6 @@ gatehandler::gatehandler( database &db
 {
 //	memset( m_lcdbuf, ' ', sizeof(m_lcdbuf)-1 );
 //	m_lcdbuf[sizeof(m_lcdbuf)-1] = 0;
-	m_lcd.setCursor( 0, 0 );
-	m_lcd.print( F("lofaszbingo "));
-	Serial.println( freeMemory());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -166,9 +163,7 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 			ret = TIME;
 	}
 
-	m_lcd.setCursor( 0, 0 );
-	m_lcd.print( F("lofaszbingo"));
-	//updatelcd( id, inner, ret );
+	updatelcd( id, inner, ret );
 	return ret;
 }
 
