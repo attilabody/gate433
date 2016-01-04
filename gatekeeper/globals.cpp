@@ -14,7 +14,7 @@ const uint8_t	g_otherrelaypins[2] = { PIN_GATE, PIN_RELAY_SPARE };
 
 LiquidCrystal_I2C 	g_lcd(LCD_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 SdFat				g_sd;
-intdb				g_db( g_sd );
+thindb				g_db( g_sd );
 bool				g_dbinitfail( true );
 trafficlights		g_lights;
 inductiveloop		g_indloop;
