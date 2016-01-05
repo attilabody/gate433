@@ -17,7 +17,7 @@
 gatehandler::gatehandler( database &db
 			, trafficlights &lights
 			, inductiveloop &loop
-			, LiquidCrystal_I2C lcd
+			, LiquidCrystal_I2C &lcd
 			, bool enforcepos
 			, bool enforcedt )
 : m_db( db )
@@ -31,9 +31,8 @@ gatehandler::gatehandler( database &db
 , m_ilstatus( inductiveloop::NONE )
 , m_conflict( false )
 , m_inner( false )
+, m_prevdecision( (AUTHRES) -1 )
 {
-//	memset( m_lcdbuf, ' ', sizeof(m_lcdbuf)-1 );
-//	m_lcdbuf[sizeof(m_lcdbuf)-1] = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -48,11 +47,8 @@ void gatehandler::loop( unsigned long currmillis )
 	if( ilchanged ) {
 #ifdef VERBOSE
 		serialoutln( F("inductive loop status changed: "), ilstatus, ", ", conflict );
-#endif	//	VERBOSE
 		Serial.println( freeMemory());
-		delay( 500 );
-		m_lcd.setCursor( 0, 0 );
-		m_lcd.print( F("lofaszbingo "));
+#endif	//	VERBOSE
 	}
 
 	switch( m_status )
@@ -84,8 +80,8 @@ void gatehandler::loop( unsigned long currmillis )
 		if( g_codeready ) {
 #ifdef VERBOSE
 			serialoutln( F(CMNTS "Code received: "), g_code >> 2);
-#endif	//	VERBOSE
 			Serial.println( freeMemory());
+#endif	//	VERBOSE
 			if( authorize( g_code, inner ) == GRANTED ) {
 				topass( inner );
 			} else {
@@ -146,9 +142,6 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 	if( !m_db.getParams(id, rec ) )
 		return GRANTED;
 
-//	rec.serialize( g_iobuf );
-//	Serial.println( g_iobuf );
-
 	if( !rec.in_start && !rec.in_end )
 		ret = UNREGISTERED;
 	else if( rec.position == ( inner ? database::dbrecord::outside : database::dbrecord::inside ) )
@@ -171,19 +164,27 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 void gatehandler::updatelcd( uint16_t id, bool inner, AUTHRES decision )
 {
 	static const char authcodes[] = "GUDTP";
+	char buf[5];
+	char	*bp(buf);
+
+	uitodec( bp, id, 4);
+	*bp = 0;
 
 	m_lcd.setCursor( 0, 0 );
 	m_lcd.print((char)(authcodes[decision] + (inner ? 'a'-'A' : 0)));
-	m_lcd.print( id );
-
-//	serialoutsepln( ", ", id, inner ? 'I':'O', (char)(authcodes[decision] + (inner ? 'a'-'A' : '\0')) );
-//	char	*dst( m_lcdbuf + sizeof(m_lcdbuf) - 2 );
-//	char	*src( dst - 6 );
-//	do *dst-- = *src--; while( src >= m_lcdbuf );
-//	++src;
-//	*src++ = (char)(authcodes[decision] + (inner ? 'a'-'A' : 0));
-//	uitodec( src, id, 4 );
-//	Serial.println( m_lcdbuf );
-//	m_lcd.setCursor( 0, 0 );
-//	m_lcd.print( m_lcdbuf );
+	m_lcd.print( ' ' );
+	m_lcd.print( buf );
+	if( (char)m_prevdecision != -1 )
+	{
+		bp = buf;
+		uitodec( bp, m_previd, 4);
+		m_lcd.print( ' ' );
+		m_lcd.print( ' ' );
+		m_lcd.print((char)(authcodes[m_prevdecision] + (m_previnner ? 'a'-'A' : 0)));
+		m_lcd.print( ' ' );
+		m_lcd.print( buf );
+	}
+	m_prevdecision = decision;
+	m_previd = id;
+	m_previnner = inner;
 }

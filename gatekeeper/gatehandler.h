@@ -22,7 +22,7 @@ public:
 	gatehandler( database &db
 			, trafficlights &lights
 			, inductiveloop &loop
-			, LiquidCrystal_I2C lcd
+			, LiquidCrystal_I2C &lcd
 			, bool enforcepos
 			, bool enforcedt );
 	void loop( unsigned long currmillis );
@@ -56,6 +56,10 @@ protected:
 	bool					m_conflict;
 	bool					m_inner;
 	bool					m_dbupdated;
+
+	uint16_t				m_previd;
+	AUTHRES					m_prevdecision;
+	bool					m_previnner;
 };
 
 #endif /* GATEHANDLER_H_ */
