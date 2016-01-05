@@ -6,7 +6,6 @@
  */
 
 #include "globals.h"
-#include "config.h"
 
 const uint8_t	g_innerlightspins[3] = INNER_LIGHTS_PINS;
 const uint8_t	g_outerlightspins[3] = OUTER_LIGHTS_PINS;
@@ -14,7 +13,12 @@ const uint8_t	g_otherrelaypins[2] = { PIN_GATE, PIN_RELAY_SPARE };
 
 LiquidCrystal_I2C 	g_lcd(LCD_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 SdFat				g_sd;
+#ifdef USE_THINDB
 thindb				g_db( g_sd );
+#endif	//	USE_THINDB
+#ifdef USE_INTDB
+intdb				g_db( g_sd );
+#endif	//	USE_INTDB
 bool				g_dbinitfail( true );
 trafficlights		g_lights;
 inductiveloop		g_indloop;
