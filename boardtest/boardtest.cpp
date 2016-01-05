@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include <ds3231.h>
 #include <LiquidCrystal_I2C.h>
+#include <PCF8574.h>
 #include "config.h"
 #include "interface.h"
 #include "intdb.h"
@@ -20,7 +21,6 @@ const char 		*g_commands[] = {
 	, "ddb"		//dump db
 	, "rs"		//relay stop
 	, "rt"		//relay test
-	, "bt"		//blink test
 	, ""
 };
 
@@ -30,9 +30,10 @@ intdb		g_db( g_sd, false );
 //#else
 #endif	//	TEST_SDCARD
 
-uint8_t			g_pins[8] = { 9,8,7,6,5,4,A3,A2 };
+uint8_t			g_pins[8] = { 0, 1, 2, 3, 7, 6, 5, 4 };
 uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
+PCF8574			g_i2cio(0x20);
 
 #ifdef	TEST_LCD
 LiquidCrystal_I2C g_lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -199,7 +200,7 @@ void setup()
 
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
 		pinMode( g_pins[pin], OUTPUT);
-		digitalWrite( g_pins[pin], HIGH );
+		g_i2cio.write( g_pins[pin], HIGH );
 	}
 
 #ifdef TEST_DS3231
@@ -240,8 +241,8 @@ void loop()
 			uint8_t	prevpin = g_pinindex++;
 			if( g_pinindex >= sizeof( g_pins ))
 				g_pinindex = 0;
-			digitalWrite( g_pins[prevpin], HIGH );
-			digitalWrite( g_pins[g_pinindex], LOW );
+			g_i2cio.write( g_pins[prevpin], HIGH );
+			g_i2cio.write( g_pins[g_pinindex], LOW );
 			g_rtstart = curmillis;
 			printpin( g_pins[g_pinindex] );
 		}

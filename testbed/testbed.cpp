@@ -19,8 +19,8 @@
 
 enum STATUS { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
-const uint8_t		g_innerpins[3] = { 4,5,6 };
-const uint8_t		g_outerpins[3] = { 7,8,9 };
+const uint8_t		g_innerpins[3] = { 0,1,2 };
+const uint8_t		g_outerpins[3] = { 4,7,6 };
 const char 			*g_tlstatusnames[] = { "OFF", "CODEW", "CONFL", "ACC", "WARN", "DENY", "PASS" };
 const char 			*g_statusnames[] = { "WAITS", "CODEW", "PASS", "RETR" };
 const char			*g_ilstatusnames[] = { "NONE", "IN", "OUT" };
@@ -161,13 +161,10 @@ void loop()
 	}
 #else	//	SIMPLE_TEST
 	static STATUS					status( WAITSETTLE );
-	static STATUS					statussaved( WAITSETTLE );
 	static trafficlights::STATUS	tlstatus(trafficlights::OFF );
-	static trafficlights::STATUS	tlstatussaved(trafficlights::OFF );
 	static inductiveloop::STATUS	ilstatussaved( inductiveloop::NONE );
 	static bool						ilconflictsaved( false );
 	static bool						inner;
-	static bool						innersaved;
 
 	inductiveloop::STATUS			ilstatus;
 	bool							ilconflict, ilchanged;
@@ -277,10 +274,6 @@ void loop()
 #endif	//	VERBOSE
 	ilstatussaved = ilstatus;
 	ilconflictsaved = ilconflict;
-	statussaved = status;
-	tlstatussaved = tlstatus;
-
-	innersaved = inner;
 
 	unsigned long currmillis( millis());
 	g_lights.loop( currmillis );

@@ -6,6 +6,7 @@
  */
 
 #include "config.h"
+#include "globals.h"
 #include "trafficlights.h"
 //#define DEBUG_LIGHT
 //#define DEBUG_LIGHT_INIT
@@ -30,8 +31,7 @@ bool light::init( uint8_t iopin, bool highon )
 	bool ret(false);
 
 	if( m_iopin != 0xff ) {
-		pinMode( m_iopin, OUTPUT );
-		digitalWrite( m_iopin, m_offvalue );
+		g_i2cio.write( m_iopin, m_offvalue );
 		ret = true;
 	}
 #ifdef DEBUG_LIGHT_INIT
@@ -49,12 +49,12 @@ void light::loop( unsigned long curmillis )
 	{
 		if( m_cyclecount ) {
 			m_on = !m_on;
-			digitalWrite( m_iopin, m_on ? m_onvalue : m_offvalue );
+			g_i2cio.write( m_iopin, m_on ? m_onvalue : m_offvalue );
 			if( m_cyclecount != 0xff ) --m_cyclecount;
 		} else {
 			if( m_on && m_endoff ) {
 				m_on = false;
-				digitalWrite( m_iopin, m_offvalue );
+				g_i2cio.write( m_iopin, m_offvalue );
 			}
 			m_cyclelen = 0;
 		}
@@ -76,7 +76,7 @@ void light::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endof
 	m_cyclecount = cyclecount;
 	m_on = on;
 	m_endoff = endoff;
-	digitalWrite( m_iopin, on ? m_onvalue : m_offvalue );
+	g_i2cio.write( m_iopin, on ? m_onvalue : m_offvalue );
 }
 
 //////////////////////////////////////////////////////////////////////////////

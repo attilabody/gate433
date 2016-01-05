@@ -9,6 +9,7 @@
 #define GLOBALS_H_
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
+#include <PCF8574.h>
 #include "config.h"
 #include "thindb.h"
 #include "intdb.h"
@@ -31,7 +32,7 @@ extern intdb				g_db;
 extern bool					g_dbinitfail;
 extern trafficlights		g_lights;
 extern inductiveloop		g_indloop;
-
+extern PCF8574				g_i2cio;
 //extern char					g_iobuf[32];
 //extern uint8_t				g_inidx;
 
