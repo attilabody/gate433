@@ -42,6 +42,24 @@ long getintparam( const char* &input, bool decimal, bool trimstart )
 	return found ? retval : -1;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////
+bool iscommand( const char *&inptr, const __FlashStringHelper *cmd )
+{
+	PGM_P p = reinterpret_cast<PGM_P>(cmd);
+	size_t n = 0;
+	char x;
+	while((x = pgm_read_byte( p++ )) && x == inptr[n] )
+		++n;
+	char y(inptr[n]);
+	if( x || !(isspace(y) || ispunct(y) || y == '\n' || !y ))
+		return false;
+	inptr += n;
+	while( *inptr && (isspace(*inptr) || ispunct(*inptr)) )
+		++inptr;
+	return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 char findcommand( const char* &inptr, const char **commands )
 {

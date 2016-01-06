@@ -29,7 +29,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/SdFat/SdFat}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/LiquidCrystal_I2C}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/PCF8574}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/I2C_EEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boardtest/libs/I2C_EEPROM}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/MemoryFree}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.695652813" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
@@ -55,7 +55,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libs/I2C_EEPROM/examples|serialbuf.cpp|libs/LiquidCrystal_I2C/examples|libs/SdFat/SdFat/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/AnalogBinLoggerExtras|libs/ds3231/examples|libs/TFTLCDplus-Library|libs/Touch-Screen-Library|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="serialbuf.cpp|libs/LiquidCrystal_I2C/examples|libs/SdFat/SdFat/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/AnalogBinLoggerExtras|libs/ds3231/examples|libs/TFTLCDplus-Library|libs/Touch-Screen-Library|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

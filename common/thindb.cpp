@@ -28,6 +28,9 @@ bool thindb::init()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+const char *thindb::m_filename = "DB.TXT";
+
+//////////////////////////////////////////////////////////////////////////////
 bool thindb::getParams( int code, dbrecord &recout )
 {
 	bool ret = false;
@@ -36,7 +39,7 @@ bool thindb::getParams( int code, dbrecord &recout )
 	int16_t		tmp1, tmp2;
 	File		f;
 
-	f = m_sd.open( "info.txt", FILE_READ );
+	f = m_sd.open( m_filename, FILE_READ );
 
 	if( f.isOpen() )
 	{
@@ -81,7 +84,7 @@ bool thindb::setParams( int code, const dbrecord &recin )
 
 	File		f;
 
-	f = m_sd.open( "info.txt", FILE_WRITE );
+	f = m_sd.open( m_filename, FILE_WRITE );
 
 	if( f.isOpen() )
 	{
@@ -106,7 +109,7 @@ bool thindb::setStatus( int code, dbrecord::POSITION pos )
 	uitohex( sbptr, (uint16_t) pos, 3 );
 	File		f;
 
-	f = m_sd.open( "info.txt", FILE_WRITE );
+	f = m_sd.open( m_filename, FILE_WRITE );
 
 	if( f.isOpen() )
 	{
@@ -118,4 +121,10 @@ bool thindb::setStatus( int code, dbrecord::POSITION pos )
 		f.close();
 	}
 	return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void thindb::cleanstatuses()
+{
+	//TODO: implement it!
 }

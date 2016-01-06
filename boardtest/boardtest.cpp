@@ -9,28 +9,20 @@
 #include "config.h"
 #include "interface.h"
 #include "intdb.h"
+#include "thindb.h"
+#include "hybriddb.h"
 #include "decode433.h"
 
-//#define TEST_SDCARD
+#define TEST_SDCARD
 #define TEST_LCD
 #define TEST_DS3231
 
 char		g_inbuf[256+1];
 uint16_t	g_inidx(0);
-const char 		*g_commands[] = {
-	  "sdt"		//set datetime
-	, "ddb"		//dump db
-	, "rs"		//relay stop
-	, "rt"		//relay test
-	, "de"		//dump eeprom
-	, "se"		//set eeprom data <address(hex)> <data(hex)>
-	, "ge"		//get eeprom data <address(hex)>
-	, ""
-};
 
 #ifdef TEST_SDCARD
 SdFat		g_sd;
-intdb		g_db( g_sd, false );
+hybriddb	g_db( g_sd, 0x57, false );
 //#else
 #endif	//	TEST_SDCARD
 
@@ -40,8 +32,11 @@ unsigned long	g_rtstart(0);
 PCF8574			g_i2cio(0x20);
 
 #ifdef	TEST_LCD
-LiquidCrystal_I2C g_lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
-//LiquidCrystal_I2C g_lcd(0x3f,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+#ifndef LCD_I2C_ADDRESS
+#define LCD_I2C_ADDRESS 0x27
+#endif	//	LCD_I2C_ADDRESS
+//LiquidCrystal_I2C g_lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C g_lcd(LCD_I2C_ADDRESS,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 inline void lcdout() {}
 template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const Args&... args)
@@ -60,6 +55,9 @@ void relaysoff()
 {
 	g_pinindex = 0xff;
 	printpin( 0xff );
+	g_i2cio.write8( 0xff );
+//	for( uint8_t pin = 0; pin < sizeof(g_pins); ++ pin )
+//		g_i2cio.write( pin, RELAY_OFF );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -67,14 +65,11 @@ void processInput()
 {
 	ts			t;
 	const char	*inptr( g_inbuf );
-	char 		command( findcommand( inptr, g_commands ));
+//	char 		command( findcommand( inptr, g_commands ));
 
 	relaysoff();
 
-	serialoutln( CMNT, (uint16_t)command );
-
-	switch( command ) {
-	case 0:		//	sdt
+	if( iscommand( inptr, F("sdt"))) {
 #ifdef	TEST_DS3231
 		if( parsedatetime( t, inptr )) {
 			DS3231_set( t );
@@ -84,74 +79,80 @@ void processInput()
 #else	//	TEST_DS3231
 		Serial.println( F(ERRS "NOTIMPL"))
 #endif	//	TEST_DS3231
-		break;
 
-	case 1:		//	ddb
-#ifdef TEST_SDCARD
-		{
-			char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
-			database::dbrecord	rec;
-
-			for( int code = 0; code < 1024; ++code ) {
-				if( g_db.getParams( code, rec )) {
-					rec.serialize( recbuf );
-					Serial.println( recbuf );
-				} else {
-					Serial.println( F(ERRS "GETPARAMS" ));
-				}
-
-			}
-		}
-#else	//	TEST_SDCARD
-		Serial.println( F(ERRS "NOTIMPL"));
-#endif	//	TEST_SDCARD
-			break;
-
-	case 2:		// relay stop
-		break;
-
-	case 3:		// relay test
+	} else if( iscommand( inptr, F("rt"))) {
 		g_pinindex = sizeof( g_pins ) - 1;
-		break;
 
-	case 4:		// dump eeprom;
-	{
-		uint8_t	b, tmp;
+	} else if( iscommand( inptr, F("de"))) {
+		uint8_t	b;
 		for( int addr = 0; addr < 1024; ++addr )
 		{
 			if( addr && !( addr & 0xf ))	Serial.println();
 			else if( addr ) Serial.print(' ');
 			b = i2c_eeprom_read_byte( HYBRIDDB_EEPROM_ADDRESS, HYBRIDDB_EEPROM_OFFSET + addr );
-			tmp = b >> 4;
-			Serial.print((char)( tmp + ( tmp < 10 ? '0' : ( 'A' - 10 ) )));
-			tmp = b &0xf;
-			Serial.print((char)( tmp + ( tmp < 10 ? '0' : ( 'A' - 10 ) )));
+			Serial.print( halfbytetohex( b >> 4));
+			Serial.print( halfbytetohex( b & 0xf));
 			delay(10);
 		}
-		break;
-	}
 
-	case 5:		//set eprom data
-	{
+	} else if( iscommand( inptr, F("se"))) {
 		uint16_t	address = getintparam( inptr, false );
 		uint16_t	value = getintparam( inptr, false );
 		i2c_eeprom_write_byte( HYBRIDDB_EEPROM_ADDRESS, address, value );
-		break;
-	}
 
-	case 6:		//set eprom data
-	{
+	} else if( iscommand( inptr, F("ge"))) {
 		uint16_t	address = getintparam( inptr, false );
 		uint8_t		value = i2c_eeprom_read_byte( HYBRIDDB_EEPROM_ADDRESS, address );
 		Serial.print( halfbytetohex( value >> 4 ));
 		Serial.println( halfbytetohex( value & 0xf ));
-		break;
-	}
 
-	default:
+	} else if( iscommand( inptr, F("fe"))) {
+		uint16_t	address = getintparam( inptr, false );
+		uint8_t		value = getintparam( inptr, false );
+		uint8_t		count = getintparam( inptr, false );
+		i2c_eeprom_fill_page( HYBRIDDB_EEPROM_ADDRESS, address, value, count );
+
+	} else if( iscommand( inptr, F("ddb"))) {
+#ifdef TEST_SDCARD
+		char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
+		database::dbrecord	rec;
+
+		for( int code = 0; code < 1024; ++code ) {
+			if( g_db.getParams( code, rec )) {
+				rec.serialize( recbuf );
+				Serial.println( recbuf );
+			} else {
+				Serial.println( F(ERRS "GETPARAMS" ));
+			}
+		}
+#else	//	TEST_SDCARD
+		Serial.println( F(ERRS "NOTIMPL"));
+#endif	//	TEST_SDCARD
+
+	} else if( iscommand( inptr, F("cs"))) {
+		g_db.cleanstatuses();
+
+	} else if( iscommand( inptr, F("get"))) {
+		database::dbrecord	rec;
+		char 				recbuf[ DBRECORD_WIDTH + 1 ];
+		int 				code( getintparam( inptr ));
+		if( code != -1 ) {
+			g_db.getParams( code, rec );
+			rec.serialize( recbuf );
+			Serial.println( recbuf );
+		}
+
+	} else if( iscommand( inptr, F("set"))) {
+		database::dbrecord	rec;
+		int 				code( getintparam( inptr ));
+		if( code != -1 && rec.parse( inptr )) {
+			g_db.setParams( code, rec );
+		}
+
+	} else {
 		Serial.println( ERRS "CMD");
-
 	}
+
 	g_inidx = 0;
 }
 
@@ -241,10 +242,8 @@ void setup()
 		g_i2cio.write( g_pins[pin], HIGH );
 	}
 
-#ifdef TEST_DS3231
-#ifndef TEST_LCD
 	Wire.begin();
-#endif	//	TEST_LCD
+#ifdef TEST_DS3231
 	DS3231_init( DS3231_INTCN );
 #endif	//	TEST_DS3231
 
@@ -256,9 +255,7 @@ void setup()
 #endif	//	TEST_LCD
 	serialout( CMNTS "DB ", dbinit ? F("OK") : F("FAIL"));
 
-	g_eeprom.begin();
-
-	delay(3000);
+	delay(2000);
 #endif	//	TEST_SDCARD
 	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );
 	printdatetime();
@@ -282,9 +279,9 @@ void loop()
 			uint8_t	prevpin = g_pinindex++;
 			if( g_pinindex >= sizeof( g_pins ))
 				g_pinindex = 0;
-			g_i2cio.write( g_pins[prevpin], HIGH );
-			g_i2cio.write( g_pins[g_pinindex], LOW );
-			g_rtstart = curmillis;
+			g_i2cio.write( g_pins[prevpin], RELAY_OFF );
+			g_i2cio.write( g_pins[g_pinindex], RELAY_ON );
+			g_rtstart += 1000;
 			printpin( g_pins[g_pinindex] );
 		}
 	}

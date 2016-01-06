@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Wire.h> //I2C library
 
 void i2c_eeprom_write_byte(int deviceaddress, unsigned int eeaddress, uint8_t data)
@@ -20,6 +21,17 @@ void i2c_eeprom_write_page(int deviceaddress, unsigned int eeaddresspage, uint8_
 	uint8_t c;
 	for (c = 0; c < length; c++)
 		Wire.write(data[c]);
+	Wire.endTransmission();
+}
+
+void i2c_eeprom_fill_page(int deviceaddress, unsigned int eeaddresspage, uint8_t data, uint8_t length)
+{
+	Wire.beginTransmission(deviceaddress);
+	Wire.write((int) (eeaddresspage >> 8)); // MSB
+	Wire.write((int) (eeaddresspage & 0xFF)); // LSB
+	uint8_t c;
+	for (c = 0; c < length; c++)
+		Wire.write(data);
 	Wire.endTransmission();
 }
 

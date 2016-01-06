@@ -26,10 +26,12 @@ public:
 	virtual bool getParams( int code, dbrecord &recout );
 	virtual bool setParams( int code, const dbrecord &recin );
 	virtual bool setStatus( int code, dbrecord::POSITION pos );
+	virtual void cleanstatuses();
 
 private:
 	SdFat		&m_sd;
-	uint8_t		&m_eepromaddress;
+	uint8_t		m_eepromaddress;
+	uint16_t	m_dirindex;
 };
 
 #endif /* INTDB_H_ */

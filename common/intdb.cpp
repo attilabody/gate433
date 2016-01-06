@@ -23,6 +23,9 @@ intdb::~intdb()
 	m_status.close();
 }
 
+const char *intdb::m_statusname = "STATUS.TXT";
+const char *intdb::m_infoname = "INFO.TXT";
+
 bool intdb::init()
 {
 	m_info = m_sd.open( "info.txt", FILE_READ );
@@ -36,7 +39,7 @@ bool intdb::getParams( int code, dbrecord &recout )
 	const char	*bufptr( linebuffer );
 	int16_t		tmp1, tmp2;
 
-	if( (m_status = m_sd.open( "status.txt", FILE_READ )).isOpen()
+	if( (m_status = m_sd.open( m_statusname, FILE_READ )).isOpen()
 		&& m_info.seek( code * INFORECORD_WIDTH )
 		&& m_status.seek( code * STATUSRECORD_WIDTH )
 		&& m_info.read( linebuffer, INFORECORD_WIDTH ) == INFORECORD_WIDTH
@@ -82,11 +85,11 @@ bool intdb::setParams( int code, const dbrecord &recin )
 	recin.serializestatus( sbptr );
 
 	m_info.close();
-	if( !(m_info = m_sd.open( "info.txt", FILE_WRITE ))) {
+	if( !(m_info = m_sd.open( m_infoname, FILE_WRITE ))) {
 		m_initok = false;
 		return false;
 	}
-	if( (m_status = m_sd.open( "status.txt", FILE_WRITE )).isOpen()
+	if( (m_status = m_sd.open( m_statusname, FILE_WRITE )).isOpen()
 		&& m_info.seek( code * INFORECORD_WIDTH )
 		&& m_status.seek(code * STATUSRECORD_WIDTH)
 		&& m_info.write( infobuffer, INFORECORD_WIDTH - 1 ) == INFORECORD_WIDTH - 1
@@ -97,7 +100,7 @@ bool intdb::setParams( int code, const dbrecord &recin )
 
 	if( m_info ) {
 		m_info.close();
-		if( !(m_info = m_sd.open( "info.txt", FILE_READ ))) {
+		if( !(m_info = m_sd.open( m_infoname, FILE_READ ))) {
 			ret = m_initok = false;
 		}
 	}
@@ -114,11 +117,16 @@ bool intdb::setStatus( int code, dbrecord::POSITION pos )
 
 	uitohex( sbptr, (uint16_t) pos, 3 );
 
-	if( (m_status = m_sd.open( "status.txt", FILE_WRITE ))
+	if( (m_status = m_sd.open( m_statusname, FILE_WRITE ))
 		&& m_status.seek(code * STATUSRECORD_WIDTH)
 		&& m_status.write( statusbuffer, STATUSRECORD_WIDTH -1 ) == STATUSRECORD_WIDTH -1 ) {
 		ret = true;
 	}
 	if( m_status ) m_status.close();
 	return ret;
+}
+
+void intdb::cleanstatuses()
+{
+	//TODO: implement it
 }

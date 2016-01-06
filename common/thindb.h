@@ -22,17 +22,17 @@ public:
 	bool	init();
 	SdFat&	getsdfat() { return m_sd; }
 
-//	bool isinitsucceeded() { return m_initok; }
+	bool isinitsucceeded() { return true; }
 
 	virtual bool getParams( int code, dbrecord &recout );
 	virtual bool setParams( int code, const dbrecord &recin );
 	virtual bool setStatus( int code, dbrecord::POSITION pos );
+	virtual void cleanstatuses();
 
 private:
 	SdFat	&m_sd;
-//	File	m_info;
-//	File	m_status;
-	bool	m_initok;
+
+	static const char	*m_filename;
 };
 
 #endif /* INTDB_H_ */

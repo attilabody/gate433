@@ -87,6 +87,7 @@ INS INE OUS OUE FLG
 #define STATUSRECORD_WIDTH	4
 
 long getintparam( const char* &input, bool decimal = true, bool trimstart = true );
+bool iscommand( const char *&inptr, const __FlashStringHelper *cmd );
 char findcommand( const char* &inptr, const char **commands );
 bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
 void hex2serial( uint16_t out, uint8_t digits, const char* prefix );
