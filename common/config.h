@@ -48,6 +48,13 @@
 #define	ENFORCE_DT	true	//	enforce date-time requirements
 
 #define GATE_OPEN_PULSE_WIDTH	1000
-#define USE_THINDB
+
+#define HYBRIDDB_EEPROM_OFFSET 0
+#define HYBRIDDB_EEPROM_ADDRESS 0x57
+
+
+//#define USE_INTDB
+//#define USE_THINDB
+#define USE_HYBRIDDB
 
 #endif /* CONFIG_H_ */

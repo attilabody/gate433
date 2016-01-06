@@ -9,6 +9,8 @@
 #include "inductiveloop.h"
 #include "decode433.h"
 #include "intdb.h"
+#include "thindb.h"
+#include "hybriddb.h"
 
 #define STEP_LEN 5000
 
@@ -35,7 +37,7 @@ const char 			*g_commands[] = {
 };
 
 SdFat				g_sd;
-intdb				g_db( g_sd, false );
+hybriddb			g_db( g_sd, 0x57 );
 File				g_log;
 LiquidCrystal_I2C 	g_lcd(LCD_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 inductiveloop		g_indloop( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );

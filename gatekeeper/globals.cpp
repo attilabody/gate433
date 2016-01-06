@@ -19,6 +19,9 @@ thindb				g_db( g_sd );
 #ifdef USE_INTDB
 intdb				g_db( g_sd );
 #endif	//	USE_INTDB
+#ifdef USE_HYBRIDDB
+hybriddb			g_db( g_sd, HYBRIDDB_EEPROM_ADDRESS);
+#endif	//	USE_HYBRIDDB
 bool				g_dbinitfail( true );
 trafficlights		g_lights;
 inductiveloop		g_indloop;

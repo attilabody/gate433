@@ -133,7 +133,7 @@ void hex2serial( uint16_t out, uint8_t digits, const char* prefix )
 
 //////////////////////////////////////////////////////////////////////////////
 inline void halfbytetohex( char* &buffer, unsigned char data ) {
-	*buffer++ = data + ( data < 10 ? '0' : ( 'A' - 10 ) );
+	*buffer++ = halfbytetohex( data );
 }
 
 //////////////////////////////////////////////////////////////////////////////

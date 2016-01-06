@@ -5,12 +5,13 @@
 #include <ds3231.h>
 #include <LiquidCrystal_I2C.h>
 #include <PCF8574.h>
+#include <I2C_eeprom.h>
 #include "config.h"
 #include "interface.h"
 #include "intdb.h"
 #include "decode433.h"
 
-#define TEST_SDCARD
+//#define TEST_SDCARD
 #define TEST_LCD
 #define TEST_DS3231
 
@@ -21,6 +22,9 @@ const char 		*g_commands[] = {
 	, "ddb"		//dump db
 	, "rs"		//relay stop
 	, "rt"		//relay test
+	, "de"		//dump eeprom
+	, "se"		//set eeprom data <address(hex)> <data(hex)>
+	, "ge"		//get eeprom data <address(hex)>
 	, ""
 };
 
@@ -109,6 +113,40 @@ void processInput()
 	case 3:		// relay test
 		g_pinindex = sizeof( g_pins ) - 1;
 		break;
+
+	case 4:		// dump eeprom;
+	{
+		uint8_t	b, tmp;
+		for( int addr = 0; addr < 1024; ++addr )
+		{
+			if( addr && !( addr & 0xf ))	Serial.println();
+			else if( addr ) Serial.print(' ');
+			b = i2c_eeprom_read_byte( HYBRIDDB_EEPROM_ADDRESS, HYBRIDDB_EEPROM_OFFSET + addr );
+			tmp = b >> 4;
+			Serial.print((char)( tmp + ( tmp < 10 ? '0' : ( 'A' - 10 ) )));
+			tmp = b &0xf;
+			Serial.print((char)( tmp + ( tmp < 10 ? '0' : ( 'A' - 10 ) )));
+			delay(10);
+		}
+		break;
+	}
+
+	case 5:		//set eprom data
+	{
+		uint16_t	address = getintparam( inptr, false );
+		uint16_t	value = getintparam( inptr, false );
+		i2c_eeprom_write_byte( HYBRIDDB_EEPROM_ADDRESS, address, value );
+		break;
+	}
+
+	case 6:		//set eprom data
+	{
+		uint16_t	address = getintparam( inptr, false );
+		uint8_t		value = i2c_eeprom_read_byte( HYBRIDDB_EEPROM_ADDRESS, address );
+		Serial.print( halfbytetohex( value >> 4 ));
+		Serial.println( halfbytetohex( value & 0xf ));
+		break;
+	}
 
 	default:
 		Serial.println( ERRS "CMD");
@@ -217,6 +255,9 @@ void setup()
 	lcdout( F("DB "), dbinit ? F("OK") : F("FAIL"));
 #endif	//	TEST_LCD
 	serialout( CMNTS "DB ", dbinit ? F("OK") : F("FAIL"));
+
+	g_eeprom.begin();
+
 	delay(3000);
 #endif	//	TEST_SDCARD
 	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );

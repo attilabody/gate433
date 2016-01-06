@@ -13,6 +13,7 @@
 #include "config.h"
 #include "thindb.h"
 #include "intdb.h"
+#include "hybriddb.h"
 #include "inductiveloop.h"
 #include "trafficlights.h"
 
@@ -29,6 +30,9 @@ extern thindb				g_db;
 #ifdef USE_INTDB
 extern intdb				g_db;
 #endif	//	USE_INTDB
+#ifdef USE_HYBRIDDB
+extern hybriddb				g_db;
+#endif	//	USE_HYBRIDDB
 extern bool					g_dbinitfail;
 extern trafficlights		g_lights;
 extern inductiveloop		g_indloop;

@@ -97,5 +97,8 @@ void ultodec( char* &buffer, uint32_t data, uint8_t digits );
 void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, char datesep, char dowsep );
 void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char sep );
 bool parsedatetime( ts &t, const char *&inptr );
+inline char halfbytetohex( uint8_t data ) { return data + ( data < 10 ? '0' : ( 'A' - 10 ) ); }
+
+
 
 #endif /* _interface_H_ */
