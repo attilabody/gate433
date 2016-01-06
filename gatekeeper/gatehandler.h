@@ -11,6 +11,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include "config.h"
+#include "globals.h"
 #include "database.h"
 #include "trafficlights.h"
 #include "inductiveloop.h"
@@ -39,6 +40,7 @@ protected:
 	}
 	inline void topass( bool inner ) {
 		m_lights.set( trafficlights::ACCEPTED, inner );
+		g_i2cio.write( PIN_GATE, RELAY_ON );
 		m_inner = inner; m_dbupdated = false; m_status = PASS;
 	}
 
@@ -60,6 +62,8 @@ protected:
 	uint16_t				m_previd;
 	AUTHRES					m_prevdecision;
 	bool					m_previnner;
+
+	unsigned long			m_openstart;
 };
 
 #endif /* GATEHANDLER_H_ */

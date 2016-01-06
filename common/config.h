@@ -47,6 +47,7 @@
 #define	ENFORCE_POS	false	//	enforce position requirements
 #define	ENFORCE_DT	true	//	enforce date-time requirements
 
+#define GATE_OPEN_PULSE_WIDTH	1000
 #define USE_THINDB
 
 #endif /* CONFIG_H_ */

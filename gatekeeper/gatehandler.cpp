@@ -32,6 +32,7 @@ gatehandler::gatehandler( database &db
 , m_conflict( false )
 , m_inner( false )
 , m_prevdecision( (AUTHRES) -1 )
+, m_openstart(0)
 {
 }
 
@@ -83,6 +84,7 @@ void gatehandler::loop( unsigned long currmillis )
 			Serial.println( freeMemory());
 #endif	//	VERBOSE
 			if( authorize( g_code, inner ) == GRANTED ) {
+				m_openstart = currmillis ? currmillis : 1;
 				topass( inner );
 			} else {
 				m_lights.set( trafficlights::DENIED, inner );
@@ -124,6 +126,9 @@ void gatehandler::loop( unsigned long currmillis )
 
 	m_ilstatus = ilstatus;
 	m_conflict = conflict;
+	if( m_openstart && currmillis - m_openstart > GATE_OPEN_PULSE_WIDTH ) {
+		g_i2cio.write( PIN_GATE, RELAY_OFF );
+	}
 
 	m_lights.loop( currmillis );
 }
