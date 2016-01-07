@@ -15,10 +15,10 @@
 #include <I2C_eeprom.h>
 #include "config.h"
 
-class hybriddb: public database
+class hybriddb: public database, public i2c_eeprom
 {
 public:
-	hybriddb( SdFat &sd, uint8_t eepromaddress, bool initialize = false );
+	hybriddb( SdFat &sd, uint8_t eepromaddress, uint8_t pagesize, bool initialize = false );
 	virtual ~hybriddb();
 	bool	init();
 	SdFat&	getsdfat() { return m_sd; }
@@ -30,7 +30,6 @@ public:
 
 private:
 	SdFat		&m_sd;
-	uint8_t		m_eepromaddress;
 	uint16_t	m_dirindex;
 };
 

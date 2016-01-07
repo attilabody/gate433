@@ -1,21 +1,104 @@
 #include <Arduino.h>
 #include <Wire.h> //I2C library
+#include "I2C_eeprom.h"
+#include "interface.h"
 
-void i2c_eeprom_write_byte(int deviceaddress, unsigned int eeaddress, uint8_t data)
+#define TWI_MAX_TRANSFER_SIZE	30
+
+i2c_eeprom::i2c_eeprom( uint8_t i2caddress, uint8_t addressbits, uint8_t pagesize )
+: m_i2caddress( i2caddress )
+, m_addressbits( addressbits )
 {
+	m_pagesize = ( pagesize & (pagesize-1) ) ? 1 : pagesize;	//has to be 2^n
+}
+
+void i2c_eeprom::write_byte( eepromaddress_t eeaddress, uint8_t data)
+{
+	serialoutsepln( F(", "), F("_write_byte"), eeaddress, data );
 	int rdata = data;
-	Wire.beginTransmission(deviceaddress);
+	Wire.beginTransmission(m_i2caddress);
 	Wire.write((int) (eeaddress >> 8)); // MSB
 	Wire.write((int) (eeaddress & 0xFF)); // LSB
 	Wire.write(rdata);
 	Wire.endTransmission();
+	delay(5);
 }
 
-// WARNING: address is a page address, 6-bit end will wrap around
-// also, data can be maximum of about 30 bytes, because the Wire library has a buffer of 32 bytes
-void i2c_eeprom_write_page(int deviceaddress, unsigned int eeaddresspage, uint8_t* data, uint8_t length)
+uint8_t i2c_eeprom::read_byte( eepromaddress_t eeaddress)
 {
-	Wire.beginTransmission(deviceaddress);
+	uint8_t rdata = 0xFF;
+	Wire.beginTransmission(m_i2caddress);
+	Wire.write((int) (eeaddress >> 8)); // MSB
+	Wire.write((int) (eeaddress & 0xFF)); // LSB
+	Wire.endTransmission();
+	Wire.requestFrom((int)m_i2caddress, 1);
+	if (Wire.available())
+		rdata = Wire.read();
+	return rdata;
+}
+
+void i2c_eeprom::write_page( eepromaddress_t eeaddress, uint8_t* data, eepromaddress_t length)
+{
+	eepromaddress_t nextpageaddress( (eeaddress & ~((eepromaddress_t)m_pagesize - 1)) + m_pagesize );
+	while( length )
+	{
+		eepromaddress_t	remainingpagelen(nextpageaddress - eeaddress );
+		if( remainingpagelen > length ) remainingpagelen = length;
+		length -= remainingpagelen;
+		while( remainingpagelen ) {
+			uint8_t curlen = remainingpagelen > TWI_MAX_TRANSFER_SIZE ? TWI_MAX_TRANSFER_SIZE : remainingpagelen;
+			_write_page( eeaddress, data, curlen );
+			eeaddress += curlen;
+			data += curlen;
+			remainingpagelen -= curlen;
+			delay(5);
+		}
+		nextpageaddress += m_pagesize;
+	}
+}
+
+void i2c_eeprom::read_page( eepromaddress_t eeaddress, uint8_t* data, eepromaddress_t length)
+{
+	eepromaddress_t nextpageaddress( (eeaddress & ~((eepromaddress_t)m_pagesize - 1)) + m_pagesize );
+	while( length )
+	{
+		eepromaddress_t	remainingpagelen(nextpageaddress - eeaddress );
+		if( remainingpagelen > length ) remainingpagelen = length;
+		length -= remainingpagelen;
+		while( remainingpagelen ) {
+			uint8_t curlen = remainingpagelen > TWI_MAX_TRANSFER_SIZE ? TWI_MAX_TRANSFER_SIZE : remainingpagelen;
+			_read_page( eeaddress, data, curlen );
+			eeaddress += curlen;
+			data += curlen;
+			remainingpagelen -= curlen;
+			delay(5);
+		}
+		nextpageaddress += m_pagesize;
+	}
+}
+
+void i2c_eeprom::fill_page( eepromaddress_t eeaddress, uint8_t data, eepromaddress_t length )
+{
+	eepromaddress_t nextpageaddress( (eeaddress & ~((eepromaddress_t)m_pagesize - 1)) + m_pagesize );
+	while( length )
+	{
+		eepromaddress_t	remainingpagelen(nextpageaddress - eeaddress );
+		if( remainingpagelen > length ) remainingpagelen = length;
+		length -= remainingpagelen;
+		while( remainingpagelen ) {
+			uint8_t curlen = remainingpagelen > TWI_MAX_TRANSFER_SIZE ? TWI_MAX_TRANSFER_SIZE : remainingpagelen;
+			_fill_page( eeaddress, data, curlen );
+			eeaddress += curlen;
+			remainingpagelen -= curlen;
+			delay(5);
+		}
+		nextpageaddress += m_pagesize;
+	}
+}
+
+void i2c_eeprom::_write_page( eepromaddress_t eeaddresspage, uint8_t* data, uint8_t length)
+{
+	Wire.beginTransmission(m_i2caddress);
 	Wire.write((int) (eeaddresspage >> 8)); // MSB
 	Wire.write((int) (eeaddresspage & 0xFF)); // LSB
 	uint8_t c;
@@ -24,9 +107,9 @@ void i2c_eeprom_write_page(int deviceaddress, unsigned int eeaddresspage, uint8_
 	Wire.endTransmission();
 }
 
-void i2c_eeprom_fill_page(int deviceaddress, unsigned int eeaddresspage, uint8_t data, uint8_t length)
+void i2c_eeprom::_fill_page( eepromaddress_t eeaddresspage, uint8_t data, uint8_t length)
 {
-	Wire.beginTransmission(deviceaddress);
+	Wire.beginTransmission(m_i2caddress);
 	Wire.write((int) (eeaddresspage >> 8)); // MSB
 	Wire.write((int) (eeaddresspage & 0xFF)); // LSB
 	uint8_t c;
@@ -35,27 +118,13 @@ void i2c_eeprom_fill_page(int deviceaddress, unsigned int eeaddresspage, uint8_t
 	Wire.endTransmission();
 }
 
-uint8_t i2c_eeprom_read_byte(int deviceaddress, unsigned int eeaddress)
+void i2c_eeprom::_read_page( eepromaddress_t eeaddress, uint8_t *buffer, int length)
 {
-	uint8_t rdata = 0xFF;
-	Wire.beginTransmission(deviceaddress);
+	Wire.beginTransmission(m_i2caddress);
 	Wire.write((int) (eeaddress >> 8)); // MSB
 	Wire.write((int) (eeaddress & 0xFF)); // LSB
 	Wire.endTransmission();
-	Wire.requestFrom(deviceaddress, 1);
-	if (Wire.available())
-		rdata = Wire.read();
-	return rdata;
-}
-
-// maybe let's not read more than 30 or 32 bytes at a time!
-void i2c_eeprom_read_buffer(int deviceaddress, unsigned int eeaddress, uint8_t *buffer, int length)
-{
-	Wire.beginTransmission(deviceaddress);
-	Wire.write((int) (eeaddress >> 8)); // MSB
-	Wire.write((int) (eeaddress & 0xFF)); // LSB
-	Wire.endTransmission();
-	Wire.requestFrom(deviceaddress, length);
+	Wire.requestFrom((int)m_i2caddress, length);
 	int c = 0;
 	for (c = 0; c < length; c++)
 		if (Wire.available())

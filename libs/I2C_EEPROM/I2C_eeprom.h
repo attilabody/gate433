@@ -10,18 +10,28 @@
 //
 // Released to the public domain
 //
-
-#include <Wire.h>
-
 #include <Wire.h> //I2C library
 
-void i2c_eeprom_write_byte( int deviceaddress, unsigned int eeaddress, uint8_t data );
-// WARNING: address is a page address, 6-bit end will wrap around
-// also, data can be maximum of about 30 bytes, because the Wire library has a buffer of 32 bytes
-void i2c_eeprom_write_page( int deviceaddress, unsigned int eeaddresspage, uint8_t* data, uint8_t length );
-void i2c_eeprom_fill_page( int deviceaddress, unsigned int eeaddresspage, uint8_t data, uint8_t length );
-uint8_t i2c_eeprom_read_byte( int deviceaddress, unsigned int eeaddress );
-// maybe let's not read more than 30 or 32 bytes at a time!
-void i2c_eeprom_read_buffer( int deviceaddress, unsigned int eeaddress, uint8_t *buffer, int length );
+class i2c_eeprom
+{
+public:
+	typedef uint16_t	eepromaddress_t;
+	i2c_eeprom( uint8_t i2caddress, uint8_t addresbits, uint8_t pagesize = 32 );
+
+	void write_byte( eepromaddress_t eeaddress, uint8_t data );
+	uint8_t read_byte( eepromaddress_t eeaddress );
+	void write_page( eepromaddress_t eeaddress, uint8_t* data, eepromaddress_t length );
+	void read_page( eepromaddress_t eeaddress, uint8_t* data, eepromaddress_t length);
+	void fill_page( eepromaddress_t eeaddresspage, uint8_t data, eepromaddress_t length );
+
+protected:
+	void _write_page( eepromaddress_t eeaddresspage, uint8_t* data, uint8_t length );
+	void _fill_page( eepromaddress_t eeaddresspage, uint8_t data, uint8_t length );
+	void _read_page( eepromaddress_t eeaddress, uint8_t *buffer, int length );
+private:
+	uint8_t m_i2caddress;
+	uint8_t m_addressbits;
+	uint8_t	m_pagesize;
+};
 #endif
 // END OF FILE

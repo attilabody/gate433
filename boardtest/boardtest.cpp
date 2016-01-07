@@ -22,7 +22,7 @@ uint16_t	g_inidx(0);
 
 #ifdef TEST_SDCARD
 SdFat		g_sd;
-hybriddb	g_db( g_sd, 0x57, false );
+hybriddb	g_db( g_sd, 0x57, 32, false );
 //#else
 #endif	//	TEST_SDCARD
 
@@ -84,25 +84,42 @@ void processInput()
 		g_pinindex = sizeof( g_pins ) - 1;
 
 	} else if( iscommand( inptr, F("de"))) {
-		uint8_t	b;
-		for( int addr = 0; addr < 1024; ++addr )
+		uint8_t		b;
+		uint16_t	address = getintparam( inptr, false );
+		uint16_t	count = getintparam( inptr, false );
+		for( int addr = 0; addr < count; ++addr )
 		{
 			if( addr && !( addr & 0xf ))	Serial.println();
 			else if( addr ) Serial.print(' ');
-			b = i2c_eeprom_read_byte( HYBRIDDB_EEPROM_ADDRESS, HYBRIDDB_EEPROM_OFFSET + addr );
+			b = g_db.read_byte( HYBRIDDB_EEPROM_OFFSET + address + addr );
 			Serial.print( halfbytetohex( b >> 4));
 			Serial.print( halfbytetohex( b & 0xf));
 			delay(10);
 		}
 
+	} else if( iscommand( inptr, F("dep"))) {
+		uint8_t		buffer[16];
+		uint16_t	address = getintparam( inptr, false );
+		uint16_t	count = getintparam( inptr, false );
+		for( int addr = 0; addr < count; addr += 16 )
+		{
+			Serial.println();
+			g_db.read_page( HYBRIDDB_EEPROM_OFFSET + address + addr, buffer, 16 );
+			for( uint8_t offset=0; offset < 16; ++offset ) {
+				if( offset) Serial.print(' ');
+				Serial.print( halfbytetohex( buffer[offset] >> 4));
+				Serial.print( halfbytetohex( buffer[offset] & 0xf));
+			}
+		}
+
 	} else if( iscommand( inptr, F("se"))) {
 		uint16_t	address = getintparam( inptr, false );
 		uint16_t	value = getintparam( inptr, false );
-		i2c_eeprom_write_byte( HYBRIDDB_EEPROM_ADDRESS, address, value );
+		g_db.write_byte( address, value );
 
 	} else if( iscommand( inptr, F("ge"))) {
 		uint16_t	address = getintparam( inptr, false );
-		uint8_t		value = i2c_eeprom_read_byte( HYBRIDDB_EEPROM_ADDRESS, address );
+		uint8_t		value = g_db.read_byte( address );
 		Serial.print( halfbytetohex( value >> 4 ));
 		Serial.println( halfbytetohex( value & 0xf ));
 
@@ -110,7 +127,7 @@ void processInput()
 		uint16_t	address = getintparam( inptr, false );
 		uint8_t		value = getintparam( inptr, false );
 		uint8_t		count = getintparam( inptr, false );
-		i2c_eeprom_fill_page( HYBRIDDB_EEPROM_ADDRESS, address, value, count );
+		g_db.fill_page( address, value, count );
 
 	} else if( iscommand( inptr, F("ddb"))) {
 #ifdef TEST_SDCARD
@@ -229,7 +246,8 @@ void setup()
 {
 	Serial.begin( 115200 );
 	delay(100);
-	serialout(CMNTS "Setup\n");
+	Serial.println();
+	serialoutln(F( CMNTS "------------------ Setup ------------------"));
 	delay(100);
 
 #ifdef	TEST_LCD
@@ -253,7 +271,7 @@ void setup()
 #ifdef TEST_LCD
 	lcdout( F("DB "), dbinit ? F("OK") : F("FAIL"));
 #endif	//	TEST_LCD
-	serialout( CMNTS "DB ", dbinit ? F("OK") : F("FAIL"));
+	serialoutln( F(CMNTS "DB "), dbinit ? F("OK") : F("FAIL"));
 
 	delay(2000);
 #endif	//	TEST_SDCARD

@@ -11,9 +11,9 @@
 #include "I2C_eeprom.h"
 
 //////////////////////////////////////////////////////////////////////////////
-hybriddb::hybriddb( SdFat &sd, uint8_t eepromaddress,  bool initialize )
-: m_sd( sd )
-, m_eepromaddress( eepromaddress )
+hybriddb::hybriddb( SdFat &sd, uint8_t eepromaddress, uint8_t pagesize, bool initialize )
+: i2c_eeprom( eepromaddress, pagesize )
+, m_sd( sd )
 {
 	if( initialize ) init();
 }
@@ -71,7 +71,7 @@ bool hybriddb::getParams( int code, dbrecord &recout )
 	}
 
 	recout.days = tmp & 0x7f;
-	recout.position = (dbrecord::POSITION)(i2c_eeprom_read_byte( m_eepromaddress, HYBRIDDB_EEPROM_OFFSET + code ) & 3);
+	recout.position = (dbrecord::POSITION)( read_byte( HYBRIDDB_EEPROM_OFFSET + code ) & 3);
 	return true;
 }
 
@@ -95,7 +95,7 @@ bool hybriddb::setParams( int code, const dbrecord &recin )
 		}
 		f.close();
 	}
-	i2c_eeprom_write_byte( m_eepromaddress, HYBRIDDB_EEPROM_ADDRESS + code, (uint8_t)recin.position);
+	write_byte( HYBRIDDB_EEPROM_OFFSET + code, (uint8_t)recin.position);
 	return ret;
 }
 
@@ -103,7 +103,7 @@ bool hybriddb::setParams( int code, const dbrecord &recin )
 //////////////////////////////////////////////////////////////////////////////
 bool hybriddb::setStatus( int code, dbrecord::POSITION pos )
 {
-	i2c_eeprom_write_byte( m_eepromaddress, HYBRIDDB_EEPROM_ADDRESS + code, (uint8_t)pos);
+	write_byte( HYBRIDDB_EEPROM_OFFSET + code, (uint8_t)pos);
 
 	return true;
 }
@@ -111,8 +111,5 @@ bool hybriddb::setStatus( int code, dbrecord::POSITION pos )
 //////////////////////////////////////////////////////////////////////////////
 void hybriddb::cleanstatuses()
 {
-	for( uint8_t page = 0; page < (1024/16); ++page ) {
-		i2c_eeprom_fill_page( m_eepromaddress, HYBRIDDB_EEPROM_OFFSET + (page << 4), 0, 16 );
-		delay(6);
-	}
+	fill_page( HYBRIDDB_EEPROM_OFFSET , 0, 1024 );
 }
