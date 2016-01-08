@@ -22,6 +22,8 @@ public:
 		void serializestatus( char *&buffer ) const;
 		void serialize( char *&buffer ) const;
 		void serialize( char *buffer ) const;
+		uint8_t pack( uint8_t *buffer ) const;
+		void unpack( uint8_t *buffer );
 
 		int16_t	in_start;
 		int16_t	in_end;

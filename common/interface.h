@@ -69,22 +69,23 @@ template< typename Arg1, typename... Args> void serialout( const Arg1& arg1, con
 INS INE OUS OUE FLG
 000 59F 000 59F 07F
 */
-#define IN_START_OFFSET		0
-#define IN_START_WIDTH		3
-#define IN_END_OFFSET		(IN_START_OFFSET + IN_START_WIDTH + 1)
-#define IN_END_WIDTH		3
-#define OUT_START_OFFSET	(IN_END_OFFSET + IN_END_WIDTH + 1)
-#define OUT_START_WIDTH		3
-#define OUT_END_OFFSET		(OUT_START_OFFSET + OUT_START_WIDTH + 1)
-#define OUT_END_WIDTH		3
-#define FLAGS_OFFSET		(OUT_END_OFFSET + OUT_END_WIDTH + 1)
-#define FLAGS_WIDTH			3
-#define INFORECORD_WIDTH	(FLAGS_OFFSET + FLAGS_WIDTH + 1)	// \n added
-#define STATUS_OFFSET		(FLAGS_OFFSET + FLAGS_WIDTH + 1)
-#define STATUS_WIDTH		3
-#define DBRECORD_WIDTH		(STATUS_OFFSET + STATUS_WIDTH + 1)	// \n added
+#define IN_START_OFFSET			0
+#define IN_START_WIDTH			3
+#define IN_END_OFFSET			(IN_START_OFFSET + IN_START_WIDTH + 1)
+#define IN_END_WIDTH			3
+#define OUT_START_OFFSET		(IN_END_OFFSET + IN_END_WIDTH + 1)
+#define OUT_START_WIDTH			3
+#define OUT_END_OFFSET			(OUT_START_OFFSET + OUT_START_WIDTH + 1)
+#define OUT_END_WIDTH			3
+#define FLAGS_OFFSET			(OUT_END_OFFSET + OUT_END_WIDTH + 1)
+#define FLAGS_WIDTH				3
+#define INFORECORD_WIDTH		(FLAGS_OFFSET + FLAGS_WIDTH + 1)	// \n added
+#define STATUS_OFFSET			(FLAGS_OFFSET + FLAGS_WIDTH + 1)
+#define STATUS_WIDTH			3
+#define DBRECORD_WIDTH			(STATUS_OFFSET + STATUS_WIDTH + 1)	// \n added
+#define PACKEDDBRECORD_WIDTH	8
 
-#define STATUSRECORD_WIDTH	4
+#define STATUSRECORD_WIDTH		4
 
 long getintparam( const char* &input, bool decimal = true, bool trimstart = true );
 bool iscommand( const char *&inptr, const __FlashStringHelper *cmd );
