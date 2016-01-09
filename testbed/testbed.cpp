@@ -11,6 +11,7 @@
 #include "intdb.h"
 #include "thindb.h"
 #include "hybriddb.h"
+#include "flashdb.h"
 
 #define STEP_LEN 5000
 
@@ -26,7 +27,7 @@ const uint8_t		g_outerpins[3] = { 4,7,6 };
 const char 			*g_tlstatusnames[] = { "OFF", "CODEW", "CONFL", "ACC", "WARN", "DENY", "PASS" };
 const char 			*g_statusnames[] = { "WAITS", "CODEW", "PASS", "RETR" };
 const char			*g_ilstatusnames[] = { "NONE", "IN", "OUT" };
-char				g_buf[5];
+//char				g_buf[5];
 char				g_inbuf[64+1];
 uint16_t			g_inidx(0);
 const char 			*g_commands[] = {
@@ -37,8 +38,10 @@ const char 			*g_commands[] = {
 };
 
 SdFat				g_sd;
-hybriddb			g_db( g_sd, 0x57 );
 File				g_log;
+
+flashdb				g_db( 0x57, 128 );
+
 LiquidCrystal_I2C 	g_lcd(LCD_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 inductiveloop		g_indloop( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 trafficlights		g_lights( g_innerpins, g_outerpins, false, 500 );

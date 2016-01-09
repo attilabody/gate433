@@ -30,6 +30,7 @@ bool intdb::init()
 {
 	m_info = m_sd.open( "info.txt", FILE_READ );
 	m_initok = m_info;
+	return true;
 }
 
 bool intdb::getParams( int code, dbrecord &recout )

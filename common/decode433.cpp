@@ -22,8 +22,6 @@ void isr()
 	static RcvState state( START );
 	static uint16_t code, deltat, cyclet;
 	static int timediff;
-	static uint16_t prevcode( 0 );
-	static uint32_t prevcodetime( 0 );
 
 	static uint32_t highdeltat, lowdeltat;
 

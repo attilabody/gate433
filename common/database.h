@@ -15,8 +15,12 @@ class database
 public:
 	struct dbrecord
 	{
-		dbrecord( const char* &dbstring );
+		enum POSITION : uint8_t {
+			  unknown , outside , inside
+		};
 		dbrecord();
+		dbrecord( const char* &dbstring );
+		dbrecord( uint16_t is, uint16_t ie, uint16_t os, uint16_t oe, uint8_t d, POSITION p );
 		bool parse( const char *&dbstring);
 		void serializeinfo( char *&buffer ) const;
 		void serializestatus( char *&buffer ) const;
@@ -25,14 +29,12 @@ public:
 		uint8_t pack( uint8_t *buffer ) const;
 		void unpack( uint8_t *buffer );
 
-		int16_t	in_start;
-		int16_t	in_end;
-		int16_t	out_start;
-		int16_t	out_end;
-		uint8_t	days;
-		enum POSITION : uint8_t {
-			  unknown , outside , inside
-		} position;
+		uint16_t	in_start;
+		uint16_t	in_end;
+		uint16_t	out_start;
+		uint16_t	out_end;
+		uint8_t		days;
+		POSITION	position;
 	};
 
 	virtual bool getParams( int code, dbrecord &out ) = 0;

@@ -24,11 +24,13 @@ thindb::~thindb()
 //////////////////////////////////////////////////////////////////////////////
 bool thindb::init()
 {
+	SdFile	file;
+	if( !file.open( m_sd.vwd(), "DB.TXT", FILE_READ ))
+		return false;
+	m_dirindex = m_sd.vwd()->curPosition()/32 -1;
+	file.close();
 	return true;
 }
-
-//////////////////////////////////////////////////////////////////////////////
-const char *thindb::m_filename = "DB.TXT";
 
 //////////////////////////////////////////////////////////////////////////////
 bool thindb::getParams( int code, dbrecord &recout )
@@ -37,13 +39,11 @@ bool thindb::getParams( int code, dbrecord &recout )
 	static char linebuffer[DBRECORD_WIDTH + 1];
 	const char	*bufptr( linebuffer );
 	int16_t		tmp1, tmp2;
-	File		f;
+	SdFile		f;
 
-	f = m_sd.open( m_filename, FILE_READ );
-
-	if( f.isOpen() )
+	if( f.open( m_sd.vwd(), m_dirindex, FILE_READ ))
 	{
-		if( f.seek( code * DBRECORD_WIDTH )
+		if( f.seekSet( code * DBRECORD_WIDTH )
 			&& f.read( linebuffer, DBRECORD_WIDTH ) == DBRECORD_WIDTH )
 		{
 			linebuffer[DBRECORD_WIDTH] = 0;						//	replace \n with ' '
@@ -81,14 +81,11 @@ bool thindb::setParams( int code, const dbrecord &recin )
 
 	recin.serialize( infobuffer );
 	Serial.println( infobuffer );
+	SdFile		f;
 
-	File		f;
-
-	f = m_sd.open( m_filename, FILE_WRITE );
-
-	if( f.isOpen() )
+	if( f.open( m_sd.vwd(), m_dirindex, O_RDWR | O_CREAT ) )
 	{
-		if( f.seek( code * DBRECORD_WIDTH )
+		if( f.seekSet( code * DBRECORD_WIDTH )
 			&& f.write( infobuffer, DBRECORD_WIDTH - 1 ) == DBRECORD_WIDTH - 1 )
 		{
 			ret = true;
@@ -107,13 +104,11 @@ bool thindb::setStatus( int code, dbrecord::POSITION pos )
 	bool	ret( false );
 
 	uitohex( sbptr, (uint16_t) pos, 3 );
-	File		f;
+	SdFile		f;
 
-	f = m_sd.open( m_filename, FILE_WRITE );
-
-	if( f.isOpen() )
+	if( f.open( m_sd.vwd(), m_dirindex, O_RDWR | O_CREAT ) )
 	{
-		if( f.seek(code * DBRECORD_WIDTH + STATUS_OFFSET )
+		if( f.seekSet(code * DBRECORD_WIDTH + STATUS_OFFSET )
 			&& f.write( statusbuffer, STATUS_WIDTH ) == STATUS_WIDTH )
 		{
 			ret = true;

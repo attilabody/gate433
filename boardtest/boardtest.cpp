@@ -11,6 +11,7 @@
 #include "intdb.h"
 #include "thindb.h"
 #include "hybriddb.h"
+#include "flashdb.h"
 #include "decode433.h"
 
 #define TEST_SDCARD
@@ -22,7 +23,7 @@ uint16_t	g_inidx(0);
 
 #ifdef TEST_SDCARD
 SdFat		g_sd;
-hybriddb	g_db( g_sd, 0x57, 32, false );
+flashdb		g_db( 0x50, 16, 128 );
 //#else
 #endif	//	TEST_SDCARD
 
@@ -82,8 +83,9 @@ void processInput()
 
 	} else if( iscommand( inptr, F("rt"))) {
 		g_pinindex = sizeof( g_pins ) - 1;
+		g_rtstart = millis();
 
-	} else if( iscommand( inptr, F("de"))) {
+	} else if( iscommand( inptr, F("de"))) { 	//	dump eeprom
 		uint8_t		b;
 		uint16_t	address = getintparam( inptr, false );
 		uint16_t	count = getintparam( inptr, false );
@@ -91,20 +93,29 @@ void processInput()
 		{
 			if( addr && !( addr & 0xf ))	Serial.println();
 			else if( addr ) Serial.print(' ');
-			b = g_db.read_byte( HYBRIDDB_EEPROM_OFFSET + address + addr );
+			b = g_db.read_byte( address + addr );
 			Serial.print( halfbytetohex( b >> 4));
 			Serial.print( halfbytetohex( b & 0xf));
 			delay(10);
 		}
 
-	} else if( iscommand( inptr, F("dep"))) {
+	} else if( iscommand( inptr, F("dep"))) {	//dump eeprom paged
 		uint8_t		buffer[16];
 		uint16_t	address = getintparam( inptr, false );
 		uint16_t	count = getintparam( inptr, false );
-		for( int addr = 0; addr < count; addr += 16 )
+		if(address == 0xffff) address = 0;
+		address &= 0xfff0;
+
+		for( uint32_t pageoffset = 0; pageoffset < count; pageoffset += 16 )
 		{
 			Serial.println();
-			g_db.read_page( HYBRIDDB_EEPROM_OFFSET + address + addr, buffer, 16 );
+			char	*bp((char*)buffer);
+			uitohex( bp, pageoffset, 4 );
+			*bp++ = ' ';
+			*bp = 0;
+			Serial.print((char*) buffer );
+
+			g_db.read_page( address + pageoffset, buffer, 16 );
 			for( uint8_t offset=0; offset < 16; ++offset ) {
 				if( offset) Serial.print(' ');
 				Serial.print( halfbytetohex( buffer[offset] >> 4));
@@ -112,25 +123,24 @@ void processInput()
 			}
 		}
 
-	} else if( iscommand( inptr, F("se"))) {
+	} else if( iscommand( inptr, F("se"))) {	//	set eeprom
 		uint16_t	address = getintparam( inptr, false );
 		uint16_t	value = getintparam( inptr, false );
 		g_db.write_byte( address, value );
 
-	} else if( iscommand( inptr, F("ge"))) {
+	} else if( iscommand( inptr, F("ge"))) {	//	get eeprom
 		uint16_t	address = getintparam( inptr, false );
 		uint8_t		value = g_db.read_byte( address );
 		Serial.print( halfbytetohex( value >> 4 ));
 		Serial.println( halfbytetohex( value & 0xf ));
 
-	} else if( iscommand( inptr, F("fe"))) {
+	} else if( iscommand( inptr, F("fe"))) {	//	fill eeprom <start> <value> <count>
 		uint16_t	address = getintparam( inptr, false );
 		uint8_t		value = getintparam( inptr, false );
-		uint8_t		count = getintparam( inptr, false );
+		uint16_t	count = getintparam( inptr, false );
 		g_db.fill_page( address, value, count );
 
-	} else if( iscommand( inptr, F("ddb"))) {
-#ifdef TEST_SDCARD
+	} else if( iscommand( inptr, F("ddb"))) {	//	dump database
 		char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
 		database::dbrecord	rec;
 
@@ -142,12 +152,38 @@ void processInput()
 				Serial.println( F(ERRS "GETPARAMS" ));
 			}
 		}
-#else	//	TEST_SDCARD
-		Serial.println( F(ERRS "NOTIMPL"));
-#endif	//	TEST_SDCARD
 
-	} else if( iscommand( inptr, F("cs"))) {
+	} else if( iscommand( inptr, F("fdb"))) {	//	fill database
+		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::unknown };
+
+		for( int code = 0; code < 1024; ++code ) {
+			rec.in_start = code;
+			g_db.setParams( code, rec );
+		}
+
+	} else if( iscommand( inptr, F("ftdb"))) {	//	fill thin database
+		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::unknown };
+		thindb				tdb( g_sd );
+		if( tdb.init()) {
+			for( int code = 0; code < 1024; ++code ) {
+				rec.in_start = code;
+				tdb.setParams( code, rec );
+			}
+		}
+
+	} else if( iscommand( inptr, F("cls"))) {
 		g_db.cleanstatuses();
+
+	} else if( iscommand( inptr, F("gett"))) {	//	get thindb
+		database::dbrecord	rec;
+		char 				recbuf[ DBRECORD_WIDTH + 1 ];
+		int 				code( getintparam( inptr ));
+		thindb				tdb( g_sd );
+		if( tdb.init() && code != -1 ) {
+			tdb.getParams( code, rec );
+			rec.serialize( recbuf );
+			Serial.println( recbuf );
+		}
 
 	} else if( iscommand( inptr, F("get"))) {
 		database::dbrecord	rec;
@@ -164,6 +200,32 @@ void processInput()
 		int 				code( getintparam( inptr ));
 		if( code != -1 && rec.parse( inptr )) {
 			g_db.setParams( code, rec );
+		}
+
+	} else if( iscommand( inptr, F("sett"))) {	//	set thindb
+		database::dbrecord	rec;
+		thindb	tdb( g_sd );
+		if( tdb.init())
+		{
+			int code( getintparam( inptr ));
+			if( code != -1 && rec.parse( inptr )) {
+				tdb.setParams( code, rec );
+			}
+		}
+
+	} else if( iscommand( inptr, F("it"))) {	//import thindb
+		thindb	tdb( g_sd );
+		uint16_t	from( getintparam( inptr ));
+		uint16_t	to( getintparam( inptr ));
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		if( tdb.init())
+		{
+			database::dbrecord	rec;
+			for( uint16_t id = from; id <= to; ++id ) {
+				if( tdb.getParams( id, rec ))
+					g_db.setParams( id, rec );
+			}
 		}
 
 	} else {
@@ -250,10 +312,8 @@ void setup()
 	serialoutln(F( CMNTS "------------------ Setup ------------------"));
 	delay(100);
 
-#ifdef	TEST_LCD
 	g_lcd.init();                      // initialize the lcd
 	g_lcd.backlight();
-#endif	//	TEST_LCD
 
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
 		pinMode( g_pins[pin], OUTPUT);
@@ -261,20 +321,11 @@ void setup()
 	}
 
 	Wire.begin();
-#ifdef TEST_DS3231
 	DS3231_init( DS3231_INTCN );
-#endif	//	TEST_DS3231
 
-#ifdef TEST_SDCARD
-	bool sdinit( g_sd.begin( SS ));
-	bool dbinit( g_db.init() );
-#ifdef TEST_LCD
-	lcdout( F("DB "), dbinit ? F("OK") : F("FAIL"));
-#endif	//	TEST_LCD
-	serialoutln( F(CMNTS "DB "), dbinit ? F("OK") : F("FAIL"));
+	g_sd.begin( SS );
+	g_db.init();
 
-	delay(2000);
-#endif	//	TEST_SDCARD
 	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );
 	printdatetime();
 }
@@ -285,8 +336,6 @@ void loop()
 	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
 	}
-
-	unsigned long curmillis( millis() );
 
 	printdatetime();
 

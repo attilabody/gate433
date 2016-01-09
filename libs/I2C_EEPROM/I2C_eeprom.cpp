@@ -14,7 +14,6 @@ i2c_eeprom::i2c_eeprom( uint8_t i2caddress, uint8_t addressbits, uint8_t pagesiz
 
 void i2c_eeprom::write_byte( eepromaddress_t eeaddress, uint8_t data)
 {
-	serialoutsepln( F(", "), F("_write_byte"), eeaddress, data );
 	int rdata = data;
 	Wire.beginTransmission(m_i2caddress);
 	Wire.write((int) (eeaddress >> 8)); // MSB
@@ -109,6 +108,7 @@ void i2c_eeprom::_write_page( eepromaddress_t eeaddresspage, uint8_t* data, uint
 
 void i2c_eeprom::_fill_page( eepromaddress_t eeaddresspage, uint8_t data, uint8_t length)
 {
+	serialoutsepln( F(", "), F("_fill_page"), eeaddresspage, data, length );
 	Wire.beginTransmission(m_i2caddress);
 	Wire.write((int) (eeaddresspage >> 8)); // MSB
 	Wire.write((int) (eeaddresspage & 0xFF)); // LSB
@@ -118,15 +118,15 @@ void i2c_eeprom::_fill_page( eepromaddress_t eeaddresspage, uint8_t data, uint8_
 	Wire.endTransmission();
 }
 
-void i2c_eeprom::_read_page( eepromaddress_t eeaddress, uint8_t *buffer, int length)
+void i2c_eeprom::_read_page( eepromaddress_t eeaddress, uint8_t *buffer, uint8_t length)
 {
 	Wire.beginTransmission(m_i2caddress);
 	Wire.write((int) (eeaddress >> 8)); // MSB
 	Wire.write((int) (eeaddress & 0xFF)); // LSB
 	Wire.endTransmission();
-	Wire.requestFrom((int)m_i2caddress, length);
-	int c = 0;
-	for (c = 0; c < length; c++)
+	Wire.requestFrom((int)m_i2caddress, (int)length);
+	int pos = 0;
+	for (pos = 0; pos < length; pos++)
 		if (Wire.available())
-			buffer[c] = Wire.read();
+			buffer[pos] = Wire.read();
 }

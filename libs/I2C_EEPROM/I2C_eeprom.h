@@ -16,7 +16,7 @@ class i2c_eeprom
 {
 public:
 	typedef uint16_t	eepromaddress_t;
-	i2c_eeprom( uint8_t i2caddress, uint8_t addresbits, uint8_t pagesize = 32 );
+	i2c_eeprom( uint8_t i2caddress, uint8_t addresbits, uint8_t pagesize );
 
 	void write_byte( eepromaddress_t eeaddress, uint8_t data );
 	uint8_t read_byte( eepromaddress_t eeaddress );
@@ -27,7 +27,7 @@ public:
 protected:
 	void _write_page( eepromaddress_t eeaddresspage, uint8_t* data, uint8_t length );
 	void _fill_page( eepromaddress_t eeaddresspage, uint8_t data, uint8_t length );
-	void _read_page( eepromaddress_t eeaddress, uint8_t *buffer, int length );
+	void _read_page( eepromaddress_t eeaddress, uint8_t *buffer, uint8_t length );
 private:
 	uint8_t m_i2caddress;
 	uint8_t m_addressbits;

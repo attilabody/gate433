@@ -30,9 +30,8 @@ public:
 	virtual void cleanstatuses();
 
 private:
-	SdFat	&m_sd;
-
-	static const char	*m_filename;
+	SdFat		&m_sd;
+	uint16_t	m_dirindex;
 };
 
 #endif /* INTDB_H_ */

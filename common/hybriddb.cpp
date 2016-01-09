@@ -11,8 +11,8 @@
 #include "I2C_eeprom.h"
 
 //////////////////////////////////////////////////////////////////////////////
-hybriddb::hybriddb( SdFat &sd, uint8_t eepromaddress, uint8_t pagesize, bool initialize )
-: i2c_eeprom( eepromaddress, pagesize )
+hybriddb::hybriddb( SdFat &sd, uint8_t i2caddress, uint8_t eeaddressbits, uint8_t eepagesize, bool initialize )
+: i2c_eeprom( i2caddress, eeaddressbits, eepagesize )
 , m_sd( sd )
 {
 	if( initialize ) init();

@@ -11,10 +11,9 @@
 #include "I2C_eeprom.h"
 
 //////////////////////////////////////////////////////////////////////////////
-flashdb::flashdb( uint8_t eepromaddress, uint8_t pagesize, bool initialize )
-: i2c_eeprom( eepromaddress, pagesize )
+flashdb::flashdb( uint8_t i2caddress, uint8_t eeaddressbits, uint8_t eepagesize )
+: i2c_eeprom( i2caddress, eeaddressbits, eepagesize )
 {
-	if( initialize ) init();
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,7 @@
 class flashdb: public database, public i2c_eeprom
 {
 public:
-	flashdb( uint8_t eepromaddress, uint8_t pagesize, bool initialize = false );
+	flashdb( uint8_t i2caddress, uint8_t eeaddressbits, uint8_t eepagesize );
 	virtual ~flashdb();
 	bool	init();
 
@@ -25,9 +25,6 @@ public:
 	virtual bool setParams( int code, const dbrecord &recin );
 	virtual bool setStatus( int code, dbrecord::POSITION pos );
 	virtual void cleanstatuses();
-
-private:
-
 };
 
 #endif /* FLASHDB_H_ */

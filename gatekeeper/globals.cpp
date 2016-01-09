@@ -22,6 +22,9 @@ intdb				g_db( g_sd );
 #ifdef USE_HYBRIDDB
 hybriddb			g_db( g_sd, HYBRIDDB_EEPROM_ADDRESS);
 #endif	//	USE_HYBRIDDB
+#ifdef USE_FLASHDB
+flashdb				g_db( FLASHDB_EEPROM_ADDRESS, 128 );
+#endif	//	USE_FLASHDB
 bool				g_dbinitfail( true );
 trafficlights		g_lights;
 inductiveloop		g_indloop;

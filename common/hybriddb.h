@@ -18,7 +18,7 @@
 class hybriddb: public database, public i2c_eeprom
 {
 public:
-	hybriddb( SdFat &sd, uint8_t eepromaddress, uint8_t pagesize, bool initialize = false );
+	hybriddb( SdFat &sd, uint8_t i2caddress, uint8_t eeaddressbits, uint8_t pagesize, bool initialize = false );
 	virtual ~hybriddb();
 	bool	init();
 	SdFat&	getsdfat() { return m_sd; }
