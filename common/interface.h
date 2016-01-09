@@ -8,6 +8,8 @@
 //#define DBGSERIALIN	1
 #include <ds3231.h>
 
+#define  DEBUGTEMPLATES
+
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
 #define BAUDRATE 112500
@@ -22,7 +24,7 @@
 #define CMD_SET		"set"
 #define CMD_SETS	"sets"
 #define CMD_LOG		"log"
-
+#ifdef DEBUGTEMPLATES
 template<typename Sep, typename Arg1> void serialoutsepln( const Sep sep, const Arg1 arg1 ) {
 	Serial.print( arg1 );
 	Serial.println();
@@ -64,6 +66,7 @@ template< typename Arg1, typename... Args> void serialout( const Arg1& arg1, con
 	Serial.print( arg1 );
 	serialout( args...);
 }
+#endif	//	DEBUGTEMPLATES
 
 /*
 INS INE OUS OUE FLG

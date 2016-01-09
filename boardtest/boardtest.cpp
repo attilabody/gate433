@@ -233,6 +233,13 @@ void processInput()
 					g_db.setParams( id, rec );
 			}
 		}
+	} else if( iscommand( inptr, F("echo"))) {
+		long param;
+		while((param = getintparam( inptr, true, true, true )) != LONG_MIN ) {
+			Serial.print( param );
+			Serial.print(' ');
+		}
+		Serial.println();
 
 	} else if( iscommand( inptr, F("echo"))) {
 		long param;
