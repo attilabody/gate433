@@ -23,7 +23,7 @@ intdb				g_db( g_sd );
 hybriddb			g_db( g_sd, HYBRIDDB_EEPROM_ADDRESS);
 #endif	//	USE_HYBRIDDB
 #ifdef USE_FLASHDB
-flashdb				g_db( FLASHDB_EEPROM_ADDRESS, 128 );
+flashdb				g_db( FLASHDB_EEPROM_ADDRESS, FLASHDB_EEPROM_BITS, 128 );
 #endif	//	USE_FLASHDB
 bool				g_dbinitfail( true );
 trafficlights		g_lights;

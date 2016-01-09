@@ -30,6 +30,7 @@ flashdb		g_db( 0x50, 16, 128 );
 uint8_t			g_pins[8] = { 0, 1, 2, 3, 7, 6, 5, 4 };
 uint8_t			g_pinindex(0xff);
 unsigned long	g_rtstart(0);
+uint16_t		g_rtdelay;
 PCF8574			g_i2cio(0x20);
 
 #ifdef	TEST_LCD
@@ -82,13 +83,15 @@ void processInput()
 #endif	//	TEST_DS3231
 
 	} else if( iscommand( inptr, F("rt"))) {
+		long	delay( getintparam( inptr ));
+		g_rtdelay = delay > 0 ? delay : 1000;
 		g_pinindex = sizeof( g_pins ) - 1;
 		g_rtstart = millis();
 
 	} else if( iscommand( inptr, F("de"))) { 	//	dump eeprom
 		uint8_t		b;
-		uint16_t	address = getintparam( inptr, false );
-		uint16_t	count = getintparam( inptr, false );
+		uint16_t	address = getintparam( inptr );
+		uint16_t	count = getintparam( inptr );
 		for( int addr = 0; addr < count; ++addr )
 		{
 			if( addr && !( addr & 0xf ))	Serial.println();
@@ -101,8 +104,8 @@ void processInput()
 
 	} else if( iscommand( inptr, F("dep"))) {	//dump eeprom paged
 		uint8_t		buffer[16];
-		uint16_t	address = getintparam( inptr, false );
-		uint16_t	count = getintparam( inptr, false );
+		uint16_t	address = getintparam( inptr );
+		uint16_t	count = getintparam( inptr );
 		if(address == 0xffff) address = 0;
 		address &= 0xfff0;
 
@@ -124,27 +127,30 @@ void processInput()
 		}
 
 	} else if( iscommand( inptr, F("se"))) {	//	set eeprom
-		uint16_t	address = getintparam( inptr, false );
-		uint16_t	value = getintparam( inptr, false );
+		uint16_t	address = getintparam( inptr );
+		uint16_t	value = getintparam( inptr );
 		g_db.write_byte( address, value );
 
 	} else if( iscommand( inptr, F("ge"))) {	//	get eeprom
-		uint16_t	address = getintparam( inptr, false );
+		uint16_t	address = getintparam( inptr );
 		uint8_t		value = g_db.read_byte( address );
 		Serial.print( halfbytetohex( value >> 4 ));
 		Serial.println( halfbytetohex( value & 0xf ));
 
 	} else if( iscommand( inptr, F("fe"))) {	//	fill eeprom <start> <value> <count>
-		uint16_t	address = getintparam( inptr, false );
-		uint8_t		value = getintparam( inptr, false );
-		uint16_t	count = getintparam( inptr, false );
+		uint16_t	address = getintparam( inptr );
+		uint8_t		value = getintparam( inptr );
+		uint16_t	count = getintparam( inptr );
 		g_db.fill_page( address, value, count );
 
 	} else if( iscommand( inptr, F("ddb"))) {	//	dump database
 		char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
 		database::dbrecord	rec;
-
-		for( int code = 0; code < 1024; ++code ) {
+		uint16_t	start( getintparam( inptr ));
+		uint16_t	count( getintparam( inptr ));
+		if( start == 0xffff ) start = 0;
+		if( count == 0xffff ) count = 1024 - start;
+		for( uint16_t code = start; code < start + count; ++code ) {
 			if( g_db.getParams( code, rec )) {
 				rec.serialize( recbuf );
 				Serial.println( recbuf );
@@ -227,6 +233,13 @@ void processInput()
 					g_db.setParams( id, rec );
 			}
 		}
+	} else if( iscommand( inptr, F("echo"))) {
+		long param;
+		while((param = getintparam( inptr, true, true, true )) != LONG_MIN ) {
+			Serial.print( param );
+			Serial.print(' ');
+		}
+		Serial.println();
 
 	} else {
 		Serial.println( ERRS "CMD");
@@ -341,14 +354,14 @@ void loop()
 
 	if( g_pinindex != 0xff )
 	{
-		if( millis() - g_rtstart > 1000 )
+		if( millis() - g_rtstart > g_rtdelay )
 		{
 			uint8_t	prevpin = g_pinindex++;
 			if( g_pinindex >= sizeof( g_pins ))
 				g_pinindex = 0;
 			g_i2cio.write( g_pins[prevpin], RELAY_OFF );
 			g_i2cio.write( g_pins[g_pinindex], RELAY_ON );
-			g_rtstart += 1000;
+			g_rtstart += g_rtdelay;
 			printpin( g_pins[g_pinindex] );
 		}
 	}
