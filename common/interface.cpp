@@ -6,6 +6,7 @@
  */
 #include <Arduino.h>
 #include "interface.h"
+#include <limits.h>
 
 //////////////////////////////////////////////////////////////////////////////
 inline char convertdigit( char c, bool decimal = true )
@@ -21,25 +22,35 @@ inline char convertdigit( char c, bool decimal = true )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-long getintparam( const char* &input, bool decimal, bool trimstart )
+long getintparam( const char* &input, bool decimal, bool trimstart, bool acceptneg )
 {
 	long	retval(0);
 	char	converted;
 	bool	found(false);
+	bool	negative(false);
 
 	if( trimstart )
-		while( *input && convertdigit( * input, decimal ) == -1 )
+		while( *input && convertdigit( *input, decimal ) == -1 && *input != '-' )
 			++input;
 
 	while( *input ) {
-		if(( converted = convertdigit( *input, decimal )) == -1) break;
+		if(( converted = convertdigit( *input, decimal )) == -1) {
+			if( ! retval ) {
+				if( *input == 'x' || *input == 'X' ) {
+					decimal = false;
+					converted = 0;
+				} else if( *input == '-' ) {
+					negative = true;
+					converted = 0;
+				} else break;
+			} else break;
+		}
 		retval *=  decimal ? 10 : 16;
 		retval += converted;
 		found = true;
 		++input;
 	}
-
-	return found ? retval : -1;
+	return found ? (negative ? 0 - retval : retval ) : (acceptneg ? LONG_MIN : -1);
 }
 
 
@@ -55,7 +66,7 @@ bool iscommand( const char *&inptr, const __FlashStringHelper *cmd )
 	if( x || !(isspace(y) || ispunct(y) || y == '\n' || !y ))
 		return false;
 	inptr += n;
-	while( *inptr && (isspace(*inptr) || ispunct(*inptr)) )
+	while( *inptr && (isspace(*inptr)))
 		++inptr;
 	return true;
 }
@@ -76,7 +87,7 @@ char findcommand( const char* &inptr, const char **commands )
 		if (!strncmp(inptr, *commands, cmdlen))
 		{
 			inptr += cmdlen;
-			while( *inptr && (isspace(*inptr) || ispunct(*inptr)) )
+			while( *inptr && (isspace(*inptr)))
 				++inptr;
 			return ret;
 		}
