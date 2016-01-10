@@ -41,7 +41,7 @@ extern bool					g_dbinitfail;
 extern trafficlights		g_lights;
 extern inductiveloop		g_indloop;
 extern PCF8574				g_i2cio;
-//extern char					g_iobuf[32];
-//extern uint8_t				g_inidx;
+extern char					g_iobuf[32];
+extern uint8_t				g_inidx;
 
 #endif	//	GLOBALS_H_

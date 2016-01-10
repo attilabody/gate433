@@ -19,7 +19,7 @@
 #define TEST_DS3231
 
 char		g_inbuf[256+1];
-uint16_t	g_inidx(0);
+uint8_t	g_inidx(0);
 
 #ifdef TEST_SDCARD
 SdFat		g_sd;
@@ -220,7 +220,7 @@ void processInput()
 		}
 
 	} else if( iscommand( inptr, F("it"))) {	//import thindb
-		thindb	tdb( g_sd );
+		thindb		tdb( g_sd );
 		uint16_t	from( getintparam( inptr ));
 		uint16_t	to( getintparam( inptr ));
 		if( from == 0xffff ) from = 0;
@@ -233,6 +233,7 @@ void processInput()
 					g_db.setParams( id, rec );
 			}
 		}
+
 	} else if( iscommand( inptr, F("echo"))) {
 		long param;
 		while((param = getintparam( inptr, true, true, true )) != LONG_MIN ) {

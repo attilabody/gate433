@@ -98,7 +98,7 @@ char findcommand( const char* &inptr, const char **commands )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx )
+bool getlinefromserial( char* buffer, uint8_t buflen, uint8_t &idx )
 {
 #if defined(DBGSERIALIN)
 	if( Serial.available() )

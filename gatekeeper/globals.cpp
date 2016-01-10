@@ -30,5 +30,5 @@ trafficlights		g_lights;
 inductiveloop		g_indloop;
 PCF8574				g_i2cio( PCF8574_ADDRESS );
 
-//char				g_iobuf[32];
-//uint8_t				g_inidx(0);
+char				g_iobuf[32];
+uint8_t				g_inidx(0);

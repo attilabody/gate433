@@ -29,7 +29,7 @@ const char 			*g_statusnames[] = { "WAITS", "CODEW", "PASS", "RETR" };
 const char			*g_ilstatusnames[] = { "NONE", "IN", "OUT" };
 //char				g_buf[5];
 char				g_inbuf[64+1];
-uint16_t			g_inidx(0);
+uint8_t			g_inidx(0);
 const char 			*g_commands[] = {
 	  "inj"	//inj <int> simulate (inject) incoming code
 	, "get"	//get <int> dump data for a code
@@ -40,7 +40,7 @@ const char 			*g_commands[] = {
 SdFat				g_sd;
 File				g_log;
 
-flashdb				g_db( 0x57, 128 );
+flashdb				g_db( 0x57, 16, 128 );
 
 LiquidCrystal_I2C 	g_lcd(LCD_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 inductiveloop		g_indloop( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );

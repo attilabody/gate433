@@ -8,18 +8,9 @@
 #include "gatehandler.h"
 #include "intdb.h"
 
-
-enum SYSSTATUS { INHIBITED, CODE, PASS };
-
 //////////////////////////////////////////////////////////////////////////////
-void setuprelaypins( const uint8_t *pins, uint8_t size )
-{
-	while( size > 0 ) {
-		pinMode( *pins, OUTPUT );
-		digitalWrite( *pins++, RELAY_OFF );
-		--size;
-	}
-}
+void setuprelaypins( const uint8_t *pins, uint8_t size );
+void processinput();
 
 //////////////////////////////////////////////////////////////////////////////
 void setup()
@@ -63,8 +54,8 @@ void setup()
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-//	if( getlinefromserial( g_inbuf, sizeof(g_inbuf ), g_inidx) )
-//		processInput();
+	if( getlinefromserial( g_iobuf, sizeof(g_iobuf ), g_inidx) )
+		processinput();
 
 	static gatehandler				handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
 
@@ -78,3 +69,91 @@ ISR( TIMER0_COMPA_vect ) {
 }
 #endif
 
+//////////////////////////////////////////////////////////////////////////////
+void setuprelaypins( const uint8_t *pins, uint8_t size )
+{
+	while( size > 0 ) {
+		pinMode( *pins, OUTPUT );
+		digitalWrite( *pins++, RELAY_OFF );
+		--size;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void processinput()
+{
+	const char	*inptr( g_iobuf );
+
+	if( iscommand( inptr, F("get"))) {
+		database::dbrecord	rec;
+		int 				id( getintparam( inptr ));
+		if( id != -1 && g_db.getParams( id, rec )) {
+			rec.serialize( g_iobuf );
+			Serial.print( F(RESPS) );
+			Serial.println( g_iobuf );
+		} else Serial.println( F(ERRS "ERR"));
+
+	} else if( iscommand( inptr, F("set"))) {
+		database::dbrecord	rec;
+		int 				id( getintparam( inptr ));
+		if( id != -1 && rec.parse( inptr )) {
+			if( g_db.setParams( id, rec ))
+				Serial.println( F( RESPS "OK"));
+			else Serial.println( F(ERRS "ERR"));
+		} else Serial.println( F(ERRS "ERR"));
+
+	} else if( iscommand( inptr, F("export"))) {
+		thindb		tdb( g_sd );
+		uint16_t	from( getintparam( inptr ));
+		uint16_t	to( getintparam( inptr ));
+		uint16_t	id;
+		database::dbrecord	rec;
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		if( tdb.init()) {
+			for( id = from; id <= to; ++id )
+				if( g_db.getParams( id, rec ))
+					tdb.setParams( id, rec );
+		}
+		if( id == to )  Serial.println(F(RESPS "OK"));
+		else Serial.println( F(ERRS "ERR" ));
+
+	} else if( iscommand( inptr, F("import"))) {
+		thindb				tdb( g_sd );
+		uint16_t			from( getintparam( inptr ));
+		uint16_t			to( getintparam( inptr ));
+		uint16_t			id;
+		database::dbrecord	rec;
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		if( tdb.init()) {
+			for( id = from; id <= to; ++id )
+				if( tdb.getParams( id, rec ))
+					g_db.setParams( id, rec );
+		}
+		if( id == to )  Serial.println(F(RESPS "OK"));
+		else Serial.println( F(ERRS "ERR" ));
+
+	} else if( iscommand( inptr, F("dump"))) {
+		database::dbrecord	rec;
+		uint16_t			start( getintparam( inptr ));
+		uint16_t			count( getintparam( inptr ));
+		uint16_t			id;
+		if( start == 0xffff ) start = 0;
+		if( count == 0xffff ) count = 1024 - start;
+		for( id = start; id < start + count; ++id ) {
+			if( g_db.getParams( id, rec )) {
+				rec.serialize( g_iobuf );
+				Serial.print( F(RESPS) );
+				Serial.println( g_iobuf );
+			} else break;
+		}
+		if( id == start + count ) Serial.println(F(RESPS "OK"));
+		else Serial.println( F(ERRS "ERR" ));
+
+	} else {
+		Serial.println( F(ERRS "CMD"));
+	}
+
+	g_inidx = 0;
+}

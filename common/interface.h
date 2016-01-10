@@ -90,7 +90,7 @@ INS INE OUS OUE FLG
 long getintparam( const char* &input, bool decimal = true, bool trimstart = true, bool acceptneg = false );
 bool iscommand( const char *&inptr, const __FlashStringHelper *cmd );
 char findcommand( const char* &inptr, const char **commands );
-bool getlinefromserial( char* buffer, uint16_t buflen, uint16_t &idx );
+bool getlinefromserial( char* buffer, uint8_t buflen, uint8_t &idx );
 void hex2serial( uint16_t out, uint8_t digits, const char* prefix );
 void uitohex( char* &buffer, uint16_t data, uint8_t digits );
 void ultohex( char* &buffer, uint32_t data, uint8_t digits );
