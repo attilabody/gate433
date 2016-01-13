@@ -50,13 +50,13 @@ template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const 
 #endif	//	TEST_LCD
 
 //////////////////////////////////////////////////////////////////////////////
-void printpin( uint8_t pin );
+void printpins( uint8_t status );
 
 //////////////////////////////////////////////////////////////////////////////
 void relaysoff()
 {
 	g_pinindex = 0xff;
-	printpin( 0xff );
+	printpins( 0xff );
 	g_i2cio.write8( 0xff );
 //	for( uint8_t pin = 0; pin < sizeof(g_pins); ++ pin )
 //		g_i2cio.write( pin, RELAY_OFF );
@@ -302,26 +302,31 @@ void printdatetime()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void printpin( uint8_t pin )
+void printpins( uint8_t status )
 {
 #ifdef TEST_LCD
-	static uint8_t	prevpin( 0xff );
-	char	lcdbuffer[3];
-	char	*lbp(lcdbuffer);
+	static uint8_t	prevps(0);
 
-	if( prevpin != pin )
-	{
-		if( pin != 0xff ) {
-			lbp = lcdbuffer;
-			uitodec( lbp, pin, 2 ); *lbp++ = 0;
-		} else {
-			lcdbuffer[0] = ' '; lcdbuffer[1] = ' '; lcdbuffer[2] = 0;
+	if( prevps != status ) {
+		g_lcd.setCursor( 8, 1 );
+		for( uint8_t mask = 1; mask; mask <<= 1 ) {
+			g_lcd.print( (status & mask) ? '#':' ' );
 		}
-		g_lcd.setCursor(10,1);
-		g_lcd.print( lcdbuffer );
-		prevpin = pin;
+		prevps = status;
 	}
 #endif	//	TEST_LCD
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void setrelays( uint8_t status )
+{
+	uint8_t	portdata(0);
+	for( uint8_t bit = 0, mask = 1; mask; ++bit, mask <<= 1 ) {
+		if( status & mask ) {
+			portdata |= 1 << g_pins[bit];
+		}
+	}
+	g_i2cio.write8(( RELAY_OFF == HIGH ) ? ~portdata : portdata );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -367,10 +372,10 @@ void loop()
 			uint8_t	prevpin = g_pinindex++;
 			if( g_pinindex >= sizeof( g_pins ))
 				g_pinindex = 0;
-			g_i2cio.write( g_pins[prevpin], RELAY_OFF );
-			g_i2cio.write( g_pins[g_pinindex], RELAY_ON );
+			uint8_t raw( 1 << g_pins[g_pinindex] );
+			setrelays( raw );
+			printpins( raw );
 			g_rtstart += g_rtdelay;
-			printpin( g_pins[g_pinindex] );
 		}
 	}
 
