@@ -8,6 +8,8 @@
 #include "interface.h"
 #include <limits.h>
 
+//#define DBGSERIALIN
+
 //////////////////////////////////////////////////////////////////////////////
 inline char convertdigit( char c, bool decimal = true )
 {

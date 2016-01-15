@@ -29,9 +29,9 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.771700104" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1862630834" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1569149525" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/../fakelibs&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/../common&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/../gatelogic}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/fakelibs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/common}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatekeeper}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.1704590094" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1531538620" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -40,11 +40,15 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.1910869230" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.exe.debug.option.debugging.level.808279240" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1985376348" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="../FakeLibs"/>
-									<listOptionValue builtIn="false" value="../common"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/fakelibs"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/common"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/gatelogic"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/gatekeeper_test/common"/>
+									<listOptionValue builtIn="false" value="../gatekeeper_test/gatekeeper_test/fakelibs"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/FakeLibs"/>
 									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatelogic_test/gatelogic_test/FakeLibs"/>
-									<listOptionValue builtIn="false" value="../gatelogic_test/interface_test/FakeLibs"/>
-									<listOptionValue builtIn="false" value="../gatelogic_test/gatelogic_test/common"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/gatelogic_test/interface_test/FakeLibs"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/gatelogic_test/gatelogic_test/common"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.694798702" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -57,19 +61,21 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.588047665" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.11004371" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../FakeLibs"/>
-									<listOptionValue builtIn="false" value="../common"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/fakelibs"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/common"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/gatelogic"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/gatekeeper_test/common"/>
+									<listOptionValue builtIn="false" value="../gatekeeper_test/gatekeeper_test/fakelibs"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/FakeLibs"/>
 									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatelogic_test/gatelogic_test/FakeLibs"/>
-									<listOptionValue builtIn="false" value="../gatelogic_test/interface_test/FakeLibs"/>
-									<listOptionValue builtIn="false" value="../gatelogic_test/gatelogic_test/common"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/gatelogic_test/interface_test/FakeLibs"/>
+									<listOptionValue builtIn="false" value="/home/compi/work/gate433/gate433/gatekeeper_test/gatelogic_test/gatelogic_test/common"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1559990748" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="common"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="fakelibs"/>
 						<entry excluding="receiver_test.cpp|gatelogic_test.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
@@ -98,6 +104,11 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1031509573" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
 								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1391718795" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.exe.release.option.debugging.level.2109616353" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.465270446" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/fakelibs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/common}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatekeeper}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1767233255" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.705668377" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">

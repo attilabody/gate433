@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>gatelogic_test</name>
+	<name>gatekeeper_test</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -36,4 +36,10 @@
 			<locationURI>PARENT-1-PROJECT_LOC/fakelibs</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>copy_PARENT</name>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D/gate433</value>
+		</variable>
+	</variableList>
 </projectDescription>

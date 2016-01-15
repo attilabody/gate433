@@ -18,7 +18,7 @@
 #define TEST_LCD
 #define TEST_DS3231
 
-char		g_inbuf[256+1];
+char		g_inbuf[128+1];
 uint8_t	g_inidx(0);
 
 #ifdef TEST_SDCARD
@@ -56,7 +56,7 @@ void printpins( uint8_t status );
 void relaysoff()
 {
 	g_pinindex = 0xff;
-	printpins( 0xff );
+	printpins( 0 );
 	g_i2cio.write8( 0xff );
 //	for( uint8_t pin = 0; pin < sizeof(g_pins); ++ pin )
 //		g_i2cio.write( pin, RELAY_OFF );
@@ -70,6 +70,7 @@ void processInput()
 //	char 		command( findcommand( inptr, g_commands ));
 
 	relaysoff();
+	Serial.println( inptr );
 
 	if( iscommand( inptr, F("sdt"))) {
 #ifdef	TEST_DS3231
@@ -92,11 +93,11 @@ void processInput()
 		uint8_t		b;
 		uint16_t	address = getintparam( inptr );
 		uint16_t	count = getintparam( inptr );
-		for( int addr = 0; addr < count; ++addr )
+		for( uint16_t offset = 0; offset < count; ++offset )
 		{
-			if( addr && !( addr & 0xf ))	Serial.println();
-			else if( addr ) Serial.print(' ');
-			b = g_db.read_byte( address + addr );
+			if( offset && !( offset & 0xf ))	Serial.println();
+			else if( offset ) Serial.print(' ');
+			b = g_db.read_byte( address + offset );
 			Serial.print( halfbytetohex( b >> 4));
 			Serial.print( halfbytetohex( b & 0xf));
 			delay(10);
@@ -241,14 +242,6 @@ void processInput()
 		}
 		Serial.println();
 
-	} else if( iscommand( inptr, F("echo"))) {
-		long param;
-		while((param = getintparam( inptr, true, true, true )) != LONG_MIN ) {
-			Serial.print( param );
-			Serial.print(' ');
-		}
-		Serial.println();
-
 	} else {
 		Serial.println( ERRS "CMD");
 	}
@@ -310,13 +303,28 @@ void printpins( uint8_t status )
 	if( prevps != status ) {
 		g_lcd.setCursor( 8, 1 );
 		for( uint8_t mask = 1; mask; mask <<= 1 ) {
-			g_lcd.print( (status & mask) ? '#':' ' );
+			g_lcd.print( (status & mask) ? '*':'_' );
 		}
 		prevps = status;
 	}
 #endif	//	TEST_LCD
 }
 
+//////////////////////////////////////////////////////////////////////////////
+void printloopstatus( bool ils, bool ols )
+{
+	static bool first(true), previls, prevols;
+
+	if( first || ils != previls || ols != prevols )
+	{
+		g_lcd.setCursor( 14, 0 );
+		g_lcd.print( ils ? '*':'_' );
+		g_lcd.print( ols ? '*':'_' );
+		prevols = ols;
+		previls = ils;
+		first = false;
+	}
+}
 //////////////////////////////////////////////////////////////////////////////
 void setrelays( uint8_t status )
 {
@@ -345,6 +353,10 @@ void setup()
 		pinMode( g_pins[pin], OUTPUT);
 		g_i2cio.write( g_pins[pin], HIGH );
 	}
+	pinMode( PIN_INNERLOOP, INPUT );
+	digitalWrite( PIN_INNERLOOP, HIGH );	//	activate pullup;
+	pinMode( PIN_OUTERLOOP, INPUT );
+	digitalWrite( PIN_OUTERLOOP, HIGH );	//	activate pullup;
 
 	Wire.begin();
 	DS3231_init( DS3231_INTCN );
@@ -369,15 +381,16 @@ void loop()
 	{
 		if( millis() - g_rtstart > g_rtdelay )
 		{
-			uint8_t	prevpin = g_pinindex++;
+			g_pinindex++;
 			if( g_pinindex >= sizeof( g_pins ))
 				g_pinindex = 0;
-			uint8_t raw( 1 << g_pins[g_pinindex] );
+			uint8_t raw( 1 << g_pinindex );
 			setrelays( raw );
 			printpins( raw );
 			g_rtstart += g_rtdelay;
 		}
 	}
+	printloopstatus( digitalRead( PIN_INNERLOOP ) == LOOP_ACTIVE, digitalRead( PIN_OUTERLOOP ) == LOOP_ACTIVE );
 
 	delay(10);
 }
