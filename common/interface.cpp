@@ -215,12 +215,19 @@ void ultodec( char* &buffer, uint32_t data, uint8_t digits )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, char datesep, char dowsep )
+void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, bool shortyear, bool showdow, char datesep, char dowsep )
 {
-	uitodec( buffer, year, 4 ); *buffer++ = datesep;
+	if( shortyear ) {
+		uitodec( buffer, year % 100, 2 ); *buffer++ = datesep;
+	} else {
+		uitodec( buffer, year, 4 ); *buffer++ = datesep;
+	}
 	uitodec( buffer, month, 2 ); *buffer++ = datesep;
-	uitodec( buffer, day, 2 ); *buffer++ = dowsep;
-	uitodec( buffer, dow, 1);
+	uitodec( buffer, day, 2 );
+	if( showdow ) {
+		*buffer++ = dowsep;
+		uitodec( buffer, dow, 1);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

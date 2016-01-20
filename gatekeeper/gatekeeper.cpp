@@ -23,7 +23,6 @@ void setup()
 #ifdef PIN_LED
 	pinMode( PIN_LED, OUTPUT );
 #endif
-	pinMode( PIN_RFIN, INPUT );
 
 	g_lcd.init();
 	g_lcd.backlight();
@@ -48,7 +47,7 @@ void setup()
 	// enable all interrupts
 #endif	//	PIN_LED
 
-	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );
+	setup433();
 }
 
 //////////////////////////////////////////////////////////////////////////////

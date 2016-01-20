@@ -28,9 +28,9 @@ flashdb		g_db( 0x50, 16, 128 );
 #endif	//	TEST_SDCARD
 
 uint8_t			g_pins[8] = { 0, 1, 2, 3, 7, 6, 5, 4 };
-uint8_t			g_pinindex(0xff);
+uint8_t			g_pinindex( sizeof( g_pins ) - 1 );
 unsigned long	g_rtstart(0);
-uint16_t		g_rtdelay;
+uint16_t		g_rtdelay(1000);
 PCF8574			g_i2cio(0x20);
 
 #ifdef	TEST_LCD
@@ -51,6 +51,7 @@ template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const 
 
 //////////////////////////////////////////////////////////////////////////////
 void printpins( uint8_t status );
+void printpin( uint8_t pin );
 
 //////////////////////////////////////////////////////////////////////////////
 void relaysoff()
@@ -79,6 +80,19 @@ void processInput()
 			Serial.println( F(RESPS "OK"));
 		} else
 			Serial.println( F(ERRS ERRS " (DATETIMEFMT)"));
+#else	//	TEST_DS3231
+		Serial.println( F(ERRS "NOTIMPL"))
+#endif	//	TEST_DS3231
+
+	} else if( iscommand( inptr, F("gdt"))) {	// get datetime
+#ifdef	TEST_DS3231
+		DS3231_get( &t );
+		serialout( (uint16_t)t.year, F("."));
+		serialout( (uint16_t)t.mon,F("."));
+		serialout( (uint16_t)t.mday, F("/" ),(uint16_t)t.wday);
+		serialout( F("    "), (uint16_t)t.hour);
+		serialout(F(":" ), (uint16_t)(t.min));
+		serialoutln(F(":" ), (uint16_t)(t.sec));
 #else	//	TEST_DS3231
 		Serial.println( F(ERRS "NOTIMPL"))
 #endif	//	TEST_DS3231
@@ -250,7 +264,7 @@ void processInput()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void printdatetime()
+void printdatetime( bool shortyear = true, bool showdow = false )
 {
 #ifdef	TEST_DS3231
 	static ts		prevt = {0,0,0,0,0,0,0,0,0,0};
@@ -264,7 +278,7 @@ void printdatetime()
 #ifdef	TEST_LCD
 	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ) {
 		g_lcd.setCursor(0,0);
-		datetostring( lbp, t.year, t.mon, t.mday, t.wday, '.', '/' ); *lbp = 0;
+		datetostring( lbp, t.year, t.mon, t.mday, t.wday, shortyear, showdow, '.', '/' ); *lbp = 0;
 		g_lcd.print( lcdbuffer );
 	}
 
@@ -292,6 +306,29 @@ void printdatetime()
 
 	prevt = t;
 #endif	//	TEST_DS3231
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void printpin( uint8_t pin )
+{
+#ifdef TEST_LCD
+	static uint8_t	prevpin( 0xff );
+	char	lcdbuffer[3];
+	char	*lbp(lcdbuffer);
+
+	if( prevpin != pin )
+	{
+		if( pin != 0xff ) {
+			lbp = lcdbuffer;
+			uitodec( lbp, pin, 2 ); *lbp++ = 0;
+		} else {
+			lcdbuffer[0] = ' '; lcdbuffer[1] = ' '; lcdbuffer[2] = 0;
+		}
+		g_lcd.setCursor(10,1);
+		g_lcd.print( lcdbuffer );
+		prevpin = pin;
+	}
+#endif	//	TEST_LCD
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -325,6 +362,19 @@ void printloopstatus( bool ils, bool ols )
 		first = false;
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////
+void printcode( uint16_t code )
+{
+	char	lcdbuffer[5];
+	char	*lbp(lcdbuffer);
+
+	uitodec( lbp, code, 4);
+	*lbp = 0;
+	g_lcd.setCursor( 9, 0);
+	g_lcd.print( lcdbuffer );
+}
+
 //////////////////////////////////////////////////////////////////////////////
 void setrelays( uint8_t status )
 {
@@ -364,7 +414,7 @@ void setup()
 	g_sd.begin( SS );
 	g_db.init();
 
-	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );
+	setup433();
 	printdatetime();
 }
 
@@ -391,6 +441,11 @@ void loop()
 		}
 	}
 	printloopstatus( digitalRead( PIN_INNERLOOP ) == LOOP_ACTIVE, digitalRead( PIN_OUTERLOOP ) == LOOP_ACTIVE );
+	if( g_codeready ) {
+		printcode( g_code >> 2 );
+		Serial.println( g_code >> 2 );
+		g_codeready = false;
+	}
 
 	delay(10);
 }

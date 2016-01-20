@@ -12,6 +12,12 @@ volatile uint16_t 	g_code(-1);
 volatile uint32_t 	g_codetime( 0 );
 volatile uint32_t 	g_lastedge;
 
+//////////////////////////////////////////////////////////////////////////////
+void setup433()
+{
+	pinMode( PIN_RFIN, INPUT );
+	attachInterrupt( digitalPinToInterrupt( PIN_RFIN ), isr, CHANGE );
+}
 
 //////////////////////////////////////////////////////////////////////////////
 void isr()
