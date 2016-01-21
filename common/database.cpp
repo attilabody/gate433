@@ -8,7 +8,7 @@ database::dbrecord::dbrecord()
 	, out_start(0)
 	, out_end(0)
 	, days(0)
-	, position( unknown )
+	, position( UNKNOWN )
 {
 }
 

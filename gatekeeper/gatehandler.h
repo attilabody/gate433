@@ -43,6 +43,11 @@ protected:
 		g_i2cio.write( PIN_GATE, RELAY_ON );
 		m_inner = inner; m_dbupdated = false; m_status = PASS;
 	}
+	inline void topass_warn( bool inner ) {
+		m_lights.set( trafficlights::WARNED, inner );
+		g_i2cio.write( PIN_GATE, RELAY_ON );
+		m_inner = inner; m_dbupdated = false; m_status = PASS;
+	}
 
 	database			&m_db;
 	trafficlights		&m_lights;

@@ -14,7 +14,7 @@
 //#define FAILSTATS
 //#define VERBOSE
 //#define DBGSERIALIN
-#define EXPECT_RESPONSE
+//#define ENFORCING
 
 #define SHORT_MIN_TIME	220
 #define SHORT_MAX_TIME	510

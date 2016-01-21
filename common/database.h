@@ -16,7 +16,7 @@ public:
 	struct dbrecord
 	{
 		enum POSITION : uint8_t {
-			  unknown , outside , inside
+			  UNKNOWN , OUTSIDE , INSIDE
 		};
 		dbrecord();
 		dbrecord( const char* &dbstring );

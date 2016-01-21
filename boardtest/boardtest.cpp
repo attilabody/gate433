@@ -175,7 +175,7 @@ void processInput()
 		}
 
 	} else if( iscommand( inptr, F("fdb"))) {	//	fill database
-		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::unknown };
+		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::UNKNOWN };
 
 		for( int code = 0; code < 1024; ++code ) {
 			rec.in_start = code;
@@ -183,7 +183,7 @@ void processInput()
 		}
 
 	} else if( iscommand( inptr, F("ftdb"))) {	//	fill thin database
-		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::unknown };
+		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::UNKNOWN };
 		thindb				tdb( g_sd );
 		if( tdb.init()) {
 			for( int code = 0; code < 1024; ++code ) {

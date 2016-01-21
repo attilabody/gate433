@@ -83,9 +83,15 @@ void gatehandler::loop( unsigned long currmillis )
 			serialoutln( F(CMNTS "Code received: "), g_code >> 2);
 			Serial.println( freeMemory());
 #endif	//	VERBOSE
-			if( authorize( g_code, inner ) == GRANTED ) {
+			AUTHRES	ar( authorize( g_code, inner ));
+			if( ar == GRANTED ) {
 				m_openstart = currmillis ? currmillis : 1;
 				topass( inner );
+#ifndef ENFORCING
+			} else if( ar ==  POSITION || ar == DAY || ar == TIME) {
+				m_openstart = currmillis ? currmillis : 1;
+				topass_warn( inner );
+#endif	//	ENFORCING
 			} else {
 				m_lights.set( trafficlights::DENIED, inner );
 				m_inner = inner;
@@ -97,10 +103,10 @@ void gatehandler::loop( unsigned long currmillis )
 	case PASS:
 		if( !ilchanged ) break;
 		if( !m_dbupdated && ilstatus != (m_inner ? inductiveloop::INNER : inductiveloop::OUTER) ) {
-			m_db.setStatus( g_code >> 2, m_inner ? database::dbrecord::outside : database::dbrecord::inside );
+			m_db.setStatus( g_code >> 2, m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE );
 			m_dbupdated = true;
 #ifdef VERBOSE
-			serialoutsepln( ", ", F("setdbstatus "), ilstatus, m_inner, m_inner ? database::dbrecord::outside : database::dbrecord::inside);
+			serialoutsepln( ", ", F("setdbstatus "), ilstatus, m_inner, m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
 #endif	//	VERBOSE
 		}
 		if( conflict ) {
@@ -149,7 +155,7 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 
 	if( !rec.in_start && !rec.in_end )
 		ret = UNREGISTERED;
-	else if( rec.position == ( inner ? database::dbrecord::outside : database::dbrecord::inside ) )
+	else if( rec.position == ( inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE ) )
 		ret = POSITION;
 	else if( !( rec.days & dow ))
 		ret = DAY;
