@@ -5,12 +5,15 @@
  *      Author: compi
  */
 #include "decode433.h"
-#include "config.h"
 
 volatile bool 		g_codeready( false );
 volatile uint16_t 	g_code(-1);
 volatile uint32_t 	g_codetime( 0 );
 volatile uint32_t 	g_lastedge;
+
+#ifdef FAILSTATS
+volatile stats g_stats;
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 void setup433()
@@ -37,12 +40,12 @@ void isr()
 
 	switch( state ) {
 	case START:
-		if( !g_codeready
-				&& lastlevel
-				&& !in
-				&& deltat >= SHORT_MIN_TIME
-		        && deltat <= SHORT_MAX_TIME )
-		{	// h->l
+		if( !g_codeready &&
+			lastlevel &&
+			!in &&
+			deltat >= SHORT_MIN_TIME &&
+			deltat <= SHORT_MAX_TIME
+		) {	// h->l
 			state = DATA;
 			curbit = code = 0;
 		}
@@ -84,11 +87,11 @@ void isr()
 		break;
 
 	case STOP:
-		if( in
-			&& deltat > STOP_MIN_TIME
-			&& ( !g_codeready )
-		    && ( ( code != g_code ) || ( lastedge - g_codetime > 500000 ) ) )
-		{	// l->h => stop end
+		if( in &&
+			deltat > STOP_MIN_TIME &&
+			!g_codeready &&
+		    ( ( code != g_code ) || ( lastedge - g_codetime > 500000 ) )
+		) {	// l->h => stop end
 			g_code = code;
 			g_codeready = true;
 			g_codetime = lastedge;

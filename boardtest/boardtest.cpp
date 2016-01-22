@@ -421,6 +421,12 @@ void setup()
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
+#ifdef FAILSTATS
+	static stats prevstats;
+	static stats *ps;
+	static unsigned long statsprinted(0);
+#endif
+
 	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
 	}
@@ -446,6 +452,24 @@ void loop()
 		Serial.println( g_code >> 2 );
 		g_codeready = false;
 	}
+#ifdef FAILSTATS
+	else
+	{
+		auto now = millis();
+		ps = (stats*)&g_stats;
+		if( !(prevstats == *ps) && now - statsprinted > 1000 )
+		{
+			statsprinted = now;
+			String s( String( g_stats.startabort )
+					+ String( " " ) + String( g_stats.dataabort )
+					+ String( " " ) + String( g_stats.stopabort )
+					+ String( " " ) + String( g_stats.stopdeltat )
+			);
+			Serial.println( s );
+			prevstats = *ps;
+		}
+	}
+#endif	//	FAILSTATS
 
 	delay(10);
 }

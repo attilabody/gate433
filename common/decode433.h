@@ -9,9 +9,11 @@
 #define DECODE433_H_
 
 #include <Arduino.h>
+#include "config.h"
 
 extern volatile bool 		g_codeready;
 extern volatile uint16_t 	g_code;
+extern volatile uint16_t 	g_shadowcode;
 extern volatile uint32_t 	g_codetime;
 extern volatile uint32_t 	g_lastedge;
 
@@ -43,7 +45,7 @@ struct stats
 	unsigned long startabort, dataabort, stopabort, stopdeltat;
 };
 
-volatile stats g_stats;
+extern volatile stats g_stats;
 #endif	//	FAILSTATS
 
 #endif /* DECODE433_H_ */
