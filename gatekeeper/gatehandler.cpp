@@ -14,6 +14,9 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
+const char *gatehandler::m_authcodes("GUDTP");
+
+//////////////////////////////////////////////////////////////////////////////
 gatehandler::gatehandler( database &db
 			, trafficlights &lights
 			, inductiveloop &loop
@@ -37,13 +40,14 @@ gatehandler::gatehandler( database &db
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void gatehandler::loop( unsigned long currmillis )
+char gatehandler::loop( unsigned long currmillis )
 {
 	inductiveloop::STATUS	ilstatus;
 
 	bool	conflict( m_indloop.update( ilstatus ));
 	bool	ilchanged((ilstatus != m_ilstatus) || (conflict != m_conflict ));
 	bool	inner( ilstatus == inductiveloop::INNER );
+	char	ret( 0 );
 
 	if( ilchanged ) {
 #ifdef VERBOSE
@@ -84,6 +88,7 @@ void gatehandler::loop( unsigned long currmillis )
 			Serial.println( freeMemory());
 #endif	//	VERBOSE
 			AUTHRES	ar( authorize( g_code, inner ));
+			ret = (char)(m_authcodes[ar] + (inner ? 'a'-'A' : 0));
 			if( ar == GRANTED ) {
 				m_openstart = currmillis ? currmillis : 1;
 				topass( inner );
@@ -137,6 +142,7 @@ void gatehandler::loop( unsigned long currmillis )
 	}
 
 	m_lights.loop( currmillis );
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -167,16 +173,16 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 			ret = TIME;
 	}
 
-	updatelcd( id, inner, ret );
+//	updatelcd( id, inner, ret );
 	return ret;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////////////
 void gatehandler::updatelcd( uint16_t id, bool inner, AUTHRES decision )
 {
 	static const char authcodes[] = "GUDTP";
 	char buf[5];
-	char	*bp(buf);
+	char*bp(buf);
 
 	uitodec( bp, id, 4);
 	*bp = 0;
@@ -199,3 +205,4 @@ void gatehandler::updatelcd( uint16_t id, bool inner, AUTHRES decision )
 	m_previd = id;
 	m_previnner = inner;
 }
+*/

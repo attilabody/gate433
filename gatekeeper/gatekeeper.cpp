@@ -11,6 +11,9 @@
 //////////////////////////////////////////////////////////////////////////////
 void setuprelaypins( const uint8_t *pins, uint8_t size );
 void processinput();
+void printdatetime( bool shortyear = true, bool showdow = false );
+void printdecision( char decision );
+void printshadow();
 
 //////////////////////////////////////////////////////////////////////////////
 void setup()
@@ -58,7 +61,12 @@ void loop()
 
 	static gatehandler				handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
 
-	handler.loop( millis() );
+	char decision( handler.loop( millis() ) );
+	serialoutln( g_codedisplayed, ' ', g_frcode );
+
+	printdatetime();
+	if( decision ) printdecision( decision );
+	if( g_codedisplayed != g_frcode )	printshadow();
 }
 
 #ifdef PIN_LED
@@ -155,4 +163,58 @@ void processinput()
 	}
 
 	g_inidx = 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void printdatetime( bool shortyear, bool showdow )
+{
+	static ts		prevt = {0,0,0,0,0,0,0,0,0,0};
+
+	ts	t;
+	char	lcdbuffer[13];
+	char	*lbp(lcdbuffer);
+
+	DS3231_get( &t );
+
+	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ) {
+		g_lcd.setCursor(0,0);
+		datetostring( lbp, t.year, t.mon, t.mday, t.wday, shortyear, showdow, '.', '/' ); *lbp = 0;
+		g_lcd.print( lcdbuffer );
+	}
+
+	if( prevt.hour != t.hour || prevt.min != t.min || prevt.sec != t.sec ) {
+		g_lcd.setCursor(0,1);
+		lbp = lcdbuffer;
+		timetostring( lbp, t.hour, t.min, t.sec, ':' ); *lbp++ = 0;
+		g_lcd.print( lcdbuffer);
+	}
+
+	prevt = t;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void printdecision( char decision )
+{
+	char buf[5];
+	char*bp(buf);
+
+	uitodec( bp, g_code >> 2, 4);
+	buf[4] = 0;
+	g_lcd.setCursor( 10, 1 );
+	g_lcd.print( decision );
+	g_lcd.print( ' ' );
+	g_lcd.print( buf );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void printshadow()
+{
+	char buf[5];
+	char*bp(buf);
+
+	uitodec( bp, g_frcode >> 2, 4);
+	buf[4] = 0;
+	g_lcd.setCursor( 12, 0 );
+	g_lcd.print( buf );
+	g_codedisplayed = g_frcode;
 }

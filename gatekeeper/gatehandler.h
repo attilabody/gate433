@@ -26,7 +26,7 @@ public:
 			, LiquidCrystal_I2C &lcd
 			, bool enforcepos
 			, bool enforcedt );
-	void loop( unsigned long currmillis );
+	char loop( unsigned long currmillis );
 
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
@@ -69,6 +69,8 @@ protected:
 	bool					m_previnner;
 
 	unsigned long			m_openstart;
+	static const char 		*m_authcodes;
+
 };
 
 #endif /* GATEHANDLER_H_ */

@@ -8,18 +8,9 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-//#define FAILSTATS
 //#define VERBOSE
 //#define DBGSERIALIN
 //#define ENFORCING
-
-#define SHORT_MIN_TIME	220
-#define SHORT_MAX_TIME	510
-#define LONG_MIN_TIME	580
-#define LONG_MAX_TIME	1100
-#define CYCLE_MAX_TIME	( SHORT_MAX_TIME + LONG_MAX_TIME )
-#define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
-#define	STOP_MIN_TIME	12000
 
 #define PIN_RFIN		2
 #define PIN_INNERLOOP	A0
@@ -36,7 +27,7 @@
 #define RELAY_OFF	HIGH
 #define RELAY_ON	LOW
 
-#define LCD_ADDRESS	0x27	//	usually 0x27 or 0x3f
+#define LCD_I2C_ADDRESS	0x27	//	usually 0x27 or 0x3f
 #define LCD_WIDTH	16		//	in characters
 #define LCD_HEIGHT	2		//	in lines
 

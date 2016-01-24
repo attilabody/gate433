@@ -455,7 +455,7 @@ void loop()
 #ifdef FAILSTATS
 	else
 	{
-		auto now = millis();
+		unsigned long now = millis();
 		ps = (stats*)&g_stats;
 		if( !(prevstats == *ps) && now - statsprinted > 1000 )
 		{

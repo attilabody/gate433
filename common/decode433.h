@@ -11,14 +11,24 @@
 #include <Arduino.h>
 #include "config.h"
 
+#define FAILSTATS
+
+#define SHORT_MIN_TIME	220
+#define SHORT_MAX_TIME	800
+#define LONG_MIN_TIME	580
+#define LONG_MAX_TIME	1400
+#define CYCLE_MAX_TIME	( SHORT_MAX_TIME + LONG_MAX_TIME )
+#define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
+#define	STOP_MIN_TIME	10000
+
 extern volatile bool 		g_codeready;
 extern volatile uint16_t 	g_code;
-extern volatile uint16_t 	g_shadowcode;
+extern volatile uint16_t 	g_frcode;	//free running code
 extern volatile uint32_t 	g_codetime;
 extern volatile uint32_t 	g_lastedge;
 
 //////////////////////////////////////////////////////////////////////////////
-enum RcvState : uint8_t {
+enum RCVSTATUS : uint8_t {
 	  START
 	, DATA
 	, STOP
@@ -32,17 +42,14 @@ void setup433();
 #ifdef FAILSTATS
 struct stats
 {
-	stats() {startabort = dataabort = stopabort = stopdeltat = 0;}
+	stats() { memset( this, 0, sizeof *this ); }// startabort = dataabort = stopabort = stopdeltat = success = 0;}
 	bool operator==( const stats &o ) {
-		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort;
-	}
-	bool operator==( stats &o ) {
-		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort;
+		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort && success == o.success;
 	}
 	stats& operator=( const stats &o ) {
-		startabort = o.startabort; dataabort = o.dataabort; stopabort = o.stopabort; return *this;
+		startabort = o.startabort; dataabort = o.dataabort; stopabort = o.stopabort; success = o.success; return *this;
 	}
-	unsigned long startabort, dataabort, stopabort, stopdeltat;
+	unsigned long startabort, dataabort, stopabort, success, stopdeltat;
 };
 
 extern volatile stats g_stats;

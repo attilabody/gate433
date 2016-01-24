@@ -8,11 +8,12 @@
 
 volatile bool 		g_codeready( false );
 volatile uint16_t 	g_code(-1);
+volatile uint16_t 	g_frcode(-1);
 volatile uint32_t 	g_codetime( 0 );
 volatile uint32_t 	g_lastedge;
 
 #ifdef FAILSTATS
-volatile stats g_stats;
+volatile stats 		g_stats;
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,11 +29,10 @@ void isr()
 	static int8_t curbit;
 	static uint32_t lastedge( micros() ), curedge;
 	static bool lastlevel( digitalRead( PIN_RFIN ) == HIGH ), in;
-	static RcvState state( START );
+	static RCVSTATUS state( START );
 	static uint16_t code, deltat, cyclet;
-	static int timediff;
 
-	static uint32_t highdeltat, lowdeltat;
+	static uint16_t highdeltat, lowdeltat, timediff;
 
 	curedge = micros();
 	in = ( digitalRead( PIN_RFIN ) == HIGH );
@@ -40,7 +40,7 @@ void isr()
 
 	switch( state ) {
 	case START:
-		if( !g_codeready &&
+		if( //!g_codeready &&
 			lastlevel &&
 			!in &&
 			deltat >= SHORT_MIN_TIME &&
@@ -67,9 +67,7 @@ void isr()
 		} else {			//	h->l
 			highdeltat = deltat;
 			cyclet = highdeltat + lowdeltat;
-			timediff = (int)highdeltat - (int)lowdeltat;
-			if( timediff < 0 )
-				timediff = -timediff;
+			timediff = highdeltat > lowdeltat ? highdeltat - lowdeltat : lowdeltat - highdeltat;
 			if( cyclet < CYCLE_MIN_TIME || cyclet > CYCLE_MAX_TIME
 			        || (unsigned int)timediff < ( cyclet >> 4 ) ) {
 				state = START;
@@ -88,13 +86,18 @@ void isr()
 
 	case STOP:
 		if( in &&
-			deltat > STOP_MIN_TIME &&
-			!g_codeready &&
-		    ( ( code != g_code ) || ( lastedge - g_codetime > 500000 ) )
+			deltat > STOP_MIN_TIME //&&
 		) {	// l->h => stop end
-			g_code = code;
-			g_codeready = true;
-			g_codetime = lastedge;
+			if( !g_codeready ) {
+				g_code = code;
+				g_codeready = true;
+				g_codetime = lastedge;
+			}
+			g_frcode = code;
+#ifdef FAILSTATS
+			g_stats.stopdeltat = deltat;
+			++g_stats.success;
+#endif
 		}
 #ifdef FAILSTATS
 		else {

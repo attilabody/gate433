@@ -11,7 +11,7 @@ const uint8_t	g_innerlightspins[3] = INNER_LIGHTS_PINS;
 const uint8_t	g_outerlightspins[3] = OUTER_LIGHTS_PINS;
 const uint8_t	g_otherrelaypins[2] = { PIN_GATE, PIN_RELAY_SPARE };
 
-LiquidCrystal_I2C 	g_lcd(LCD_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+LiquidCrystal_I2C 	g_lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 SdFat				g_sd;
 #ifdef USE_THINDB
 thindb				g_db( g_sd );
@@ -32,3 +32,11 @@ PCF8574				g_i2cio( PCF8574_ADDRESS );
 
 char				g_iobuf[32];
 uint8_t				g_inidx(0);
+
+bool				g_workday(true);
+unsigned long		g_lastworkdaycheck(0);
+
+uint16_t			g_codedisplayed((uint16_t)-1);
+
+ts					g_t;
+unsigned long		g_lastdtupdate(0);
