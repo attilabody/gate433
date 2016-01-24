@@ -123,8 +123,8 @@ bool getlinefromserial( char* buffer, uint8_t buflen, uint8_t &idx )
 		Serial.print( ' ' );
 		Serial.println( idx );
 #endif	//	DBGSERIALIN
-		if( inc == '\n' )
-			inc = 0;
+		if( inc == '\r' ) continue;
+		if( inc == '\n' ) inc = 0;
 		buffer[idx++] = inc;
 		if( !inc || idx >= buflen - 1 ) {
 			if( inc )
@@ -215,12 +215,11 @@ void ultodec( char* &buffer, uint32_t data, uint8_t digits )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, bool shortyear, bool showdow, char datesep, char dowsep )
+void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, uint8_t yeardigits, bool showdow, char datesep, char dowsep )
 {
-	if( shortyear ) {
-		uitodec( buffer, year % 100, 2 ); *buffer++ = datesep;
-	} else {
-		uitodec( buffer, year, 4 ); *buffer++ = datesep;
+	if( yeardigits ) {
+		if( yeardigits > 4 ) yeardigits = 4;
+		uitodec( buffer, year, yeardigits ); *buffer++ = datesep;
 	}
 	uitodec( buffer, month, 2 ); *buffer++ = datesep;
 	uitodec( buffer, day, 2 );

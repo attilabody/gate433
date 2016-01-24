@@ -8,7 +8,7 @@
 
 volatile bool 		g_codeready( false );
 volatile uint16_t 	g_code(-1);
-volatile uint16_t 	g_frcode(-1);
+volatile uint16_t 	g_lrcode(-1);
 volatile uint32_t 	g_codetime( 0 );
 volatile uint32_t 	g_lastedge;
 
@@ -93,7 +93,7 @@ void isr()
 				g_codeready = true;
 				g_codetime = lastedge;
 			}
-			g_frcode = code;
+			g_lrcode = code;
 #ifdef FAILSTATS
 			g_stats.stopdeltat = deltat;
 			++g_stats.success;

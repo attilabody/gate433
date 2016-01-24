@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <ds3231.h>
+#include <SdFat.h>
 #include "config.h"
 #include "globals.h"
 #include "interface.h"
@@ -13,7 +14,9 @@ void setuprelaypins( const uint8_t *pins, uint8_t size );
 void processinput();
 void printdatetime( bool shortyear = true, bool showdow = false );
 void printdecision( char decision );
-void printshadow();
+void printlastreceived();
+int getlinefromfile( SdFile &f, char* buffer, uint8_t buflen );
+void updatedow( ts &t );
 
 //////////////////////////////////////////////////////////////////////////////
 void setup()
@@ -27,7 +30,7 @@ void setup()
 	pinMode( PIN_LED, OUTPUT );
 #endif
 
-	g_lcd.init();
+	g_lcd.init();		//	calls Wire.begin()
 	g_lcd.backlight();
 
 	if( g_sd.begin( SS ))
@@ -51,22 +54,46 @@ void setup()
 #endif	//	PIN_LED
 
 	setup433();
+
+	DS3231_init( DS3231_INTCN );
+	g_lastdtupdate = millis();
+	DS3231_get( &g_t );
+	updatedow( g_t );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	if( getlinefromserial( g_iobuf, sizeof(g_iobuf ), g_inidx) )
+	static gatehandler				handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
+	unsigned long	now( millis() );
+
+
+	if( now - g_lastdtupdate > 950 )
+	{
+		ts	t;
+		DS3231_get( &t );
+
+		if( t.sec != g_t.sec ) {
+			if( t.mday != g_t.mday ) {
+				g_t = t;
+				updatedow( g_t );
+			} else {
+				g_t.sec = t.sec;
+				g_t.min = t.min;
+				g_t.hour = t.hour;
+			}
+			g_lastdtupdate = now;
+		}
+	}
+
+	if( getlinefromserial( g_iobuf, sizeof( g_iobuf ), g_inidx) )
 		processinput();
 
-	static gatehandler				handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
+	char decision( handler.loop( now ) );
 
-	char decision( handler.loop( millis() ) );
-	serialoutln( g_codedisplayed, ' ', g_frcode );
-
-	printdatetime();
+	printdatetime( true, true );
 	if( decision ) printdecision( decision );
-	if( g_codedisplayed != g_frcode )	printshadow();
+	if( g_codedisplayed != g_lrcode )	printlastreceived();
 }
 
 #ifdef PIN_LED
@@ -91,13 +118,14 @@ void processinput()
 {
 	const char	*inptr( g_iobuf );
 
+	Serial.println( g_iobuf );
+
 	if( iscommand( inptr, F("get"))) {
 		database::dbrecord	rec;
 		int 				id( getintparam( inptr ));
 		if( id != -1 && g_db.getParams( id, rec )) {
 			rec.serialize( g_iobuf );
-			Serial.print( F(RESPS) );
-			Serial.println( g_iobuf );
+			serialoutln( RESP, g_iobuf );
 		} else Serial.println( F(ERRS "ERR"));
 
 	} else if( iscommand( inptr, F("set"))) {
@@ -151,12 +179,31 @@ void processinput()
 		for( id = start; id < start + count; ++id ) {
 			if( g_db.getParams( id, rec )) {
 				rec.serialize( g_iobuf );
-				Serial.print( F(RESPS) );
-				Serial.println( g_iobuf );
+				serialoutln( RESP, g_iobuf );
 			} else break;
 		}
-		if( id == start + count ) Serial.println(F(RESPS "OK"));
+		if( id == start + count ) Serial.println( RESP );
 		else Serial.println( F(ERRS "ERR" ));
+
+	} else if( iscommand( inptr, F("gdt"))) {	// get datetime
+		serialout( RESP, (uint16_t)g_t.year, F("."));
+		serialout( (uint16_t)g_t.mon,F("."));
+		serialout( (uint16_t)g_t.mday, F("/" ),(uint16_t)g_t.wday);
+		serialout( F("    "), (uint16_t)g_t.hour);
+		serialout(F(":" ), (uint16_t)(g_t.min));
+		serialoutln(F(":" ), (uint16_t)(g_t.sec));
+
+	} else if( iscommand( inptr, F("ds"))) {	// dump shuffle
+		SdFile	f;
+		char buffer[16];
+		if( f.open( "shuffle.txt", FILE_READ )) {
+			while( getlinefromfile( f, buffer, sizeof(buffer)) != -1 )
+				serialoutln( RESP, buffer );
+			Serial.println( RESP );
+			f.close();
+		} else {
+			Serial.println( F(ERRS "Cannot open file."));
+		}
 
 	} else {
 		Serial.println( F(ERRS "CMD"));
@@ -168,28 +215,25 @@ void processinput()
 //////////////////////////////////////////////////////////////////////////////
 void printdatetime( bool shortyear, bool showdow )
 {
-	static ts		prevt = {0,0,0,0,0,0,0,0,0,0};
+	static ts		dispt = {0,0,0,0,0,0,0,0,0,0};
 
-	ts	t;
 	char	lcdbuffer[13];
 	char	*lbp(lcdbuffer);
 
-	DS3231_get( &t );
-
-	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ) {
+	if( dispt.year != g_t.year || dispt.mon != g_t. mon || dispt.mday != g_t.mday ) {
 		g_lcd.setCursor(0,0);
-		datetostring( lbp, t.year, t.mon, t.mday, t.wday, shortyear, showdow, '.', '/' ); *lbp = 0;
+		datetostring( lbp, g_t.year, g_t.mon, g_t.mday, g_t.wday, 0, showdow, '.', '/' ); *lbp = 0;
 		g_lcd.print( lcdbuffer );
 	}
 
-	if( prevt.hour != t.hour || prevt.min != t.min || prevt.sec != t.sec ) {
+	if( dispt.hour != g_t.hour || dispt.min != g_t.min || dispt.sec != g_t.sec ) {
 		g_lcd.setCursor(0,1);
 		lbp = lcdbuffer;
-		timetostring( lbp, t.hour, t.min, t.sec, ':' ); *lbp++ = 0;
+		timetostring( lbp, g_t.hour, g_t.min, g_t.sec, ':' ); *lbp++ = 0;
 		g_lcd.print( lcdbuffer);
 	}
 
-	prevt = t;
+	dispt = g_t;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -207,14 +251,72 @@ void printdecision( char decision )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void printshadow()
+void printlastreceived()
 {
 	char buf[5];
 	char*bp(buf);
 
-	uitodec( bp, g_frcode >> 2, 4);
+	uitodec( bp, g_lrcode >> 2, 4);
 	buf[4] = 0;
 	g_lcd.setCursor( 12, 0 );
 	g_lcd.print( buf );
-	g_codedisplayed = g_frcode;
+	g_codedisplayed = g_lrcode;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+int getlinefromfile( SdFile &f, char* buffer, uint8_t buflen )
+{
+	uint32_t	curpos( f.curPosition());
+	char *src( buffer );
+	int rb( f.read( buffer, buflen - 1 ));
+	if( !rb ) return -1;
+
+	int ret(0);
+
+	while( rb-- ) {
+		char inc = *src;
+		if( !inc || inc == '\r' || inc == '\n' ) {
+			ret = src - buffer;
+			*src++ = 0;
+			if( inc && rb ) {
+				inc = *src;
+				if( !inc || inc == '\r' || inc == '\n' )
+					++src;
+			}
+			break;
+		}
+		++src;
+	}
+
+	if( rb == -1 ) {
+		*src = 0;
+		ret = src - buffer;
+	}
+	f.seekSet( curpos + ( src - buffer ));
+	return ret;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+void updatedow( ts &t )
+{
+	char buffer[12];
+	const char *bp;
+	uint8_t	month, day, dow;
+	SdFile	f;
+
+	if( f.open( "shuffle.txt", FILE_READ )) {
+		while( getlinefromfile( f, buffer, sizeof(buffer)) != -1 ) {
+			bp = buffer;
+			if( (month = getintparam( bp, true, true, false )) != 0xff &&
+				(day = getintparam( bp, true, true, false )) != 0xff &&
+				(dow = getintparam( bp, true, true, false )) != 0xff &&
+				month == g_t.mon && day == g_t.mday )
+			{
+				g_t.wday = dow;
+				break;
+			}
+		}
+		f.close();
+	}
 }

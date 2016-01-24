@@ -11,7 +11,7 @@
 #include <Arduino.h>
 #include "config.h"
 
-#define FAILSTATS
+//#define FAILSTATS
 
 #define SHORT_MIN_TIME	220
 #define SHORT_MAX_TIME	800
@@ -23,7 +23,7 @@
 
 extern volatile bool 		g_codeready;
 extern volatile uint16_t 	g_code;
-extern volatile uint16_t 	g_frcode;	//free running code
+extern volatile uint16_t 	g_lrcode;	//free running code
 extern volatile uint32_t 	g_codetime;
 extern volatile uint32_t 	g_lastedge;
 

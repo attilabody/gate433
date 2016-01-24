@@ -43,8 +43,6 @@ extern inductiveloop		g_indloop;
 extern PCF8574				g_i2cio;
 extern char					g_iobuf[32];
 extern uint8_t				g_inidx;
-extern bool					g_workday;
-extern unsigned long		g_lastworkdaycheck;
 extern uint16_t				g_codedisplayed;
 extern ts					g_t;
 extern unsigned long		g_lastdtupdate;

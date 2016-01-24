@@ -33,9 +33,6 @@ PCF8574				g_i2cio( PCF8574_ADDRESS );
 char				g_iobuf[32];
 uint8_t				g_inidx(0);
 
-bool				g_workday(true);
-unsigned long		g_lastworkdaycheck(0);
-
 uint16_t			g_codedisplayed((uint16_t)-1);
 
 ts					g_t;

@@ -149,13 +149,11 @@ char gatehandler::loop( unsigned long currmillis )
 gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 {
 	uint16_t			id( code >> 2 );
-	ts					dt;
 	database::dbrecord	rec;
 	AUTHRES				ret( GRANTED );
 
-	DS3231_get( &dt );
-	uint16_t	mod( dt.min + dt.hour * 60 );
-	uint8_t		dow( 1<<(dt.wday - 1));	//TODO exceptions, holidays
+	uint16_t	mod( g_t.min + g_t.hour * 60 );
+	uint8_t		dow( 1<<(g_t.wday - 1));
 	if( !m_db.getParams(id, rec ) )
 		return GRANTED;
 
@@ -173,7 +171,6 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 			ret = TIME;
 	}
 
-//	updatelcd( id, inner, ret );
 	return ret;
 }
 
