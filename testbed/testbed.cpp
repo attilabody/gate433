@@ -42,7 +42,7 @@ File				g_log;
 
 flashdb				g_db( 0x57, 16, 128 );
 
-LiquidCrystal_I2C 	g_lcd(LCD_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+LiquidCrystal_I2C 	g_lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 inductiveloop		g_indloop( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 trafficlights		g_lights( g_innerpins, g_outerpins, false, 500 );
 
