@@ -8,8 +8,6 @@
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 #include <Arduino.h>
-#include <LiquidCrystal_I2C.h>
-#include <PCF8574.h>
 #include "config.h"
 #include "thindb.h"
 #include "intdb.h"
@@ -18,6 +16,9 @@
 #include "inductiveloop.h"
 #include "trafficlights.h"
 
+class PCF8574;
+class LiquidCrystal_I2C;
+class sdfatlogwriter;
 
 extern const uint8_t	g_innerlightspins[3];
 extern const uint8_t	g_outerlightspins[3];
@@ -46,5 +47,7 @@ extern uint8_t				g_inidx;
 extern uint16_t				g_codedisplayed;
 extern ts					g_t;
 extern unsigned long		g_lastdtupdate;
+
+extern sdfatlogwriter		g_logger;
 
 #endif	//	GLOBALS_H_

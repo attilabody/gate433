@@ -7,6 +7,7 @@
 #include <Arduino.h>
 #include "interface.h"
 #include <limits.h>
+#include <ds3231.h>
 
 //#define DBGSERIALIN
 
@@ -235,6 +236,40 @@ void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char s
 	uitodec( buffer, hour, 2 ); *buffer++ = sep;
 	uitodec( buffer, min, 2 ); *buffer++ = sep;
 	uitodec( buffer, sec, 2 );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void printdate( Print *p, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, uint8_t yeardigits, bool showdow, char datesep, char dowsep )
+{
+	char buffer[6], *bptr;
+	if( yeardigits ) {
+		bptr = buffer;
+		if( yeardigits > 4 ) yeardigits = 4;
+		uitodec( bptr, year, yeardigits );
+		*bptr++ = datesep;
+		*bptr = 0;
+		p->print(buffer);
+	}
+	bptr = buffer;
+	uitodec( bptr, month, 2 );
+	*bptr++ = datesep;
+	uitodec( bptr, day, 2 );
+	*bptr = 0; p->print( buffer );
+	if( showdow ) {
+		bptr = buffer;
+		*bptr++ = dowsep;
+		uitodec( bptr, dow, 1);
+		p->print( buffer );
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void printtime( Print *p, uint8_t hour, uint8_t min, uint8_t sec, char sep )
+{
+	char buffer[4], *bptr;
+	bptr = buffer; uitodec( bptr, hour, 2 ); *bptr++ = sep; *bptr = 0; p->print( buffer );
+	bptr = buffer; uitodec( bptr, min, 2 ); *bptr++ = sep; *bptr = 0; p->print( buffer );
+	bptr = buffer; uitodec( bptr, sec, 2 ); *bptr = 0; p->print( buffer );
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@
  *      Author: compi
  */
 
+#include <PCF8574.h>
 #include "config.h"
 #include "globals.h"
 #include "trafficlights.h"

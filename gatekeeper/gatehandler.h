@@ -10,6 +10,7 @@
 
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
+#include <PCF8574.h>
 #include "config.h"
 #include "globals.h"
 #include "database.h"

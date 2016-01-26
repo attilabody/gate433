@@ -6,6 +6,10 @@
  */
 
 #include "globals.h"
+#include <ds3231.h>
+#include <PCF8574.h>
+#include <LiquidCrystal_I2C.h>
+#include "sdfatlogwriter.h"
 
 const uint8_t	g_innerlightspins[3] = INNER_LIGHTS_PINS;
 const uint8_t	g_outerlightspins[3] = OUTER_LIGHTS_PINS;
@@ -37,3 +41,5 @@ uint16_t			g_codedisplayed((uint16_t)-1);
 
 ts					g_t;
 unsigned long		g_lastdtupdate(0);
+
+sdfatlogwriter		g_logger( g_sd );

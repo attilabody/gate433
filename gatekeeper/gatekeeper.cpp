@@ -8,6 +8,7 @@
 #include "decode433.h"
 #include "gatehandler.h"
 #include "intdb.h"
+#include "sdfatlogwriter.h"
 
 //////////////////////////////////////////////////////////////////////////////
 void setuprelaypins( const uint8_t *pins, uint8_t size );
@@ -38,7 +39,7 @@ void setup()
 
 	g_lcd.print( F("DBinit ") );
 	g_lcd.print( g_dbinitfail ? F("FAILURE!!") : F("SUCCESS!!") );
-	delay(3000);
+	delay(1000);
 	g_lcd.clear();
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
@@ -59,13 +60,16 @@ void setup()
 	g_lastdtupdate = millis();
 	DS3231_get( &g_t );
 	updatedow( g_t );
+
+	g_logger.init();
+	g_logger.log( logwriter::INFO, g_t, -1, F("Restart") );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	static gatehandler				handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
-	unsigned long	now( millis() );
+	static gatehandler	handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
+	unsigned long		now( millis() );
 
 
 	if( now - g_lastdtupdate > 950 )
@@ -93,7 +97,10 @@ void loop()
 
 	printdatetime( true, true );
 	if( decision ) printdecision( decision );
-	if( g_codedisplayed != g_lrcode )	printlastreceived();
+	if( g_codedisplayed != g_lrcode ) {
+		printlastreceived();
+		g_logger.log( logwriter::INFO, g_t, g_lrcode, F("Code received"));
+	}
 }
 
 #ifdef PIN_LED
@@ -204,6 +211,12 @@ void processinput()
 		} else {
 			Serial.println( F(ERRS "Cannot open file."));
 		}
+
+	} else if( iscommand( inptr, F("dl"))) {	// dump log
+		g_logger.dump( &Serial );
+
+	} else if( iscommand( inptr, F("tl"))) {	// truncate log
+		g_logger.truncate();
 
 	} else {
 		Serial.println( F(ERRS "CMD"));
