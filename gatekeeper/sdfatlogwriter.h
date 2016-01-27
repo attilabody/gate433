@@ -24,8 +24,15 @@ public:
 	sdfatlogwriter( SdFat &sd );
 	bool init();
 
-	virtual void log( CATEGORY category, ts &datetime, uint16_t rid, const char* message );
-	virtual void log( CATEGORY category, ts &datetime, uint16_t rid, const __FlashStringHelper *message );
+
+	void log( 	CATEGORY category, ts &datetime, const char* message,
+				uint16_t rid = 0xffff, uint8_t dbpos = 0xff,
+				uint8_t loop = 0xff, uint8_t decision = 0xff );
+
+	void log( 	CATEGORY category, ts &datetime,
+				const __FlashStringHelper *message,
+				uint16_t rid = 0xffff, uint8_t dbpos = 0xff,
+				uint8_t loop = 0xff, uint8_t decision = 0xff );
 
 	bool dump( Print *p );
 	bool truncate();
@@ -48,8 +55,7 @@ protected:
 	SdFat		&m_sd;
 	uint16_t	m_dirindex;
 
-	const char * 	writecatstr( sdfwbuffer &wb, CATEGORY c );
-	char *			writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid );
+	bool	writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid, uint8_t dbpos, uint8_t loop, uint8_t decision );
 
 };
 

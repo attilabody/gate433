@@ -9,7 +9,9 @@
 #include "config.h"
 #include "gatehandler.h"
 #include "decode433.h"
+#include "sdfatlogwriter.h"
 #include "globals.h"
+#include "interface.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -51,9 +53,16 @@ char gatehandler::loop( unsigned long currmillis )
 
 	if( ilchanged ) {
 #ifdef VERBOSE
-		serialoutln( F("inductive loop status changed: "), ilstatus, ", ", conflict );
+		serialoutln( F( CMNTS "il changed: "), ilstatus, ", ", conflict );
 		Serial.println( freeMemory());
 #endif	//	VERBOSE
+		char l1('_'), l2('_');
+		g_lcd.setCursor( 9, 0 );
+		if( conflict ) l1 = l2 = '^';
+		else if( ilstatus == inductiveloop::INNER ) l1 = '^';
+		else if( ilstatus == inductiveloop::OUTER ) l2 = '^';
+		g_lcd.print( l1 );
+		g_lcd.print( l2 );
 	}
 
 	switch( m_status )
@@ -171,6 +180,7 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 			ret = TIME;
 	}
 
+	g_logger.log( logwriter::INFO, g_t, F("Authorization"), id, rec.position, inner, ret );
 	return ret;
 }
 

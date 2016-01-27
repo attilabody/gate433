@@ -21,7 +21,7 @@
 #define CYCLE_MIN_TIME	( SHORT_MIN_TIME + LONG_MIN_TIME )
 #define	STOP_MIN_TIME	10000
 
-extern volatile bool 		g_codeready;
+extern volatile bool 		g_codeready, g_lrready;
 extern volatile uint16_t 	g_code;
 extern volatile uint16_t 	g_lrcode;	//free running code
 extern volatile uint32_t 	g_codetime;

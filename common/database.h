@@ -8,7 +8,6 @@
 #ifndef DATABASE_H_
 #define DATABASE_H_
 #include <Arduino.h>
-#include "interface.h"
 
 class database
 {
@@ -16,7 +15,7 @@ public:
 	struct dbrecord
 	{
 		enum POSITION : uint8_t {
-			  UNKNOWN , OUTSIDE , INSIDE
+			  UNKNOWN = 0, OUTSIDE , INSIDE
 		};
 		dbrecord();
 		dbrecord( const char* &dbstring );

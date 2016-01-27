@@ -26,10 +26,6 @@ writebuffer::~writebuffer()
 /////////////////////////////////////////////////////////////////////////////
 bool writebuffer::write( const void *ptr, uint8_t size )
 {
-	Serial.print("% ");
-	Serial.write( reinterpret_cast<const char *>(ptr), size );
-	serialoutsepln( ", ", ' ', size, m_size, m_index );
-
 	while( size )
 	{
 		uint8_t tocopy( min( size, m_size - m_index ));

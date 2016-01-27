@@ -60,13 +60,13 @@ void setup()
 	updatedow( g_t );
 
 	bool logsucc(g_logger.init());
-	g_logger.log( logwriter::INFO, g_t, -1, F("Restart") );
+	g_logger.log( logwriter::WARNING, g_t, F("Restart"), -1 );
 
 	g_lcd.setCursor( 0,1 );
 	g_lcd.print( F("Loginit ") );
-	g_lcd.print( g_dbinitfail ? F("FAILURE!") : F("SUCCESS.") );
+	g_lcd.print( logsucc ? F("SUCCESS.") : F("FAILURE!") );
 
-	delay(1000);
+	delay(1500);
 	g_lcd.clear();
 }
 
@@ -104,7 +104,7 @@ void loop()
 	if( decision ) printdecision( decision );
 	if( g_codedisplayed != g_lrcode ) {
 		printlastreceived();
-		g_logger.log( logwriter::INFO, g_t, g_lrcode, F("Code received"));
+		g_logger.log( logwriter::DEBUG, g_t, F("New code received"), g_lrcode >> 2);
 	}
 }
 

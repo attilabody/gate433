@@ -16,6 +16,8 @@
 #include "inductiveloop.h"
 #include "trafficlights.h"
 
+struct ts;
+
 class PCF8574;
 class LiquidCrystal_I2C;
 class sdfatlogwriter;

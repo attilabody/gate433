@@ -69,8 +69,10 @@ bool sdfatlogwriter::sdfwbuffer::write( uint16_t data, uint8_t digits )
 		*ptr-- = ( data%10 ) + '0';
 		data /= 10;
 	}
+#ifdef VERBOSE
 	buf[digits] = 0;
 	Serial.println( buf );
+#endif	//	VERBOSE
 	return writebuffer::write( buf, digits );
 }
 
@@ -89,29 +91,29 @@ bool sdfatlogwriter::init()
 	if( !file.open( m_sd.vwd(), "LOG.TXT", FILE_WRITE ))
 		return false;
 	m_dirindex = m_sd.vwd()->curPosition()/32 -1;
-	serialoutln( '@', m_dirindex );
 	file.close();
 	return true;
 }
 
+
 /////////////////////////////////////////////////////////////////////////////
-void sdfatlogwriter::log( CATEGORY category, ts &datetime, uint16_t rid, const char* message )
+void sdfatlogwriter::log( CATEGORY category, ts &datetime, const char* message, uint16_t rid, uint8_t dbpos, uint8_t loop,  uint8_t decision )
 {
 	char		buffer[32];
 
 	sdfwbuffer	b( m_sd.vwd(), m_dirindex, buffer, sizeof(buffer) );
-	writelinehdr( b, category, datetime, rid );
+	writelinehdr( b, category, datetime, rid, dbpos, loop, decision );
 	b.writebuffer::write( message );
 	b.writebuffer::write( '\n' );
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void sdfatlogwriter::log( CATEGORY category, ts &datetime, uint16_t rid, const __FlashStringHelper *message )
+void sdfatlogwriter::log( CATEGORY category, ts &datetime, const __FlashStringHelper *message, uint16_t rid, uint8_t dbpos, uint8_t loop, uint8_t decision )
 {
 	char		buffer[32];
 
 	sdfwbuffer	b( m_sd.vwd(), m_dirindex, buffer, sizeof(buffer) );
-	writelinehdr( b, category, datetime, rid );
+	writelinehdr( b, category, datetime, rid, dbpos, loop, decision );
 	b.writebuffer::write( message );
 	b.writebuffer::write( '\n' );
 }
@@ -122,7 +124,7 @@ bool sdfatlogwriter::dump( Print *p )
 	SdFile		f;
 	char		buffer[32], *bptr;
 	int			nio;
-	char		c(0);
+	char		c('\n');
 
 
 	if( f.open( m_sd.vwd(), m_dirindex, FILE_READ ))
@@ -140,8 +142,10 @@ bool sdfatlogwriter::dump( Print *p )
 		} while( nio == sizeof( buffer ) );
 
 		if( nio == -1 ) p->println( F( ERRS "ERR" ));
-		else if( c == '\n' ) p->println();
-		else p->println( RESP );
+		else {
+			if( c != '\n' ) p->println();
+			p->println( RESP );
+		}
 		f.close();
 		return true;
 	}
@@ -160,24 +164,33 @@ bool sdfatlogwriter::truncate()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-char* sdfatlogwriter::writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid )
+const char __catsrts[] PROGMEM = "DBG" "INF" "WRN" "ERR" "WTF";
+const char __positions[] PROGMEM = "UOI";
+const char __decisions[] PROGMEM = "ACK" "UNR" "DAY" "TME" "POS";
+
+/////////////////////////////////////////////////////////////////////////////
+bool sdfatlogwriter::writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid, uint8_t dbpos, uint8_t loop, uint8_t decision )
 {
-	wb.write( datetime );
-	wb.writebuffer::write( ' ' );
-	writecatstr( wb, c );
-	wb.writebuffer::write( ' ' );
-	if( remoteid != -1 ) {
-		wb.write( remoteid, 4 );
-		wb.writebuffer::write(' ');
+	bool ret( true );
+	ret &= wb.write( datetime );
+	ret &= wb.writebuffer::write( ' ' );
+	ret &= wb.write_P( __catsrts + c * 3, 3 );
+	ret &= wb.writebuffer::write( ' ' );
+	if( remoteid != 0xffff ) {
+		ret &= wb.write( remoteid, 4 );
+		ret &= wb.writebuffer::write(' ');
 	}
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-const char __catsrts[] PROGMEM = { "DBGINFWRNWRRWTF" };
-
-/////////////////////////////////////////////////////////////////////////////
-const char* sdfatlogwriter::writecatstr( sdfwbuffer &wb, CATEGORY c )
-{
-	wb.write_P( __catsrts + c * 3, 3 );
+	if( dbpos != 0xff ) {
+		ret &= wb.write_P( __positions + dbpos, 1 );
+		ret &= wb.writebuffer::write(' ');
+	}
+	if( loop != 0xff ) {
+		ret &= wb.writebuffer::write( loop ? 'I' : 'O' );
+		ret &= wb.writebuffer::write(' ');
+	}
+	if( decision != 0xff ) {
+		ret &= wb.write_P( __decisions + decision * 3, 3 );
+		ret &= wb.writebuffer::write(' ');
+	}
+	return ret;
 }
