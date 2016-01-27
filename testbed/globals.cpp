@@ -7,4 +7,3 @@
 
 #include "globals.h"
 
-PCF8574				g_i2cio( 32 );
