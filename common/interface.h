@@ -6,7 +6,9 @@
 #ifndef _interface_H_
 #define _interface_H_
 //#define DBGSERIALIN	1
-//#include <ds3231.h>
+#include <Arduino.h>
+
+struct ts;
 
 #define  DEBUGTEMPLATES
 
@@ -103,7 +105,6 @@ void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uin
 void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char sep );
 void printdate( Print *p, uint16_t year, uint8_t month, uint8_t day, uint8_t dow, uint8_t yeardigits = 2, bool showdow = false, char datesep = '.', char dowsep = '/' );
 void printtime( Print *p, uint8_t hour, uint8_t min, uint8_t sec, char sep );
-struct ts;
 bool parsedatetime( ts &t, const char *&inptr );
 inline char halfbytetohex( uint8_t data ) { return data + ( data < 10 ? '0' : ( 'A' - 10 ) ); }
 

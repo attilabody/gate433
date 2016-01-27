@@ -9,11 +9,17 @@
 #define SDFATLOGWRITER_H_
 
 #include <Arduino.h>
-#include <logwriter.h>
+#include <SdFat.h>
+#include "logwriter.h"
+#include "writebuffer.h"
 
 class SdFat;
+class SdFile;
+class FatFile;
+struct ts;
 
-class sdfatlogwriter: public logwriter {
+class sdfatlogwriter : public logwriter
+{
 public:
 	sdfatlogwriter( SdFat &sd );
 	bool init();
@@ -24,12 +30,27 @@ public:
 	bool dump( Print *p );
 	bool truncate();
 
+//protected:
+	class sdfwbuffer: public writebuffer
+	{
+	public:
+		sdfwbuffer( FatFile* dir, uint16_t dirindex, void *buf, uint8_t size );
+		virtual ~sdfwbuffer();
+		bool write( uint16_t data, uint8_t digits );
+		bool write( ts &dt );
+		virtual bool flush();
+	private:
+		SdFile	m_f;
+	};
+
 protected:
+
 	SdFat		&m_sd;
 	uint16_t	m_dirindex;
 
-	const char * 	getcatpstr( CATEGORY c );
-	char *			startline( char *bptr, CATEGORY c, ts &datetime, uint16_t rid );
+	const char * 	writecatstr( sdfwbuffer &wb, CATEGORY c );
+	char *			writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid );
+
 };
 
 #endif /* SDFATLOGWRITER_H_ */

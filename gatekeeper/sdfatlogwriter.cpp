@@ -11,6 +11,72 @@
 #include "interface.h"
 
 /////////////////////////////////////////////////////////////////////////////
+//
+/////////////////////////////////////////////////////////////////////////////
+sdfatlogwriter::sdfwbuffer::sdfwbuffer( FatFile* dir, uint16_t dirindex, void *buf, uint8_t size )
+: writebuffer( buf, size )
+{
+	m_f.open( dir, dirindex, FILE_WRITE );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+sdfatlogwriter::sdfwbuffer::~sdfwbuffer()
+{
+	flush();
+	m_f.close();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+bool sdfatlogwriter::sdfwbuffer::flush()
+{
+	bool ret( true );
+	if( m_index ) {
+		int wr( m_f.write( m_buffer, m_index ));
+		ret = ( wr == m_index );
+		m_buffer[ m_size -1 ] = 0;
+#ifdef VERBOSE
+		serialout( '#', ret, ',', wr, ',', m_f.getError(), ',', m_index, ',', m_buffer );
+#endif	//	VERBOSE
+		m_index = 0;
+	}
+	return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+bool sdfatlogwriter::sdfwbuffer::write( ts &dt )
+{
+	write( dt.year , 4 );
+	writebuffer::write( '.' );
+	write( dt.mon, 2 );
+	writebuffer::write( '.' );
+	write( dt.mday, 2 );
+	writebuffer::write( ' ' );
+	write( dt.hour, 2 );
+	writebuffer::write(':' );
+	write( dt.min, 2 );
+	writebuffer::write( ':' );
+	write( dt.sec, 2 );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+bool sdfatlogwriter::sdfwbuffer::write( uint16_t data, uint8_t digits )
+{
+	char buf[5];
+	if( digits > 5 ) digits = 5;
+	char *ptr( buf + digits - 1 );
+	uint8_t	cntr( digits );
+	while( cntr-- ) {
+		*ptr-- = ( data%10 ) + '0';
+		data /= 10;
+	}
+	buf[digits] = 0;
+	Serial.println( buf );
+	return writebuffer::write( buf, digits );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+/////////////////////////////////////////////////////////////////////////////
 sdfatlogwriter::sdfatlogwriter( SdFat &sd )
 : m_sd( sd )
 , m_dirindex(0)
@@ -23,6 +89,7 @@ bool sdfatlogwriter::init()
 	if( !file.open( m_sd.vwd(), "LOG.TXT", FILE_WRITE ))
 		return false;
 	m_dirindex = m_sd.vwd()->curPosition()/32 -1;
+	serialoutln( '@', m_dirindex );
 	file.close();
 	return true;
 }
@@ -30,48 +97,23 @@ bool sdfatlogwriter::init()
 /////////////////////////////////////////////////////////////////////////////
 void sdfatlogwriter::log( CATEGORY category, ts &datetime, uint16_t rid, const char* message )
 {
-	SdFile		f;
-	char		buffer[32], *bptr( buffer );
+	char		buffer[32];
 
-	if( f.open( m_sd.vwd(), m_dirindex, FILE_WRITE ))
-	{
-		f.write( buffer, startline( buffer, category, datetime, rid ) - buffer );
-		f.println( message );
-
-		f.close();
-	}
+	sdfwbuffer	b( m_sd.vwd(), m_dirindex, buffer, sizeof(buffer) );
+	writelinehdr( b, category, datetime, rid );
+	b.writebuffer::write( message );
+	b.writebuffer::write( '\n' );
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void sdfatlogwriter::log( CATEGORY category, ts &datetime, uint16_t rid, const __FlashStringHelper *message )
 {
-	SdFile		f;
-	char		buffer[32], *bptr( buffer );
+	char		buffer[32];
 
-	if( f.open( m_sd.vwd(), m_dirindex, FILE_WRITE ))
-	{
-		f.write( buffer, startline( buffer, category, datetime, rid ) - buffer );
-
-		bptr = buffer;
-		PGM_P 	p( reinterpret_cast<PGM_P>( message ));
-		uint8_t	bfree( sizeof( buffer ));
-		char	c;
-
-		do
-		{
-			c = pgm_read_byte( p++ );
-			*bptr++ = c ? c : '\n';
-			--bfree;
-			if( !bfree || !c) {
-				f.write( buffer, sizeof( buffer ) - bfree);
-				bfree = sizeof( buffer );
-				bptr = buffer;
-			}
-		}
-		while( c );
-
-		f.close();
-	}
+	sdfwbuffer	b( m_sd.vwd(), m_dirindex, buffer, sizeof(buffer) );
+	writelinehdr( b, category, datetime, rid );
+	b.writebuffer::write( message );
+	b.writebuffer::write( '\n' );
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -118,42 +160,24 @@ bool sdfatlogwriter::truncate()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-char* sdfatlogwriter::startline( char *bptr, CATEGORY c, ts &datetime, uint16_t rid)
+char* sdfatlogwriter::writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid )
 {
-	datetostring( bptr, datetime.year, datetime.mon, datetime.mday, 0, 4, false, '.', '/' );
-	*bptr++ = ' ';
-	timetostring( bptr, datetime.hour, datetime.min, datetime.sec, ':' );
-	*bptr++ = ' ';
-	strcpy_P( bptr, getcatpstr( c ) );
-	bptr += strlen(bptr);
-	*bptr++ = ' ';
-	if( rid != -1 ) {
-		String	s(rid);
-		strcpy( bptr, s.c_str() );
-		bptr += s.length();
-		*bptr++ = ' ';
+	wb.write( datetime );
+	wb.writebuffer::write( ' ' );
+	writecatstr( wb, c );
+	wb.writebuffer::write( ' ' );
+	if( remoteid != -1 ) {
+		wb.write( remoteid, 4 );
+		wb.writebuffer::write(' ');
 	}
-	return bptr;
 }
 
+
 /////////////////////////////////////////////////////////////////////////////
-const char* sdfatlogwriter::getcatpstr( CATEGORY c )
+const char __catsrts[] PROGMEM = { "DBGINFWRNWRRWTF" };
+
+/////////////////////////////////////////////////////////////////////////////
+const char* sdfatlogwriter::writecatstr( sdfwbuffer &wb, CATEGORY c )
 {
-	switch( c ) {
-		case DEBUG:
-			return PSTR("DBG");
-			break;
-		case INFO:
-			return PSTR("INF");
-			break;
-		case WARNING:
-			return PSTR("WRN");
-			break;
-		case ERROR:
-			return PSTR("ERR");
-			break;
-		default:
-			return PSTR("WTF");
-			break;
-	}
+	wb.write_P( __catsrts + c * 3, 3 );
 }

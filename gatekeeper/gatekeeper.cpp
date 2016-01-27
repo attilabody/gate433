@@ -38,9 +38,7 @@ void setup()
 		g_dbinitfail = !g_db.init();
 
 	g_lcd.print( F("DBinit ") );
-	g_lcd.print( g_dbinitfail ? F("FAILURE!!") : F("SUCCESS!!") );
-	delay(1000);
-	g_lcd.clear();
+	g_lcd.print( g_dbinitfail ? F("FAILURE!!") : F("SUCCESS.") );
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 	g_lights.init( g_innerlightspins, g_outerlightspins, RELAY_ON == HIGH, 500 );
@@ -61,8 +59,15 @@ void setup()
 	DS3231_get( &g_t );
 	updatedow( g_t );
 
-	g_logger.init();
+	bool logsucc(g_logger.init());
 	g_logger.log( logwriter::INFO, g_t, -1, F("Restart") );
+
+	g_lcd.setCursor( 0,1 );
+	g_lcd.print( F("Loginit ") );
+	g_lcd.print( g_dbinitfail ? F("FAILURE!") : F("SUCCESS.") );
+
+	delay(1000);
+	g_lcd.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////

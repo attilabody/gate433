@@ -72,6 +72,16 @@
 			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/trafficlights.h</locationURI>
 		</link>
 		<link>
+			<name>writebuffer.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/writebuffer.cpp</locationURI>
+		</link>
+		<link>
+			<name>writebuffer.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/writebuffer.h</locationURI>
+		</link>
+		<link>
 			<name>Libraries/Wire</name>
 			<type>2</type>
 			<locationURI>ArduinoHardwareLibPath/Wire</locationURI>
