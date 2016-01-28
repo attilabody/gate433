@@ -126,13 +126,25 @@ void setuprelaypins( const uint8_t *pins, uint8_t size )
 }
 
 //////////////////////////////////////////////////////////////////////////////
+const char PROGMEM CMD_GET[] = "get";
+const char PROGMEM CMD_SET[] = "get";
+const char PROGMEM CMD_EXP[] = "exp";
+const char PROGMEM CMD_IMP[] = "imp";
+const char PROGMEM CMD_DMP[] = "dmp";
+const char PROGMEM CMD_GDT[] = "gdt";
+const char PROGMEM CMD_SDT[] = "sdt";
+const char PROGMEM CMD_DS[] = "ds";
+const char PROGMEM CMD_DL[] = "dl";
+const char PROGMEM CMD_TL[] = "tl";
+
+//////////////////////////////////////////////////////////////////////////////
 void processinput()
 {
 	const char	*inptr( g_iobuf );
 
 	Serial.println( g_iobuf );
 
-	if( iscommand( inptr, F("get"))) {
+	if( iscommand( inptr, CMD_GET )) {
 		database::dbrecord	rec;
 		int 				id( getintparam( inptr ));
 		if( id != -1 && g_db.getParams( id, rec )) {
@@ -140,7 +152,7 @@ void processinput()
 			serialoutln( RESP, g_iobuf );
 		} else Serial.println( F(ERRS "ERR"));
 
-	} else if( iscommand( inptr, F("set"))) {
+	} else if( iscommand( inptr, CMD_SET )) {
 		database::dbrecord	rec;
 		int 				id( getintparam( inptr ));
 		if( id != -1 && rec.parse( inptr )) {
@@ -149,7 +161,7 @@ void processinput()
 			else Serial.println( F(ERRS "ERR"));
 		} else Serial.println( F(ERRS "ERR"));
 
-	} else if( iscommand( inptr, F("export"))) {
+	} else if( iscommand( inptr, CMD_EXP )) {	//export
 		thindb		tdb( g_sd );
 		uint16_t	from( getintparam( inptr ));
 		uint16_t	to( getintparam( inptr ));
@@ -165,7 +177,7 @@ void processinput()
 		if( id == to )  Serial.println(F(RESPS "OK"));
 		else Serial.println( F(ERRS "ERR" ));
 
-	} else if( iscommand( inptr, F("import"))) {
+	} else if( iscommand( inptr, CMD_IMP)) {	//	import
 		thindb				tdb( g_sd );
 		uint16_t			from( getintparam( inptr ));
 		uint16_t			to( getintparam( inptr ));
@@ -181,7 +193,7 @@ void processinput()
 		if( id == to )  Serial.println(F(RESPS "OK"));
 		else Serial.println( F(ERRS "ERR" ));
 
-	} else if( iscommand( inptr, F("dump"))) {
+	} else if( iscommand( inptr, CMD_DMP )) {
 		database::dbrecord	rec;
 		uint16_t			start( getintparam( inptr ));
 		uint16_t			count( getintparam( inptr ));
@@ -197,7 +209,7 @@ void processinput()
 		if( id == start + count ) Serial.println( RESP );
 		else Serial.println( F(ERRS "ERR" ));
 
-	} else if( iscommand( inptr, F("gdt"))) {	// get datetime
+	} else if( iscommand( inptr, CMD_GDT )) {	// get datetime
 		serialout( RESP, (uint16_t)g_t.year, F("."));
 		serialout( (uint16_t)g_t.mon,F("."));
 		serialout( (uint16_t)g_t.mday, F("/" ),(uint16_t)g_t.wday);
@@ -205,7 +217,15 @@ void processinput()
 		serialout(F(":" ), (uint16_t)(g_t.min));
 		serialoutln(F(":" ), (uint16_t)(g_t.sec));
 
-	} else if( iscommand( inptr, F("ds"))) {	// dump shuffle
+	} else if( iscommand( inptr, CMD_SDT )) {		//	set datetime
+		ts	t;
+		if( parsedatetime( t, inptr )) {
+			DS3231_set( t );
+			Serial.println( F(RESPS "OK"));
+		} else
+			Serial.println( F(ERRS " (DATETIMEFMT)"));
+
+	} else if( iscommand( inptr, CMD_DS )) {	// dump shuffle
 		SdFile	f;
 		char buffer[16];
 		if( f.open( "shuffle.txt", FILE_READ )) {
@@ -217,10 +237,10 @@ void processinput()
 			Serial.println( F(ERRS "Cannot open file."));
 		}
 
-	} else if( iscommand( inptr, F("dl"))) {	// dump log
+	} else if( iscommand( inptr, CMD_DL )) {	// dump log
 		g_logger.dump( &Serial );
 
-	} else if( iscommand( inptr, F("tl"))) {	// truncate log
+	} else if( iscommand( inptr, CMD_TL )) {	// truncate log
 		g_logger.truncate();
 
 	} else {

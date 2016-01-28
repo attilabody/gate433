@@ -21,10 +21,6 @@ struct ts;
 #define CMNT '#'
 #define CMNTS "#"
 
-#define CMD_GET		"get"
-#define CMD_SET		"set"
-#define CMD_SETS	"sets"
-#define CMD_LOG		"log"
 #ifdef DEBUGTEMPLATES
 
 template<typename Sep, typename Arg1> void serialoutsepln( const Sep sep, const Arg1 arg1 ) {
@@ -93,6 +89,7 @@ INS INE OUS OUE FLG
 #define STATUSRECORD_WIDTH		4
 
 long getintparam( const char* &input, bool decimal = true, bool trimstart = true, bool acceptneg = false );
+bool iscommand( const char *&inptr, const char *cmd, bool pgmspace = true );
 bool iscommand( const char *&inptr, const __FlashStringHelper *cmd );
 char findcommand( const char* &inptr, const char **commands );
 bool getlinefromserial( char* buffer, uint8_t buflen, uint8_t &idx );

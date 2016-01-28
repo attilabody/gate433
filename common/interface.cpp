@@ -58,6 +58,26 @@ long getintparam( const char* &input, bool decimal, bool trimstart, bool acceptn
 
 
 //////////////////////////////////////////////////////////////////////////////
+bool iscommand( const char *&inptr, const char *cmd, bool pgmspace )
+{
+	size_t n = 0;
+	char x;
+	if( pgmspace )
+		while((x = pgm_read_byte( cmd++ )) && x == inptr[n] )
+			++n;
+	else
+		while((x = *cmd++) && x == inptr[n] )
+			++n;
+	char y(inptr[n]);
+	if( x || !(isspace(y) || ispunct(y) || y == '\n' || !y ))
+		return false;
+	inptr += n;
+	while( *inptr && (isspace(*inptr)))
+		++inptr;
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 bool iscommand( const char *&inptr, const __FlashStringHelper *cmd )
 {
 	PGM_P p = reinterpret_cast<PGM_P>(cmd);

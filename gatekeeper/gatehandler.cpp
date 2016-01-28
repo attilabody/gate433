@@ -164,7 +164,9 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 	uint16_t	mod( g_t.min + g_t.hour * 60 );
 	uint8_t		dow( 1<<(g_t.wday - 1));
 	if( !m_db.getParams(id, rec ) )
-		return GRANTED;
+		return ret;
+	if( rec.days & 0x80 )
+		return ret;
 
 	if( !rec.in_start && !rec.in_end )
 		ret = UNREGISTERED;
