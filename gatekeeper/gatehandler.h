@@ -24,9 +24,7 @@ public:
 	gatehandler( database &db
 			, trafficlights &lights
 			, inductiveloop &loop
-			, LiquidCrystal_I2C &lcd
-			, bool enforcepos
-			, bool enforcedt );
+			, LiquidCrystal_I2C &lcd );
 	char loop( unsigned long currmillis );
 
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
@@ -54,8 +52,6 @@ protected:
 	trafficlights		&m_lights;
 	inductiveloop		&m_indloop;
 	LiquidCrystal_I2C	&m_lcd;
-	bool				m_enforcepos;
-	bool				m_enforcedt;
 
 //		char					m_lcdbuf[LCD_WIDTH + 1];
 	STATUS					m_status;

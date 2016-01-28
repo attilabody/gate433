@@ -1,6 +1,6 @@
 #include "database.h"
 #include "interface.h"
-#define VERBOSE
+//#define VERBOSE
 
 //////////////////////////////////////////////////////////////////////////////
 database::dbrecord::dbrecord()
@@ -44,7 +44,7 @@ bool database::dbrecord::parse( const char* &dbstring )
 		in_start = -1;
 		return false;
 	} else {
-		days = sflags & 0x7f;
+		days = sflags;
 		position = (POSITION)(dflags & 3);
 		return true;
 	}

@@ -73,7 +73,7 @@ void setup()
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	static gatehandler	handler( g_db, g_lights, g_indloop, g_lcd, ENFORCE_POS, ENFORCE_DT );
+	static gatehandler	handler( g_db, g_lights, g_indloop, g_lcd );
 	unsigned long		now( millis() );
 
 
@@ -127,7 +127,7 @@ void setuprelaypins( const uint8_t *pins, uint8_t size )
 
 //////////////////////////////////////////////////////////////////////////////
 const char PROGMEM CMD_GET[] = "get";
-const char PROGMEM CMD_SET[] = "get";
+const char PROGMEM CMD_SET[] = "set";
 const char PROGMEM CMD_EXP[] = "exp";
 const char PROGMEM CMD_IMP[] = "imp";
 const char PROGMEM CMD_DMP[] = "dmp";
@@ -142,6 +142,7 @@ void processinput()
 {
 	const char	*inptr( g_iobuf );
 
+	Serial.print( CMNT );
 	Serial.println( g_iobuf );
 
 	if( iscommand( inptr, CMD_GET )) {

@@ -6,8 +6,9 @@
  */
 #include "decode433.h"
 
-volatile bool 		g_codeready( false ), g_lrready( false );
+volatile bool 		g_codeready( false ), g_code2ready( false );//, g_lrready( false );
 volatile uint16_t 	g_code(-1);
+volatile uint16_t 	g_code2(-1);
 volatile uint16_t 	g_lrcode(-1);
 volatile uint32_t 	g_codetime( 0 );
 volatile uint32_t 	g_lastedge;
@@ -92,8 +93,13 @@ void isr()
 				g_code = code;
 				g_codeready = true;
 			}
+			if( !g_code2ready ) {
+				g_code2 = code;
+				g_code2ready = true;
+			}
+
 			g_lrcode = code;
-			g_lrready = true;
+			//g_lrready = true;
 			g_codetime = lastedge;
 #ifdef FAILSTATS
 			g_stats.stopdeltat = deltat;

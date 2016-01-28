@@ -22,15 +22,11 @@ const char *gatehandler::m_authcodes("GUDTP");
 gatehandler::gatehandler( database &db
 			, trafficlights &lights
 			, inductiveloop &loop
-			, LiquidCrystal_I2C &lcd
-			, bool enforcepos
-			, bool enforcedt )
+			, LiquidCrystal_I2C &lcd )
 : m_db( db )
 , m_lights( lights )
 , m_indloop( loop )
 , m_lcd( lcd )
-, m_enforcepos( enforcepos )
-, m_enforcedt( enforcedt )
 , m_status( WAITSETTLE )
 , m_tlstatus( trafficlights::OFF )
 , m_ilstatus( inductiveloop::NONE )
@@ -50,6 +46,15 @@ char gatehandler::loop( unsigned long currmillis )
 	bool	ilchanged((ilstatus != m_ilstatus) || (conflict != m_conflict ));
 	bool	inner( ilstatus == inductiveloop::INNER );
 	char	ret( 0 );
+
+	if( g_code2ready ) {
+		uint16_t	id( g_code2 >> 2 );
+		if( id >= GODMODE_MIN && id <= GODMODE_MAX ) {
+			g_i2cio.write( PIN_GATE, RELAY_ON );
+			m_openstart = currmillis ? currmillis : 1;
+		}
+		g_code2ready = false;
+	}
 
 	if( ilchanged ) {
 #ifdef VERBOSE

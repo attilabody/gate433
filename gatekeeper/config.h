@@ -10,7 +10,6 @@
 
 //#define VERBOSE
 //#define DBGSERIALIN
-//#define ENFORCING
 
 #define BAUDRATE 115200
 
@@ -33,8 +32,10 @@
 #define LCD_WIDTH	16		//	in characters
 #define LCD_HEIGHT	2		//	in lines
 
-#define	ENFORCE_POS	false	//	enforce position requirements
-#define	ENFORCE_DT	true	//	enforce date-time requirements
+//to disable godmode, simply define GODMODE_MIN/_MAX above possible maximum (1023)
+#define	GODMODE_MIN 0x3f8
+#define	GODMODE_MAX 0x3ff
+//#define ENFORCING
 
 #define GATE_OPEN_PULSE_WIDTH	1000
 
