@@ -1,362 +1,147 @@
-#Sun Nov 08 12:22:49 CET 2015
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_closing_paren_in_cast=insert
-@org.eclipse.ui.editors=3.8.200.v20140401-1310
-@org.eclipse.debug.ui=3.10.2.v20141014-1039
-/instance/org.eclipse.core.resources/pathvariable.ArduinoLibPath=/opt/arduino-1.6.5-r5/libraries
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_colon_in_case=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_colon_in_conditional=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_question_in_conditional=insert
-/instance/org.eclipse.cdt.ui.prj-interface/buildConsole/keepLog=true
-/instance/org.eclipse.cdt.core.prj-gatelogic/indexer/preferenceScope=0
-@org.eclipse.egit.core=3.4.2.201412180340-r
-/instance/it.baeyens.arduino/FsStatus=67
-/instance/org.eclipse.cdt.dsf.ui/useAnnotationsPrefPage=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_catch=do not insert
-/instance/org.eclipse.ui.views.log/groupBy=0
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.compliance=1.8
-/instance/org.eclipse.ui.ide/EXIT_PROMPT_ON_CLOSE_LAST_WINDOW=false
-@org.eclipse.mylyn.monitor.ui=3.14.2.v20150217-2244
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_brace_in_namespace_declaration=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_before_else_in_if_statement=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.format_guardian_clause_on_one_line=false
-/instance/org.eclipse.ui.editors/lineNumberRuler=true
-/instance/org.eclipse.rse.core/org.eclipse.rse.systemtype.local.systemType.defaultUserId=compi
-/instance/org.eclipse.jsch.core/org.eclipse.jsch.core.hasMigratedSsh2Preferences=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.keep_empty_array_initializer_on_one_line=false
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_between_empty_parens_in_method_declaration=do not insert
-/configuration/org.eclipse.ui.ide/SHOW_WORKSPACE_SELECTION_DIALOG=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_method_invocation=do not insert
-@org.eclipse.core.runtime=3.10.0.v20140318-2214
-/instance/org.eclipse.ui.ide/quickStart=false
-/instance/org.eclipse.cdt.managedbuilder.core/properties/tst.null.929920830/it.baeyens.arduino.core.toolChain.release.698182597=it.baeyens.arduino.tool.sketch.compiler.s.735725611\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.1762659167\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.2077385185\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1049778164\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.698182597\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.1427485023\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.1695399666\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.1729634314\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.112760870\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.1837423418\=rebuildState\\\=false\\n\n
-/instance/it.baeyens.arduino/Private\ hardware\ Path=/home/compi/Arduino/hardware
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_base_types=insert
-/instance/org.eclipse.jdt.ui/org.eclipse.jface.textfont=1|Monospace|10.0|0|GTK|1|;
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_colon_in_base_clause=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_colon_in_labeled_statement=insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatelogic.null.440951620/it.baeyens.arduino.core.toolChain.release.2094566775=it.baeyens.arduino.tool.size.1084549855\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1325364162\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1751147325\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.452893329\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.2086517620\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1286490789\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.443256272\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.2094566775\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.2144752882\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.718557460\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_before_closing_brace_in_array_initializer=do not insert
-/instance/it.baeyens.arduino/Arduino\ Custom\ Option\ Selections=
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.lineSplit=80
-/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_MAC_METHODS=hmac-md5,hmac-sha1,hmac-sha2-256,hmac-sha1-96,hmac-md5-96
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.tabulation.size=4
-/instance/org.eclipse.cdt.ui.prj-433sweep/buildConsole/keepLog=true
-/instance/it.baeyens.arduino/JANTJE.TEMPLATE_FOLDER=
-/instance/org.eclipse.core.resources/version=1
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_between_empty_parens_in_exception_specification=do not insert
-@org.eclipse.ui=3.106.1.v20141002-1150
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_brace_in_method_declaration=insert
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_conditional_expression_chain=18
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_after_template_declaration=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_template_parameters=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_in_empty_block=insert
+#Thu Jan 28 15:26:11 CET 2016
 /instance/it.baeyens.arduino/JANTJE.TEMPLATE_USE_DEFAULT=1
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.continuation_indentation_for_array_initializer=2
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_before_while_in_do_statement=do not insert
-/instance/org.eclipse.debug.ui/preferredTargets=org.eclipse.cdt.debug.ui.toggleCBreakpointTarget,org.eclipse.cdt.debug.ui.toggleCDynamicPrintfTarget\:org.eclipse.cdt.debug.ui.toggleCBreakpointTarget|
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_brace_in_switch=insert
-/instance/org.eclipse.debug.core//org.eclipse.debug.core.PREFERRED_DELEGATES/org.eclipse.cdt.launch.attachLaunchType=org.eclipse.cdt.dsf.gdb.launch.attachCLaunch,debug,;
-/instance/org.eclipse.ui.editors/overviewRuler_migration=migrated_3.1
-@org.eclipse.mylyn.context.core=3.14.2.v20150218-0125
-/instance/org.eclipse.ui.workbench/UIActivities.org.eclipse.cdt.debug.dsfgdbActivity=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_expression_list=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_while=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_statements_compare_to_body=true
-@org.eclipse.cdt.dsf.ui=2.5.0.201502131403
-/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_AUTH_METHODS_ORDER=gssapi-with-mic,publickey,password,keyboard-interactive
-/instance/org.eclipse.cdt.ui/formatter_profile=org.eclipse.cdt.ui.default.allman_profile
-/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_MAC_METHODS_ORDER=hmac-md5,hmac-sha1,hmac-sha2-256,hmac-sha1-96,hmac-md5-96
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_for=insert
-/instance/org.eclipse.rse.ui/org.eclipse.rse.preferences.order.connections=lothiriel.Local
-@org.eclipse.rse.ui=3.3.100.201408221458
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_member_access=0
-/instance/org.eclipse.cdt.ui/editor_folding_preprocessor_enabled=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_enum_declarations=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_for=do not insert
-/configuration/org.eclipse.ui.ide/RECENT_WORKSPACES=/home/compi/work/gate433-2\n/home/compi/work/gate433\n/home/compi/workspace
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_brace_in_array_initializer=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_cast=do not insert
-/instance/org.eclipse.cdt.ui/spelling_locale_initialized=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_between_empty_brackets=do not insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/SdFatTest.null.1449094200/it.baeyens.arduino.core.toolChain.release.1292746965=it.baeyens.arduino.tool.sketch.compiler.cpp.830999418\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.2139190379\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.639482434\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.435028516\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1677474520\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.728339437\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.574926537\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.1327616452\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1622663993\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.37441421\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.1984608677\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.345471716\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.648322158\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1053716686\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1292746965\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.2047705620\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.883837432\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.2029833671\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1574290110\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.738822142\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.894781128\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.208625681\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.332244618\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1449450837\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.203203893\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.575947593\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1730608245\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.43993258\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.180295043\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1999939359\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1290122741\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1039110555\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1107855265\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.405619256\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.1868213602\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1444965154\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.831734059\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1861330045\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.92829690\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1197373065\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1229291328\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.563095746\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.121535128\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.1283314808\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.1797636133\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1601270566\=rebuildState\\\=false\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_angle_bracket_in_template_arguments=do not insert
-/instance/it.baeyens.arduino/Arduino\ Path=/opt/arduino-1.6.5-r5
-/instance/org.eclipse.cdt.core.prj-gatelogic_test/indexer/preferenceScope=0
-/instance/org.eclipse.cdt.debug.core/org.eclipse.cdt.debug.core.cDebug.default_source_containers=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<sourceLookupDirector>\n<sourceContainers duplicates\="false">\n<container memento\="AbsolutePath" typeId\="org.eclipse.cdt.debug.core.containerType.absolutePath"/>\n<container memento\="programRelativePath" typeId\="org.eclipse.cdt.debug.core.containerType.programRelativePath"/>\n<container memento\="&lt;?xml version\=&quot;1.0&quot; encoding\=&quot;UTF-8&quot; standalone\=&quot;no&quot;?&gt;&\#10;&lt;project referencedProjects\=&quot;true&quot;/&gt;&\#10;" typeId\="org.eclipse.cdt.debug.core.containerType.project"/>\n</sourceContainers>\n</sourceLookupDirector>\n
-/instance/org.eclipse.ui.views.log/orderValue=-1
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_arguments_in_method_invocation=16
-/instance/it.baeyens.arduino/Serial\ Monitor\ Last\ Used\ Line\ Ending\ index=2
-/instance/it.baeyens.arduino/lFsStatus=1091
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_compact_if=16
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_exception_specification=insert
-/instance/org.eclipse.cdt.ui.prj-interface/buildConsole/logLocation=/home/compi/work/gate433/.metadata/.plugins/org.eclipse.cdt.ui/interface.build.log
-/instance/org.eclipse.cdt.core.prj-codesweep/indexer/preferenceScope=0
-/instance/org.eclipse.jdt.ui/org.eclipse.jdt.internal.ui.navigator.layout=2
-/instance/org.eclipse.debug.ui/org.eclipse.debug.ui.switch_perspective_on_suspend=always
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.enumIdentifier=error
-@org.eclipse.team.cvs.ui=3.3.600.v20130514-1224
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_switch=insert
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source=1.8
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.number_of_empty_lines_to_preserve=1
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_throws_clause_in_method_declaration=16
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatelogic.null.1664978491/it.baeyens.arduino.core.toolChain.release.1052410275=it.baeyens.arduino.core.toolChain.release.820976381\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1858396440\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.62108754\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.485464642\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.2044920464\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1824878171\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.657655718\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1241905938\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1483720211\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_before_catch_in_try_statement=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_semicolon_in_for=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_unary_operator=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.comment.min_distance_between_code_and_line_comment=1
-@org.eclipse.cdt.managedbuilder.core=8.3.0.201502131403
-/instance/org.eclipse.ui.ide/platformState=1443381992185
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_declarator_list=16
-/instance/it.baeyens.arduino/Arduino\ Board=Arduino Nano
-/instance/it.baeyens.arduino/Build\ before\ upload\ option=YES
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_switch=do not insert
-/instance/org.eclipse.mylyn.tasks.ui/org.eclipse.mylyn.tasks.ui.filters.nonmatching=true
-/instance/org.eclipse.ui.ide/IMPORT_FILES_AND_FOLDERS_RELATIVE=true
-/instance/org.eclipse.mylyn.tasks.ui/migrated.task.repositories.secure.store=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_binary_expression=16
-/instance/org.eclipse.ui.ide/SWITCH_PERSPECTIVE_ON_PROJECT_CREATION=always
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.use_tabs_only_for_leading_indentations=false
-/instance/org.eclipse.ui.views.log/activate=true
-/instance/org.eclipse.jdt.ui/proposalOrderMigrated=true
-/instance/org.eclipse.debug.core//org.eclipse.debug.core.PREFERRED_DELEGATES/org.eclipse.cdt.launch.remoteApplicationLaunchType=org.eclipse.rse.remotecdt.dsf.debug,debug,;
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_template_arguments=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.brace_position_for_switch=next_line
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_after_opening_brace_in_array_initializer=do not insert
-@org.eclipse.jdt.core=3.10.2.v20150120-1634
-/instance/org.eclipse.ui.views.log/show_filter_text=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_parenthesized_expression=do not insert
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.assertIdentifier=error
-@org.eclipse.debug.core=3.9.1.v20140805-1629
-/instance/org.eclipse.cdt.core.prj-SdFatTest/indexer/preferenceScope=0
-/instance/org.eclipse.mylyn.tasks.ui/org.eclipse.mylyn.tasks.ui.filters.nonmatching.encouraged=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_statements_compare_to_block=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.comment.preserve_white_space_between_code_and_line_comments=true
-/instance/org.eclipse.debug.ui/org.eclipse.debug.ui.MemoryView.orientation=0
-/instance/org.eclipse.ui/showIntro=false
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.keep_else_statement_on_same_line=false
-@org.eclipse.mylyn.tasks.ui=3.14.2.v20150217-2341
-@org.eclipse.jsch.core=1.1.500.v20131112-1442
-@org.eclipse.team.ui=3.7.100.v20130710-1213
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_angle_bracket_in_template_parameters=do not insert
-/configuration/org.eclipse.ui.ide/MAX_RECENT_WORKSPACES=5
-/instance/org.eclipse.cdt.core.prj-serialspy/indexer/preferenceScope=0
-/instance/org.eclipse.cdt.managedbuilder.core/properties/serialspy.null.1359142231/it.baeyens.arduino.core.toolChain.release.1405078971=it.baeyens.arduino.tool.combine.1849848603\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.343114600\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1682639375\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.1365075254\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.268657025\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.641040258\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.2114775443\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.657322572\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1405078971\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1448641091\=rebuildState\\\=false\\n\n
-@org.eclipse.core.resources=3.9.1.v20140825-1431
-/instance/org.eclipse.cdt.core.prj-interface/indexer/preferenceScope=0
-/instance/org.eclipse.cdt.ui/content_assist_disabled_computers=org.eclipse.cdt.ui.textProposalCategory\u0000org.eclipse.cdt.ui.parserProposalCategory\u0000
-/instance/it.baeyens.arduino/Arduino\ IDE\ Version=1.6.5-r5
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_angle_bracket_in_template_parameters=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.brace_position_for_block=next_line
-/instance/org.eclipse.egit.core/GitRepositoriesView.GitDirectories=/home/compi/work/gate433/interface_test/.git\:/home/compi/work/gate433-2/gendb/.git\:/home/compi/work/gate433-2/gate433/.git\:/home/compi/git/interface_test/.git\:/home/compi/work/gate433/interface/.git\:/home/compi/work/gate433/serialspy/.git\:/home/compi/work/gate433/gatelogic/.git\:
-/instance/org.eclipse.cdt.core/macros/workspace=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<macros/>\n
-/instance/org.eclipse.cdt.ui.prj-interface_test/buildConsole/keepLog=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_between_empty_braces_in_array_initializer=do not insert
-@org.eclipse.cdt.core=5.9.1.201502131403
-/instance/org.eclipse.jdt.launching/org.eclipse.jdt.launching.PREF_VM_XML=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<vmSettings defaultVM\="57,org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType13,1443876912290">\n<vmType id\="org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType">\n<vm id\="1443876912290" name\="java-8-openjdk-amd64" path\="/usr/lib/jvm/java-8-openjdk-amd64"/>\n</vmType>\n</vmSettings>\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_method_declaration=do not insert
-/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_KEX_METHODS=diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256
-/instance/org.eclipse.core.resources/pathvariable.ArduinoPivateLibPath=/home/compi/Arduino/libraries
-/instance/org.eclipse.ui.views.log/orderType=2
-/configuration/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_assignment=16
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_brace_in_array_initializer=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_switchstatements_compare_to_switch=false
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_colon_in_case=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_switch=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_catch=insert
-@org.eclipse.ui.ide=3.10.2.v20141118-1227
-/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.editor.tab.width=
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_colon_in_labeled_statement=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_angle_bracket_in_template_arguments=do not insert
-/instance/org.eclipse.jdt.ui/useQuickDiffPrefPage=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_array_initializer=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_method_invocation=do not insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatedemo.null.1717182492/it.baeyens.arduino.core.toolChain.release.2123690429=it.baeyens.arduino.tool.objcopy.eep.518383413\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.1345488482\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.497557010\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1923361843\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1390438271\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.2123690429\=rcState\\\=-1\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.2095726405\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.845774267\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.696720285\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.38187327\=rebuildState\\\=false\\n\n
-/instance/org.eclipse.jdt.ui/spelling_locale_initialized=true
-/instance/it.baeyens.arduino/FuStatus=343
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatedemo_test.cdt.managedbuild.target.gnu.exe.2101938564/cdt.managedbuild.config.gnu.exe.release.1542936823=cdt.managedbuild.toolchain.gnu.exe.release.110732811\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.release.207972935\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.assembler.exe.release.1503070056\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.1969562272\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.release.1192935653\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.release.705668377\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1031509573\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.ui/formatter_settings_version=1
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_body_declarations_compare_to_namespace_header=false
-/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_AUTH_METHODS=gssapi-with-mic,publickey,password,keyboard-interactive
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_body_declarations_compare_to_access_specifier=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_before_colon_in_constructor_initializer_list=do not insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/interface_test.cdt.managedbuild.target.gnu.exe.159098723/cdt.managedbuild.config.gnu.exe.release.704880228=cdt.managedbuild.tool.gnu.assembler.exe.release.1996880029\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.release.24778816\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.1522988629\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.release.1719854481\=rebuildState\\\=true\\n\ncdt.managedbuild.toolchain.gnu.exe.release.1423620305\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.release.977794863\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.release.574880242\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indentation.size=4
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_access_specifier_extra_spaces=0
-/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_KEX_METHODS_ORDER=diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256
-/instance/it.baeyens.arduino/FuStatub=649
-/instance/org.eclipse.ui.ide/IMPORT_FILES_AND_FOLDERS_TYPE=23,4
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_closing_brace_in_block=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_base_clause_in_type_declaration=80
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_exception_specification=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.join_wrapped_lines=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_brace_in_type_declaration=insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/geninfofile.cdt.managedbuild.target.gnu.exe.69067163/cdt.managedbuild.config.gnu.exe.release.833117969=cdt.managedbuild.tool.gnu.c.linker.exe.release.57119652\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.release.819864897\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.assembler.exe.release.923161584\=rebuildState\\\=true\\n\ncdt.managedbuild.toolchain.gnu.exe.release.512295489\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.release.1933385457\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.release.817341672\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.849856997\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.ui.ide/PROBLEMS_FILTERS_MIGRATE=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_declarator_list=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_template_arguments=do not insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/tftdemo.null.1005132500/it.baeyens.arduino.core.toolChain.release.1641855427=it.baeyens.arduino.tool.sketch.compiler.cpp.1138349354\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.1989089461\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.40817510\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1641855427\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1157314368\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.336397103\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.951090271\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.736625492\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1498339410\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.41347757\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.debug.core//org.eclipse.debug.core.PREFERRED_DELEGATES/org.eclipse.cdt.launch.applicationLaunchType=org.eclipse.cdt.dsf.gdb.launch.localCLaunch,debug,;org.eclipse.cdt.cdi.launch.localCLaunch,run,;
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_colon_in_conditional=insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/tftdemo.null.1592559537/it.baeyens.arduino.core.toolChain.release.210315002=it.baeyens.arduino.tool.sketch.compiler.cpp.996838436\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1274752555\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.392456030\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1492102336\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.124289468\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.210315002\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.440285834\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.573052036\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1121609335\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.346765178\=rebuildState\\\=true\\n\n
-@org.eclipse.ui.views.log=1.0.500.v20140512-1221
-\!/=
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_method_invocation=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.brace_position_for_method_declaration=next_line
-/instance/org.eclipse.jdt.ui/tabWidthPropagated=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_breaks_compare_to_cases=true
-/instance/org.eclipse.cdt.managedbuilder.core/properties/geninfofile.cdt.managedbuild.target.gnu.exe.228839535/cdt.managedbuild.config.gnu.exe.debug.1991359091=cdt.managedbuild.tool.gnu.assembler.exe.debug.1785785047\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1955550944\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.1010756556\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.1696145621\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1385328983\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.debug.115744106\=rebuildState\\\=true\\n\ncdt.managedbuild.toolchain.gnu.exe.debug.1299540978\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_enum_declarations=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.brace_position_for_type_declaration=next_line
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_catch=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_method_declaration=do not insert
-/instance/org.eclipse.ui.workbench/ENABLED_DECORATORS=org.eclipse.cdt.ui.indexedFiles\:false,org.eclipse.cdt.managedbuilder.ui.excludedFile\:true,org.eclipse.cdt.managedbuilder.ui.includeFolder\:true,org.eclipse.cdt.internal.ui.CustomBuildSettingsDecorator\:true,org.eclipse.egit.ui.internal.decorators.GitLightweightDecorator\:true,org.eclipse.jdt.ui.override.decorator\:true,org.eclipse.jdt.ui.interface.decorator\:false,org.eclipse.jdt.ui.buildpath.decorator\:true,org.eclipse.mylyn.context.ui.decorator.interest\:true,org.eclipse.mylyn.tasks.ui.decorators.task\:true,org.eclipse.mylyn.team.ui.changeset.decorator\:true,org.eclipse.rse.core.virtualobject.decorator\:true,org.eclipse.rse.core.binary.executable.decorator\:true,org.eclipse.rse.core.script.executable.decorator\:true,org.eclipse.rse.core.java.executable.decorator\:true,org.eclipse.rse.core.library.decorator\:true,org.eclipse.rse.core.link.decorator\:true,org.eclipse.rse.subsystems.error.decorator\:true,org.eclipse.team.cvs.ui.decorator\:true,org.eclipse.ui.LinkedResourceDecorator\:true,org.eclipse.ui.SymlinkDecorator\:true,org.eclipse.ui.VirtualResourceDecorator\:true,org.eclipse.ui.ContentTypeDecorator\:true,org.eclipse.ui.ResourceFilterDecorator\:false,
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_expressions_in_array_initializer=16
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_binary_operator=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_cast=do not insert
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.classpathVariable.JRE_SRC=
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_while=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_prefix_operator=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_access_specifier_compare_to_type_header=false
-/instance/org.eclipse.cdt.ui/editor_folding_statements=true
-/instance/org.eclipse.jsch.core/PRIVATEKEY=id_dsa,id_rsa,git_rsa,lmistash_rsa
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_empty_lines=false
-/instance/org.eclipse.core.resources/description.autobuilding=false
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_angle_bracket_in_template_arguments=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_parameters_in_method_declaration=16
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_at_end_of_file_if_missing=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_brace_in_array_initializer=insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatelogic.null.1664978491/cdt.managedbuild.config.gnu.exe.debug.1844616542=cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1812116820\=rebuildState\\\=true\\n\ncdt.managedbuild.toolchain.gnu.exe.debug.1280781988\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.1931985968\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.941483056\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.debug.2140756322\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.1428900148\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.assembler.exe.debug.1248261917\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.ui/org.eclipse.cdt.ui.text.custom_code_templates=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><templates/>
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_binary_operator=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_prefix_operator=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.continuation_indentation=2
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_semicolon_in_for=do not insert
-/instance/org.eclipse.rse.core/useridperkey=lothiriel.Local\=compi;
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_if=insert
-/instance/org.eclipse.jdt.ui/content_assist_proposals_foreground=33,33,33
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_expression_list=0
-/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.formatterprofiles.version=12
-/instance/org.eclipse.mylyn.monitor.ui/org.eclipse.mylyn.monitor.activity.tracking.enabled.checked=true
-@org.eclipse.cdt.mylyn.ui=3.14.2.v20150218-0125
-/instance/org.eclipse.debug.ui/preferredDetailPanes=NumberFormatPane\:NumberFormatPane|DefaultDetailPane\:DefaultDetailPane|
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_bracket=do not insert
-@org.eclipse.ui.workbench=3.106.2.v20150204-1030
-/instance/it.baeyens.arduino/Arduino\ boards\ file=/opt/arduino-1.6.5-r5/hardware/arduino/avr/boards.txt
-/instance/org.eclipse.egit.ui/commit_dialog_history_messages=<?xml version\="1.0" encoding\="UTF-8"?>\n<messages>\n<message>initial commit</message>\n<message>project created</message>\n<message>fixing eclipse build</message>\n<message>gatedemo_test created</message>\n<message>Project created</message>\n</messages>
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_method_declaration_parameters=do not insert
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.classpathVariable.JRE_SRCROOT=
-/instance/org.eclipse.cdt.ui.prj-433sweep/buildConsole/logLocation=/home/compi/work/gate433/.metadata/.plugins/org.eclipse.cdt.ui/433sweep.build.log
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_new_line_before_identifier_in_function_declaration=do not insert
-/instance/org.eclipse.debug.core/prefWatchExpressions=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<watchExpressions/>\n
-@org.eclipse.cdt.ui=5.9.0.201502131403
-/instance/org.eclipse.cdt.managedbuilder.core/properties/tftdemo.null.1794711560/it.baeyens.arduino.core.toolChain.release.566175960=it.baeyens.arduino.tool.ar.171185375\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.513482053\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.666745411\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.566175960\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1718120687\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1606528068\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1802891471\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1429261894\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1671776768\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1657068057\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1562827234\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.336814815\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.2133055748\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.345855530\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1437469041\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.989479845\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.1132770853\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.705890408\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.131722738\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1185630370\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1978572184\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1609118161\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.2061160438\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1358913036\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1510878249\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1936088577\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.302963260\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.289998558\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.977446351\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1238049411\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1633733881\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1830119944\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1771785885\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.851674194\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1940917398\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1028989799\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1097154544\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_parenthesized_expression=do not insert
-/instance/org.eclipse.ui.views.log/column4=2393
-/instance/org.eclipse.ui.views.log/column3=150
-/instance/org.eclipse.ui.views.log/column2=607
-@org.eclipse.jdt.ui=3.10.2.v20141014-1419
-/instance/org.eclipse.cdt.ui/org.eclipse.cdt.ui.text.templates.custom=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><templates/>
-/instance/it.baeyens.arduino/Arduino\ Programmer=Default
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_for=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_method_declaration=do not insert
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.classpathVariable.JRE_LIB=/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar
-/instance/it.baeyens.arduino/Arduino\ Port=/dev/ttyUSB0
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_bracket=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_while=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_method_declaration_throws=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_base_types=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_array_initializer=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_if=do not insert
-@org.eclipse.cdt.debug.core=7.6.0.201502131403
-/instance/org.eclipse.cdt.ui/useAnnotationsPrefPage=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.tabulation.char=tab
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_conditional_expression=34
+@org.eclipse.core.runtime=3.10.0.v20140318-2214
 /instance/org.eclipse.mylyn.context.core/mylyn.attention.migrated=true
-/configuration/org.eclipse.ui.ide/RECENT_WORKSPACES_PROTOCOL=3
-/instance/org.eclipse.jdt.ui/useAnnotationsPrefPage=true
-/instance/org.eclipse.team.ui/org.eclipse.team.ui.first_time=false
-/instance/org.eclipse.search/org.eclipse.search.defaultPerspective=org.eclipse.search.defaultPerspective.none
-file_export_version=3.0
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.compact_else_if=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_colon_in_base_clause=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_declarator_list=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_overloaded_left_shift_chain=16
-@org.eclipse.jdt.launching=3.7.102.v20141111-0953
-/instance/it.baeyens.arduino/Serial\ Monitor\ Last\ Used\ auto\ scroll\ setting=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_angle_bracket_in_template_parameters=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_exception_specification=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_method_invocation_arguments=do not insert
-/instance/it.baeyens.arduino/Private\ Library\ Path=/home/compi/Arduino/libraries
-/instance/org.eclipse.core.resources/pathvariable.ArduinoPath=/opt/arduino-1.6.5-r5
-/instance/org.eclipse.core.resources/pathvariable.ArduinoPrivateLibPath=/home/compi/Arduino/libraries
-@org.eclipse.rse.core=3.3.100.201407181907
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_closing_angle_bracket_in_template_parameters=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_method_declaration_parameters=insert
+/instance/org.eclipse.ui.ide/EXIT_PROMPT_ON_CLOSE_LAST_WINDOW=false
+/instance/org.eclipse.mylyn.tasks.ui/migrated.task.repositories.secure.store=true
+/instance/org.eclipse.ui.views.log/activate=true
+@org.eclipse.rse.ui=3.3.100.201408221458
+/instance/org.eclipse.ui.ide/platformState=1447082889390
+@org.eclipse.ui.ide=3.10.2.v20141118-1227
+/instance/org.eclipse.cdt.ui/editor_folding_preprocessor_enabled=true
 /instance/org.eclipse.core.runtime/content-types/org.eclipse.cdt.core.cxxSource/file-extensions=ino,pde
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_method_invocation_arguments=insert
-/instance/org.eclipse.jdt.ui/fontPropagated=true
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatelogic.null.1664978491/it.baeyens.arduino.core.toolChain.release.573214013=it.baeyens.arduino.core.toolChain.release.15471753\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.659495173\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.720145318\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.594016589\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.1437960695\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.148957830\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1097379431\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.985935824\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.573214013\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.2141183153\=rebuildState\\\=false\\n\n
-/instance/it.baeyens.arduino/Serial\ monitor\ last\ selected\ rate=57600
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_brace_in_block=insert
-/instance/it.baeyens.arduino/FmStatus=57
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatedemo.null.1717182492/it.baeyens.arduino.core.toolChain.release.1052410275=it.baeyens.arduino.tool.compiler.c.1241905938\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.943634448\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1824878171\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.2044920464\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.657655718\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.1525106608\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1052410275\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.198564914\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1826493835\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.723266992\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.603703904\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1858396440\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.711259269\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1483720211\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.485464642\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.533681661\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.62108754\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.1611646844\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.820976381\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_postfix_operator=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_constructor_initializer_list=0
-/instance/org.eclipse.cdt.managedbuilder.core/properties/interface_test.cdt.managedbuild.target.gnu.exe.159098723/cdt.managedbuild.config.gnu.exe.debug.1813946733=cdt.managedbuild.tool.gnu.c.linker.exe.debug.792314514\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.archiver.base.245253715\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1962468032\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.assembler.exe.debug.177643397\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.1221145848\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.2030487181\=rebuildState\\\=false\\n\ncdt.managedbuild.toolchain.gnu.exe.debug.916619071\=rebuildState\\\=false\\n\ncdt.managedbuild.config.gnu.exe.debug.1813946733\=rcState\\\=0\\nrebuildState\\\=false\\n\n
-/instance/org.eclipse.debug.core//org.eclipse.debug.core.PREFERRED_DELEGATES/org.eclipse.cdt.launch.postmortemLaunchType=org.eclipse.cdt.dsf.gdb.launch.coreCLaunch,debug,;
-/instance/org.eclipse.jdt.ui/content_assist_proposals_background=252,252,252
-/instance/org.eclipse.ui.ide/tipsAndTricks=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_between_empty_parens_in_method_invocation=do not insert
-/instance/org.eclipse.cdt.ui/editor_folding_default_inactive=true
-/instance/org.eclipse.cdt.managedbuilder.core/properties/iface.null.961616760/it.baeyens.arduino.core.toolChain.release.844934556=it.baeyens.arduino.core.toolChain.release.844934556\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.450909890\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.117194562\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.1120140767\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.2117617473\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.2121767805\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1959758507\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.246779625\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.153776460\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1094691834\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.alignment_for_enumerator_list=48
-/instance/org.eclipse.debug.ui/org.eclipse.debug.ui.PREF_LAUNCH_PERSPECTIVES=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<launchPerspectives/>\n
-/instance/org.eclipse.cdt.managedbuilder.core/properties/geninfofile.cdt.managedbuild.target.gnu.exe.2136923446/cdt.managedbuild.config.gnu.exe.debug.702646730=cdt.managedbuild.toolchain.gnu.exe.debug.1341623712\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.assembler.exe.debug.708741666\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1517191106\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.1598777933\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.debug.74613160\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.115727876\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1668226020\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.brace_position_for_block_in_case=next_line
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatedemo_test.cdt.managedbuild.target.gnu.exe.2101938564/cdt.managedbuild.config.gnu.exe.debug.117071381=cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.426356226\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.assembler.exe.debug.588047665\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1169385380\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.debug.1381400365\=rebuildState\\\=false\\n\ncdt.managedbuild.config.gnu.exe.debug.117071381\=rcState\\\=0\\nrebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.1467910264\=rebuildState\\\=false\\n\ncdt.managedbuild.toolchain.gnu.exe.debug.865921688\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.archiver.base.1021347323\=rebuildState\\\=false\\n\n
-/instance/org.eclipse.cdt.managedbuilder.core/properties/interface.null.684561153/it.baeyens.arduino.core.toolChain.release.148898355=it.baeyens.arduino.tool.objcopy.flash.458507853\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1883958576\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.750292612\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1717778883\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.811772490\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1551366509\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.719891206\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.366650890\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.618863787\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.304804170\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1970767769\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.2007397571\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.999039596\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.2042776896\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1974105619\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1687556049\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.300549592\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.13823391\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.716420881\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.1595576081\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.421977952\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1547326259\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1531046417\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.2101527053\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1614214431\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.148898355\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.495016078\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.883175355\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.33832318\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.2050658111\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1236677071\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.636416181\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1935350304\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.737180749\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.267589645\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.1728534817\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.470871939\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1250920897\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1550094433\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1160117566\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.919053812\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.293803625\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1496404732\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.126869770\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.1254770821\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.204626455\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.mylyn.ui/org.eclipse.mylyn.cdt.ui.run.count.3_3_0=1
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_switchstatements_compare_to_cases=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.brace_position_for_array_initializer=next_line
-/instance/org.eclipse.cdt.managedbuilder.core/properties/433sweep.null.1788097625/it.baeyens.arduino.core.toolChain.release.1111926986=it.baeyens.arduino.tool.objcopy.flash.747833776\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.726081568\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1111926986\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.2016389380\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.2084715677\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.440727652\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.1223914567\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.36375628\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1156243021\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.2077511619\=rebuildState\\\=false\\n\n
-/instance/org.eclipse.cdt.ui.prj-interface_test/buildConsole/logLocation=/home/compi/work/gate433/.metadata/.plugins/org.eclipse.cdt.ui/interface_test.build.log
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_unary_operator=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_closing_angle_bracket_in_template_arguments=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.brace_position_for_namespace_declaration=next_line
-@org.eclipse.search=3.9.100.v20140226-1637
-/instance/org.eclipse.cdt.ui/editor_folding_default_comments=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_opening_paren_in_parenthesized_expression=do not insert
-/instance/org.eclipse.cdt.core.prj-interface_test/indexer/preferenceScope=0
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.comment.never_indent_line_comments_on_first_column=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_template_parameters=insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatedemo_test.cdt.managedbuild.target.gnu.exe.1665764300/cdt.managedbuild.config.gnu.exe.debug.711206814=cdt.managedbuild.tool.gnu.c.linker.exe.debug.462906821\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1615362340\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.975527287\=rebuildState\\\=true\\n\ncdt.managedbuild.toolchain.gnu.exe.debug.2074292114\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.assembler.exe.debug.945082967\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.1889774293\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1278272706\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.team.cvs.ui/pref_first_startup=false
-/instance/org.eclipse.cdt.managedbuilder.core/properties/geninfofile.cdt.managedbuild.target.gnu.exe.69067163/cdt.managedbuild.config.gnu.exe.debug.578281153=cdt.managedbuild.toolchain.gnu.exe.debug.1892329966\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.785573861\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.debug.1034150571\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.archiver.base.718809111\=rebuildState\\\=false\\n\ncdt.managedbuild.config.gnu.exe.debug.578281153\=rcState\\\=0\\nrebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.assembler.exe.debug.1852701220\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.70354111\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.1194832222\=rebuildState\\\=false\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_postfix_operator=do not insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatedemo.null.1717182492/cdt.managedbuild.config.gnu.exe.debug.1844616542=cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1812116820\=rebuildState\\\=true\\n\ncdt.managedbuild.toolchain.gnu.exe.debug.1280781988\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.1931985968\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.941483056\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.debug.2140756322\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.1428900148\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.assembler.exe.debug.1248261917\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_colon_in_default=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_comma_in_expression_list=insert
-/instance/org.eclipse.cdt.managedbuilder.core/properties/ds3231.null.147740503/it.baeyens.arduino.core.toolChain.release.581659230=it.baeyens.arduino.tool.sketch.compiler.s.347634774\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.581659230\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1903712628\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.945602265\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.691383228\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.376346104\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.57599226\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1218225450\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.1384954603\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1261594905\=rebuildState\\\=false\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_assignment_operator=insert
-/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.8
-/instance/org.eclipse.cdt.managedbuilder.core/properties/serialspy.null.2039240634/it.baeyens.arduino.core.toolChain.release.55264829=it.baeyens.arduino.core.toolChain.release.55264829\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.973848541\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.1170012528\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1120605015\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.730922180\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1378347176\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.529800421\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.1002673375\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.384002865\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.1629927804\=rebuildState\\\=false\\n\n
-/instance/org.eclipse.cdt.ui/useQuickDiffPrefPage=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.indent_declaration_compare_to_template_header=false
-/instance/org.eclipse.cdt.managedbuilder.core/properties/gatelogic.null.1664978491/it.baeyens.arduino.core.toolChain.release.2123690429=it.baeyens.arduino.tool.objcopy.eep.518383413\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.1345488482\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.497557010\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.1923361843\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1390438271\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.2095726405\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.845774267\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.696720285\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.38187327\=rebuildState\\\=true\\n\n
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.put_empty_statement_on_new_line=true
-@org.eclipse.egit.ui=3.4.2.201412180340-r
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_assignment_operator=insert
-/instance/org.eclipse.debug.ui/pref_state_memento.org.eclipse.debug.ui.VariableView=<?xml version\="1.0" encoding\="UTF-8"?>\n<VariablesViewMemento org.eclipse.debug.ui.SASH_DETAILS_PART\="315" org.eclipse.debug.ui.SASH_VIEW_PART\="684">\n<COLUMN_SIZES IMemento.internal.id\="org.eclipse.cdt.dsf.ui.COLUMN_ID__NAME" SIZE\="636"/>\n<COLUMN_SIZES IMemento.internal.id\="org.eclipse.cdt.dsf.ui.COLUMN_ID__TYPE" SIZE\="294"/>\n<COLUMN_SIZES IMemento.internal.id\="org.eclipse.cdt.dsf.ui.COLUMN_ID__VALUE" SIZE\="979"/>\n<PRESENTATION_CONTEXT_PROPERTIES IMemento.internal.id\="org.eclipse.debug.ui.VariableView">\n<INTEGER IMemento.internal.id\="initialChildCountLimitForCollections" INTEGER\="100"/>\n<PERSISTABLE IMemento.internal.id\="org.eclipse.cdt.dsf.ui.elementFormatPersistable" PERSISTABLE\="org.eclipse.cdt.dsf.ui.simpleMapPersistableFactory">\n<type>java.lang.String</type>\n<name IMemento.internal.id\="((this)-&gt;days)" value\="HEX.Format"/>\n<name IMemento.internal.id\="((this)-&gt;in_end)" value\="HEX.Format"/>\n<name IMemento.internal.id\="((this)-&gt;out_end)" value\="HEX.Format"/>\n</PERSISTABLE>\n</PRESENTATION_CONTEXT_PROPERTIES>\n</VariablesViewMemento>
-/instance/it.baeyens.arduino/Serial\ monitor\ last\ selected\ Port=/dev/ttyUSB0
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.keep_imple_if_on_one_line=false
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_question_in_conditional=insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_semicolon=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.keep_then_statement_on_same_line=false
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_closing_bracket=do not insert
 /instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.javadoclocations.migrated=true
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_after_opening_paren_in_if=do not insert
-/instance/org.eclipse.cdt.core/org.eclipse.cdt.core.formatter.insert_space_before_comma_in_method_declaration_throws=do not insert
-/instance/org.eclipse.debug.ui/org.eclipse.debug.ui.user_view_bindings=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<viewBindings>\n<view id\="org.eclipse.debug.ui.MemoryView">\n<perspective id\="org.eclipse.debug.ui.DebugPerspective" userAction\="closed"/>\n</view>\n<view id\="org.eclipse.debug.ui.RegisterView">\n<perspective id\="org.eclipse.debug.ui.DebugPerspective" userAction\="closed"/>\n</view>\n<view id\="org.eclipse.debug.ui.ModuleView">\n<perspective id\="org.eclipse.debug.ui.DebugPerspective" userAction\="closed"/>\n</view>\n<view id\="org.eclipse.debug.ui.VariableView">\n<perspective id\="org.eclipse.debug.ui.DebugPerspective" userAction\="closed"/>\n</view>\n<view id\="org.eclipse.debug.ui.DebugView">\n<perspective id\="org.eclipse.debug.ui.DebugPerspective" userAction\="closed"/>\n</view>\n<view id\="org.eclipse.debug.ui.BreakpointView">\n<perspective id\="org.eclipse.debug.ui.DebugPerspective" userAction\="closed"/>\n</view>\n<view id\="org.eclipse.ui.console.ConsoleView">\n<perspective id\="org.eclipse.debug.ui.DebugPerspective" userAction\="closed"/>\n</view>\n</viewBindings>\n
-/instance/org.eclipse.ui.ide/SAVE_ALL_BEFORE_BUILD=true
+/instance/org.eclipse.cdt.managedbuilder.core/properties/s.null.1896131818/it.baeyens.arduino.core.toolChain.release.1747219767=it.baeyens.arduino.tool.ar.185948143\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.1638669730\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.2083586810\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.412595495\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.400004896\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.218735745\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.2058284676\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1058240809\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1747219767\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.270295048\=rebuildState\\\=false\\n\n
+@org.eclipse.mylyn.tasks.ui=3.14.2.v20150217-2341
+/instance/org.eclipse.debug.ui/preferredTargets=org.eclipse.cdt.debug.ui.toggleCBreakpointTarget,org.eclipse.cdt.debug.ui.toggleCDynamicPrintfTarget\:org.eclipse.cdt.debug.ui.toggleCBreakpointTarget|
+/instance/org.eclipse.rse.core/useridperkey=stor-pod-1.Local\=abody;
+/configuration/org.eclipse.ui.ide/SHOW_WORKSPACE_SELECTION_DIALOG=false
+/instance/org.eclipse.cdt.core.prj-boardtest/indexer/preferenceScope=0
+/instance/it.baeyens.arduino/lFsStatus=400
+/instance/org.eclipse.cdt.core.prj-s/indexer/preferenceScope=0
+/instance/org.eclipse.cdt.ui/editor_folding_statements=true
+/instance/it.baeyens.arduino/Serial\ Monitor\ Last\ Used\ Line\ Ending\ index=2
+/instance/org.eclipse.debug.core//org.eclipse.debug.core.PREFERRED_DELEGATES/org.eclipse.cdt.launch.attachLaunchType=org.eclipse.cdt.dsf.gdb.launch.attachCLaunch,debug,;
+/instance/org.eclipse.debug.core//org.eclipse.debug.core.PREFERRED_DELEGATES/org.eclipse.cdt.launch.remoteApplicationLaunchType=org.eclipse.rse.remotecdt.dsf.debug,debug,;
+@org.eclipse.team.ui=3.7.100.v20130710-1213
+/instance/org.eclipse.ui.editors/lineNumberRuler=true
+/instance/org.eclipse.team.cvs.ui/pref_first_startup=false
+/instance/org.eclipse.ui.ide/IMPORT_FILES_AND_FOLDERS_RELATIVE=true
+/instance/org.eclipse.core.resources/pathvariable.ArduinoPath=/opt/arduino-1.6.5-r5
+/instance/org.eclipse.mylyn.tasks.ui/org.eclipse.mylyn.tasks.ui.filters.nonmatching.encouraged=true
+/instance/it.baeyens.arduino/Arduino\ Path=/opt/arduino-1.6.5-r5
+/instance/org.eclipse.ui.ide/quickStart=false
+/instance/it.baeyens.arduino/Arduino\ Port=
+/instance/org.eclipse.cdt.managedbuilder.core/properties/streamingtest.null.1612225211/it.baeyens.arduino.core.toolChain.release.1356664684=it.baeyens.arduino.tool.compiler.c.2071046583\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.494124360\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.682286058\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.657357609\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.168781104\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.1639733759\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1661077839\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.253329099\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1733895024\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1356664684\=rcState\\\=0\\nrebuildState\\\=false\\n\n
+\!/=
+@org.eclipse.search=3.9.100.v20140226-1637
+/instance/org.eclipse.ui.ide/tipsAndTricks=true
+/instance/org.eclipse.jdt.ui/tabWidthPropagated=true
+@org.eclipse.rse.core=3.3.100.201407181907
+/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_MAC_METHODS_ORDER=hmac-md5,hmac-sha1,hmac-sha2-256,hmac-sha1-96,hmac-md5-96
+@org.eclipse.debug.ui=3.10.2.v20141014-1039
+/instance/org.eclipse.ui.editors/overviewRuler_migration=migrated_3.1
+/instance/org.eclipse.cdt.ui/editor_folding_default_inactive=true
+/instance/org.eclipse.cdt.managedbuilder.core/properties/SdFatTest.null.1449094200/it.baeyens.arduino.core.toolChain.release.1292746965=it.baeyens.arduino.tool.size.1919667082\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.393744621\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.808997464\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.203203893.1663248700\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1057859945\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1574290110\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.1999939359\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1292746965\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1290122741\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.37921915\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1622663993\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.42934951\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.315494252\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1601270566\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.737340796\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.203203893.428891888\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.37441421\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.203203893\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1283314808\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.208625681\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.690795002\=rebuildState\\\=true\\n\n
+@org.eclipse.ui.workbench=3.106.2.v20150204-1030
+/instance/org.eclipse.cdt.core.prj-gatekeeper_test/indexer/preferenceScope=0
+/instance/org.eclipse.mylyn.monitor.ui/org.eclipse.mylyn.monitor.activity.tracking.enabled.checked=true
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.internal.ui.navigator.layout=2
+/instance/org.eclipse.cdt.managedbuilder.core/properties/trafficlights_test.null.1068223738/it.baeyens.arduino.core.toolChain.release.1895353164=it.baeyens.arduino.tool.objcopy.flash.719562602\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.648486544\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.218815007.443313097\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.756209621\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.218815007\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.645290182\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1895353164\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.218815007.1473495628\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.2123288954\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1309316080\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.218815007.580041407\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.compiler.c.1995192213\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1608573618\=rebuildState\\\=false\\n\n
+/instance/it.baeyens.arduino/FuStatus=90
+/instance/it.baeyens.arduino/Arduino\ Programmer=Default
+/instance/org.eclipse.ui/showIntro=false
+/instance/org.eclipse.cdt.managedbuilder.core/properties/gatedemo_test.cdt.managedbuild.target.gnu.exe.2101938564/cdt.managedbuild.config.gnu.exe.debug.117071381=cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.426356226\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.assembler.exe.debug.588047665\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1169385380\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.debug.1381400365\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.debug.1467910264\=rebuildState\\\=false\\n\ncdt.managedbuild.config.gnu.exe.debug.117071381\=rcState\\\=0\\nrebuildState\\\=false\\n\ncdt.managedbuild.toolchain.gnu.exe.debug.865921688\=rebuildState\\\=false\\n\ncdt.managedbuild.tool.gnu.archiver.base.1021347323\=rebuildState\\\=false\\n\n
+/instance/org.eclipse.ui.views.log/orderType=2
+/instance/org.eclipse.team.ui/org.eclipse.team.ui.first_time=false
+/instance/it.baeyens.arduino/FuStatub=294
+/instance/it.baeyens.arduino/Serial\ Monitor\ Last\ Used\ auto\ scroll\ setting=true
+/instance/it.baeyens.arduino/FsStatus=17
+/instance/org.eclipse.cdt.managedbuilder.core/properties/gatedemo_test.cdt.managedbuild.target.gnu.exe.2101938564/cdt.managedbuild.config.gnu.exe.release.1542936823=cdt.managedbuild.toolchain.gnu.exe.release.110732811\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.linker.exe.release.207972935\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.assembler.exe.release.1503070056\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.archiver.base.1969562272\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.linker.exe.release.1192935653\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.c.compiler.exe.release.705668377\=rebuildState\\\=true\\n\ncdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1031509573\=rebuildState\\\=true\\n\n
+/configuration/org.eclipse.ui.ide/RECENT_WORKSPACES_PROTOCOL=3
+/configuration/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
+@org.eclipse.egit.core=3.4.2.201412180340-r
+/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_AUTH_METHODS_ORDER=gssapi-with-mic,publickey,password,keyboard-interactive
+/instance/org.eclipse.jdt.ui/useQuickDiffPrefPage=true
+/instance/org.eclipse.jdt.ui/content_assist_proposals_foreground=33,33,33
+/instance/org.eclipse.egit.core/GitRepositoriesView.GitDirectories=/home/abody/git/arduino-i2c-scanner/.git\:/home/abody/Private/work/gate433/gate433/.git\:
+/instance/it.baeyens.arduino/FmStatus=17
+/instance/it.baeyens.arduino/Build\ before\ upload\ option=YES
+/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_KEX_METHODS_ORDER=diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256
+@org.eclipse.jdt.ui=3.10.2.v20141014-1419
+/instance/it.baeyens.arduino/Serial\ monitor\ last\ selected\ Port=/dev/ttyUSB0
+/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_AUTH_METHODS=gssapi-with-mic,publickey,password,keyboard-interactive
+/instance/org.eclipse.cdt.ui/spelling_locale_initialized=true
+/instance/org.eclipse.ui.workbench/org.eclipse.ui.commands=<?xml version\="1.0" encoding\="UTF-8"?>\n<org.eclipse.ui.commands/>
+/instance/org.eclipse.core.resources/pathvariable.ArduinoPrivateLibPath=/home/abody/Arduino/libraries
+/instance/org.eclipse.jdt.ui/useAnnotationsPrefPage=true
+/instance/org.eclipse.ui.ide/PROBLEMS_FILTERS_MIGRATE=true
+/configuration/org.eclipse.ui.ide/RECENT_WORKSPACES=/home/abody/Private/work/gate433\n/home/abody/Private/work/shit\n/home/abody/work/gate433\n/home/abody/workspace
+/instance/org.eclipse.cdt.ui/content_assist_disabled_computers=org.eclipse.cdt.ui.textProposalCategory\u0000org.eclipse.cdt.ui.parserProposalCategory\u0000
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.formatterprofiles.version=12
+/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_MAC_METHODS=hmac-md5,hmac-sha1,hmac-sha2-256,hmac-sha1-96,hmac-md5-96
+/instance/org.eclipse.core.resources/pathvariable.ArduinoPivateLibPath=/home/abody/Arduino/libraries
+/instance/it.baeyens.arduino/Arduino\ Board=
+/instance/org.eclipse.ui.views.log/groupBy=0
+file_export_version=3.0
+/instance/org.eclipse.cdt.core.prj-testbed/indexer/preferenceScope=0
+@org.eclipse.mylyn.context.core=3.14.2.v20150218-0125
+/instance/org.eclipse.cdt.ui/useQuickDiffPrefPage=true
+/configuration/org.eclipse.ui.ide/MAX_RECENT_WORKSPACES=5
+/instance/org.eclipse.debug.core//org.eclipse.debug.core.PREFERRED_DELEGATES/org.eclipse.cdt.launch.applicationLaunchType=org.eclipse.cdt.dsf.gdb.launch.localCLaunch,debug,;org.eclipse.cdt.cdi.launch.localCLaunch,run,;
+/instance/org.eclipse.cdt.debug.core/org.eclipse.cdt.debug.core.cDebug.default_source_containers=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<sourceLookupDirector>\n<sourceContainers duplicates\="false">\n<container memento\="AbsolutePath" typeId\="org.eclipse.cdt.debug.core.containerType.absolutePath"/>\n<container memento\="programRelativePath" typeId\="org.eclipse.cdt.debug.core.containerType.programRelativePath"/>\n<container memento\="&lt;?xml version\=&quot;1.0&quot; encoding\=&quot;UTF-8&quot; standalone\=&quot;no&quot;?&gt;&\#10;&lt;project referencedProjects\=&quot;true&quot;/&gt;&\#10;" typeId\="org.eclipse.cdt.debug.core.containerType.project"/>\n</sourceContainers>\n</sourceLookupDirector>\n
+/instance/org.eclipse.jdt.ui/spelling_locale_initialized=true
+/instance/org.eclipse.jdt.ui/content_assist_number_of_computers=12
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.editor.tab.width=
+/instance/org.eclipse.jsch.core/CVSSSH2PreferencePage.PREF_KEX_METHODS=diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256
+/instance/it.baeyens.arduino/Private\ Library\ Path=/home/abody/Arduino/libraries
+@org.eclipse.cdt.ui=5.9.0.201502131403
+/instance/it.baeyens.arduino/Arduino\ boards\ file=
+/instance/org.eclipse.cdt.managedbuilder.core/properties/gatelogic.null.1664978491/it.baeyens.arduino.core.toolChain.release.573214013=it.baeyens.arduino.tool.objcopy.eep.2141183153\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.1964899678\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.eep.1335767654\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1967938820\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.76686062\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.size.985935824\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.573214013\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.720145318\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.555271295\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.ar.594016589\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.257684743\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1602788119\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.40944271\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.sketch.compiler.s.148957830\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.15471753\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1097379431.705624989\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.objcopy.flash.1475565669\=rebuildState\\\=true\\n\nit.baeyens.arduino.tool.combine.1437960695\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1097379431\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.659495173\=rebuildState\\\=false\\n\n
+/instance/org.eclipse.cdt.managedbuilder.core/properties/I2CScanner.null.409239829/it.baeyens.arduino.core.toolChain.release.58318670=it.baeyens.arduino.tool.objcopy.eep.1941190331\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.1852416088\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.1114512659\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.1819088175\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1768576198\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.245677418\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1519690020\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.58318670\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.1061641930\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.74342644\=rebuildState\\\=false\\n\n
+@org.eclipse.jsch.core=1.1.500.v20131112-1442
+/instance/org.eclipse.debug.core//org.eclipse.debug.core.PREFERRED_DELEGATES/org.eclipse.cdt.launch.postmortemLaunchType=org.eclipse.cdt.dsf.gdb.launch.coreCLaunch,debug,;
+/instance/org.eclipse.ui.views.log/show_filter_text=true
+/instance/org.eclipse.cdt.ui/useAnnotationsPrefPage=true
+/instance/org.eclipse.mylyn.tasks.ui/org.eclipse.mylyn.tasks.ui.filters.nonmatching=true
+/instance/it.baeyens.arduino/Arduino\ Custom\ Option\ Selections=
+@org.eclipse.cdt.debug.core=7.6.0.201502131403
+/instance/org.eclipse.cdt.managedbuilder.core/properties/i2ceeprom.null.1439314429/it.baeyens.arduino.core.toolChain.release.46153927=it.baeyens.arduino.tool.objcopy.flash.1995937736\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1163872642\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.46153927\=rcState\\\=0\\nrebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.1276698980\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.561670574\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.1798955056\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.683949770.488792749\=rebuildState\\\=true\\n\nit.baeyens.arduino.core.toolChain.release.1311066965\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.combine.975175168\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.683949770\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.1028030982\=rebuildState\\\=false\\n\n
+/instance/org.eclipse.cdt.ui/consoleOnTop=true
+@org.eclipse.ui.editors=3.8.200.v20140401-1310
+/instance/org.eclipse.search/org.eclipse.search.defaultPerspective=org.eclipse.search.defaultPerspective.none
+@org.eclipse.core.net=1.2.200.v20140124-2013
+/instance/org.eclipse.core.resources/version=1
+@org.eclipse.cdt.managedbuilder.core=8.3.0.201502131403
+@org.eclipse.mylyn.monitor.ui=3.14.2.v20150217-2244
+/instance/org.eclipse.jdt.ui/proposalOrderMigrated=true
+@org.eclipse.debug.core=3.9.1.v20140805-1629
+/instance/org.eclipse.jdt.ui/content_assist_proposals_background=252,252,252
+@org.eclipse.core.resources=3.9.1.v20140825-1431
+/instance/org.eclipse.debug.ui/org.eclipse.debug.ui.PREF_LAUNCH_PERSPECTIVES=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<launchPerspectives/>\n
+/instance/org.eclipse.jdt.ui/org.eclipse.jface.textfont=1|Monospace|10.0|0|GTK|1|;
+/instance/org.eclipse.rse.core/org.eclipse.rse.systemtype.local.systemType.defaultUserId=abody
+/instance/it.baeyens.arduino/Arduino\ IDE\ Version=1.6.5-r5
+@org.eclipse.team.cvs.ui=3.3.600.v20130514-1224
+/instance/org.eclipse.jdt.ui/fontPropagated=true
+@org.eclipse.ui.views.log=1.0.500.v20140512-1221
+/instance/it.baeyens.arduino/Serial\ monitor\ last\ selected\ rate=115200
+/instance/org.eclipse.ui.ide/IMPORT_FILES_AND_FOLDERS_TYPE=23,4
+/instance/org.eclipse.ui.views.log/column4=150
+/instance/org.eclipse.ui.views.log/column3=150
+/instance/org.eclipse.ui.views.log/column2=300
+/instance/org.eclipse.cdt.mylyn.ui/org.eclipse.mylyn.cdt.ui.run.count.3_3_0=1
+/instance/it.baeyens.arduino/Private\ hardware\ Path=/home/abody/Arduino/hardware
+/instance/it.baeyens.arduino/JANTJE.TEMPLATE_FOLDER=
+/instance/org.eclipse.ui.workbench/ENABLED_DECORATORS=org.eclipse.cdt.ui.indexedFiles\:false,org.eclipse.cdt.managedbuilder.ui.excludedFile\:true,org.eclipse.cdt.managedbuilder.ui.includeFolder\:true,org.eclipse.cdt.internal.ui.CustomBuildSettingsDecorator\:true,org.eclipse.egit.ui.internal.decorators.GitLightweightDecorator\:true,org.eclipse.jdt.ui.override.decorator\:true,org.eclipse.jdt.ui.interface.decorator\:false,org.eclipse.jdt.ui.buildpath.decorator\:true,org.eclipse.mylyn.context.ui.decorator.interest\:true,org.eclipse.mylyn.tasks.ui.decorators.task\:true,org.eclipse.mylyn.team.ui.changeset.decorator\:true,org.eclipse.rse.core.virtualobject.decorator\:true,org.eclipse.rse.core.binary.executable.decorator\:true,org.eclipse.rse.core.script.executable.decorator\:true,org.eclipse.rse.core.java.executable.decorator\:true,org.eclipse.rse.core.library.decorator\:true,org.eclipse.rse.core.link.decorator\:true,org.eclipse.rse.subsystems.error.decorator\:true,org.eclipse.team.cvs.ui.decorator\:true,org.eclipse.ui.LinkedResourceDecorator\:true,org.eclipse.ui.SymlinkDecorator\:true,org.eclipse.ui.VirtualResourceDecorator\:true,org.eclipse.ui.ContentTypeDecorator\:true,org.eclipse.ui.ResourceFilterDecorator\:false,
+/instance/org.eclipse.rse.ui/org.eclipse.rse.preferences.order.connections=stor-pod-1.Local
+/instance/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
+@org.eclipse.cdt.mylyn.ui=3.14.2.v20150218-0125
+/instance/org.eclipse.jsch.core/PRIVATEKEY=id_dsa,id_rsa,lmistash_rsa,logmein_rsa
+/instance/org.eclipse.cdt.managedbuilder.core/properties/streamingtest.null.1328905393/it.baeyens.arduino.core.toolChain.release.605076210=it.baeyens.arduino.tool.combine.978297344\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.eep.2109479484\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.cpp.1368202034\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.compiler.c.697511543\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.size.1190823788\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.1084486759\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.ar.450652358\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.objcopy.flash.1043723788\=rebuildState\\\=false\\n\nit.baeyens.arduino.tool.sketch.compiler.s.1647698054\=rebuildState\\\=false\\n\nit.baeyens.arduino.core.toolChain.release.605076210\=rcState\\\=0\\nrebuildState\\\=false\\n\n
+/instance/org.eclipse.ui.views.log/orderValue=-1
+/instance/org.eclipse.jsch.core/org.eclipse.jsch.core.hasMigratedSsh2Preferences=true
+/instance/org.eclipse.core.resources/pathvariable.ArduinoLibPath=/opt/arduino-1.6.5-r5/libraries
+/instance/org.eclipse.cdt.core.prj-gatekeeper/indexer/preferenceScope=0
+@org.eclipse.ui=3.106.1.v20141002-1150
+/instance/org.eclipse.cdt.ui/editor_folding_default_comments=true

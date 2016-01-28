@@ -37,6 +37,21 @@
 			<locationURI>PARENT-1-PROJECT_LOC/libs</locationURI>
 		</link>
 		<link>
+			<name>logwriter.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/logwriter.h</locationURI>
+		</link>
+		<link>
+			<name>sdfatlogwriter.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/sdfatlogwriter.cpp</locationURI>
+		</link>
+		<link>
+			<name>sdfatlogwriter.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/sdfatlogwriter.h</locationURI>
+		</link>
+		<link>
 			<name>Libraries/Wire</name>
 			<type>2</type>
 			<locationURI>ArduinoHardwareLibPath/Wire</locationURI>

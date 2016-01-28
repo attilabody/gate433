@@ -5,7 +5,7 @@
  *      Author: abody
  */
 
-#include <sdfatlogwriter.h>
+#include "sdfatlogwriter.h"
 #include <SdFat.h>
 #include <ds3231.h>
 #include "interface.h"

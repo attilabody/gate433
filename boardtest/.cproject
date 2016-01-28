@@ -23,6 +23,7 @@
 							</builder>
 							<tool commandLinePattern="${A.RECIPE.CPP.O.PATTERN.1} ${FLAGS} -D__IN_ECLIPSE__=1 -DLCD_I2C_ADDRESS=0x27 -x c++ -std=c++11 ${INPUTS} ${A.RECIPE.CPP.O.PATTERN.2} ${OUTPUT} ${A.RECIPE.CPP.O.PATTERN.3} ${JANTJE.WARNING_LEVEL} ${JANTJE.EXTRA.COMPILE} ${JANTJE.EXTRA.CPP.COMPILE}" id="it.baeyens.arduino.tool.sketch.compiler.cpp.203203893" name="Arduino C++ Compiler" superClass="it.baeyens.arduino.tool.sketch.compiler.cpp">
 								<option id="it.baeyens.arduino.compiler.cpp.sketch.option.incpath.1079949055" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.cpp.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gatekeeper}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/common}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/boardtest/arduino/core}&quot;"/>

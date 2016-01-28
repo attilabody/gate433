@@ -13,6 +13,7 @@
 #include "hybriddb.h"
 #include "flashdb.h"
 #include "decode433.h"
+#include "sdfatlogwriter.h"
 
 #define TEST_SDCARD
 #define TEST_LCD
@@ -22,9 +23,9 @@ char		g_inbuf[128+1];
 uint8_t	g_inidx(0);
 
 #ifdef TEST_SDCARD
-SdFat		g_sd;
-flashdb		g_db( 0x50, 16, 128 );
-//#else
+SdFat			g_sd;
+flashdb			g_db( 0x50, 16, 128 );
+sdfatlogwriter	g_logger( g_sd );
 #endif	//	TEST_SDCARD
 
 uint8_t			g_pins[8] = { 0, 1, 2, 3, 7, 6, 5, 4 };
@@ -40,7 +41,7 @@ PCF8574			g_i2cio(0x20);
 //LiquidCrystal_I2C g_lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 LiquidCrystal_I2C g_lcd(LCD_I2C_ADDRESS,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
-inline void lcdout() {}
+template< typename Arg> void lcdout( const Arg arg ) { g_lcd.print( arg ); }
 template< typename Arg1, typename... Args> void lcdout( const Arg1& arg1, const Args&... args)
 {
 	g_lcd.print( arg1 );
@@ -178,7 +179,7 @@ void processInput()
 		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::UNKNOWN };
 
 		for( int code = 0; code < 1024; ++code ) {
-			rec.in_start = code;
+//			rec.in_start = code;
 			g_db.setParams( code, rec );
 		}
 
@@ -256,15 +257,21 @@ void processInput()
 		}
 		Serial.println();
 
+	} else if( iscommand( inptr, F("dl"))) {	// dump log
+		g_logger.dump( &Serial );
+
+	} else if( iscommand( inptr, F("tl"))) {	// truncate log
+		g_logger.truncate();
+
 	} else {
-		Serial.println( ERRS "CMD");
+		Serial.println( F(ERRS "CMD"));
 	}
 
 	g_inidx = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void printdatetime( bool shortyear = true, bool showdow = false )
+void printdatetime( bool yeardigits = 0, bool showdow = true )
 {
 #ifdef	TEST_DS3231
 	static ts		prevt = {0,0,0,0,0,0,0,0,0,0};
@@ -278,7 +285,7 @@ void printdatetime( bool shortyear = true, bool showdow = false )
 #ifdef	TEST_LCD
 	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ) {
 		g_lcd.setCursor(0,0);
-		datetostring( lbp, t.year, t.mon, t.mday, t.wday, shortyear, showdow, '.', '/' ); *lbp = 0;
+		datetostring( lbp, t.year, t.mon, t.mday, t.wday, yeardigits, showdow, '.', '/' ); *lbp = 0;
 		g_lcd.print( lcdbuffer );
 	}
 
@@ -324,7 +331,7 @@ void printpin( uint8_t pin )
 		} else {
 			lcdbuffer[0] = ' '; lcdbuffer[1] = ' '; lcdbuffer[2] = 0;
 		}
-		g_lcd.setCursor(10,1);
+		g_lcd.setCursor(10,0);
 		g_lcd.print( lcdbuffer );
 		prevpin = pin;
 	}
@@ -338,7 +345,7 @@ void printpins( uint8_t status )
 	static uint8_t	prevps(0);
 
 	if( prevps != status ) {
-		g_lcd.setCursor( 8, 1 );
+		g_lcd.setCursor( 8, 0 );
 		for( uint8_t mask = 1; mask; mask <<= 1 ) {
 			g_lcd.print( (status & mask) ? '*':'_' );
 		}
@@ -354,7 +361,7 @@ void printloopstatus( bool ils, bool ols )
 
 	if( first || ils != previls || ols != prevols )
 	{
-		g_lcd.setCursor( 14, 0 );
+		g_lcd.setCursor( 14, 1 );
 		g_lcd.print( ils ? '*':'_' );
 		g_lcd.print( ols ? '*':'_' );
 		prevols = ols;
@@ -413,6 +420,7 @@ void setup()
 
 	g_sd.begin( SS );
 	g_db.init();
+	g_logger.init();
 
 	setup433();
 	printdatetime();
