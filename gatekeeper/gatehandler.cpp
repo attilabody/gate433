@@ -16,15 +16,18 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-const char *gatehandler::m_authcodes("GUDTP");
+const char gatehandler::m_authcodes[AUTHRESCNT] = { 'G', 'U', 'D', 'T', 'P' };
+const uint8_t PROGMEM	gatehandler::m_innerlightspins[3] = INNER_LIGHTS_PINS;
+const uint8_t PROGMEM	gatehandler::m_outerlightspins[3] = OUTER_LIGHTS_PINS;
+
 
 //////////////////////////////////////////////////////////////////////////////
 gatehandler::gatehandler( database &db
-			, trafficlights &lights
+			, unsigned long cyclelen
 			, inductiveloop &loop
 			, LiquidCrystal_I2C &lcd )
 : m_db( db )
-, m_lights( lights )
+, m_lights( m_innerlightspins, m_outerlightspins, cyclelen )
 , m_indloop( loop )
 , m_lcd( lcd )
 , m_status( WAITSETTLE )
@@ -102,7 +105,7 @@ char gatehandler::loop( unsigned long currmillis )
 			Serial.println( freeMemory());
 #endif	//	VERBOSE
 			AUTHRES	ar( authorize( g_code, inner ));
-			ret = (char)(m_authcodes[ar] + (inner ? 'a'-'A' : 0));
+			ret = (char)( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0));
 			if( ar == GRANTED ) {
 				m_openstart = currmillis ? currmillis : 1;
 				topass( inner );

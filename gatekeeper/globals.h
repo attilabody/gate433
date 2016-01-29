@@ -40,7 +40,6 @@ extern hybriddb				g_db;
 #ifdef USE_FLASHDB
 extern flashdb				g_db;
 #endif	//	USE_FLASHDB
-extern trafficlights		g_lights;
 extern inductiveloop		g_indloop;
 extern PCF8574				g_i2cio;
 extern char					g_iobuf[32];

@@ -15,13 +15,13 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-light::light( uint8_t iopin, bool highon )
+outputpin::outputpin( uint8_t iopin, bool highon )
 {
 	init( iopin, highon );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool light::init( uint8_t iopin, bool highon )
+bool outputpin::init( uint8_t iopin, bool highon )
 {
 	m_iopin = iopin;
 	m_onvalue = highon ? HIGH : LOW;
@@ -43,7 +43,7 @@ bool light::init( uint8_t iopin, bool highon )
 	return ret;
 }
 //////////////////////////////////////////////////////////////////////////////
-void light::loop( unsigned long curmillis )
+void outputpin::loop( unsigned long curmillis )
 {
 	if( !m_cyclelen ) return;
 	if( m_lastmilli + m_cyclelen <= curmillis )
@@ -64,7 +64,7 @@ void light::loop( unsigned long curmillis )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void light::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis )
+void outputpin::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis )
 {
 #ifdef DEBUG_LIGHT
 	Serial.print( m_iopin ); Serial.print( ": ");
@@ -83,17 +83,17 @@ void light::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endof
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-trafficlight::trafficlight( const uint8_t *pins, bool highon )
+trafficlight::trafficlight( const uint8_t pins[], bool highon )
 {
 	init( pins, highon );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool trafficlight::init( const uint8_t *pins, bool highon )
+bool trafficlight::init( const uint8_t pins[], bool highon )
 {
 	bool ret( true );
 	for( uint8_t idx = 0; idx<3; ++idx ) {
-		ret &= m_lights[idx].init( *pins++, highon );
+		ret &= m_lights[idx].init( pgm_read_byte( pins++ ), highon );
 	}
 	return ret;
 }
@@ -139,20 +139,19 @@ const uint16_t	trafficlights::m_compstates[trafficlights::NUMSTATES] = {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-trafficlights::trafficlights( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen )
+trafficlights::trafficlights( const uint8_t innerpins[], const uint8_t outerpins[], unsigned long cyclelen )
 {
-	init( innerpins, outerpins, highon, cyclelen );
+	init( innerpins, outerpins, cyclelen );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool trafficlights::init( const uint8_t *innerpins, const uint8_t *outerpins, bool highon, unsigned long cyclelen )
+bool trafficlights::init( const uint8_t innerpins[], const uint8_t outerpins[], unsigned long cyclelen )
 {
-	bool ret( true );
+	bool ret;
 	m_status = OFF;
 	m_cyclelen = cyclelen;
-	ret = m_inner.init( innerpins, highon ) & ret;
-	ret = m_outer.init( outerpins, highon ) & ret;
-	return ret;
+	return m_inner.init( innerpins, RELAY_ON == HIGH ) &&
+			m_outer.init( outerpins, RELAY_ON == HIGH );
 }
 
 //////////////////////////////////////////////////////////////////////////////

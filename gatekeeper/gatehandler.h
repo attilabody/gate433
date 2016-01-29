@@ -22,7 +22,7 @@
 class gatehandler {
 public:
 	gatehandler( database &db
-			, trafficlights &lights
+			, unsigned long cyclelen
 			, inductiveloop &loop
 			, LiquidCrystal_I2C &lcd );
 	char loop( unsigned long currmillis );
@@ -30,7 +30,7 @@ public:
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 protected:
-	enum AUTHRES : uint8_t { GRANTED = 0, UNREGISTERED, DAY, TIME, POSITION };
+	enum AUTHRES : uint8_t { GRANTED = 0, UNREGISTERED, DAY, TIME, POSITION, AUTHRESCNT };
 
 	AUTHRES 	authorize( uint16_t code, bool inner );
 	void		updatelcd( uint16_t id, bool inner, AUTHRES decision );
@@ -49,7 +49,7 @@ protected:
 	}
 
 	database			&m_db;
-	trafficlights		&m_lights;
+	trafficlights		m_lights;
 	inductiveloop		&m_indloop;
 	LiquidCrystal_I2C	&m_lcd;
 
@@ -66,8 +66,10 @@ protected:
 	bool					m_previnner;
 
 	unsigned long			m_openstart;
-	static const char 		*m_authcodes;
 
+	static const char PROGMEM 		m_authcodes[AUTHRESCNT];
+	static const uint8_t PROGMEM	m_innerlightspins[3];
+	static const uint8_t PROGMEM	m_outerlightspins[3];
 };
 
 #endif /* GATEHANDLER_H_ */

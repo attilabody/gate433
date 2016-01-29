@@ -11,8 +11,6 @@
 #include <LiquidCrystal_I2C.h>
 #include "sdfatlogwriter.h"
 
-const uint8_t	g_innerlightspins[3] = INNER_LIGHTS_PINS;
-const uint8_t	g_outerlightspins[3] = OUTER_LIGHTS_PINS;
 const uint8_t	g_otherrelaypins[2] = { PIN_GATE, PIN_RELAY_SPARE };
 
 LiquidCrystal_I2C 	g_lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
@@ -29,7 +27,6 @@ hybriddb			g_db( g_sd, HYBRIDDB_EEPROM_ADDRESS);
 #ifdef USE_FLASHDB
 flashdb				g_db( FLASHDB_EEPROM_ADDRESS, FLASHDB_EEPROM_BITS, 128 );
 #endif	//	USE_FLASHDB
-trafficlights		g_lights;
 inductiveloop		g_indloop;
 PCF8574				g_i2cio( PCF8574_ADDRESS );
 

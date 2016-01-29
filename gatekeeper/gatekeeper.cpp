@@ -52,7 +52,6 @@ void setup()
 	g_lcd.print( dbinitsucc );
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
-	g_lights.init( g_innerlightspins, g_outerlightspins, RELAY_ON == HIGH, 500 );
 	setuprelaypins( g_otherrelaypins, sizeof(g_otherrelaypins));
 
 #ifdef PIN_LED
@@ -84,7 +83,7 @@ void setup()
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	static gatehandler	handler( g_db, g_lights, g_indloop, g_lcd );
+	static gatehandler	handler( g_db, 500, g_indloop, g_lcd );
 	unsigned long		now( millis() );
 
 
