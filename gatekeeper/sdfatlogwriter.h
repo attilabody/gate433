@@ -37,7 +37,7 @@ public:
 	bool dump( Print *p );
 	bool truncate();
 
-//protected:
+protected:
 	class sdfwbuffer: public writebuffer
 	{
 	public:
@@ -54,6 +54,7 @@ protected:
 
 	SdFat		&m_sd;
 	uint16_t	m_dirindex;
+	bool		m_initialized;
 
 	bool	writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid, uint8_t dbpos, uint8_t loop, uint8_t decision );
 

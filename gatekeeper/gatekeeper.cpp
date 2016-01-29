@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include <ds3231.h>
 #include <SdFat.h>
+#include <MemoryFree.h>
 #include "config.h"
 #include "globals.h"
 #include "interface.h"
@@ -24,6 +25,7 @@ void setup()
 {
 	Serial.begin( BAUDRATE );
 	delay(10);
+	Serial.print( CMNT );
 	for( char c = 0; c < 79; ++c ) Serial.print('-');
 	Serial.println();
 
@@ -34,11 +36,20 @@ void setup()
 	g_lcd.init();		//	calls Wire.begin()
 	g_lcd.backlight();
 
-	if( g_sd.begin( SS ))
-		g_dbinitfail = !g_db.init();
+	g_lcd.print( freeMemory() );
 
-	g_lcd.print( F("DBinit ") );
-	g_lcd.print( g_dbinitfail ? F("FAILURE!!") : F("SUCCESS.") );
+	g_sdpresent = g_sd.begin( SS );
+	g_lcd.print( ' ' );
+	g_lcd.print( g_sdpresent );
+
+#ifdef USE_FLASHDB
+	bool dbinitsucc = g_db.init();
+#else
+	bool dbinitsucc = sdinitsucc && g_db.init();
+#endif
+
+	g_lcd.print( ' ' );
+	g_lcd.print( dbinitsucc );
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 	g_lights.init( g_innerlightspins, g_outerlightspins, RELAY_ON == HIGH, 500 );
@@ -59,14 +70,14 @@ void setup()
 	DS3231_get( &g_t );
 	updatedow( g_t );
 
-	bool logsucc(g_logger.init());
+	bool loginitsucc = g_sdpresent && g_logger.init();
+	g_lcd.print( ' ' );
+	g_lcd.print( loginitsucc );
+
+
+	delay(3000);
+
 	g_logger.log( logwriter::WARNING, g_t, F("Restart"), -1 );
-
-	g_lcd.setCursor( 0,1 );
-	g_lcd.print( F("Loginit ") );
-	g_lcd.print( logsucc ? F("SUCCESS.") : F("FAILURE!") );
-
-	delay(1500);
 	g_lcd.clear();
 }
 
@@ -343,6 +354,8 @@ void updatedow( ts &t )
 	const char *bp;
 	uint8_t	month, day, dow;
 	SdFile	f;
+
+	if( !g_sdpresent ) return;
 
 	if( f.open( "shuffle.txt", FILE_READ )) {
 		while( getlinefromfile( f, buffer, sizeof(buffer)) != -1 ) {

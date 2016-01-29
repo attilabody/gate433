@@ -29,7 +29,7 @@ void setup()
 	DS3231_get( &g_dt );
 
 	Serial.println( g_log.init() ? F("Log init succeeded") : F("Log init FAILED!"));
-	g_log.log( logwriter::INFO, g_dt, 0, "Lofaszbingo");
+	g_log.log( logwriter::INFO, g_dt, "Logtest" );
 }
 
 //////////////////////////////////////////////////////////////////////////////

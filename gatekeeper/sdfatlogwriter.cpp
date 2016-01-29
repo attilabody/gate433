@@ -82,6 +82,7 @@ bool sdfatlogwriter::sdfwbuffer::write( uint16_t data, uint8_t digits )
 sdfatlogwriter::sdfatlogwriter( SdFat &sd )
 : m_sd( sd )
 , m_dirindex(0)
+, m_initialized( false )
 {};
 
 /////////////////////////////////////////////////////////////////////////////
@@ -92,6 +93,7 @@ bool sdfatlogwriter::init()
 		return false;
 	m_dirindex = m_sd.vwd()->curPosition()/32 -1;
 	file.close();
+	m_initialized = true;
 	return true;
 }
 
@@ -100,6 +102,7 @@ bool sdfatlogwriter::init()
 void sdfatlogwriter::log( CATEGORY category, ts &datetime, const char* message, uint16_t rid, uint8_t dbpos, uint8_t loop,  uint8_t decision )
 {
 	char		buffer[32];
+	if( !m_initialized ) return;
 
 	sdfwbuffer	b( m_sd.vwd(), m_dirindex, buffer, sizeof(buffer) );
 	writelinehdr( b, category, datetime, rid, dbpos, loop, decision );
@@ -111,6 +114,7 @@ void sdfatlogwriter::log( CATEGORY category, ts &datetime, const char* message, 
 void sdfatlogwriter::log( CATEGORY category, ts &datetime, const __FlashStringHelper *message, uint16_t rid, uint8_t dbpos, uint8_t loop, uint8_t decision )
 {
 	char		buffer[32];
+	if( !m_initialized ) return;
 
 	sdfwbuffer	b( m_sd.vwd(), m_dirindex, buffer, sizeof(buffer) );
 	writelinehdr( b, category, datetime, rid, dbpos, loop, decision );
@@ -126,6 +130,7 @@ bool sdfatlogwriter::dump( Print *p )
 	int			nio;
 	char		c('\n');
 
+	if( !m_initialized ) return false;
 
 	if( f.open( m_sd.vwd(), m_dirindex, FILE_READ ))
 	{
@@ -156,6 +161,7 @@ bool sdfatlogwriter::dump( Print *p )
 bool sdfatlogwriter::truncate()
 {
 	SdFile		f;
+	if( !m_initialized ) return false;
 	if( f.open( m_sd.vwd(), m_dirindex, O_WRITE | O_CREAT | O_TRUNC )) {
 		f.close();
 		return true;
