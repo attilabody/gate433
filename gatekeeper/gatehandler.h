@@ -34,22 +34,21 @@ protected:
 
 	AUTHRES 	authorize( uint16_t code, bool inner );
 	void		updatelcd( uint16_t id, bool inner, AUTHRES decision );
-	inline void	tocodewait( bool inner ) {
-		m_lights.set( trafficlights::CODEWAIT, inner ); g_codeready = false; m_status = CODEWAIT;
-	}
-	inline void topass( bool inner ) {
+	void		tocodewait( bool inner );
+	inline void topass( bool inner, unsigned long curmillis ) {
 		m_lights.set( trafficlights::ACCEPTED, inner );
-		g_i2cio.write( PIN_GATE, RELAY_ON );
+		m_gate.set( true, GATE_OPEN_PULSE_WIDTH, 0, true, curmillis );
 		m_inner = inner; m_dbupdated = false; m_status = PASS;
 	}
-	inline void topass_warn( bool inner ) {
+	inline void topass_warn( bool inner, unsigned long curmillis ) {
 		m_lights.set( trafficlights::WARNED, inner );
-		g_i2cio.write( PIN_GATE, RELAY_ON );
+		m_gate.set( true, GATE_OPEN_PULSE_WIDTH, 0, true, curmillis );
 		m_inner = inner; m_dbupdated = false; m_status = PASS;
 	}
 
 	database			&m_db;
 	trafficlights		m_lights;
+	outputpin			m_gate;
 	inductiveloop		&m_indloop;
 	LiquidCrystal_I2C	&m_lcd;
 
@@ -64,8 +63,6 @@ protected:
 	uint16_t				m_previd;
 	AUTHRES					m_prevdecision;
 	bool					m_previnner;
-
-	unsigned long			m_openstart;
 
 	static const char PROGMEM 		m_authcodes[AUTHRESCNT];
 	static const uint8_t PROGMEM	m_innerlightspins[3];

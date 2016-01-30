@@ -25,13 +25,16 @@ public:
 
 private:
 	uint8_t			m_iopin;
-	uint8_t			m_onvalue;
-	uint8_t			m_offvalue;
+	bool			m_highon;
 	bool			m_on;
 	unsigned long	m_cyclelen;
 	uint8_t			m_cyclecount;
 	bool			m_endoff;
 	unsigned long	m_lastmilli;
+
+	inline uint8_t onval() const { return m_highon ? HIGH : LOW; }
+	inline uint8_t offval() const { return m_highon ? LOW : HIGH; }
+	inline uint8_t onoffval( bool on ) const { return (m_highon == on) ? HIGH : LOW; }
 };
 
 //////////////////////////////////////////////////////////////////////////////

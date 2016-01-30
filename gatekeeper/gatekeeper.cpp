@@ -155,7 +155,7 @@ void processinput()
 	Serial.print( CMNT );
 	Serial.println( g_iobuf );
 
-	if( iscommand( inptr, CMD_GET )) {
+	if( iscommand( inptr, CMD_GET )) {	//	get
 		database::dbrecord	rec;
 		int 				id( getintparam( inptr ));
 		if( id != -1 && g_db.getParams( id, rec )) {
@@ -163,7 +163,7 @@ void processinput()
 			serialoutln( RESP, g_iobuf );
 		} else Serial.println( F(ERRS "ERR"));
 
-	} else if( iscommand( inptr, CMD_SET )) {
+	} else if( iscommand( inptr, CMD_SET )) {	//	set
 		database::dbrecord	rec;
 		int 				id( getintparam( inptr ));
 		if( id != -1 && rec.parse( inptr )) {
@@ -172,7 +172,7 @@ void processinput()
 			else Serial.println( F(ERRS "ERR"));
 		} else Serial.println( F(ERRS "ERR"));
 
-	} else if( iscommand( inptr, CMD_EXP )) {	//export
+	} else if( iscommand( inptr, CMD_EXP )) {	//	export
 		thindb		tdb( g_sd );
 		uint16_t	from( getintparam( inptr ));
 		uint16_t	to( getintparam( inptr ));
@@ -204,7 +204,7 @@ void processinput()
 		if( id == to )  Serial.println(F(RESPS "OK"));
 		else Serial.println( F(ERRS "ERR" ));
 
-	} else if( iscommand( inptr, CMD_DMP )) {
+	} else if( iscommand( inptr, CMD_DMP )) {	//	dump
 		database::dbrecord	rec;
 		uint16_t			start( getintparam( inptr ));
 		uint16_t			count( getintparam( inptr ));
@@ -228,7 +228,7 @@ void processinput()
 		serialout(F(":" ), (uint16_t)(g_t.min));
 		serialoutln(F(":" ), (uint16_t)(g_t.sec));
 
-	} else if( iscommand( inptr, CMD_SDT )) {		//	set datetime
+	} else if( iscommand( inptr, CMD_SDT )) {	//	set datetime
 		ts	t;
 		if( parsedatetime( t, inptr )) {
 			DS3231_set( t );

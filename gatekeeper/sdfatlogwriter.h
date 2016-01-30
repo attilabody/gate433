@@ -42,7 +42,7 @@ protected:
 	{
 	public:
 		sdfwbuffer( FatFile* dir, uint16_t dirindex, void *buf, uint8_t size );
-		virtual ~sdfwbuffer();
+		~sdfwbuffer();
 		bool write( uint16_t data, uint8_t digits );
 		bool write( ts &dt );
 		virtual bool flush();

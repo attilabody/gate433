@@ -28,6 +28,7 @@ gatehandler::gatehandler( database &db
 			, LiquidCrystal_I2C &lcd )
 : m_db( db )
 , m_lights( m_innerlightspins, m_outerlightspins, cyclelen )
+, m_gate( PIN_GATE, RELAY_ON == HIGH )
 , m_indloop( loop )
 , m_lcd( lcd )
 , m_status( WAITSETTLE )
@@ -36,7 +37,6 @@ gatehandler::gatehandler( database &db
 , m_conflict( false )
 , m_inner( false )
 , m_prevdecision( (AUTHRES) -1 )
-, m_openstart(0)
 {
 }
 
@@ -54,7 +54,6 @@ char gatehandler::loop( unsigned long currmillis )
 		uint16_t	id( g_code2 >> 2 );
 		if( id >= GODMODE_MIN && id <= GODMODE_MAX ) {
 			g_i2cio.write( PIN_GATE, RELAY_ON );
-			m_openstart = currmillis ? currmillis : 1;
 		}
 		g_code2ready = false;
 	}
@@ -107,12 +106,10 @@ char gatehandler::loop( unsigned long currmillis )
 			AUTHRES	ar( authorize( g_code, inner ));
 			ret = (char)( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0));
 			if( ar == GRANTED ) {
-				m_openstart = currmillis ? currmillis : 1;
-				topass( inner );
+				topass( inner, currmillis );
 #ifndef ENFORCING
 			} else if( ar ==  POSITION || ar == DAY || ar == TIME) {
-				m_openstart = currmillis ? currmillis : 1;
-				topass_warn( inner );
+				topass_warn( inner, currmillis );
 #endif	//	ENFORCING
 			} else {
 				m_lights.set( trafficlights::DENIED, inner );
@@ -154,11 +151,9 @@ char gatehandler::loop( unsigned long currmillis )
 
 	m_ilstatus = ilstatus;
 	m_conflict = conflict;
-	if( m_openstart && currmillis - m_openstart > GATE_OPEN_PULSE_WIDTH ) {
-		g_i2cio.write( PIN_GATE, RELAY_OFF );
-	}
 
 	m_lights.loop( currmillis );
+	m_gate.loop( currmillis );
 	return ret;
 }
 
@@ -192,6 +187,14 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
 
 	g_logger.log( logwriter::INFO, g_t, F("Authorization"), id, rec.position, inner, ret );
 	return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void gatehandler::tocodewait( bool inner )
+{
+	m_lights.set( trafficlights::CODEWAIT, inner );
+	g_codeready = false;
+	m_status = CODEWAIT;
 }
 
 /*//////////////////////////////////////////////////////////////////////////////

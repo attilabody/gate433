@@ -15,24 +15,23 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-outputpin::outputpin( uint8_t iopin, bool highon )
+outputpin::outputpin( uint8_t iopin, bool m_highon )
 {
-	init( iopin, highon );
+	init( iopin, m_highon );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 bool outputpin::init( uint8_t iopin, bool highon )
 {
 	m_iopin = iopin;
-	m_onvalue = highon ? HIGH : LOW;
-	m_offvalue = highon ? LOW : HIGH;
+	m_highon = highon;
 	m_on = false;
 	m_cyclelen = 0;
 	m_lastmilli = millis();
 	bool ret(false);
 
 	if( m_iopin != 0xff ) {
-		g_i2cio.write( m_iopin, m_offvalue );
+		g_i2cio.write( m_iopin, offval() );
 		ret = true;
 	}
 #ifdef DEBUG_LIGHT_INIT
@@ -50,12 +49,12 @@ void outputpin::loop( unsigned long curmillis )
 	{
 		if( m_cyclecount ) {
 			m_on = !m_on;
-			g_i2cio.write( m_iopin, m_on ? m_onvalue : m_offvalue );
+			g_i2cio.write( m_iopin, onoffval( m_on ) );
 			if( m_cyclecount != 0xff ) --m_cyclecount;
 		} else {
 			if( m_on && m_endoff ) {
 				m_on = false;
-				g_i2cio.write( m_iopin, m_offvalue );
+				g_i2cio.write( m_iopin, offval() );
 			}
 			m_cyclelen = 0;
 		}
@@ -77,23 +76,23 @@ void outputpin::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool e
 	m_cyclecount = cyclecount;
 	m_on = on;
 	m_endoff = endoff;
-	g_i2cio.write( m_iopin, on ? m_onvalue : m_offvalue );
+	g_i2cio.write( m_iopin, onoffval( on ));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-trafficlight::trafficlight( const uint8_t pins[], bool highon )
+trafficlight::trafficlight( const uint8_t pins[], bool m_highon )
 {
-	init( pins, highon );
+	init( pins, m_highon );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool trafficlight::init( const uint8_t pins[], bool highon )
+bool trafficlight::init( const uint8_t pins[], bool m_highon )
 {
 	bool ret( true );
 	for( uint8_t idx = 0; idx<3; ++idx ) {
-		ret &= m_lights[idx].init( pgm_read_byte( pins++ ), highon );
+		ret &= m_lights[idx].init( pgm_read_byte( pins++ ), m_highon );
 	}
 	return ret;
 }

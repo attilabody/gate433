@@ -13,7 +13,7 @@ class writebuffer
 {
 public:
 	writebuffer( void *buf, uint8_t size );
-	virtual ~writebuffer();
+	~writebuffer();
 
 	bool write( const void *ptr, uint8_t size );
 	bool write( const char *ptr );
