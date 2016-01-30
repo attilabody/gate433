@@ -14,9 +14,6 @@
 //////////////////////////////////////////////////////////////////////////////
 void setuprelaypins( const uint8_t *pins, uint8_t size );
 void processinput();
-void printdatetime( bool shortyear = true, bool showdow = false );
-void printdecision( char decision );
-void printlastreceived();
 int getlinefromfile( SdFile &f, char* buffer, uint8_t buflen );
 void updatedow( ts &t );
 
@@ -29,18 +26,19 @@ void setup()
 	for( char c = 0; c < 79; ++c ) Serial.print('-');
 	Serial.println();
 
+	memset( &g_t, 0, sizeof( g_t ));
+
 #ifdef PIN_LED
 	pinMode( PIN_LED, OUTPUT );
 #endif
 
-	g_lcd.init();		//	calls Wire.begin()
-	g_lcd.backlight();
+	g_display.init();		//	calls Wire.begin()
 
-	g_lcd.print( freeMemory() );
+	g_display.print( freeMemory() );
 
 	g_sdpresent = g_sd.begin( SS );
-	g_lcd.print( ' ' );
-	g_lcd.print( g_sdpresent );
+	g_display.print( ' ' );
+	g_display.print( g_sdpresent );
 
 #ifdef USE_FLASHDB
 	bool dbinitsucc = g_db.init();
@@ -48,8 +46,8 @@ void setup()
 	bool dbinitsucc = sdinitsucc && g_db.init();
 #endif
 
-	g_lcd.print( ' ' );
-	g_lcd.print( dbinitsucc );
+	g_display.print( ' ' );
+	g_display.print( dbinitsucc );
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 	setuprelaypins( g_otherrelaypins, sizeof(g_otherrelaypins));
@@ -70,21 +68,26 @@ void setup()
 	updatedow( g_t );
 
 	bool loginitsucc = g_sdpresent && g_logger.init();
-	g_lcd.print( ' ' );
-	g_lcd.print( loginitsucc );
+	g_display.print( ' ' );
+	g_display.print( loginitsucc );
 
 
 	delay(3000);
 
 	g_logger.log( logwriter::WARNING, g_t, F("Restart"), -1 );
-	g_lcd.clear();
+	g_display.clear();
+	g_display.updatedt( g_t, 0xff );
+	g_display.updateloopstatus( false, false );
+	g_display.updatelastreceivedid( 9999 );
+	g_display.updatelastdecision( 'X', 9999 );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	static gatehandler	handler( g_db, 500, g_indloop, g_lcd );
+	static gatehandler	handler( g_db, 500, g_indloop, g_display );
 	unsigned long		now( millis() );
+	byte				dtcmask(0);
 
 
 	if( now - g_lastdtupdate > 950 )
@@ -93,27 +96,38 @@ void loop()
 		DS3231_get( &t );
 
 		if( t.sec != g_t.sec ) {
-			if( t.mday != g_t.mday ) {
+			dtcmask |= 1;
+			if( t.min != g_t.min ) {
+				dtcmask |= 2;
+				if( t.hour != g_t.hour ) {
+					dtcmask |= 4;
+					if( t.mday != g_t.mday ) {
+						dtcmask |= 8;
+						if( t.mon != g_t.mon ) {
+							dtcmask |= 0x10;
+							if( t.year != g_t.year )
+								dtcmask |= 0x20;
+		}}}}}
+
+		if( dtcmask & 0x38 ) {
 				g_t = t;
 				updatedow( g_t );
-			} else {
-				g_t.sec = t.sec;
-				g_t.min = t.min;
-				g_t.hour = t.hour;
-			}
-			g_lastdtupdate = now;
+		} else if( dtcmask &7) {
+			g_t.sec = t.sec;
+			g_t.min = t.min;
+			g_t.hour = t.hour;
 		}
+		g_lastdtupdate = now;
+		g_display.updatedt( g_t, dtcmask );
 	}
 
 	if( getlinefromserial( g_iobuf, sizeof( g_iobuf ), g_inidx) )
 		processinput();
 
-	char decision( handler.loop( now ) );
+	handler.loop( now );
 
-	printdatetime( true, true );
-	if( decision ) printdecision( decision );
 	if( g_codedisplayed != g_lrcode ) {
-		printlastreceived();
+		g_display.updatelastreceivedid( g_lrcode >> 2 );
 		g_logger.log( logwriter::DEBUG, g_t, F("New code received"), g_lrcode >> 2);
 	}
 }
@@ -209,11 +223,14 @@ void processinput()
 		uint16_t			start( getintparam( inptr ));
 		uint16_t			count( getintparam( inptr ));
 		uint16_t			id;
+
+		g_iobuf[3] = ' ';
 		if( start == 0xffff ) start = 0;
 		if( count == 0xffff ) count = 1024 - start;
 		for( id = start; id < start + count; ++id ) {
 			if( g_db.getParams( id, rec )) {
-				rec.serialize( g_iobuf );
+				uitohex( g_iobuf, id, 3 );
+				rec.serialize( g_iobuf + 4 );
 				serialoutln( RESP, g_iobuf );
 			} else break;
 		}
@@ -261,57 +278,57 @@ void processinput()
 	g_inidx = 0;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-void printdatetime( bool shortyear, bool showdow )
-{
-	static ts		dispt = {0,0,0,0,0,0,0,0,0,0};
-
-	char	lcdbuffer[13];
-	char	*lbp(lcdbuffer);
-
-	if( dispt.year != g_t.year || dispt.mon != g_t. mon || dispt.mday != g_t.mday ) {
-		g_lcd.setCursor(0,0);
-		datetostring( lbp, g_t.year, g_t.mon, g_t.mday, g_t.wday, 0, showdow, '.', '/' ); *lbp = 0;
-		g_lcd.print( lcdbuffer );
-	}
-
-	if( dispt.hour != g_t.hour || dispt.min != g_t.min || dispt.sec != g_t.sec ) {
-		g_lcd.setCursor(0,1);
-		lbp = lcdbuffer;
-		timetostring( lbp, g_t.hour, g_t.min, g_t.sec, ':' ); *lbp++ = 0;
-		g_lcd.print( lcdbuffer);
-	}
-
-	dispt = g_t;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-void printdecision( char decision )
-{
-	char buf[5];
-	char*bp(buf);
-
-	uitodec( bp, g_code >> 2, 4);
-	buf[4] = 0;
-	g_lcd.setCursor( 10, 1 );
-	g_lcd.print( decision );
-	g_lcd.print( ' ' );
-	g_lcd.print( buf );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-void printlastreceived()
-{
-	char buf[5];
-	char*bp(buf);
-
-	uitodec( bp, g_lrcode >> 2, 4);
-	buf[4] = 0;
-	g_lcd.setCursor( 12, 0 );
-	g_lcd.print( buf );
-	g_codedisplayed = g_lrcode;
-}
-
+////////////////////////////////////////////////////////////////////////////////
+//void printdatetime( bool shortyear, bool showdow )
+//{
+//	static ts		dispt = {0,0,0,0,0,0,0,0,0,0};
+//
+//	char	lcdbuffer[13];
+//	char	*lbp(lcdbuffer);
+//
+//	if( dispt.year != g_t.year || dispt.mon != g_t. mon || dispt.mday != g_t.mday ) {
+//		g_lcd.setCursor(0,0);
+//		datetostring( lbp, g_t.year, g_t.mon, g_t.mday, g_t.wday, 0, showdow, '.', '/' ); *lbp = 0;
+//		g_lcd.print( lcdbuffer );
+//	}
+//
+//	if( dispt.hour != g_t.hour || dispt.min != g_t.min || dispt.sec != g_t.sec ) {
+//		g_lcd.setCursor(0,1);
+//		lbp = lcdbuffer;
+//		timetostring( lbp, g_t.hour, g_t.min, g_t.sec, ':' ); *lbp++ = 0;
+//		g_lcd.print( lcdbuffer);
+//	}
+//
+//	dispt = g_t;
+//}
+//
+////////////////////////////////////////////////////////////////////////////////
+//void printdecision( char decision )
+//{
+//	char buf[5];
+//	char*bp(buf);
+//
+//	uitodec( bp, g_code >> 2, 4);
+//	buf[4] = 0;
+//	g_lcd.setCursor( 10, 1 );
+//	g_lcd.print( decision );
+//	g_lcd.print( ' ' );
+//	g_lcd.print( buf );
+//}
+//
+////////////////////////////////////////////////////////////////////////////////
+//void printlastreceived()
+//{
+//	char buf[5];
+//	char*bp(buf);
+//
+//	uitodec( bp, g_lrcode >> 2, 4);
+//	buf[4] = 0;
+//	g_lcd.setCursor( 12, 0 );
+//	g_lcd.print( buf );
+//	g_codedisplayed = g_lrcode;
+//}
+//
 //////////////////////////////////////////////////////////////////////////////
 int getlinefromfile( SdFile &f, char* buffer, uint8_t buflen )
 {

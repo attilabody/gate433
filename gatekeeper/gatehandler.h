@@ -18,22 +18,22 @@
 #include "inductiveloop.h"
 #include "serialbuf.h"
 #include "decode433.h"
+#include "display.h"
 
 class gatehandler {
 public:
 	gatehandler( database &db
 			, unsigned long cyclelen
 			, inductiveloop &loop
-			, LiquidCrystal_I2C &lcd );
-	char loop( unsigned long currmillis );
+			, display &disp );
+	void loop( unsigned long currmillis );
 
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 protected:
 	enum AUTHRES : uint8_t { GRANTED = 0, UNREGISTERED, DAY, TIME, POSITION, AUTHRESCNT };
 
-	AUTHRES 	authorize( uint16_t code, bool inner );
-	void		updatelcd( uint16_t id, bool inner, AUTHRES decision );
+	AUTHRES 	authorize( uint16_t id, bool inner );
 	void		tocodewait( bool inner );
 	inline void topass( bool inner, unsigned long curmillis ) {
 		m_lights.set( trafficlights::ACCEPTED, inner );
@@ -50,7 +50,7 @@ protected:
 	trafficlights		m_lights;
 	outputpin			m_gate;
 	inductiveloop		&m_indloop;
-	LiquidCrystal_I2C	&m_lcd;
+	display				&m_display;
 
 //		char					m_lcdbuf[LCD_WIDTH + 1];
 	STATUS					m_status;

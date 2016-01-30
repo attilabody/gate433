@@ -54,17 +54,17 @@ bool database::dbrecord::parse( const char* &dbstring )
 //////////////////////////////////////////////////////////////////////////////
 void database::dbrecord::serializeinfo( char *&buffer ) const
 {
-	uitohex( buffer, in_start, 3 ); *buffer++ = ' ';
-	uitohex( buffer, in_end, 3 ); *buffer++ = ' ';
-	uitohex( buffer, out_start, 3 ); *buffer++ = ' ';
-	uitohex( buffer, out_end, 3 ); *buffer++ = ' ';
-	uitohex( buffer, (uint16_t)days, 3);
+	buffer += uitohex( buffer, in_start, 3 ); *buffer++ = ' ';
+	buffer += uitohex( buffer, in_end, 3 ); *buffer++ = ' ';
+	buffer += uitohex( buffer, out_start, 3 ); *buffer++ = ' ';
+	buffer += uitohex( buffer, out_end, 3 ); *buffer++ = ' ';
+	buffer += uitohex( buffer, (uint16_t)days, 3);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void database::dbrecord::serializestatus( char *&buffer ) const
 {
-	uitohex( buffer, (uint16_t) position, 3 );
+	buffer += uitohex( buffer, (uint16_t) position, 3 );
 }
 
 //////////////////////////////////////////////////////////////////////////////

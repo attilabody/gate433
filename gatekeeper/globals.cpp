@@ -8,12 +8,12 @@
 #include "globals.h"
 #include <ds3231.h>
 #include <PCF8574.h>
-#include <LiquidCrystal_I2C.h>
+#include "display.h"
 #include "sdfatlogwriter.h"
 
 const uint8_t	g_otherrelaypins[2] = { PIN_GATE, PIN_RELAY_SPARE };
 
-LiquidCrystal_I2C 	g_lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+display 			g_display(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 SdFat				g_sd;
 #ifdef USE_THINDB
 thindb				g_db( g_sd );

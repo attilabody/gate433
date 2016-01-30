@@ -184,55 +184,57 @@ void hex2serial( uint16_t out, uint8_t digits, const char* prefix )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline void halfbytetohex( char* &buffer, unsigned char data ) {
-	*buffer++ = halfbytetohex( data );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-inline void bytetohex( char* &buffer, unsigned char data, bool both ) {
+uint16_t bytetohex( char* buffer, unsigned char data, bool both )
+{
 	if( both )
-		halfbytetohex( buffer, data >> 4 );
-	halfbytetohex( buffer, data & 0x0f );
+		*buffer++ = halfbytetohex( data >> 4 );
+	*buffer = halfbytetohex( data & 0x0f );
+	return both ? 2 :1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void uitohex( char* &buffer, uint16_t data, uint8_t digits ) {
+uint8_t uitohex( char* buffer, uint16_t data, uint8_t digits )
+{
 	if( digits > 2 )
-		bytetohex( buffer, (unsigned char)( data >> 8 ), digits >= 4 );
+		buffer += bytetohex( buffer, (unsigned char)( data >> 8 ), digits >= 4 );
 	bytetohex( buffer, (unsigned char)data, digits != 1 );
+	return digits;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void ultohex( char* &buffer, uint32_t data, uint8_t digits ) {
+uint8_t ultohex( char* buffer, uint32_t data, uint8_t digits )
+{
 	if( digits > 4 ) {
-		uitohex( buffer, (uint16_t)( data >> 16 ), digits - 4 );
+		buffer += uitohex( buffer, (uint16_t)( data >> 16 ), digits - 4 );
 		digits -= digits - 4;
 	}
 	uitohex( buffer, (uint16_t)data, digits );
+	return digits;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void uitodec( char* &buffer, uint16_t data, uint8_t digits )
+uint8_t uitodec( char* buffer, uint16_t data, uint8_t digits )
 {
-	char *ptr( buffer + digits - 1 );
+	buffer += digits - 1;
 	uint8_t	cntr( digits );
 	while( cntr-- ) {
-		*ptr-- = ( data%10 ) + '0';
+		*buffer-- = ( data%10 ) + '0';
 		data /= 10;
 	}
-	buffer += digits;
+	return digits;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void ultodec( char* &buffer, uint32_t data, uint8_t digits )
+uint8_t ultodec( char* buffer, uint32_t data, uint8_t digits )
 {
-	char *ptr( buffer + digits - 1);
+	buffer += digits - 1;
 	uint8_t	cntr( digits );
 	while( cntr-- ) {
-		*ptr-- = ( data%10 ) + '0';
+		*buffer-- = ( data%10 ) + '0';
 		data /= 10;
 	}
 	buffer += digits;
+	return digits;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -240,22 +242,22 @@ void datetostring( char* &buffer, uint16_t year, uint8_t month, uint8_t day, uin
 {
 	if( yeardigits ) {
 		if( yeardigits > 4 ) yeardigits = 4;
-		uitodec( buffer, year, yeardigits ); *buffer++ = datesep;
+		buffer += uitodec( buffer, year, yeardigits ); *buffer++ = datesep;
 	}
-	uitodec( buffer, month, 2 ); *buffer++ = datesep;
-	uitodec( buffer, day, 2 );
+	buffer += uitodec( buffer, month, 2 ); *buffer++ = datesep;
+	buffer += uitodec( buffer, day, 2 );
 	if( showdow ) {
 		*buffer++ = dowsep;
-		uitodec( buffer, dow, 1);
+		buffer += uitodec( buffer, dow, 1);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void timetostring( char* &buffer, uint8_t hour, uint8_t min, uint8_t sec, char sep )
 {
-	uitodec( buffer, hour, 2 ); *buffer++ = sep;
-	uitodec( buffer, min, 2 ); *buffer++ = sep;
-	uitodec( buffer, sec, 2 );
+	buffer += uitodec( buffer, hour, 2 ); *buffer++ = sep;
+	buffer += uitodec( buffer, min, 2 ); *buffer++ = sep;
+	buffer += uitodec( buffer, sec, 2 );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -265,20 +267,20 @@ void printdate( Print *p, uint16_t year, uint8_t month, uint8_t day, uint8_t dow
 	if( yeardigits ) {
 		bptr = buffer;
 		if( yeardigits > 4 ) yeardigits = 4;
-		uitodec( bptr, year, yeardigits );
+		bptr += uitodec( bptr, year, yeardigits );
 		*bptr++ = datesep;
 		*bptr = 0;
 		p->print(buffer);
 	}
 	bptr = buffer;
-	uitodec( bptr, month, 2 );
+	bptr += uitodec( bptr, month, 2 );
 	*bptr++ = datesep;
-	uitodec( bptr, day, 2 );
+	bptr += uitodec( bptr, day, 2 );
 	*bptr = 0; p->print( buffer );
 	if( showdow ) {
 		bptr = buffer;
 		*bptr++ = dowsep;
-		uitodec( bptr, dow, 1);
+		bptr += uitodec( bptr, dow, 1);
 		p->print( buffer );
 	}
 }
@@ -286,10 +288,10 @@ void printdate( Print *p, uint16_t year, uint8_t month, uint8_t day, uint8_t dow
 //////////////////////////////////////////////////////////////////////////////
 void printtime( Print *p, uint8_t hour, uint8_t min, uint8_t sec, char sep )
 {
-	char buffer[4], *bptr;
-	bptr = buffer; uitodec( bptr, hour, 2 ); *bptr++ = sep; *bptr = 0; p->print( buffer );
-	bptr = buffer; uitodec( bptr, min, 2 ); *bptr++ = sep; *bptr = 0; p->print( buffer );
-	bptr = buffer; uitodec( bptr, sec, 2 ); *bptr = 0; p->print( buffer );
+	char buffer[4];
+	uitodec( buffer, hour, 2 ); buffer[2] = sep; buffer[3] = 0; p->print( buffer );
+	uitodec( buffer, min, 2 ); buffer[2] = sep; buffer[3] = 0; p->print( buffer );
+	uitodec( buffer, sec, 2 ); buffer[2] = 0; p->print( buffer );
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -25,12 +25,12 @@ const uint8_t PROGMEM	gatehandler::m_outerlightspins[3] = OUTER_LIGHTS_PINS;
 gatehandler::gatehandler( database &db
 			, unsigned long cyclelen
 			, inductiveloop &loop
-			, LiquidCrystal_I2C &lcd )
+			, display &disp )
 : m_db( db )
 , m_lights( m_innerlightspins, m_outerlightspins, cyclelen )
 , m_gate( PIN_GATE, RELAY_ON == HIGH )
 , m_indloop( loop )
-, m_lcd( lcd )
+, m_display( disp )
 , m_status( WAITSETTLE )
 , m_tlstatus( trafficlights::OFF )
 , m_ilstatus( inductiveloop::NONE )
@@ -41,14 +41,13 @@ gatehandler::gatehandler( database &db
 }
 
 //////////////////////////////////////////////////////////////////////////////
-char gatehandler::loop( unsigned long currmillis )
+void gatehandler::loop( unsigned long currmillis )
 {
 	inductiveloop::STATUS	ilstatus;
 
 	bool	conflict( m_indloop.update( ilstatus ));
 	bool	ilchanged((ilstatus != m_ilstatus) || (conflict != m_conflict ));
 	bool	inner( ilstatus == inductiveloop::INNER );
-	char	ret( 0 );
 
 	if( g_code2ready ) {
 		uint16_t	id( g_code2 >> 2 );
@@ -63,13 +62,11 @@ char gatehandler::loop( unsigned long currmillis )
 		serialoutln( F( CMNTS "il changed: "), ilstatus, ", ", conflict );
 		Serial.println( freeMemory());
 #endif	//	VERBOSE
-		char l1('_'), l2('_');
-		g_lcd.setCursor( 9, 0 );
-		if( conflict ) l1 = l2 = '^';
-		else if( ilstatus == inductiveloop::INNER ) l1 = '^';
-		else if( ilstatus == inductiveloop::OUTER ) l2 = '^';
-		g_lcd.print( l1 );
-		g_lcd.print( l2 );
+		bool il(false), ol(false);
+		if( conflict ) il = ol = true;
+		else if( ilstatus == inductiveloop::INNER ) il = true;
+		else if( ilstatus == inductiveloop::OUTER ) ol = true;
+		m_display.updateloopstatus( il, ol );
 	}
 
 	switch( m_status )
@@ -99,12 +96,13 @@ char gatehandler::loop( unsigned long currmillis )
 			break;
 		}
 		if( g_codeready ) {
+			uint16_t	id( g_code >> 2 );
 #ifdef VERBOSE
-			serialoutln( F(CMNTS "Code received: "), g_code >> 2);
+			serialoutln( F(CMNTS "Code received: "), id );
 			Serial.println( freeMemory());
 #endif	//	VERBOSE
-			AUTHRES	ar( authorize( g_code, inner ));
-			ret = (char)( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0));
+			AUTHRES	ar( authorize( id, inner ));
+			m_display.updatelastdecision( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0), id );
 			if( ar == GRANTED ) {
 				topass( inner, currmillis );
 #ifndef ENFORCING
@@ -154,13 +152,11 @@ char gatehandler::loop( unsigned long currmillis )
 
 	m_lights.loop( currmillis );
 	m_gate.loop( currmillis );
-	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-gatehandler::AUTHRES gatehandler::authorize( uint16_t code, bool inner )
+gatehandler::AUTHRES gatehandler::authorize( uint16_t id, bool inner )
 {
-	uint16_t			id( code >> 2 );
 	database::dbrecord	rec;
 	AUTHRES				ret( GRANTED );
 
@@ -197,32 +193,3 @@ void gatehandler::tocodewait( bool inner )
 	m_status = CODEWAIT;
 }
 
-/*//////////////////////////////////////////////////////////////////////////////
-void gatehandler::updatelcd( uint16_t id, bool inner, AUTHRES decision )
-{
-	static const char authcodes[] = "GUDTP";
-	char buf[5];
-	char*bp(buf);
-
-	uitodec( bp, id, 4);
-	*bp = 0;
-
-	m_lcd.setCursor( 0, 0 );
-	m_lcd.print((char)(authcodes[decision] + (inner ? 'a'-'A' : 0)));
-	m_lcd.print( ' ' );
-	m_lcd.print( buf );
-	if( (char)m_prevdecision != -1 )
-	{
-		bp = buf;
-		uitodec( bp, m_previd, 4);
-		m_lcd.print( ' ' );
-		m_lcd.print( ' ' );
-		m_lcd.print((char)(authcodes[m_prevdecision] + (m_previnner ? 'a'-'A' : 0)));
-		m_lcd.print( ' ' );
-		m_lcd.print( buf );
-	}
-	m_prevdecision = decision;
-	m_previd = id;
-	m_previnner = inner;
-}
-*/

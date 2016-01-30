@@ -129,7 +129,7 @@ void processInput()
 		{
 			Serial.println();
 			char	*bp((char*)buffer);
-			uitohex( bp, pageoffset, 4 );
+			bp += uitohex( bp, pageoffset, 4 );
 			*bp++ = ' ';
 			*bp = 0;
 			Serial.print((char*) buffer );
@@ -327,7 +327,7 @@ void printpin( uint8_t pin )
 	{
 		if( pin != 0xff ) {
 			lbp = lcdbuffer;
-			uitodec( lbp, pin, 2 ); *lbp++ = 0;
+			lbp += uitodec( lbp, pin, 2 ); *lbp++ = 0;
 		} else {
 			lcdbuffer[0] = ' '; lcdbuffer[1] = ' '; lcdbuffer[2] = 0;
 		}
@@ -376,7 +376,7 @@ void printcode( uint16_t code )
 	char	lcdbuffer[5];
 	char	*lbp(lcdbuffer);
 
-	uitodec( lbp, code, 4);
+	lbp += uitodec( lbp, code, 4);
 	*lbp = 0;
 	g_lcd.setCursor( 9, 0);
 	g_lcd.print( lcdbuffer );

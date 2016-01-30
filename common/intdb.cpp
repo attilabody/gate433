@@ -113,10 +113,9 @@ bool intdb::setParams( int code, const dbrecord &recin )
 bool intdb::setStatus( int code, dbrecord::POSITION pos )
 {
 	char	statusbuffer[STATUSRECORD_WIDTH];
-	char	*sbptr(statusbuffer);
 	bool	ret( false );
 
-	uitohex( sbptr, (uint16_t) pos, 3 );
+	uitohex( statusbuffer, (uint16_t) pos, 3 );
 
 	if( (m_status = m_sd.open( m_statusname, FILE_WRITE ))
 		&& m_status.seek(code * STATUSRECORD_WIDTH)

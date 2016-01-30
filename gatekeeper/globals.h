@@ -21,12 +21,13 @@ struct ts;
 class PCF8574;
 class LiquidCrystal_I2C;
 class sdfatlogwriter;
+class display;
 
 extern const uint8_t	g_innerlightspins[3];
 extern const uint8_t	g_outerlightspins[3];
 extern const uint8_t	g_otherrelaypins[2];
 
-extern LiquidCrystal_I2C	g_lcd;
+extern display				g_display;
 extern SdFat				g_sd;
 #ifdef USE_THINDB
 extern thindb				g_db;

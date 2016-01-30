@@ -100,10 +100,9 @@ bool thindb::setParams( int code, const dbrecord &recin )
 bool thindb::setStatus( int code, dbrecord::POSITION pos )
 {
 	char	statusbuffer[STATUS_WIDTH + 1];
-	char	*sbptr(statusbuffer);
 	bool	ret( false );
 
-	uitohex( sbptr, (uint16_t) pos, 3 );
+	uitohex( statusbuffer, (uint16_t) pos, 3 );
 	SdFile		f;
 
 	if( f.open( m_sd.vwd(), m_dirindex, O_RDWR | O_CREAT ) )
