@@ -129,6 +129,7 @@ void loop()
 	if( g_codedisplayed != g_lrcode ) {
 		g_display.updatelastreceivedid( g_lrcode >> 2 );
 		g_logger.log( logwriter::DEBUG, g_t, F("New code received"), g_lrcode >> 2);
+		g_codedisplayed = g_lrcode;
 	}
 }
 
