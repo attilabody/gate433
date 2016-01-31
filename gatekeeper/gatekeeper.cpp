@@ -200,7 +200,7 @@ void processinput()
 				if( g_db.getParams( id, rec ))
 					tdb.setParams( id, rec );
 		}
-		if( id == to )  Serial.println(F(RESPS "OK"));
+		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
 		else Serial.println( F(ERRS "ERR" ));
 
 	} else if( iscommand( inptr, CMD_IMP)) {	//	import
@@ -216,26 +216,26 @@ void processinput()
 				if( tdb.getParams( id, rec ))
 					g_db.setParams( id, rec );
 		}
-		if( id == to )  Serial.println(F(RESPS "OK"));
+		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
 		else Serial.println( F(ERRS "ERR" ));
 
 	} else if( iscommand( inptr, CMD_DMP )) {	//	dump
 		database::dbrecord	rec;
-		uint16_t			start( getintparam( inptr ));
-		uint16_t			count( getintparam( inptr ));
+		uint16_t			from( getintparam( inptr ));
+		uint16_t			to( getintparam( inptr ));
 		uint16_t			id;
 
 		g_iobuf[3] = ' ';
-		if( start == 0xffff ) start = 0;
-		if( count == 0xffff ) count = 1024 - start;
-		for( id = start; id < start + count; ++id ) {
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		for( id = from; id <= to; ++id ) {
 			if( g_db.getParams( id, rec )) {
 				uitohex( g_iobuf, id, 3 );
 				rec.serialize( g_iobuf + 4 );
 				serialoutln( RESP, g_iobuf );
 			} else break;
 		}
-		if( id == start + count ) Serial.println( RESP );
+		if( id == to + 1 ) Serial.println( RESP );
 		else Serial.println( F(ERRS "ERR" ));
 
 	} else if( iscommand( inptr, CMD_GDT )) {	// get datetime

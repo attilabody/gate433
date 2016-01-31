@@ -162,11 +162,11 @@ void processInput()
 	} else if( iscommand( inptr, F("ddb"))) {	//	dump database
 		char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
 		database::dbrecord	rec;
-		uint16_t	start( getintparam( inptr ));
-		uint16_t	count( getintparam( inptr ));
-		if( start == 0xffff ) start = 0;
-		if( count == 0xffff ) count = 1024 - start;
-		for( uint16_t code = start; code < start + count; ++code ) {
+		uint16_t	from( getintparam( inptr ));
+		uint16_t	to( getintparam( inptr ));
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		for( uint16_t code = from; code <= from; ++code ) {
 			if( g_db.getParams( code, rec )) {
 				rec.serialize( recbuf );
 				Serial.println( recbuf );
