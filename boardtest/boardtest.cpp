@@ -6,6 +6,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <PCF8574.h>
 #include <I2C_eeprom.h>
+#include <MemoryFree.h>
 #include "config.h"
 #include "interface.h"
 #include "intdb.h"
@@ -413,6 +414,7 @@ void setup()
 
 	g_lcd.init();                      // initialize the lcd
 	g_lcd.backlight();
+	g_lcd.print( freeMemory());
 
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
 		pinMode( g_pins[pin], OUTPUT);
@@ -431,6 +433,8 @@ void setup()
 	g_logger.init();
 
 	setup433();
+
+	delay( 2000 );
 	printdatetime();
 }
 
