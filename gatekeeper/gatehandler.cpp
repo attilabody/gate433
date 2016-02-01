@@ -17,8 +17,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 const char gatehandler::m_authcodes[AUTHRESCNT] = { 'G', 'U', 'D', 'T', 'P' };
-const uint8_t PROGMEM	gatehandler::m_innerlightspins[3] = INNER_LIGHTS_PINS;
-const uint8_t PROGMEM	gatehandler::m_outerlightspins[3] = OUTER_LIGHTS_PINS;
+const uint8_t PROGMEM	gatehandler::m_innerlightspins[3] = { INNER_LIGHTS_PINS };
+const uint8_t PROGMEM	gatehandler::m_outerlightspins[3] = { OUTER_LIGHTS_PINS };
 
 
 //////////////////////////////////////////////////////////////////////////////

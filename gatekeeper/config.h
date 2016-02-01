@@ -20,8 +20,8 @@
 
 //PCF8574 outputs
 #define PCF8574_ADDRESS		0x20
-#define INNER_LIGHTS_PINS 	{ 0,1,2 }
-#define OUTER_LIGHTS_PINS 	{ 3,7,6 }
+#define INNER_LIGHTS_PINS 	0,1,2
+#define OUTER_LIGHTS_PINS 	3,7,6
 #define	PIN_RELAY_SPARE		5
 #define PIN_GATE			4
 
