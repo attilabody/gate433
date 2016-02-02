@@ -183,6 +183,14 @@ void processInput()
 			g_db.setParams( code, rec );
 		}
 
+	} else if( iscommand( inptr, F("cdb"))) {	//	fill database
+		database::dbrecord	rec = { 0, 0, 0, 0, 0, database::dbrecord::UNKNOWN };
+
+		for( int code = 0; code < 1024; ++code ) {
+//			rec.in_start = code;
+			g_db.setParams( code, rec );
+		}
+
 	} else if( iscommand( inptr, F("ftdb"))) {	//	fill thin database
 		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::UNKNOWN };
 		thindb				tdb( g_sd );
@@ -378,7 +386,7 @@ void printcode( uint16_t code )
 
 	lbp += uitodec( lbp, code, 4);
 	*lbp = 0;
-	g_lcd.setCursor( 9, 0);
+	g_lcd.setCursor( 9, 1);
 	g_lcd.print( lcdbuffer );
 }
 
