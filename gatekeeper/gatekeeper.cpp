@@ -156,6 +156,7 @@ const char PROGMEM CMD_SET[] = "set";
 const char PROGMEM CMD_EXP[] = "exp";
 const char PROGMEM CMD_IMP[] = "imp";
 const char PROGMEM CMD_DMP[] = "dmp";
+const char PROGMEM CMD_CS[] = "cs";
 const char PROGMEM CMD_GDT[] = "gdt";
 const char PROGMEM CMD_SDT[] = "sdt";
 const char PROGMEM CMD_DS[] = "ds";
@@ -237,6 +238,17 @@ void processinput()
 		}
 		if( id == to + 1 ) Serial.println( RESP );
 		else Serial.println( F(ERRS "ERR" ));
+
+	} else if( iscommand( inptr, CMD_CS )) {	//	clear statuses
+		uint16_t			from( getintparam( inptr ));
+		uint16_t			to( getintparam( inptr ));
+		uint16_t			id;
+
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		for( id = from; id <= to; ++id ) {
+			g_db.setStatus( id, database::dbrecord::UNKNOWN );
+		}
 
 	} else if( iscommand( inptr, CMD_GDT )) {	// get datetime
 		serialout( RESP, (uint16_t)g_t.year, F("."));
