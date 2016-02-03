@@ -35,9 +35,16 @@ enum RCVSTATUS : uint8_t {
 	, STOP
 };
 
-void isr();
-void setup433();
+void 	isr();
+void 	setup433();
 
+#ifdef DECODE433_REVERSE
+inline uint16_t getid( uint16_t code ) { return code >> 2; }
+inline uint8_t getbutton( uint16_t code ) { return code & 3; }
+#else
+inline uint16_t getid( uint16_t code ) { return code & 0x3ff; }
+inline uint8_t getbutton( uint16_t code ) { return code >> 10; }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 #ifdef FAILSTATS

@@ -49,7 +49,7 @@ void gatehandler::loop( unsigned long currmillis )
 	bool	inner( ilstatus == inductiveloop::INNER );
 
 	if( g_code2ready ) {
-		uint16_t	id( g_code2 >> 2 );
+		uint16_t	id( getid( g_code2 ));
 		if( id >= GODMODE_MIN && id <= GODMODE_MAX ) {
 			g_i2cio.write( PIN_GATE, RELAY_ON );
 		}
@@ -95,7 +95,7 @@ void gatehandler::loop( unsigned long currmillis )
 			break;
 		}
 		if( g_codeready ) {
-			uint16_t	id( g_code >> 2 );
+			uint16_t	id( getid( g_code ) );
 #ifdef VERBOSE
 			serialoutln( F(CMNTS "Code received: "), id );
 			Serial.println( freeMemory());
@@ -119,7 +119,7 @@ void gatehandler::loop( unsigned long currmillis )
 	case PASS:
 		if( !ilchanged ) break;
 		if( !m_dbupdated && ilstatus != (m_inner ? inductiveloop::INNER : inductiveloop::OUTER) ) {
-			m_db.setStatus( g_code >> 2, m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE );
+			m_db.setStatus( getid( g_code ), m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE );
 			m_dbupdated = true;
 #ifdef VERBOSE
 			serialoutsepln( ", ", F("setdbstatus "), ilstatus, m_inner, m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);

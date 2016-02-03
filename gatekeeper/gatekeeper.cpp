@@ -127,7 +127,7 @@ void loop()
 	handler.loop( now );
 
 	if( g_codedisplayed != g_lrcode ) {
-		g_display.updatelastreceivedid( g_lrcode >> 2 );
+		g_display.updatelastreceivedid( getid( g_lrcode ));
 		g_logger.log( logwriter::DEBUG, g_t, F("New code received"), g_lrcode >> 2);
 		g_codedisplayed = g_lrcode;
 	}
@@ -291,57 +291,6 @@ void processinput()
 	g_inidx = 0;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//void printdatetime( bool shortyear, bool showdow )
-//{
-//	static ts		dispt = {0,0,0,0,0,0,0,0,0,0};
-//
-//	char	lcdbuffer[13];
-//	char	*lbp(lcdbuffer);
-//
-//	if( dispt.year != g_t.year || dispt.mon != g_t. mon || dispt.mday != g_t.mday ) {
-//		g_lcd.setCursor(0,0);
-//		datetostring( lbp, g_t.year, g_t.mon, g_t.mday, g_t.wday, 0, showdow, '.', '/' ); *lbp = 0;
-//		g_lcd.print( lcdbuffer );
-//	}
-//
-//	if( dispt.hour != g_t.hour || dispt.min != g_t.min || dispt.sec != g_t.sec ) {
-//		g_lcd.setCursor(0,1);
-//		lbp = lcdbuffer;
-//		timetostring( lbp, g_t.hour, g_t.min, g_t.sec, ':' ); *lbp++ = 0;
-//		g_lcd.print( lcdbuffer);
-//	}
-//
-//	dispt = g_t;
-//}
-//
-////////////////////////////////////////////////////////////////////////////////
-//void printdecision( char decision )
-//{
-//	char buf[5];
-//	char*bp(buf);
-//
-//	uitodec( bp, g_code >> 2, 4);
-//	buf[4] = 0;
-//	g_lcd.setCursor( 10, 1 );
-//	g_lcd.print( decision );
-//	g_lcd.print( ' ' );
-//	g_lcd.print( buf );
-//}
-//
-////////////////////////////////////////////////////////////////////////////////
-//void printlastreceived()
-//{
-//	char buf[5];
-//	char*bp(buf);
-//
-//	uitodec( bp, g_lrcode >> 2, 4);
-//	buf[4] = 0;
-//	g_lcd.setCursor( 12, 0 );
-//	g_lcd.print( buf );
-//	g_codedisplayed = g_lrcode;
-//}
-//
 //////////////////////////////////////////////////////////////////////////////
 int getlinefromfile( SdFile &f, char* buffer, uint8_t buflen )
 {

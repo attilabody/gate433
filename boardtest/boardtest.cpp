@@ -468,8 +468,8 @@ void loop()
 	}
 	printloopstatus( digitalRead( PIN_INNERLOOP ) == LOOP_ACTIVE, digitalRead( PIN_OUTERLOOP ) == LOOP_ACTIVE );
 	if( g_codeready ) {
-		printcode( g_code >> 2 );
-		Serial.println( g_code >> 2 );
+		printcode( getid( g_code ));
+		Serial.println( getid( g_code ));
 		g_codeready = false;
 	}
 #ifdef FAILSTATS

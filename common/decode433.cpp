@@ -25,6 +25,18 @@ void setup433()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+inline void newbit( uint16_t &code, bool bit )
+{
+#ifdef DECODE433_REVERSE
+	code <<=1;
+	code |= bit ? 1 : 0;
+#else
+	code >>= 1;
+	code |= bit ? 0x800 : 0;
+#endif;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 void isr()
 {
 	static int8_t curbit;
@@ -77,9 +89,7 @@ void isr()
 #endif
 				break;
 			}
-			code <<= 1;
-			if( lowdeltat < highdeltat )
-				code |= 1;
+			newbit( code, lowdeltat < highdeltat );
 			if( ++curbit == 12 )
 				state = STOP;
 		}
