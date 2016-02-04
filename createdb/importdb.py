@@ -19,15 +19,21 @@ with open('tenants.txt', 'r') as infile:
             # print( len( sline), ' ', sline)
             active[int(sline)] = 2
 
-with open('DB.TXT', 'w') as dbfile:
+with open('INFO.TXT', 'w') as info, open('STATUS.TXT', 'w') as status, open('DB.TXT', 'w') as dbfile :
+    statusline = '000\n'
     for id in range(0, 1024):
         if id in active:
             if active[id] == 1:
                 dbline = '000 FFF 000 FFF 07F 000\n'
+                infoline = '000 FFF 000 FFF 07F\n'
             else:
                 dbline = "%03X %03X %03X %03X 01F 000\n" % \
                          (tenant_in_start, tenant_in_end, tenant_out_start, tenant_out_end)
+                infoline = "%03X %03X %03X %03X 01F\n" % \
+                         (tenant_in_start, tenant_in_end, tenant_out_start, tenant_out_end)
         else:
             dbline = '000 000 000 000 000 000\n'
-        print(dbline, end='')
+            infoline = '000 000 000 000 000\n'
         dbfile.write(dbline)
+        info.write(infoline)
+        status.write(statusline)

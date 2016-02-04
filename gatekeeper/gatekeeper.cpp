@@ -85,7 +85,7 @@ void loop()
 
 	CHECKPOINT;
 
-	if( now - g_lastdtupdate > 950 )
+	if( now - g_lastdtupdate > 980 )
 	{
 		ts	t;
 		DS3231_get( &t );
@@ -112,8 +112,10 @@ void loop()
 			g_t.min = t.min;
 			g_t.hour = t.hour;
 		}
-		g_lastdtupdate = now;
-		g_display.updatedt( g_t, dtcmask );
+		if( dtcmask ) {
+			g_lastdtupdate = now;
+			g_display.updatedt( g_t, dtcmask );
+		}
 	}
 
 	if( getlinefromserial( g_iobuf, sizeof( g_iobuf ), g_inidx) )
