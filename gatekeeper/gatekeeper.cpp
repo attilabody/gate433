@@ -39,7 +39,7 @@ void setup()
 #ifdef USE_FLASHDB
 	bool dbinitsucc = g_db.init();
 #else
-	bool dbinitsucc = sdinitsucc && g_db.init();
+	bool dbinitsucc = g_sdpresent && g_db.init();
 #endif
 
 	g_display.print( ' ' );
@@ -123,7 +123,7 @@ void loop()
 
 	if( g_codedisplayed != g_lrcode ) {
 		g_display.updatelastreceivedid( getid( g_lrcode ));
-		g_logger.log( logwriter::DEBUG, g_t, F("New code received"), g_lrcode >> 2);
+		g_logger.log( logwriter::DEBUG, g_t, F("NewCode"), g_lrcode >> 2);
 		g_codedisplayed = g_lrcode;
 	}
 }
@@ -198,8 +198,8 @@ void processinput()
 		if( tdb.init()) {
 			for( id = from; id <= to; ++id ) {
 				CHECKPOINT;
-				if( g_db.getParams( id, rec ))
-					tdb.setParams( id, rec );
+				if( !g_db.getParams( id, rec ) || !tdb.setParams( id, rec ))
+					break;
 			}
 		}
 		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
@@ -209,20 +209,19 @@ void processinput()
 		thindb				tdb( g_sd );
 		uint16_t			from( getintparam( inptr ));
 		uint16_t			to( getintparam( inptr ));
-		uint16_t			id;
+		uint16_t			id(-1);
 		database::dbrecord	rec;
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
 		if( tdb.init()) {
 			for( id = from; id <= to; ++id ) {
 				CHECKPOINT;
-				if( tdb.getParams( id, rec ))
-					if(!g_db.setParams( id, rec )) break;
-				else break;
+				if( !tdb.getParams( id, rec ) || !g_db.setParams( id, rec ))
+					break;
 			}
 		}
 		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
-		else Serial.println( F(ERRS "ERR" ));
+		else serialoutln( F(ERRS "ERR "), id );
 
 	} else if( iscommand( inptr, CMD_DMP )) {	//	dump
 		database::dbrecord	rec;

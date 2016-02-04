@@ -51,6 +51,7 @@
 //#define USE_INTDB
 //#define USE_THINDB
 //#define USE_HYBRIDDB
+//#define USE_HYBINTDB
 #define USE_FLASHDB
 
 #endif /* CONFIG_H_ */

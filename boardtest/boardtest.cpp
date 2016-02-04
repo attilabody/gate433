@@ -417,7 +417,6 @@ void setup()
 	g_lcd.print( freeMemory());
 
 	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
-		pinMode( g_pins[pin], OUTPUT);
 		g_i2cio.write( g_pins[pin], HIGH );
 	}
 	pinMode( PIN_INNERLOOP, INPUT );

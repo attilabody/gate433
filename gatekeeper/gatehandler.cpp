@@ -119,7 +119,9 @@ void gatehandler::loop( unsigned long currmillis )
 	case PASS:
 		if( !ilchanged ) break;
 		if( !m_dbupdated && ilstatus != (m_inner ? inductiveloop::INNER : inductiveloop::OUTER) ) {
+			g_logger.log( logwriter::DEBUG, g_t, F("DBUP1"), -1 );
 			m_db.setStatus( getid( g_code ), m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE );
+			g_logger.log( logwriter::DEBUG, g_t, F("DBUP2"), -1 );
 			m_dbupdated = true;
 #ifdef VERBOSE
 			serialoutsepln( ", ", F("setdbstatus "), ilstatus, m_inner, m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
@@ -180,7 +182,7 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t id, bool inner )
 			ret = TIME;
 	}
 
-	g_logger.log( logwriter::INFO, g_t, F("Authorization"), id, rec.position, inner, ret );
+	g_logger.log( logwriter::INFO, g_t, F("Auth"), id, rec.position, inner, ret );
 	return ret;
 }
 

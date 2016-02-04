@@ -24,6 +24,9 @@ intdb				g_db( g_sd );
 #ifdef USE_HYBRIDDB
 hybriddb			g_db( g_sd, HYBRIDDB_EEPROM_ADDRESS);
 #endif	//	USE_HYBRIDDB
+#ifdef USE_HYBINTDB
+hybintdb			g_db( g_sd );
+#endif	//	USE_HYBINTDB
 #ifdef USE_FLASHDB
 flashdb				g_db( FLASHDB_EEPROM_ADDRESS, FLASHDB_EEPROM_BITS, 128 );
 #endif	//	USE_FLASHDB
