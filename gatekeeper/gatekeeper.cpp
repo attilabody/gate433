@@ -28,10 +28,6 @@ void setup()
 
 	memset( &g_t, 0, sizeof( g_t ));
 
-#ifdef PIN_LED
-	pinMode( PIN_LED, OUTPUT );
-#endif
-
 	g_display.init();		//	calls Wire.begin()
 
 	g_display.print( freeMemory() );
@@ -50,15 +46,13 @@ void setup()
 	g_display.print( dbinitsucc );
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
-	setuprelaypins( g_otherrelaypins, sizeof(g_otherrelaypins));
+//	setuprelaypins( g_otherrelaypins, sizeof(g_otherrelaypins));
 
-#ifdef PIN_LED
 	noInterrupts();
 	// disable all interrupts
 	TIMSK0 |= ( 1 << OCIE0A );  // enable timer compare interrupt
 	interrupts();
 	// enable all interrupts
-#endif	//	PIN_LED
 
 	setup433();
 
@@ -72,7 +66,7 @@ void setup()
 	g_display.print( loginitsucc );
 
 
-	delay(3000);
+	delay(1000);
 
 	g_logger.log( logwriter::WARNING, g_t, F("Restart"), -1 );
 	g_display.clear();
@@ -89,6 +83,7 @@ void loop()
 	unsigned long		now( millis() );
 	byte				dtcmask(0);
 
+	CHECKPOINT;
 
 	if( now - g_lastdtupdate > 950 )
 	{
@@ -133,12 +128,14 @@ void loop()
 	}
 }
 
-#ifdef PIN_LED
 //////////////////////////////////////////////////////////////////////////////
-ISR( TIMER0_COMPA_vect ) {
-	digitalWrite( PIN_LED, ( micros() - g_codetime < 500000 ) ? HIGH : LOW );
+ISR( TIMER0_COMPA_vect )
+{
+	if( ++g_lastcheckpoint > 5000 ) {
+		pinMode( PIN_RESET, OUTPUT );
+		digitalWrite( PIN_RESET, LOW );
+	}
 }
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 void setuprelaypins( const uint8_t *pins, uint8_t size )
@@ -162,6 +159,8 @@ const char PROGMEM CMD_SDT[] = "sdt";
 const char PROGMEM CMD_DS[] = "ds";
 const char PROGMEM CMD_DL[] = "dl";
 const char PROGMEM CMD_TL[] = "tl";
+const char PROGMEM CMD_IL[] = "il";		//	infinite loop
+
 
 //////////////////////////////////////////////////////////////////////////////
 void processinput()
@@ -197,9 +196,11 @@ void processinput()
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
 		if( tdb.init()) {
-			for( id = from; id <= to; ++id )
+			for( id = from; id <= to; ++id ) {
+				CHECKPOINT;
 				if( g_db.getParams( id, rec ))
 					tdb.setParams( id, rec );
+			}
 		}
 		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
 		else Serial.println( F(ERRS "ERR" ));
@@ -213,9 +214,12 @@ void processinput()
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
 		if( tdb.init()) {
-			for( id = from; id <= to; ++id )
+			for( id = from; id <= to; ++id ) {
+				CHECKPOINT;
 				if( tdb.getParams( id, rec ))
-					g_db.setParams( id, rec );
+					if(!g_db.setParams( id, rec )) break;
+				else break;
+			}
 		}
 		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
 		else Serial.println( F(ERRS "ERR" ));
@@ -230,6 +234,7 @@ void processinput()
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
 		for( id = from; id <= to; ++id ) {
+			CHECKPOINT;
 			if( g_db.getParams( id, rec )) {
 				uitohex( g_iobuf, id, 3 );
 				rec.serialize( g_iobuf + 4 );
@@ -247,6 +252,7 @@ void processinput()
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
 		for( id = from; id <= to; ++id ) {
+			CHECKPOINT;
 			g_db.setStatus( id, database::dbrecord::UNKNOWN );
 		}
 
@@ -270,8 +276,10 @@ void processinput()
 		SdFile	f;
 		char buffer[16];
 		if( f.open( "shuffle.txt", FILE_READ )) {
-			while( getlinefromfile( f, buffer, sizeof(buffer)) != -1 )
+			while( getlinefromfile( f, buffer, sizeof(buffer)) != -1 ) {
+				CHECKPOINT;
 				serialoutln( RESP, buffer );
+			}
 			Serial.println( RESP );
 			f.close();
 		} else {
@@ -283,6 +291,12 @@ void processinput()
 
 	} else if( iscommand( inptr, CMD_TL )) {	// truncate log
 		g_logger.truncate();
+
+	} else if( iscommand( inptr, CMD_IL )) {	// infinite loop
+		while( true ) {
+			Serial.println( g_lastcheckpoint );
+			delay(500);
+		}
 
 	} else {
 		Serial.println( F(ERRS "CMD"));

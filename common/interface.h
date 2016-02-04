@@ -105,6 +105,6 @@ void printtime( Print *p, uint8_t hour, uint8_t min, uint8_t sec, char sep );
 bool parsedatetime( ts &t, const char *&inptr );
 inline char halfbytetohex( uint8_t data ) { return data + ( data < 10 ? '0' : ( 'A' - 10 ) ); }
 
-
+#define CHECKPOINT g_lastcheckpoint=0
 
 #endif /* _interface_H_ */

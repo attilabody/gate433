@@ -13,7 +13,10 @@
 
 #define BAUDRATE 115200
 
+#define DECODE433_REVERSE
+
 #define PIN_RFIN		2
+#define PIN_RESET		3
 #define PIN_INNERLOOP	A0
 #define PIN_OUTERLOOP	A1
 #define LOOP_ACTIVE		LOW

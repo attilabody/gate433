@@ -52,4 +52,6 @@ extern unsigned long		g_lastdtupdate;
 
 extern sdfatlogwriter		g_logger;
 
+extern uint16_t 			g_lastcheckpoint;
+
 #endif	//	GLOBALS_H_
