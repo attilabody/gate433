@@ -10,6 +10,8 @@
 #include <ds3231.h>
 #include "interface.h"
 
+extern uint16_t	g_lastcheckpoint;
+
 /////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -140,7 +142,10 @@ bool sdfatlogwriter::dump( Print *p )
 			if( nio == -1 ) break;
 			bptr = buffer;
 			for( uint8_t bc = nio; bc != 0; --bc ) {
-				if( c == '\n' ) p->print( RESP );
+				if( c == '\n' ) {
+					CHECKPOINT;
+					p->print( RESP );
+				}
 				c = *bptr++;
 				p->print( c );
 			}
