@@ -37,11 +37,18 @@ void loop()
 			code = g_code;
 			cnt = 0;
 		} else if( cnt++ > 3 ) {
-			Serial.print( g_code >> 2 );
-			Serial.println(F(" -> opening gate."));
-			digitalWrite( PIN_GATE, RELAY_ON );
-			delay(1000);
-			digitalWrite( PIN_GATE, RELAY_OFF );
+			uint16_t	id( getid( g_code ));
+
+			Serial.print( id );
+			if( id >=4 )
+			{
+				Serial.println(F(" -> opening gate."));
+				digitalWrite( PIN_GATE, RELAY_ON );
+				delay(1000);
+				digitalWrite( PIN_GATE, RELAY_OFF );
+			} else {
+				Serial.println(F(" -> ignoring."));
+			}
 			cnt = 0;
 		}
 		g_codeready = false;
