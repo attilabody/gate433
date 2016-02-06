@@ -22,7 +22,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/loadtest/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/loadtest/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/timerone}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/TimerOne}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.797261055" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -42,7 +42,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libs/timerone/examples|libs/Touch-Screen-Library|libs/TFTLCDplus-Library|libs/Streaming|libs/SdFat|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/flashdb.cpp|common/dthelpers.cpp|common/decode433.cpp|common/database.cpp|libs/timerone/examples|libs/Touch-Screen-Library|libs/TFTLCDplus-Library|libs/Streaming|libs/SdFat|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
