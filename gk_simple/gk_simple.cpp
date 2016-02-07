@@ -50,7 +50,7 @@ void loop()
 			digitalWrite( OUT_YELLOW, RELAY_OFF );
 
 			Serial.print( id );
-			if( id >=4 )
+			if( id > 3 && id < 1020 )
 			{
 				digitalWrite( IN_GREEN, RELAY_ON );
 				digitalWrite( OUT_GREEN, RELAY_ON );
