@@ -19,6 +19,13 @@ void setup()
 	g_codeready = false;
 	g_code = 0;
 
+	for( uint8_t pin = 4; pin <10; ++pin ) {
+		pinMode( pin, OUTPUT );
+		digitalWrite( pin, RELAY_OFF );
+	}
+
+	digitalWrite( IN_YELLOW, RELAY_ON );
+	digitalWrite( OUT_YELLOW, RELAY_ON );
 }
 
 // The loop function is called in an endless loop
@@ -39,16 +46,31 @@ void loop()
 		} else if( cnt++ > 3 ) {
 			uint16_t	id( getid( g_code ));
 
+			digitalWrite( IN_YELLOW, RELAY_OFF );
+			digitalWrite( OUT_YELLOW, RELAY_OFF );
+
 			Serial.print( id );
 			if( id >=4 )
 			{
+				digitalWrite( IN_GREEN, RELAY_ON );
+				digitalWrite( OUT_GREEN, RELAY_ON );
 				Serial.println(F(" -> opening gate."));
 				digitalWrite( PIN_GATE, RELAY_ON );
 				delay(1000);
 				digitalWrite( PIN_GATE, RELAY_OFF );
+				delay(20000);
+				digitalWrite( IN_GREEN, RELAY_OFF );
+				digitalWrite( OUT_GREEN, RELAY_OFF );
 			} else {
 				Serial.println(F(" -> ignoring."));
+				digitalWrite( IN_RED, RELAY_ON );
+				digitalWrite( OUT_RED, RELAY_ON );
+				delay(3000);
+				digitalWrite( IN_RED, RELAY_OFF );
+				digitalWrite( OUT_RED, RELAY_OFF );
 			}
+			digitalWrite( IN_YELLOW, RELAY_ON );
+			digitalWrite( OUT_YELLOW, RELAY_ON );
 			cnt = 0;
 		}
 		g_codeready = false;
