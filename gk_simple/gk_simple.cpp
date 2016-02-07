@@ -25,10 +25,12 @@ void setup()
 {
 	bool loginit(false);
 
+#ifdef VERBOSE
 	Serial.begin( BAUDRATE );
 	delay(10);
 	for( char c = 0; c < 79; ++c ) Serial.print('-');
 	Serial.println();
+#endif
 
 	pinMode( PIN_GATE, OUTPUT );
 	digitalWrite( PIN_GATE, RELAY_OFF );
@@ -88,17 +90,21 @@ void loop()
 			{
 				DS3231_get( &g_dt );
 				g_logger.log( logwriter::DEBUG, g_dt, F("Abort"), id, btn );
+#ifdef VERBOSE
 				Serial.print( F("Aborting ") );
 				Serial.print( code );
 				Serial.print( ' ' );
 				Serial.println( g_code );
+#endif
 			}
 			code = g_code;
 			cnt = 0;
 		} else if( cnt++ > 3 ) {
 			database::dbrecord	rec;
 
+#ifdef VERBOSE
 			Serial.print( id );
+#endif
 			DS3231_get( &g_dt );
 			g_db.getParams( id, rec );
 
@@ -109,7 +115,9 @@ void loop()
 			{
 				digitalWrite( IN_GREEN, RELAY_ON );
 				digitalWrite( OUT_GREEN, RELAY_ON );
+#ifdef VERBOSE
 				Serial.println(F(" -> opening gate."));
+#endif
 				digitalWrite( PIN_GATE, RELAY_ON );
 				g_logger.log( logwriter::INFO, g_dt, F("Ack"), id, btn );
 				delay(1000);
@@ -118,7 +126,9 @@ void loop()
 				digitalWrite( IN_GREEN, RELAY_OFF );
 				digitalWrite( OUT_GREEN, RELAY_OFF );
 			} else {
-				Serial.println(F(" -> ignoring."));
+#ifdef VERBOSE
+			Serial.println(F(" -> ignoring."));
+#endif
 				digitalWrite( IN_RED, RELAY_ON );
 				digitalWrite( OUT_RED, RELAY_ON );
 				g_logger.log( logwriter::INFO, g_dt, F("Deny"), id, btn );
