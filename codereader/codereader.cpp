@@ -38,11 +38,15 @@ void loop()
 			Serial.println( g_code );
 			code = g_code;
 			cnt = 0;
-		} else if( cnt++ > 3 ) {
-			Serial.println( getid(g_code) );
+		} else if( cnt++ > 2 ) {
+			uint16_t	id( getid( g_code ));
+			Serial.println( id );
 			g_lcd.setCursor(0,0);
-			g_lcd.print( getid( g_code ), 1);
-			g_lcd.print(' ');
+			if(id < 10 ) g_lcd.print(' ');
+			if(id < 100 ) g_lcd.print(' ');
+			if(id < 1000 ) g_lcd.print(' ');
+			g_lcd.print( id );
+			g_lcd.print('.');
 			g_lcd.print( getbutton( g_code ) );
 			g_lcd.print(F("   "));
 			cnt = 0;
