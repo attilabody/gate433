@@ -37,8 +37,15 @@ void setup()
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
+	static unsigned long	lasttick(0);
+	unsigned long			now(millis());
+
 	if( getlinefromserial( g_iobuf, sizeof( g_iobuf ), g_inidx) )
 		processinput();
+	if( now - lasttick > 1000 ) {
+		lasttick += 1000;
+		g_log.log( logwriter::INFO, g_dt, "Tick" );
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
