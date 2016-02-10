@@ -5,6 +5,7 @@
 #include "commsyms.h"
 #include "sdfatlogwriter.h"
 #include "globals.h"
+#include <Wire.h>
 #include <ds3231.h>
 
 ts			g_dt;
@@ -54,6 +55,9 @@ void setup()
 		}
 	}
 
+	Wire.begin();
+	DS3231_init( DS3231_INTCN );
+	DS3231_get( &g_dt );
 	g_logger.log( logwriter::INFO, g_dt, F("Reset") );
 
 	digitalWrite( IN_YELLOW, RELAY_ON );
@@ -78,6 +82,7 @@ void loop()
 		if( code != g_code ) {
 			if( cnt )
 			{
+				DS3231_get( &g_dt );
 				g_logger.log( logwriter::DEBUG, g_dt, F("Abort"), id, btn );
 				Serial.print( F("Aborting ") );
 				Serial.print( code );
@@ -87,6 +92,7 @@ void loop()
 			code = g_code;
 			cnt = 0;
 		} else if( cnt++ > 3 ) {
+			DS3231_get( &g_dt );
 			digitalWrite( IN_YELLOW, RELAY_OFF );
 			digitalWrite( OUT_YELLOW, RELAY_OFF );
 
