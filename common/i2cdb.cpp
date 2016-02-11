@@ -5,55 +5,55 @@
  *      Author: abody
  */
 
-#include "flashdb.h"
+#include "i2cdb.h"
 #include "config.h"
 #include "toolbox.h"
 #include "I2C_eeprom.h"
 
 //////////////////////////////////////////////////////////////////////////////
-flashdb::flashdb( uint8_t i2caddress, uint8_t eeaddressbits, uint8_t eepagesize )
+i2cdb::i2cdb( uint8_t i2caddress, uint8_t eeaddressbits, uint8_t eepagesize )
 : i2c_eeprom( i2caddress, eeaddressbits, eepagesize )
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-flashdb::~flashdb()
+i2cdb::~i2cdb()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool flashdb::init()
+bool i2cdb::init()
 {
 	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool flashdb::getParams( int code, dbrecord &recout )
+bool i2cdb::getParams( int code, dbrecord &recout )
 {
 	uint8_t	buffer[ PACKEDDBRECORD_WIDTH ];
-	read_page( FLASHDB_EEPROM_OFFSET + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer) );
+	read_page( I2CDB_EEPROM_OFFSET + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer) );
 	recout.unpack( buffer );
 	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool flashdb::setParams( int code, const dbrecord &recin )
+bool i2cdb::setParams( int code, const dbrecord &recin )
 {
 	uint8_t	buffer[ PACKEDDBRECORD_WIDTH ];
 	recin.pack( buffer );
-	write_page( FLASHDB_EEPROM_OFFSET + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer) );
+	write_page( I2CDB_EEPROM_OFFSET + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer) );
 	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool flashdb::setStatus( int code, dbrecord::POSITION pos )
+bool i2cdb::setStatus( int code, dbrecord::POSITION pos )
 {
-	write_byte( FLASHDB_EEPROM_OFFSET + (code + 1) * PACKEDDBRECORD_WIDTH - 1, (uint8_t)pos);
+	write_byte( I2CDB_EEPROM_OFFSET + (code + 1) * PACKEDDBRECORD_WIDTH - 1, (uint8_t)pos);
 	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void flashdb::cleanstatuses()
+void i2cdb::cleanstatuses()
 {
 	for( uint16_t rec = 0; rec < 1024; ++rec )
 		setStatus( rec, (dbrecord::POSITION) 0 );

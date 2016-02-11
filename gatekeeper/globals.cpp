@@ -27,8 +27,8 @@ hybriddb			g_db( g_sd, HYBRIDDB_EEPROM_ADDRESS);
 #ifdef USE_HYBINTDB
 hybintdb			g_db( g_sd );
 #endif	//	USE_HYBINTDB
-#ifdef USE_FLASHDB
-flashdb				g_db( FLASHDB_EEPROM_ADDRESS, FLASHDB_EEPROM_BITS, 128 );
+#ifdef USE_I2CDB
+i2cdb				g_db( I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, 128 );
 #endif	//	USE_FLASHDB
 inductiveloop		g_indloop;
 PCF8574				g_i2cio( PCF8574_ADDRESS );

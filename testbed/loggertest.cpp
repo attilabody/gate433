@@ -16,7 +16,6 @@
 SdFat			g_sd;
 sdfatlogwriter	g_log( g_sd );
 ts				g_dt;
-uint16_t		g_lastcheckpoint;
 
 //////////////////////////////////////////////////////////////////////////////
 void processinput();

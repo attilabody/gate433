@@ -14,11 +14,11 @@
 #include <I2C_eeprom.h>
 #include "config.h"
 
-class flashdb: public database, public i2c_eeprom
+class i2cdb: public database, public i2c_eeprom
 {
 public:
-	flashdb( uint8_t i2caddress, uint8_t eeaddressbits, uint8_t eepagesize );
-	virtual ~flashdb();
+	i2cdb( uint8_t i2caddress, uint8_t eeaddressbits, uint8_t eepagesize );
+	virtual ~i2cdb();
 	bool	init();
 
 	virtual bool getParams( int code, dbrecord &recout );

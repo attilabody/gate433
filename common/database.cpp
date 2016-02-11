@@ -136,3 +136,12 @@ void database::dbrecord::unpack( uint8_t *buffer )
 	days = *buffer++;
 	position = (POSITION)*buffer++;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+void database::dbrecord::settimes( uint16_t is, uint16_t ie, uint16_t os, uint16_t oe )
+{
+	in_start = is;
+	in_end = ie;
+	out_start = os;
+	out_end  = oe;
+}

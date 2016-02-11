@@ -49,6 +49,8 @@ public:
 		void serialize( char *buffer ) const;
 		uint8_t pack( uint8_t *buffer ) const;
 		void unpack( uint8_t *buffer );
+		bool enabled() const { return (in_start < in_end || out_start < out_end ) && (days & 0x7f) != 0; }
+		void settimes( uint16_t is, uint16_t ie, uint16_t os, uint16_t oe );
 
 		uint16_t	in_start;
 		uint16_t	in_end;

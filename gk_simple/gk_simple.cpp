@@ -16,14 +16,13 @@ uint16_t	g_lastcheckpoint;
 void processinput();
 
 
-//The setup function is called once at startup of the sketch
+
 void setup()
 {
 	bool loginit(false);
 
 	Serial.begin( BAUDRATE );
 	delay(10);
-	Serial.print( CMNT );
 	for( char c = 0; c < 79; ++c ) Serial.print('-');
 	Serial.println();
 
@@ -65,7 +64,6 @@ void setup()
 	digitalWrite( OUT_YELLOW, RELAY_ON );
 }
 
-// The loop function is called in an endless loop
 void loop()
 {
 	static uint16_t	code(0);

@@ -15,7 +15,9 @@
 #include "intdb.h"
 #include "thindb.h"
 #include "hybriddb.h"
-#include "flashdb.h"
+#include "hybintdb.h"
+#include "i2cdb.h"
+#include "eepromdb.h"
 #include "decode433.h"
 #include "sdfatlogwriter.h"
 
@@ -28,8 +30,10 @@ uint8_t		g_inidx(0);
 
 #ifdef TEST_SDCARD
 SdFat			g_sd;
-flashdb			g_db( 0x50, 16, 128 );
+//i2cdb			g_db( 0x50, 16, 128 );
+eepromdb		g_db;
 sdfatlogwriter	g_logger( g_sd );
+uint16_t		g_lastcheckpoint(0);
 #endif	//	TEST_SDCARD
 
 uint8_t			g_pins[8] = { 0, 1, 2, 3, 7, 6, 5, 4 };
@@ -37,8 +41,6 @@ uint8_t			g_pinindex( sizeof( g_pins ) - 1 );
 unsigned long	g_rtstart(0);
 uint16_t		g_rtdelay(1000);
 PCF8574			g_i2cio(0x20);
-
-uint16_t		g_lastcheckpoint;
 
 #ifdef	TEST_LCD
 #ifndef LCD_I2C_ADDRESS
@@ -124,46 +126,46 @@ void processInput()
 			delay(10);
 		}
 
-	} else if( iscommand( inptr, F("dep"))) {	//dump eeprom paged
-		uint8_t		buffer[16];
-		uint16_t	address = getintparam( inptr );
-		uint16_t	count = getintparam( inptr );
-		if(address == 0xffff) address = 0;
-		address &= 0xfff0;
+//	} else if( iscommand( inptr, F("dep"))) {	//dump eeprom paged
+//		uint8_t		buffer[16];
+//		uint16_t	address = getintparam( inptr );
+//		uint16_t	count = getintparam( inptr );
+//		if(address == 0xffff) address = 0;
+//		address &= 0xfff0;
+//
+//		for( uint32_t pageoffset = 0; pageoffset < count; pageoffset += 16 )
+//		{
+//			Serial.println();
+//			char	*bp((char*)buffer);
+//			bp += uitohex( bp, pageoffset, 4 );
+//			*bp++ = ' ';
+//			*bp = 0;
+//			Serial.print((char*) buffer );
+//
+//			g_db.read_page( address + pageoffset, buffer, 16 );
+//			for( uint8_t offset=0; offset < 16; ++offset ) {
+//				if( offset) Serial.print(' ');
+//				Serial.print( halfbytetohex( buffer[offset] >> 4));
+//				Serial.print( halfbytetohex( buffer[offset] & 0xf));
+//			}
+//		}
 
-		for( uint32_t pageoffset = 0; pageoffset < count; pageoffset += 16 )
-		{
-			Serial.println();
-			char	*bp((char*)buffer);
-			bp += uitohex( bp, pageoffset, 4 );
-			*bp++ = ' ';
-			*bp = 0;
-			Serial.print((char*) buffer );
-
-			g_db.read_page( address + pageoffset, buffer, 16 );
-			for( uint8_t offset=0; offset < 16; ++offset ) {
-				if( offset) Serial.print(' ');
-				Serial.print( halfbytetohex( buffer[offset] >> 4));
-				Serial.print( halfbytetohex( buffer[offset] & 0xf));
-			}
-		}
-
-	} else if( iscommand( inptr, F("se"))) {	//	set eeprom
-		uint16_t	address = getintparam( inptr );
-		uint16_t	value = getintparam( inptr );
-		g_db.write_byte( address, value );
-
+//	} else if( iscommand( inptr, F("se"))) {	//	set eeprom
+//		uint16_t	address = getintparam( inptr );
+//		uint16_t	value = getintparam( inptr );
+//		g_db.write_byte( address, value );
+//
 	} else if( iscommand( inptr, F("ge"))) {	//	get eeprom
 		uint16_t	address = getintparam( inptr );
 		uint8_t		value = g_db.read_byte( address );
 		Serial.print( halfbytetohex( value >> 4 ));
 		Serial.println( halfbytetohex( value & 0xf ));
 
-	} else if( iscommand( inptr, F("fe"))) {	//	fill eeprom <start> <value> <count>
-		uint16_t	address = getintparam( inptr );
-		uint8_t		value = getintparam( inptr );
-		uint16_t	count = getintparam( inptr );
-		g_db.fill_page( address, value, count );
+//	} else if( iscommand( inptr, F("fe"))) {	//	fill eeprom <start> <value> <count>
+//		uint16_t	address = getintparam( inptr );
+//		uint8_t		value = getintparam( inptr );
+//		uint16_t	count = getintparam( inptr );
+//		g_db.fill_page( address, value, count );
 
 	} else if( iscommand( inptr, F("ddb"))) {	//	dump database
 		char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
@@ -172,7 +174,7 @@ void processInput()
 		uint16_t	to( getintparam( inptr ));
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
-		for( uint16_t code = from; code <= from; ++code ) {
+		for( uint16_t code = from; code <= to; ++code ) {
 			if( g_db.getParams( code, rec )) {
 				rec.serialize( recbuf );
 				Serial.println( recbuf );
@@ -181,11 +183,29 @@ void processInput()
 			}
 		}
 
+	} else if( iscommand( inptr, F("dtdb"))) {	//	dump database
+		char recbuf[ INFORECORD_WIDTH + STATUSRECORD_WIDTH + 1 ];
+		database::dbrecord	rec;
+		thindb				tdb( g_sd );
+		uint16_t	from( getintparam( inptr ));
+		uint16_t	to( getintparam( inptr ));
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		if( tdb.init()) {
+			for( uint16_t code = from; code <= to; ++code ) {
+				if( tdb.getParams( code, rec )) {
+					rec.serialize( recbuf );
+					Serial.println( recbuf );
+				} else {
+					Serial.println( F(ERRS "GETPARAMS" ));
+				}
+			}
+		}
+
 	} else if( iscommand( inptr, F("fdb"))) {	//	fill database
 		database::dbrecord	rec = { 0, 0xfff, 0, 0xfff, 0x7f, database::dbrecord::UNKNOWN };
 
 		for( int code = 0; code < 1024; ++code ) {
-//			rec.in_start = code;
 			g_db.setParams( code, rec );
 		}
 
@@ -193,7 +213,6 @@ void processInput()
 		database::dbrecord	rec = { 0, 0, 0, 0, 0, database::dbrecord::UNKNOWN };
 
 		for( int code = 0; code < 1024; ++code ) {
-//			rec.in_start = code;
 			g_db.setParams( code, rec );
 		}
 
