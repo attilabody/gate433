@@ -102,25 +102,25 @@ bool sdfatlogwriter::init()
 
 
 /////////////////////////////////////////////////////////////////////////////
-void sdfatlogwriter::log( CATEGORY category, ts &datetime, const char* message, uint16_t rid, uint8_t dbpos, uint8_t loop,  uint8_t decision )
+void sdfatlogwriter::log( CATEGORY category, ts &datetime, const char* message, uint16_t rid, uint8_t btn, uint8_t dbpos, uint8_t loop,  uint8_t decision )
 {
 	char		buffer[32];
 	if( !m_initialized ) return;
 
 	sdfwbuffer	b( m_sd.vwd(), m_dirindex, buffer, sizeof(buffer) );
-	writelinehdr( b, category, datetime, rid, dbpos, loop, decision );
+	writelinehdr( b, category, datetime, rid, btn, dbpos, loop, decision );
 	b.writebuffer::write( message );
 	b.writebuffer::write( '\n' );
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void sdfatlogwriter::log( CATEGORY category, ts &datetime, const __FlashStringHelper *message, uint16_t rid, uint8_t dbpos, uint8_t loop, uint8_t decision )
+void sdfatlogwriter::log( CATEGORY category, ts &datetime, const __FlashStringHelper *message, uint16_t rid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision )
 {
 	char		buffer[32];
 	if( !m_initialized ) return;
 
 	sdfwbuffer	b( m_sd.vwd(), m_dirindex, buffer, sizeof(buffer) );
-	writelinehdr( b, category, datetime, rid, dbpos, loop, decision );
+	writelinehdr( b, category, datetime, rid, btn, dbpos, loop, decision );
 	b.writebuffer::write( message );
 	b.writebuffer::write( '\n' );
 }
@@ -181,7 +181,7 @@ const char __positions[] PROGMEM = "UOI";
 const char __decisions[] PROGMEM = "ACK" "UNR" "DAY" "TME" "POS";
 
 /////////////////////////////////////////////////////////////////////////////
-bool sdfatlogwriter::writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid, uint8_t dbpos, uint8_t loop, uint8_t decision )
+bool sdfatlogwriter::writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision )
 {
 	bool ret( true );
 	ret &= wb.write( datetime );
@@ -190,6 +190,10 @@ bool sdfatlogwriter::writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uin
 	ret &= wb.writebuffer::write( ' ' );
 	if( remoteid != 0xffff ) {
 		ret &= wb.write( remoteid, 4 );
+		ret &= wb.writebuffer::write(' ');
+	}
+	if( btn != 0xff ) {
+		ret &= wb.write( btn, 1 );
 		ret &= wb.writebuffer::write(' ');
 	}
 	if( dbpos != 0xff ) {

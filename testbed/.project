@@ -47,21 +47,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/libs</locationURI>
 		</link>
 		<link>
-			<name>logwriter.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/logwriter.h</locationURI>
-		</link>
-		<link>
-			<name>sdfatlogwriter.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/sdfatlogwriter.cpp</locationURI>
-		</link>
-		<link>
-			<name>sdfatlogwriter.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/sdfatlogwriter.h</locationURI>
-		</link>
-		<link>
 			<name>trafficlights.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/trafficlights.cpp</locationURI>
@@ -70,16 +55,6 @@
 			<name>trafficlights.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/trafficlights.h</locationURI>
-		</link>
-		<link>
-			<name>writebuffer.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/writebuffer.cpp</locationURI>
-		</link>
-		<link>
-			<name>writebuffer.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/writebuffer.h</locationURI>
 		</link>
 		<link>
 			<name>Libraries/EEPROM</name>

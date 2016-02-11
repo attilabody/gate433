@@ -26,12 +26,12 @@ public:
 
 
 	void log( 	CATEGORY category, ts &datetime, const char* message,
-				uint16_t rid = 0xffff, uint8_t dbpos = 0xff,
+				uint16_t rid = 0xffff, uint8_t button = 0xff, uint8_t dbpos = 0xff,
 				uint8_t loop = 0xff, uint8_t decision = 0xff );
 
 	void log( 	CATEGORY category, ts &datetime,
 				const __FlashStringHelper *message,
-				uint16_t rid = 0xffff, uint8_t dbpos = 0xff,
+				uint16_t rid = 0xffff, uint8_t button = 0xff, uint8_t dbpos = 0xff,
 				uint8_t loop = 0xff, uint8_t decision = 0xff );
 
 	bool dump( Print *p );
@@ -56,7 +56,7 @@ protected:
 	uint16_t	m_dirindex;
 	bool		m_initialized;
 
-	bool	writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid, uint8_t dbpos, uint8_t loop, uint8_t decision );
+	bool	writelinehdr( sdfwbuffer &wb, CATEGORY c, ts &datetime, uint16_t remoteid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision );
 
 };
 
