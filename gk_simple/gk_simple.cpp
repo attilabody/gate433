@@ -3,6 +3,8 @@
 #include "decode433.h"
 #include "toolbox.h"
 #include "commsyms.h"
+#include <serialout.h>
+#include <eepromdb.h>
 #include "sdfatlogwriter.h"
 #include "globals.h"
 #include <Wire.h>
@@ -12,6 +14,8 @@ ts			g_dt;
 char		g_iobuf[32];
 uint8_t		g_inidx(0);
 uint16_t	g_lastcheckpoint;
+
+eepromdb	g_db;
 
 void processinput();
 
@@ -62,6 +66,8 @@ void setup()
 	digitalWrite( IN_YELLOW, RELAY_ON );
 	delay( 500 );
 	digitalWrite( OUT_YELLOW, RELAY_ON );
+
+	g_db.init();
 }
 
 void loop()
@@ -90,12 +96,16 @@ void loop()
 			code = g_code;
 			cnt = 0;
 		} else if( cnt++ > 3 ) {
+			database::dbrecord	rec;
+
+			Serial.print( id );
 			DS3231_get( &g_dt );
+			g_db.getParams( id, rec );
+
 			digitalWrite( IN_YELLOW, RELAY_OFF );
 			digitalWrite( OUT_YELLOW, RELAY_OFF );
 
-			Serial.print( id );
-			if( id > 3 && id < 1020 )
+			if( rec.enabled() )
 			{
 				digitalWrite( IN_GREEN, RELAY_ON );
 				digitalWrite( OUT_GREEN, RELAY_ON );

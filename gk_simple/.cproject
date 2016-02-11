@@ -28,6 +28,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/Libraries/Wire/utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/ds3231}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/SdFat/SdFat}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/Libraries/EEPROM}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.508281141" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -37,6 +38,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/Libraries/Wire}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/Libraries/Wire/utility}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/Libraries/EEPROM}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.868595996" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
 							</tool>
@@ -49,7 +51,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="common/i2cdb.cpp|common/eepromdb.cpp|libs/ds3231/examples|libs/I2C/examples|libs/SdFat/SdFat/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/html|libs/SdFat/AnalogBinLoggerExtras|common/thindb.cpp|common/intdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/flashdb.cpp|libs/Touch-Screen-Library|libs/timerone|libs/TFTLCDplus-Library|libs/Streaming|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="common/i2cdb.cpp|libs/ds3231/examples|libs/I2C/examples|libs/SdFat/SdFat/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/html|libs/SdFat/AnalogBinLoggerExtras|common/thindb.cpp|common/intdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/flashdb.cpp|libs/Touch-Screen-Library|libs/timerone|libs/TFTLCDplus-Library|libs/Streaming|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
