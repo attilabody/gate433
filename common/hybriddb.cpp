@@ -7,7 +7,7 @@
 
 #include "hybriddb.h"
 #include "config.h"
-#include "interface.h"
+#include "toolbox.h"
 #include "I2C_eeprom.h"
 
 //////////////////////////////////////////////////////////////////////////////

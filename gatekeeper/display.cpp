@@ -7,7 +7,8 @@
 
 #include <display.h>
 #include <ds3231.h>
-#include "interface.h"
+#include "toolbox.h"
+#include "dthelpers.h"
 
 display::display( byte i2c_address, byte width, byte height )
 : LiquidCrystal_I2C( i2c_address, width, height )

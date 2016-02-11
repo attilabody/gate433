@@ -1,10 +1,14 @@
+#include <Arduino.h>
 #include <Wire.h>
 #include <ds3231.h>
 #include <SdFat.h>
 #include <MemoryFree.h>
 #include "config.h"
 #include "globals.h"
-#include "interface.h"
+#include "toolbox.h"
+#include "dthelpers.h"
+#include <commsyms.h>
+#include "serialout.h"
 #include "serialbuf.h"
 #include "decode433.h"
 #include "gatehandler.h"

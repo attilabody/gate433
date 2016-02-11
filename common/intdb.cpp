@@ -8,7 +8,7 @@
 #include "intdb.h"
 
 #include "config.h"
-#include "interface.h"
+#include "toolbox.h"
 
 intdb::intdb( SdFat &sd, bool initialize )
 : m_sd( sd )

@@ -7,7 +7,7 @@
 
 #include "hybintdb.h"
 #include "config.h"
-#include "interface.h"
+#include "toolbox.h"
 #include "EEPROM.h"
 
 //////////////////////////////////////////////////////////////////////////////

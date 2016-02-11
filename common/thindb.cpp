@@ -8,7 +8,7 @@
 #include "thindb.h"
 
 #include "config.h"
-#include "interface.h"
+#include "toolbox.h"
 
 //////////////////////////////////////////////////////////////////////////////
 thindb::thindb( SdFat &sd, bool initialize )

@@ -8,7 +8,10 @@
 #include <I2C_eeprom.h>
 #include <MemoryFree.h>
 #include "config.h"
-#include "interface.h"
+#include "commsyms.h"
+#include "serialout.h"
+#include "toolbox.h"
+#include "dthelpers.h"
 #include "intdb.h"
 #include "thindb.h"
 #include "hybriddb.h"
@@ -21,7 +24,7 @@
 #define TEST_DS3231
 
 char		g_inbuf[128+1];
-uint8_t	g_inidx(0);
+uint8_t		g_inidx(0);
 
 #ifdef TEST_SDCARD
 SdFat			g_sd;
@@ -34,6 +37,8 @@ uint8_t			g_pinindex( sizeof( g_pins ) - 1 );
 unsigned long	g_rtstart(0);
 uint16_t		g_rtdelay(1000);
 PCF8574			g_i2cio(0x20);
+
+uint16_t		g_lastcheckpoint;
 
 #ifdef	TEST_LCD
 #ifndef LCD_I2C_ADDRESS

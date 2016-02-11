@@ -8,7 +8,8 @@
 #include "sdfatlogwriter.h"
 #include <SdFat.h>
 #include <ds3231.h>
-#include "interface.h"
+#include "toolbox.h"
+#include "commsyms.h"
 
 extern uint16_t	g_lastcheckpoint;
 
