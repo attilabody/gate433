@@ -25,4 +25,7 @@
 #define IN_YELLOW	8
 #define IN_RED		7
 
+#define ID_MIN	4
+#define	ID_MAX	1019
+
 #endif /* CONFIG_H_ */

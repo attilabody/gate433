@@ -33,7 +33,7 @@ inline void newbit( uint16_t &code, bool bit )
 #else
 	code >>= 1;
 	code |= bit ? 0x800 : 0;
-#endif;
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
