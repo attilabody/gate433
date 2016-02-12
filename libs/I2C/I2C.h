@@ -100,18 +100,19 @@ class I2C
     uint8_t available();
     uint8_t receive();
     uint8_t write(uint8_t, uint8_t);
-    uint8_t write(int, int); 
+    uint8_t write16(uint8_t, uint16_t);
     uint8_t write(uint8_t, uint8_t, uint8_t);
-    uint8_t write(int, int, int);
+    uint8_t write16(uint8_t, uint16_t, uint8_t);
     uint8_t write(uint8_t, uint8_t, char*);
+    uint8_t write16(uint8_t, uint16_t, char*);
     uint8_t write(uint8_t, uint8_t, uint8_t*, uint8_t);
+    uint8_t write16(uint8_t, uint16_t, uint8_t*, uint8_t);
     uint8_t read(uint8_t, uint8_t);
-    uint8_t read(int, int);
     uint8_t read(uint8_t, uint8_t, uint8_t);
-    uint8_t read(int, int, int);
+    uint8_t read16(uint8_t, uint16_t, uint8_t);
     uint8_t read(uint8_t, uint8_t, uint8_t*);
     uint8_t read(uint8_t, uint8_t, uint8_t, uint8_t*);
-
+    uint8_t read16(uint8_t, uint16_t, uint8_t, uint8_t*);
 
   private:
     uint8_t start();
@@ -120,14 +121,14 @@ class I2C
     uint8_t receiveByte(uint8_t);
     uint8_t stop();
     void lockUp();
-    uint8_t returnStatus;
-    uint8_t nack;
-    uint8_t data[MAX_BUFFER_SIZE];
-    static uint8_t bytesAvailable;
-    static uint8_t bufferIndex;
-    static uint8_t totalBytes;
-    static uint16_t timeOutDelay;
 
+    uint8_t			m_returnStatus;
+    uint8_t			m_nack;
+    uint8_t			m_data[MAX_BUFFER_SIZE];
+    static uint8_t	m_bytesAvailable;
+    static uint8_t	m_bufferIndex;
+    static uint8_t	m_totalBytes;
+    static uint16_t	m_timeOutDelay;
 };
 
 extern I2C I2c;
