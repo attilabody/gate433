@@ -5,4 +5,5 @@ tftplus		libs/TFTLCDplus-Library		git@github.com:compihu/TFTLCD-Library.git
 ds3231		libs/ds3231			git@github.com:rodan/ds3231.git
 MemoryFree	libs/MemoryFree			git@github.com:McNeight/MemoryFree.git
 timerone	libs/TimerOne			git@github.com:PaulStoffregen/TimerOne.git
+i2c		libs/I2C			git@github.com:DSSCircuits/I2C-Master-Library.git
 
