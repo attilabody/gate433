@@ -1,5 +1,5 @@
 #define NUMDELTAS 600
-#define BAUDRATE 57600
+#define BAUDRATE 115200
 #define MSB ( sizeof( datatype ) * 8 )
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
@@ -27,6 +27,7 @@ const char * g_commands[] = {
 
 
 
+//////////////////////////////////////////////////////////////////////////////
 void printDeltas()
 {
   bool          state;
@@ -37,19 +38,24 @@ void printDeltas()
     unsigned long val( g_deltas[sample] );
     bool state = val & ((datatype)1 << (MSB - 1));
     val &= ((datatype)(-1)) >> 1;
-    Serial.print( state ? "HL " : "LH " );
-    Serial.println( val );
+    if( sample && val > 10000 ) Serial.println();
+    else if( sample ) Serial.print('\t');
+//    Serial.print( state ? "L " : "H " );	//high after change means pulse was low
+    Serial.print( val );
   }
+  Serial.println();
   Serial.print("----- Communication took ");
   Serial.print( micros() - start );
   Serial.println( " microseconds." );
   Serial.println("");
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void isr()
 {
   static unsigned long  now;
   static bool           in;
+  static unsigned int	delta;
 
   now = micros();
 
@@ -57,15 +63,23 @@ void isr()
     g_lastedge = now;
     return;
   }
+  in = (PIND & 4) != 0;	//digitalRead(2) == HIGH;
+  delta = (now - g_lastedge);
 
-  in = (digitalRead(g_inPin) == HIGH);
-  g_deltas[g_cursample++] = (now - g_lastedge) | (((unsigned long)in) << (MSB - 1));
+  if( !g_cursample )
+	  if ( !in || delta < 10000 ) {
+	    g_lastedge = now;
+	    return;
+  }
+
+  g_deltas[g_cursample++] = delta | (((unsigned long)in) << (MSB - 1));
   if ( g_cursample == NUMDELTAS ) {
     g_full = true;
   }
   g_lastedge = now;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 char findcommand(unsigned char &inptr)
 {
   while( inptr < g_serptr && g_serbuf[inptr] != ' ' && g_serbuf[inptr] != ',' && g_serbuf[inptr] != '\n' ) {
@@ -84,6 +98,7 @@ char findcommand(unsigned char &inptr)
   return -1;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 int getintparam(unsigned char &inptr)
 {
   int retval(0);
@@ -98,6 +113,7 @@ int getintparam(unsigned char &inptr)
   return found ? retval : -1;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void processInput()
 {
   unsigned char inptr(0);
@@ -113,6 +129,7 @@ void processInput()
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void loop()
 {
   if ( g_full ) {
@@ -130,6 +147,7 @@ void loop()
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void setup()
 {
   pinMode(g_outPin, OUTPUT);
