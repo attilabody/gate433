@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #define NUMDELTAS 600
 #define BAUDRATE 115200
 #define MSB ( sizeof( datatype ) * 8 )
