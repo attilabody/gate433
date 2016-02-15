@@ -8,8 +8,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define FAILSTATS
-#define USE_SDCARD
+//#define FAILSTATS
+//#define USE_SDCARD
 
 #define BAUDRATE 115200
 

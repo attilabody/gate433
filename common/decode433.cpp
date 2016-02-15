@@ -17,6 +17,12 @@ volatile uint32_t 	g_lastedge;
 volatile stats 		g_stats;
 #endif
 
+enum RCVSTATUS : uint8_t {
+	  START
+	, DATA
+};
+
+
 //////////////////////////////////////////////////////////////////////////////
 void setup433()
 {
@@ -41,92 +47,82 @@ void isr()
 {
 	static int8_t curbit;
 	static uint32_t lastedge( micros() ), curedge;
-	static bool lastlevel( digitalRead( PIN_RFIN ) == HIGH ), in;
+	// we are at the closing edge of the current half cycle. level after the
+	// edge is opposite what the level was during the cycle
+	static bool curlevel;
 	static RCVSTATUS state( START );
-	static uint16_t code, deltat, cyclet;
+	static uint16_t code, deltat, cyclet, expectedcyclet;
 
-	static uint16_t highdeltat, lowdeltat, timediff;
+	static uint16_t highdeltat, lowdeltat;
 
 	curedge = micros();
-	in = ( digitalRead( PIN_RFIN ) == HIGH );
+	curlevel = digitalRead( PIN_RFIN ) != HIGH;
 	deltat = curedge - lastedge;
+	(curlevel ? highdeltat : lowdeltat) = deltat;
 
 	switch( state ) {
 	case START:
-		if( //!g_codeready &&
-			lastlevel &&
-			!in &&
-			deltat >= SHORT_MIN_TIME &&
-			deltat <= SHORT_MAX_TIME
+		if(	curlevel &&						// high half
+			deltat >= SHORT_MIN_TIME &&		// short start
+			deltat <= SHORT_MAX_TIME &&
+			lowdeltat >= STOP_MIN_TIME		// long low
 		) {	// h->l
 			state = DATA;
 			curbit = code = 0;
+			expectedcyclet = (deltat << 1) + (deltat >> 1);	//	*2.5
 		}
 #ifdef FAILSTATS
 		else
-		++g_stats.startabort;
+		++g_stats.probes[stats::START];
 #endif
-
 		break;
 
 	case DATA:
-		if( deltat < SHORT_MIN_TIME || deltat > LONG_MAX_TIME ) {
+		if( deltat < (expectedcyclet >> 3 ) ||	//	/8
+			deltat > expectedcyclet ) {
 			state = START;
 #ifdef FAILSTATS
-			++g_stats.dataabort;
+			++g_stats.probes[stats::DATA1];
+			g_stats.probes[stats::DT] = deltat;
+			g_stats.probes[stats::ECT] = expectedcyclet;
 #endif
-		} else if( in ) { 	//	l->h
-			lowdeltat = deltat;
-		} else {			//	h->l
-			highdeltat = deltat;
+		} else if( curlevel ) 	//	high half
+		{
 			cyclet = highdeltat + lowdeltat;
-			timediff = highdeltat > lowdeltat ? highdeltat - lowdeltat : lowdeltat - highdeltat;
-			if( cyclet < CYCLE_MIN_TIME || cyclet > CYCLE_MAX_TIME
-			        || (unsigned int)timediff < ( cyclet >> 4 ) ) {
+			if( cyclet < (expectedcyclet >> 1) ||
+				cyclet > (expectedcyclet + (expectedcyclet >> 1))
+			) {
 				state = START;
 #ifdef FAILSTATS
-				++g_stats.dataabort;
+				++g_stats.probes[stats::DATA2];
+				g_stats.probes[stats::CT] = cyclet;
+				g_stats.probes[stats::ECT] = expectedcyclet;
 #endif
 				break;
 			}
 			newbit( code, lowdeltat < highdeltat );
-			if( ++curbit == 12 )
-				state = STOP;
-		}
-		break;
-
-	case STOP:
-		if( in &&
-			deltat > STOP_MIN_TIME //&&
-		) {	// l->h => stop end
-			if( !g_codeready ) {
-				g_code = code;
-				g_codeready = true;
-			}
-			if( !g_code2ready ) {
-				g_code2 = code;
-				g_code2ready = true;
-			}
-
-			g_lrcode = code;
-			//g_lrready = true;
-			g_codetime = lastedge;
+			if( ++curbit == 12 ) {
 #ifdef FAILSTATS
-			g_stats.stopdeltat = deltat;
-			++g_stats.success;
+				++g_stats.probes[stats::SUCCESS];
 #endif
+				state = START;
+				if( !g_codeready ) {
+					g_code = code;
+					g_codeready = true;
+				}
+				if( !g_code2ready ) {
+					g_code2 = code;
+					g_code2ready = true;
+				}
+
+				g_lrcode = code;
+				//g_lrready = true;
+				g_codetime = lastedge;
+			}
 		}
-#ifdef FAILSTATS
-		else {
-			++g_stats.stopabort;
-			g_stats.stopdeltat = deltat;
-		}
-#endif
-		state = START;
 		break;
 	}
 
-	lastlevel = in;
 	g_lastedge = lastedge = curedge;
 }
 

@@ -53,6 +53,15 @@ void loop()
 	static uint16_t	code(0);
 	static uint8_t	cnt(0);
 
+#ifdef FAILSTATS
+	static unsigned long	laststats;
+
+	if(millis() - laststats > 1000 ) {
+		g_stats.toserial();
+		laststats = millis();
+	}
+#endif
+
 	if( g_codeready )
 	{
 		if( code != g_code ) {
@@ -81,5 +90,8 @@ void loop()
 			cnt = 0;
 		} else Serial.print('.');
 		g_codeready = false;
+#ifdef FAILSTATS
+		laststats = millis();
+#endif
 	}
 }

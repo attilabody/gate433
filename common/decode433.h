@@ -11,8 +11,6 @@
 #include <Arduino.h>
 #include "config.h"
 
-//#define FAILSTATS
-
 #define SHORT_MIN_TIME	220
 #define SHORT_MAX_TIME	800
 #define LONG_MIN_TIME	580
@@ -29,12 +27,6 @@ extern volatile uint32_t 	g_codetime;
 extern volatile uint32_t 	g_lastedge;
 
 //////////////////////////////////////////////////////////////////////////////
-enum RCVSTATUS : uint8_t {
-	  START
-	, DATA
-	, STOP
-};
-
 void 	isr();
 void 	setup433();
 
@@ -50,14 +42,17 @@ inline uint8_t getbutton( uint16_t code ) { return code >> 10; }
 #ifdef FAILSTATS
 struct stats
 {
-	stats() { memset( this, 0, sizeof *this ); }// startabort = dataabort = stopabort = stopdeltat = success = 0;}
-	bool operator==( const stats &o ) {
-		return startabort == o.startabort && dataabort == o.dataabort && stopabort == o.stopabort && success == o.success;
+	enum probes { START, DATA1, DATA2, SUCCESS, DT, CT, ECT, COUNT };
+	stats() { memset( this, 0, sizeof *this ); }// startabort = dataabort = success = 0;}
+	bool operator==( const stats &o ) { !memcmp( probes, o.probes, sizeof(probes)); }
+	stats& operator=( const stats &o ) { memcpy( probes, o.probes, sizeof(probes)); return *this;}
+	void toserial() volatile const {
+		for(uint8_t x=0; x<COUNT; ++x) {
+			Serial.print(probes[x]); Serial.print(' ');
+		}
+		Serial.println();
 	}
-	stats& operator=( const stats &o ) {
-		startabort = o.startabort; dataabort = o.dataabort; stopabort = o.stopabort; success = o.success; return *this;
-	}
-	unsigned long startabort, dataabort, stopabort, success, stopdeltat;
+	unsigned long probes[COUNT];
 };
 
 extern volatile stats g_stats;
