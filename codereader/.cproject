@@ -49,7 +49,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libs/LiquidCrystal_I2C/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/SdFat/examples|libs/SdFat/html|libs/SdFat/AnalogBinLoggerExtras|libs/Touch-Screen-Library|libs/timerone|libs/TFTLCDplus-Library|libs/Streaming|libs/PCF8574|libs/MemoryFree|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|common/thindb.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libs/ds3231/examples|libs/LiquidCrystal_I2C/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/SdFat/examples|libs/SdFat/html|libs/SdFat/AnalogBinLoggerExtras|libs/Touch-Screen-Library|libs/timerone|libs/TFTLCDplus-Library|libs/Streaming|libs/PCF8574|libs/MemoryFree|libs/I2C_EEPROM|libs/I2C|libs/Adafruit-GFX-Library|common/thindb.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
