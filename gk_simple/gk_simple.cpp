@@ -7,7 +7,7 @@
 #include <eepromdb.h>
 #include "sdfatlogwriter.h"
 #include "globals.h"
-#include <Wire.h>
+#include <I2C.h>
 #include <ds3231.h>
 
 #define VERBOSE
@@ -63,7 +63,7 @@ void setup()
 		}
 	}
 
-	Wire.begin();
+	I2c.begin();
 	DS3231_init( DS3231_INTCN );
 	DS3231_get( &g_dt );
 	g_logger.log( logwriter::INFO, g_dt, F("Reset") );
