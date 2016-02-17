@@ -32,7 +32,7 @@
    
 */
 
-#include <I2c.h>
+#include <I2C.h>
 #include <stdio.h>
 #include "ds3231.h"
 
