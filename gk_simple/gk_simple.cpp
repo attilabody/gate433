@@ -64,6 +64,7 @@ void setup()
 	}
 
 	I2c.begin();
+	I2c.timeOut(1000);
 	DS3231_init( DS3231_INTCN );
 	DS3231_get( &g_dt );
 	g_logger.log( logwriter::INFO, g_dt, F("Reset") );
