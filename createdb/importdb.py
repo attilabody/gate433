@@ -1,18 +1,21 @@
 #!/usr/bin/python3
+OWNERS='owners.txt'
+TENANTS='tenants.txt'
+
 tenant_in_start = 7 * 60 + 30
 tenant_out_start = 7 * 60 + 30
 tenant_in_end = 17 * 60 + 30
 tenant_out_end = 18 * 60 + 5
 
 active = {}
-with open('owners.txt', 'r') as infile:
+with open(OWNERS, 'r') as infile:
     for line in infile:
         sline = line.strip()
         if len(sline) > 0 and not sline.startswith('#'):
             # print( len( sline), ' ', sline)
             active[int(sline)] = 1
 
-with open('tenants.txt', 'r') as infile:
+with open(TENANTS, 'r') as infile:
     for line in infile:
         sline = line.strip()
         if len(sline) > 0 and not sline.startswith('#'):

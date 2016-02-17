@@ -30,16 +30,16 @@ uint8_t		g_inidx(0);
 
 #ifdef TEST_SDCARD
 SdFat			g_sd;
-//i2cdb			g_db( 0x50, 16, 128 );
-eepromdb		g_db;
+i2cdb			g_db( I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, 128 );
+//eepromdb		g_db;
 sdfatlogwriter	g_logger( g_sd );
 uint16_t		g_lastcheckpoint(0);
 #endif	//	TEST_SDCARD
 
 uint8_t			g_pins[8] = { 0, 1, 2, 3, 7, 6, 5, 4 };
 uint8_t			g_pinindex( sizeof( g_pins ) - 1 );
+uint16_t		g_rtdelay(50);
 unsigned long	g_rtstart(0);
-uint16_t		g_rtdelay(1000);
 PCF8574			g_i2cio(0x20);
 
 #ifdef	TEST_LCD
@@ -469,6 +469,7 @@ void loop()
 	static stats *ps;
 	static unsigned long statsprinted(0);
 #endif
+	static uint16_t			s_id(0);
 
 	if( getlinefromserial( g_inbuf, sizeof(g_inbuf), g_inidx )) {
 		processInput();
@@ -488,11 +489,14 @@ void loop()
 			printpins( raw );
 			g_rtstart += g_rtdelay;
 		}
+		database::dbrecord	rec;
+		g_db.getParams( s_id, rec );
+		if( ++s_id > 1023 ) s_id = 0;
 	}
 	printloopstatus( digitalRead( PIN_INNERLOOP ) == LOOP_ACTIVE, digitalRead( PIN_OUTERLOOP ) == LOOP_ACTIVE );
 	if( g_codeready ) {
 		printcode( getid( g_code ));
-		Serial.println( getid( g_code ));
+		serialoutln( g_code, F(", "), getid( g_code ));
 		g_codeready = false;
 	}
 #ifdef FAILSTATS

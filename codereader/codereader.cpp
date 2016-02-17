@@ -15,7 +15,9 @@ sdfatlogwriter	g_logger( g_sd );
 dummylogwriter	g_logger;
 #endif	//	USE_SDCARD
 
+#ifdef USE_LCD
 LiquidCrystal_I2C	g_lcd( LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT );
+#endif
 
 //The setup function is called once at startup of the sketch
 
@@ -31,9 +33,18 @@ void setup()
 	setup433();
 	g_codeready = false;
 	g_code = 0;
-
+#ifdef USE_LCD
 	g_lcd.init();
 	g_lcd.backlight();
+	g_lcd.print(F("OK"));
+#else	//	USE_LCD
+	Wire.begin();
+#endif	//	USE_LCD
+
+#ifdef USE_RTC
+	DS3231_init( DS3231_INTCN );
+	DS3231_get( &g_dt );
+#endif//USE_RTC
 
 #ifdef	USE_SDCARD
 	if( g_sd.begin( SS, SPI_HALF_SPEED )) {
@@ -64,6 +75,14 @@ void loop()
 
 	if( g_codeready )
 	{
+		uint16_t	id( getid( g_code ));
+		uint8_t	btn( getbutton( g_code ));
+
+#ifdef USE_RTC
+		DS3231_get( & g_dt );
+#endif	//	USE_RTC
+		g_logger.log( logwriter::DEBUG, g_dt, F("Code"), id, btn );
+
 		if( code != g_code ) {
 			if( cnt ) {
 				Serial.print( F("Aborting ") );
@@ -74,11 +93,10 @@ void loop()
 			code = g_code;
 			cnt = 0;
 		} else if( cnt++ > 1 ) {
-			uint16_t	id( getid( g_code ));
-			uint8_t	btn( getbutton( g_code ));
 			Serial.print( id );
 			Serial.print(F(", "));
 			Serial.println((uint16_t) btn );
+#ifdef USE_LCD
 			g_lcd.setCursor(0,0);
 			if(id < 10 ) g_lcd.print(' ');
 			if(id < 100 ) g_lcd.print(' ');
@@ -86,7 +104,8 @@ void loop()
 			g_lcd.print( id );
 			g_lcd.print('.');
 			g_lcd.print( getbutton( g_code ) );
-			g_logger.log( logwriter::INFO, g_dt, F("Remote"), id, getbutton( g_code ));
+#endif	//	USE_LCD
+			g_logger.log( logwriter::INFO, g_dt, F("Remote"), id, btn);
 			cnt = 0;
 		} else Serial.print('.');
 		g_codeready = false;

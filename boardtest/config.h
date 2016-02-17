@@ -14,7 +14,7 @@
 
 #define BAUDRATE 115200
 
-#define DECODE433_REVERSE
+//#define DECODE433_REVERSE
 
 #define PIN_RFIN		2
 #define PIN_INNERLOOP	A0
@@ -34,11 +34,6 @@
 #define LCD_I2C_ADDRESS	0x27	//	usually 0x27 or 0x3f
 #define LCD_WIDTH	16		//	in characters
 #define LCD_HEIGHT	2		//	in lines
-
-#define	ENFORCE_POS	false	//	enforce position requirements
-#define	ENFORCE_DT	true	//	enforce date-time requirements
-
-#define GATE_OPEN_PULSE_WIDTH	1000
 
 #define HYBRIDDB_EEPROM_OFFSET 0
 #define HYBRIDDB_EEPROM_ADDRESS 0x57

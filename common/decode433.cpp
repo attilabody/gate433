@@ -51,7 +51,7 @@ void isr()
 	// edge is opposite what the level was during the cycle
 	static bool curlevel;
 	static RCVSTATUS state( START );
-	static uint16_t code, deltat, cyclet, expectedcyclet;
+	static uint16_t code, deltat, cyclet, spwidth, diff;
 
 	static uint16_t highdeltat, lowdeltat;
 
@@ -69,7 +69,7 @@ void isr()
 		) {	// h->l
 			state = DATA;
 			curbit = code = 0;
-			expectedcyclet = (deltat << 1) + (deltat >> 1);	//	*2.5
+			spwidth = deltat;
 		}
 #ifdef FAILSTATS
 		else
@@ -78,25 +78,25 @@ void isr()
 		break;
 
 	case DATA:
-		if( deltat < (expectedcyclet >> 3 ) ||	//	/8
-			deltat > expectedcyclet ) {
+		if( deltat < (spwidth >> 1) ||	//	/2
+			deltat > (spwidth << 2 )) {	//	*4
 			state = START;
 #ifdef FAILSTATS
 			++g_stats.probes[stats::DATA1];
 			g_stats.probes[stats::DT] = deltat;
-			g_stats.probes[stats::ECT] = expectedcyclet;
+			g_stats.probes[stats::ECT] = spwidth;
 #endif
 		} else if( curlevel ) 	//	high half
 		{
 			cyclet = highdeltat + lowdeltat;
-			if( cyclet < (expectedcyclet >> 1) ||
-				cyclet > (expectedcyclet + (expectedcyclet >> 1))
-			) {
+			diff = highdeltat > lowdeltat ? highdeltat - lowdeltat : lowdeltat - highdeltat;
+			if( cyclet < spwidth || cyclet > (spwidth  << 3) || diff < (cyclet >> 3))
+			{
 				state = START;
 #ifdef FAILSTATS
 				++g_stats.probes[stats::DATA2];
 				g_stats.probes[stats::CT] = cyclet;
-				g_stats.probes[stats::ECT] = expectedcyclet;
+				g_stats.probes[stats::ECT] = spwidth;
 #endif
 				break;
 			}
