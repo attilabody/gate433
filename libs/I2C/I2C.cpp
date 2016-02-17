@@ -395,7 +395,7 @@ uint8_t I2C::write16(uint8_t address, uint16_t registerAddress, uint8_t *data, u
 	CHECKRETURNSTATUS(sendByte(registerAddress >> 8), 1, 3);
 	CHECKRETURNSTATUS(sendByte(registerAddress & 0xff), 1, 3);
 	for (uint8_t i = 0; i < numberBytes; i++) {
-		CHECKRETURNSTATUS(sendByte(sendByte(data[i])), 1, 3);
+		CHECKRETURNSTATUS(sendByte(data[i]), 1, 3);
 	}
 	CHECKRETURNSTATUS(stop(), 1, 7);
 	return(m_returnStatus);
