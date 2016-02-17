@@ -5,19 +5,26 @@
 #include "commsyms.h"
 #include <serialout.h>
 #include <eepromdb.h>
+#include <i2cdb.h>
 #include "sdfatlogwriter.h"
 #include "globals.h"
 #include <I2C.h>
 #include <ds3231.h>
+#include "dthelpers.h"
 
 #define VERBOSE
 
 ts			g_dt;
-char		g_iobuf[32];
+char		g_iobuf[128];
 uint8_t		g_inidx(0);
 uint16_t	g_lastcheckpoint;
 
+#ifdef USE_I2CDB
+i2cdb		g_db(I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, I2CDB_EEPROMPAGE_LENGTH);
+#endif
+#ifdef USE_EEPROMDB
 eepromdb	g_db;
+#endif
 
 void processinput();
 
@@ -221,6 +228,22 @@ void processinput()
 			else Serial.println( F(ERRS "ERR"));
 		} else Serial.println( F(ERRS "ERR"));
 
+	} else if( iscommand( inptr, F("gdt") )) {	// get datetime
+		DS3231_get( &g_dt );
+		serialout( RESP, (uint16_t)g_dt.year, F("."));
+		serialout( (uint16_t)g_dt.mon,F("."));
+		serialout( (uint16_t)g_dt.mday, F("/" ),(uint16_t)g_dt.wday);
+		serialout( F("    "), (uint16_t)g_dt.hour);
+		serialout(F(":" ), (uint16_t)(g_dt.min));
+		serialoutln(F(":" ), (uint16_t)(g_dt.sec));
+
+	} else if( iscommand( inptr, F("sdt") )) {	//	set datetime
+		ts	t;
+		if( parsedatetime( t, inptr )) {
+			DS3231_set( t );
+			Serial.println( F(RESPS "OK"));
+		} else
+			Serial.println( F(ERRS " (DATETIMEFMT)"));
 	} else {
 		Serial.println( F(ERRS "CMD"));
 	}

@@ -8,6 +8,7 @@
 #ifndef COMMON_DUMMYLOGWRITER_H_
 #define COMMON_DUMMYLOGWRITER_H_
 
+#include <Arduino.h>
 #include <logwriter.h>
 
 class dummylogwriter: public logwriter
@@ -28,8 +29,8 @@ public:
 				uint16_t rid = 0xffff, uint8_t button = 0xff, uint8_t dbpos = 0xff,
 				uint8_t loop = 0xff, uint8_t decision = 0xff );
 
-	bool dump( Print *p );
-	bool truncate();
+	bool dump( Print *p ) { return true; }
+	bool truncate() { return true; }
 
 };
 

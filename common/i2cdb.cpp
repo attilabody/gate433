@@ -11,8 +11,10 @@
 #include "I2C_eeprom.h"
 
 //////////////////////////////////////////////////////////////////////////////
-i2cdb::i2cdb( uint8_t i2caddress, uint8_t eeaddressbits, uint8_t eepagesize )
+i2cdb::i2cdb( uint8_t i2caddress, uint8_t eeaddressbits,
+		uint8_t eepagesize, uint16_t eeoffset )
 : i2c_eeprom( i2caddress, eeaddressbits, eepagesize )
+, m_eeoffset( eeoffset )
 {
 }
 
@@ -31,7 +33,7 @@ bool i2cdb::init()
 bool i2cdb::getParams( int code, dbrecord &recout )
 {
 	uint8_t	buffer[ PACKEDDBRECORD_WIDTH ];
-	read_page( I2CDB_EEPROM_OFFSET + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer) );
+	read_page( m_eeoffset + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer) );
 	recout.unpack( buffer );
 	return true;
 }
@@ -41,14 +43,14 @@ bool i2cdb::setParams( int code, const dbrecord &recin )
 {
 	uint8_t	buffer[ PACKEDDBRECORD_WIDTH ];
 	recin.pack( buffer );
-	write_page( I2CDB_EEPROM_OFFSET + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer) );
+	write_page( m_eeoffset + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer) );
 	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 bool i2cdb::setStatus( int code, dbrecord::POSITION pos )
 {
-	write_byte( I2CDB_EEPROM_OFFSET + (code + 1) * PACKEDDBRECORD_WIDTH - 1, (uint8_t)pos);
+	write_byte( m_eeoffset + (code + 1) * PACKEDDBRECORD_WIDTH - 1, (uint8_t)pos);
 	return true;
 }
 
