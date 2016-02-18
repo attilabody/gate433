@@ -5,6 +5,7 @@
 #include "commsyms.h"
 #include <serialout.h>
 #include <eepromdb.h>
+#include <thindb.h>
 #include "sdfatlogwriter.h"
 #include "globals.h"
 #include <Wire.h>
@@ -219,6 +220,24 @@ void processinput()
 				Serial.println( F( RESPS "OK"));
 			else Serial.println( F(ERRS "ERR"));
 		} else Serial.println( F(ERRS "ERR"));
+
+	} else if( iscommand( inptr, F("imp"))) {	//	import
+		thindb				tdb( g_sd );
+		uint16_t			from( getintparam( inptr ));
+		uint16_t			to( getintparam( inptr ));
+		uint16_t			id(-1);
+		database::dbrecord	rec;
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		if( tdb.init()) {
+			for( id = from; id <= to; ++id ) {
+				CHECKPOINT;
+				if( !tdb.getParams( id, rec ) || !g_db.setParams( id, rec ))
+					break;
+			}
+		}
+		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
+		else serialoutln( F(ERRS "ERR "), id );
 
 	} else {
 		Serial.println( F(ERRS "CMD"));
