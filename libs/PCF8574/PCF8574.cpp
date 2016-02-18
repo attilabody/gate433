@@ -19,12 +19,12 @@
 
 #include "PCF8574.h"
 
-#include <Wire.h>
+#include <I2C.h>
 
 PCF8574::PCF8574(uint8_t deviceAddress)
 {
     _address = deviceAddress;
-    Wire.begin();
+    // Wire.begin();
     // TWBR = 12; // 400KHz
 }
 
@@ -35,7 +35,7 @@ PCF8574::PCF8574(uint8_t deviceAddress)
 // TODO @800KHz -> ??
 uint8_t PCF8574::read8()
 {
-    if (Wire.requestFrom(_address, (uint8_t)1) != 1)
+	if(I2c.read( _address, 1))
     {
         _error = 10;
         return _data; // last value
@@ -43,7 +43,7 @@ uint8_t PCF8574::read8()
 #if (ARDUINO <  100)
     _data = Wire.receive();
 #else
-    _data = Wire.read();
+    _data = I2c.receive();
 #endif
     return _data;
 }
@@ -56,9 +56,7 @@ uint8_t PCF8574::value()
 void PCF8574::write8(uint8_t value)
 {
     _data = value;
-    Wire.beginTransmission(_address);
-    Wire.write(_data);
-    _error = Wire.endTransmission();
+    _error = I2c.write(_address, value);
 }
 
 // pin should be 0..7

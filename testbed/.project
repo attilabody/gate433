@@ -32,16 +32,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/common</locationURI>
 		</link>
 		<link>
-			<name>inductiveloop.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/inductiveloop.cpp</locationURI>
-		</link>
-		<link>
-			<name>inductiveloop.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/inductiveloop.h</locationURI>
-		</link>
-		<link>
 			<name>libs</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/libs</locationURI>
@@ -50,11 +40,6 @@
 			<name>trafficlights.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/trafficlights.cpp</locationURI>
-		</link>
-		<link>
-			<name>trafficlights.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/trafficlights.h</locationURI>
 		</link>
 		<link>
 			<name>Libraries/EEPROM</name>
