@@ -16,7 +16,7 @@
 
 ts					g_dt;
 PCF8574				g_ioext( PCF8574_ADDRESS );
-uint8_t				g_portstatus( 0x55 );
+uint8_t				g_portstatus( 0xa5 );
 LiquidCrystal_I2C	g_lcd( LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT );
 
 //////////////////////////////////////////////////////////////////////////////

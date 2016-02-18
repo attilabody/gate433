@@ -10,7 +10,6 @@
 
 #include <Arduino.h>
 #include "database.h"
-#include <Wire.h>
 #include <I2C_eeprom.h>
 #include "config.h"
 

@@ -10,7 +10,7 @@
 
 #include <Arduino.h>
 #include "database.h"
-#include <Wire.h>
+#include <I2C.h>
 #include <SdFat.h>
 
 

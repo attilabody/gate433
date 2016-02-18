@@ -10,7 +10,7 @@
 //
 // Released to the public domain
 //
-#include <Wire.h> //I2C library
+#include <I2C.h> //I2C library
 
 class i2c_eeprom
 {

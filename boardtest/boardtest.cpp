@@ -1,7 +1,6 @@
 // Do not remove the include below
 #include <Arduino.h>
 #include <SdFat.h>
-#include <Wire.h>
 #include <ds3231.h>
 #include <LiquidCrystal_I2C.h>
 #include <PCF8574.h>
@@ -436,7 +435,11 @@ void setup()
 	serialoutln(F( CMNTS "------------------ Setup ------------------"));
 	delay(100);
 
+	I2c.begin();
+	I2c.timeOut(1000);
 	g_lcd.init();                      // initialize the lcd
+	Serial.println(F(CMNTS "LCD initialized."));
+
 	g_lcd.backlight();
 	g_lcd.print( freeMemory());
 
@@ -448,7 +451,6 @@ void setup()
 	pinMode( PIN_OUTERLOOP, INPUT );
 	digitalWrite( PIN_OUTERLOOP, HIGH );	//	activate pullup;
 
-	Wire.begin();
 	DS3231_init( DS3231_INTCN );
 
 	g_sd.begin( SS );
