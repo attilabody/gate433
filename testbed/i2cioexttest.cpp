@@ -8,14 +8,16 @@
 #include <I2C.h>
 #include <ds3231.h>
 #include <PCF8574.h>
+#include <LiquidCrystal_I2C.h>
 #include "config.h"
 #include "globals.h"
 #include "toolbox.h"
 #include "commsyms.h"
 
-ts				g_dt;
-PCF8574			g_ioext(PCF8574_ADDRESS);
-uint8_t			g_portstatus(0x55);
+ts					g_dt;
+PCF8574				g_ioext( PCF8574_ADDRESS );
+uint8_t				g_portstatus( 0x55 );
+LiquidCrystal_I2C	g_lcd( LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT );
 
 //////////////////////////////////////////////////////////////////////////////
 void processinput();
@@ -28,7 +30,9 @@ void setup()
 	I2c.timeOut(1000);
 	DS3231_init( DS3231_INTCN );
 	DS3231_get( &g_dt );
-
+	g_lcd.init();
+	g_lcd.backlight();
+	g_lcd.print("Minden fasza");
 }
 
 //////////////////////////////////////////////////////////////////////////////

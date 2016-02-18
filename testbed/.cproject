@@ -31,8 +31,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/PCF8574}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/I2C_EEPROM}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/MemoryFree}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/testbed/Libraries/Wire}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/testbed/Libraries/Wire/utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/testbed/Libraries/EEPROM}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.1887701391" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
@@ -41,8 +39,6 @@
 								<option id="it.baeyens.arduino.compiler.c.sketch.option.incpath.49263596" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.c.sketch.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/testbed/arduino/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/testbed/arduino/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/testbed/Libraries/Wire}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/testbed/Libraries/Wire/utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/testbed/Libraries/EEPROM}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.275185218" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
