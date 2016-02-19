@@ -10,7 +10,7 @@
 
 #define BAUDRATE 115200
 
-#define DECODE433_REVERSE
+//#define DECODE433_REVERSE
 
 #define PIN_RFIN		2
 #define PIN_GATE		A2

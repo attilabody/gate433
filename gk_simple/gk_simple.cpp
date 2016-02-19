@@ -104,7 +104,7 @@ void loop()
 			}
 			code = g_code;
 			cnt = 0;
-		} else if( cnt++ > 2 ) {
+		} else if( cnt++ > 1 ) {
 			database::dbrecord	rec;
 
 #ifdef VERBOSE
@@ -238,6 +238,26 @@ void processinput()
 		}
 		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
 		else serialoutln( F(ERRS "ERR "), id );
+
+	} else if( iscommand( inptr, F("dmp"))) {	//	dump
+		database::dbrecord	rec;
+		uint16_t			from( getintparam( inptr ));
+		uint16_t			to( getintparam( inptr ));
+		uint16_t			id;
+
+		g_iobuf[3] = ' ';
+		if( from == 0xffff ) from = 0;
+		if( to == 0xffff ) to = 1023;
+		for( id = from; id <= to; ++id ) {
+			CHECKPOINT;
+			if( g_db.getParams( id, rec )) {
+				uitohex( g_iobuf, id, 3 );
+				rec.serialize( g_iobuf + 4 );
+				serialoutln( RESP, g_iobuf );
+			} else break;
+		}
+		if( id == to + 1 ) Serial.println( RESP );
+		else Serial.println( F(ERRS "ERR" ));
 
 	} else {
 		Serial.println( F(ERRS "CMD"));
