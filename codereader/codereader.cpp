@@ -38,7 +38,8 @@ void setup()
 	g_lcd.backlight();
 	g_lcd.print(F("OK"));
 #else	//	USE_LCD
-	Wire.begin();
+	I2c.begin();
+	I2c.timeOut(1000);
 #endif	//	USE_LCD
 
 #ifdef USE_RTC
