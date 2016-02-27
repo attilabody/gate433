@@ -7,10 +7,12 @@
 
 #ifndef CONFIG_H_
 #define CONFIG_H_
+#include <Arduino.h>
 
 #define BAUDRATE 115200
-
+#define __HARD__
 //#define DECODE433_REVERSE
+//#define VERBOSE
 
 #define PIN_RFIN		2
 #define PIN_GATE		A2

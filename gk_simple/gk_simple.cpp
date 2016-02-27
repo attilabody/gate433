@@ -1,4 +1,5 @@
 // Do not remove the include below
+#include "config.h"
 #include "gk_simple.h"
 #include "decode433.h"
 #include "toolbox.h"
@@ -10,8 +11,6 @@
 #include "globals.h"
 #include <Wire.h>
 #include <ds3231.h>
-
-#define VERBOSE
 
 ts			g_dt;
 char		g_iobuf[32];
@@ -29,8 +28,8 @@ void setup()
 {
 	bool loginit(false);
 
-#ifdef VERBOSE
 	Serial.begin( BAUDRATE );
+#ifdef VERBOSE
 	delay(10);
 	for( char c = 0; c < 79; ++c ) Serial.print('-');
 	Serial.println();
@@ -96,7 +95,7 @@ void loop()
 				DS3231_get( &g_dt );
 				g_logger.log( logwriter::DEBUG, g_dt, F("Abort"), id, btn );
 #ifdef VERBOSE
-				Serial.print( F("Aborting ") );
+				Serial.print( F("  Aborting ") );
 				Serial.print( code );
 				Serial.print( ' ' );
 				Serial.println( g_code );
@@ -125,10 +124,8 @@ void loop()
 			if( rec.enabled() )
 			{
 #ifdef VERBOSE
-				Serial.print(CMNT);
 				Serial.println(F(" -> opening gate."));
 #endif
-				if()
 				digitalWrite( PIN_GATE, RELAY_ON );
 				g_logger.log( logwriter::INFO, g_dt, F("Ack"), id, btn );
 				delay(1000);
@@ -136,7 +133,6 @@ void loop()
 				delay(20000);
 			} else {
 #ifdef VERBOSE
-				Serial.print(CMNT);
 				Serial.println(F(" -> ignoring."));
 #endif
 				digitalWrite( IN_RED, RELAY_ON );
@@ -155,7 +151,6 @@ void loop()
 			if( idok )
 			{
 #ifdef VERBOSE
-				Serial.print(CMNT);
 				Serial.println(F(" -> opening gate."));
 #endif	//	VERBOSE
 				digitalWrite( PIN_GATE, RELAY_ON );
@@ -185,6 +180,7 @@ void loop()
 		else
 		{
 			if(cnt == 1) Serial.print(CMNT);
+			Serial.print(id);
 			Serial.print('.');
 		}
 #endif	//	VERBOSE
