@@ -16,6 +16,9 @@
 
 #define PIN_RFIN		2
 #define PIN_GATE		A2
+#define PIN_INNERLOOP	A0
+#define PIN_OUTERLOOP	A1
+#define LOOP_ACTIVE		LOW
 
 #define RELAY_OFF	HIGH
 #define RELAY_ON	LOW

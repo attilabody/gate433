@@ -9,15 +9,17 @@
 #include <thindb.h>
 #include "sdfatlogwriter.h"
 #include "globals.h"
+#include "inductiveloop.h"
 #include <Wire.h>
 #include <ds3231.h>
 
-ts			g_dt;
-char		g_iobuf[32];
-uint8_t		g_inidx(0);
-uint16_t	g_lastcheckpoint;
+ts				g_dt;
+char			g_iobuf[32];
+uint8_t			g_inidx(0);
+uint16_t		g_lastcheckpoint;
 
-eepromdb	g_db;
+eepromdb		g_db;
+inductiveloop	g_loop;
 
 void processinput();
 
@@ -37,11 +39,15 @@ void setup()
 
 	pinMode( PIN_GATE, OUTPUT );
 	digitalWrite( PIN_GATE, RELAY_OFF );
+
+	g_loop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOOP_ACTIVE );
+
 	setup433();
 	g_codeready = false;
 	g_code = 0;
 
-	for( uint8_t pin = 4; pin <10; ++pin ) {
+	//setting up traffic lights pins
+	for( uint8_t pin = 4; pin < 10; ++pin ) {
 		pinMode( pin, OUTPUT );
 		digitalWrite( pin, RELAY_OFF );
 	}
@@ -71,6 +77,9 @@ void setup()
 	digitalWrite( IN_YELLOW, RELAY_ON );
 	delay( 500 );
 	digitalWrite( OUT_YELLOW, RELAY_ON );
+	delay( 500 );
+	digitalWrite( IN_YELLOW, RELAY_OFF );
+	digitalWrite( OUT_YELLOW, RELAY_OFF );
 
 	g_db.init();
 }
@@ -78,16 +87,42 @@ void setup()
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	static uint16_t	code(0);
-	static uint8_t	cnt(0);
+	static uint16_t					code(0);
+	static uint8_t					cnt(0);
+	static inductiveloop::STATUS	previls(inductiveloop::NONE);
+	static bool						prevconflict(false);
+	inductiveloop::STATUS			ils;
+	bool							conflict;
 
 	if( getlinefromserial( g_iobuf, sizeof( g_iobuf ), g_inidx) )
 		processinput();
 
-	if( g_codeready )
+	conflict = g_loop.update( ils );
+
+	if( ils != previls || conflict != prevconflict )
+	{
+		if( ils == inductiveloop::NONE ) {
+			digitalWrite( IN_YELLOW, RELAY_OFF );
+			digitalWrite( OUT_YELLOW, RELAY_OFF );
+			digitalWrite( IN_RED, RELAY_OFF );
+			digitalWrite( OUT_RED, RELAY_OFF );
+		}
+		else if( ils == inductiveloop::INNER ) {
+			digitalWrite( IN_YELLOW, RELAY_ON );
+			digitalWrite( OUT_RED, RELAY_ON );
+		} else {
+			digitalWrite( IN_RED, RELAY_ON );
+			digitalWrite( OUT_YELLOW, RELAY_ON );
+		}
+		previls = ils;
+		prevconflict = conflict;
+	}
+
+	if( g_codeready && ils != inductiveloop::NONE )
 	{
 		uint16_t	id( getid( g_code ));
 		uint8_t		btn( getbutton( g_code ));
+		bool		inner(ils == inductiveloop::INNER);
 
 		if( code != g_code ) {
 			if( cnt )
@@ -114,66 +149,37 @@ void loop()
 			g_db.getParams( id, rec );
 			bool enabled(rec.enabled());
 
-			digitalWrite( IN_YELLOW, RELAY_OFF );
-			digitalWrite( OUT_YELLOW, RELAY_OFF );
+			digitalWrite( inner ? IN_YELLOW : OUT_YELLOW, RELAY_OFF );
+			digitalWrite( enabled? (inner ? IN_GREEN : OUT_GREEN) : (inner ? IN_RED : OUT_RED), RELAY_ON );
 
-#ifdef __HARD__
-			digitalWrite( enabled? IN_GREEN : IN_RED, RELAY_ON );
-			digitalWrite( enabled? OUT_GREEN : OUT_RED, RELAY_ON );
 
 			if( rec.enabled() )
 			{
+				g_logger.log( logwriter::INFO, g_dt, F("Ack"), id, btn );
 #ifdef VERBOSE
 				Serial.println(F(" -> opening gate."));
 #endif
 				digitalWrite( PIN_GATE, RELAY_ON );
-				g_logger.log( logwriter::INFO, g_dt, F("Ack"), id, btn );
 				delay(1000);
 				digitalWrite( PIN_GATE, RELAY_OFF );
 				delay(20000);
 			} else {
+				g_logger.log( logwriter::INFO, g_dt, F("Deny"), id, btn );
+#ifndef __HARD__
+				digitalWrite( PIN_GATE, RELAY_ON );
+				delay(1000);
+				digitalWrite( PIN_GATE, RELAY_OFF );
+#endif	//	__HARD__
 #ifdef VERBOSE
 				Serial.println(F(" -> ignoring."));
 #endif
-				digitalWrite( IN_RED, RELAY_ON );
-				digitalWrite( OUT_RED, RELAY_ON );
-				g_logger.log( logwriter::INFO, g_dt, F("Deny"), id, btn );
 				delay(2000);
 			}
+			digitalWrite( enabled ? (inner ? IN_GREEN : OUT_GREEN) : (inner ? IN_RED : OUT_RED), RELAY_OFF );
+			digitalWrite( inner ? OUT_RED : IN_RED, RELAY_OFF );
 
-			digitalWrite( enabled ? IN_GREEN : IN_RED, RELAY_OFF );
-			digitalWrite( enabled ? OUT_GREEN : OUT_RED, RELAY_OFF );
-#else
-			bool idok( id >= ID_MIN && id <= ID_MAX );
-
-			digitalWrite( (enabled && idok) ? IN_GREEN : IN_RED, RELAY_ON );
-			digitalWrite( (enabled && idok) ? OUT_GREEN : OUT_RED, RELAY_ON );
-			if( idok )
-			{
-#ifdef VERBOSE
-				Serial.println(F(" -> opening gate."));
-#endif	//	VERBOSE
-				digitalWrite( PIN_GATE, RELAY_ON );
-				g_logger.log( logwriter::INFO, g_dt, enabled ? F("Ack") : F("Deny"), id, btn );
-				delay(1000);
-				digitalWrite( PIN_GATE, RELAY_OFF );
-				delay(20000);
-			}
-			else
-			{
-#ifdef VERBOSE
-				Serial.println(F(" -> Range"));
-#endif	//	VERBOSE
-				digitalWrite( IN_RED, RELAY_ON );
-				digitalWrite( OUT_RED, RELAY_ON );
-				g_logger.log( logwriter::INFO, g_dt, F("Range"), id, btn );
-				delay(2000);
-			}
-			digitalWrite( (enabled && idok) ? IN_GREEN : IN_RED, RELAY_OFF );
-			digitalWrite( (enabled && idok) ? OUT_GREEN : OUT_RED, RELAY_OFF );
-#endif	//	__HARD__
-			digitalWrite( IN_YELLOW, RELAY_ON );
-			digitalWrite( OUT_YELLOW, RELAY_ON );
+			previls = inductiveloop::NONE;
+			prevconflict = false;
 			cnt = 0;
 		}
 #ifdef VERBOSE
