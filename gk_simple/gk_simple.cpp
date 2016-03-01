@@ -152,7 +152,7 @@ void loop()
 			digitalWrite( inner ? IN_YELLOW : OUT_YELLOW, RELAY_OFF );
 			digitalWrite( enabled? (inner ? IN_GREEN : OUT_GREEN) : (inner ? IN_RED : OUT_RED), RELAY_ON );
 
-
+			unsigned long timeout;
 			if( rec.enabled() )
 			{
 				g_logger.log( logwriter::INFO, g_dt, F("Ack"), id, btn );
@@ -162,7 +162,8 @@ void loop()
 				digitalWrite( PIN_GATE, RELAY_ON );
 				delay(1000);
 				digitalWrite( PIN_GATE, RELAY_OFF );
-				delay(20000);
+				timeout = 60000;
+
 			} else {
 				g_logger.log( logwriter::INFO, g_dt, F("Deny"), id, btn );
 #ifndef __HARD__
@@ -173,8 +174,16 @@ void loop()
 #ifdef VERBOSE
 				Serial.println(F(" -> ignoring."));
 #endif
-				delay(2000);
+				timeout = 10000;
 			}
+
+			inductiveloop::STATUS	ilstmp(ils);
+			bool 					conflicttmp(conflict);
+			unsigned long			waitstart(millis());
+
+			while(conflict == conflicttmp && ils == ilstmp && millis()-waitstart < timeout )
+				conflicttmp = g_loop.update(ilstmp);
+
 			digitalWrite( enabled ? (inner ? IN_GREEN : OUT_GREEN) : (inner ? IN_RED : OUT_RED), RELAY_OFF );
 			digitalWrite( inner ? OUT_RED : IN_RED, RELAY_OFF );
 
