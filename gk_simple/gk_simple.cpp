@@ -30,6 +30,11 @@ void setup()
 {
 	bool loginit(false);
 
+	uint8_t	tlpins[] = {
+			IN_GREEN, IN_YELLOW, IN_RED,
+			OUT_GREEN, OUT_YELLOW, OUT_RED
+	};
+
 	Serial.begin( BAUDRATE );
 #ifdef VERBOSE
 	delay(10);
@@ -47,9 +52,14 @@ void setup()
 	g_code = 0;
 
 	//setting up traffic lights pins
-	for( uint8_t pin = 4; pin < 10; ++pin ) {
-		pinMode( pin, OUTPUT );
-		digitalWrite( pin, RELAY_OFF );
+	for( uint8_t pin = 0; pin < sizeof(tlpins) + 3; ++pin ) {
+		if(pin < sizeof(tlpins)) {
+			pinMode( tlpins[pin], OUTPUT );
+			digitalWrite(tlpins[pin], RELAY_ON);
+		}
+		if(pin > 2)
+			digitalWrite(tlpins[pin-3], RELAY_OFF);
+		delay(150);
 	}
 
 	if( g_sd.begin( SS, SPI_HALF_SPEED )) {
@@ -62,9 +72,11 @@ void setup()
 	{
 		delay(100);
 		for( int i = 0; i < 3;  ++i ) {
-			digitalWrite( 5, RELAY_ON );
+			digitalWrite( IN_RED, RELAY_ON );
+			digitalWrite( OUT_RED, RELAY_ON );
 			delay( 500 );
-			digitalWrite( 5, RELAY_OFF );
+			digitalWrite( IN_RED, RELAY_OFF );
+			digitalWrite( OUT_RED, RELAY_OFF );
 			delay( 500 );
 		}
 	}
@@ -73,14 +85,6 @@ void setup()
 	DS3231_init( DS3231_INTCN );
 	DS3231_get( &g_dt );
 	g_logger.log( logwriter::INFO, g_dt, F("Reset") );
-
-	digitalWrite( IN_YELLOW, RELAY_ON );
-	delay( 500 );
-	digitalWrite( OUT_YELLOW, RELAY_ON );
-	delay( 500 );
-	digitalWrite( IN_YELLOW, RELAY_OFF );
-	digitalWrite( OUT_YELLOW, RELAY_OFF );
-
 	g_db.init();
 }
 
@@ -110,9 +114,13 @@ void loop()
 		else if( ils == inductiveloop::INNER ) {
 			digitalWrite( IN_YELLOW, RELAY_ON );
 			digitalWrite( OUT_RED, RELAY_ON );
+			digitalWrite( IN_RED, RELAY_OFF );
+			digitalWrite( OUT_YELLOW, RELAY_OFF );
 		} else {
 			digitalWrite( IN_RED, RELAY_ON );
 			digitalWrite( OUT_YELLOW, RELAY_ON );
+			digitalWrite( IN_YELLOW, RELAY_OFF );
+			digitalWrite( OUT_RED, RELAY_OFF );
 		}
 		previls = ils;
 		prevconflict = conflict;

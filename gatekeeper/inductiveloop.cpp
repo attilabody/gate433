@@ -37,8 +37,8 @@ bool inductiveloop::update()
 {
 	uint8_t rawstatus( 0 );
 
-	if( getstatus( m_innerpin ) == m_activelevel ) rawstatus |= (uint8_t) INNER;
-	if( getstatus( m_outerpin ) == m_activelevel ) rawstatus |= (uint8_t) OUTER;
+	if( getstatus( true ) == m_activelevel ) rawstatus |= (uint8_t) INNER;
+	if( getstatus( false ) == m_activelevel ) rawstatus |= (uint8_t) OUTER;
 
 	if( rawstatus == ( INNER | OUTER )) {
 		if( m_prevstatus == NONE )
@@ -47,4 +47,24 @@ bool inductiveloop::update()
 		m_prevstatus = (STATUS)rawstatus;
 
 	return rawstatus == ( INNER | OUTER );
+}
+
+uint8_t inductiveloop::getstatus(bool pos)
+{
+	uint8_t			pin(pos ? m_innerpin : m_outerpin);
+	bool 			level;
+	unsigned long 	now(millis());
+
+	if( pin != A6 && pin != A7 ) level = digitalRead( pin ) == HIGH;
+	else level = analogRead( pin ) > 256;
+	if(m_debounced[pos] == level) {
+		 m_lastequals[pos] = now;
+	} else {
+		if( now - m_lastequals[pos] > 500 ) {
+			m_debounced[pos] = level;
+			 m_lastequals[pos] = now;
+		}
+	}
+	return m_debounced[pos] ? HIGH : LOW;
+
 }

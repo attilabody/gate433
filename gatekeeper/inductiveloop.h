@@ -23,14 +23,13 @@ public:
 
 
 private:
-	uint8_t	getstatus( uint8_t pin ) {
-		if( pin != A6 && pin != A7 ) return digitalRead( pin );
-		else return analogRead( pin ) > 256 ? HIGH : LOW;
-	}
+	uint8_t	getstatus( bool inner );
 
-	STATUS	m_prevstatus;
-	uint8_t		m_innerpin, m_outerpin;
-	uint8_t		m_activelevel;
+	STATUS			m_prevstatus;
+	uint8_t			m_innerpin, m_outerpin;
+	uint8_t			m_activelevel;
+	bool			m_debounced[2];
+	unsigned long	m_lastequals[2];
 };
 
 #endif /* INDUCTIVELOOP_H_ */
