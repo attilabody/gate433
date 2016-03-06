@@ -146,6 +146,11 @@ void gatehandler::loop( unsigned long currmillis )
 			}
 		}
 		break;
+	default:		// Invalid state
+		// TODO debug
+		m_lights.set( trafficlights::OFF, inner );
+		m_status = WAITSETTLE;
+		break;
 	}
 
 	m_ilstatus = ilstatus;

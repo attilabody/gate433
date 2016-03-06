@@ -7,18 +7,26 @@
 #include <serialout.h>
 #include <eepromdb.h>
 #include <thindb.h>
+#include <i2cdb.h>
 #include "sdfatlogwriter.h"
 #include "globals.h"
 #include "inductiveloop.h"
-#include <Wire.h>
+#include <I2C.h>
 #include <ds3231.h>
+#include "dthelpers.h"
 
 ts				g_dt;
 char			g_iobuf[32];
 uint8_t			g_inidx(0);
 uint16_t		g_lastcheckpoint;
 
-eepromdb		g_db;
+#ifdef USE_I2CDB
+i2cdb		g_db(I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, I2CDB_EEPROMPAGE_LENGTH);
+#endif
+#ifdef USE_EEPROMDB
+eepromdb	g_db;
+#endif
+
 inductiveloop	g_loop;
 
 void processinput();
@@ -81,7 +89,8 @@ void setup()
 		}
 	}
 
-	Wire.begin();
+	I2c.begin();
+	I2c.timeOut(1000);
 	DS3231_init( DS3231_INTCN );
 	DS3231_get( &g_dt );
 	g_logger.log( logwriter::INFO, g_dt, F("Reset") );

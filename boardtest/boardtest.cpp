@@ -1,7 +1,6 @@
 // Do not remove the include below
 #include <Arduino.h>
 #include <SdFat.h>
-#include <Wire.h>
 #include <ds3231.h>
 #include <LiquidCrystal_I2C.h>
 #include <PCF8574.h>
@@ -41,6 +40,7 @@ uint8_t			g_pinindex( sizeof( g_pins ) - 1 );
 uint16_t		g_rtdelay(50);
 unsigned long	g_rtstart(0);
 PCF8574			g_i2cio(0x20);
+ts				g_dt;
 
 #ifdef	TEST_LCD
 #ifndef LCD_I2C_ADDRESS
@@ -268,7 +268,7 @@ void processInput()
 			}
 		}
 
-	} else if( iscommand( inptr, F("it"))) {	//import thindb
+	} else if( iscommand( inptr, F("imp"))) {	//import thindb
 		thindb		tdb( g_sd );
 		uint16_t	from( getintparam( inptr ));
 		uint16_t	to( getintparam( inptr ));
@@ -309,42 +309,41 @@ void printdatetime( bool yeardigits = 0, bool showdow = true )
 #ifdef	TEST_DS3231
 	static ts		prevt = {0,0,0,0,0,0,0,0,0,0};
 
-	ts	t;
 	char	lcdbuffer[17];
 	char	*lbp(lcdbuffer);
 
-	DS3231_get( &t );
+	DS3231_get( &g_dt );
 
 #ifdef	TEST_LCD
-	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ) {
+	if( prevt.year != g_dt.year || prevt.mon != g_dt. mon || prevt.mday != g_dt.mday ) {
 		g_lcd.setCursor(0,0);
-		datetostring( lbp, t.year, t.mon, t.mday, t.wday, yeardigits, showdow, '.', '/' ); *lbp = 0;
+		datetostring( lbp, g_dt.year, g_dt.mon, g_dt.mday, g_dt.wday, yeardigits, showdow, '.', '/' ); *lbp = 0;
 		g_lcd.print( lcdbuffer );
 	}
 
-	if( prevt.hour != t.hour || prevt.min != t.min || prevt.sec != t.sec ) {
+	if( prevt.hour != g_dt.hour || prevt.min != g_dt.min || prevt.sec != g_dt.sec ) {
 		g_lcd.setCursor(0,1);
 		lbp = lcdbuffer;
-		timetostring( lbp, t.hour, t.min, t.sec, ':' ); *lbp++ = 0;
+		timetostring( lbp, g_dt.hour, g_dt.min, g_dt.sec, ':' ); *lbp++ = 0;
 		g_lcd.print( lcdbuffer);
 	}
 
 #else	//	TEST_LCD
 
-	if( prevt.year != t.year || prevt.mon != t. mon || prevt.mday != t.mday ||
-		prevt.hour != t.hour || prevt.min != t.min || prevt.sec != t.sec )
+	if( prevt.year != g_dt.year || prevt.mon != g_dt. mon || prevt.mday != g_dt.mday ||
+		prevt.hour != g_dt.hour || prevt.min != g_dt.min || prevt.sec != g_dt.sec )
 	{
-		serialout( (uint16_t)t.year, F("."));
-		serialout( (uint16_t)t.mon,F("."));
-		serialout( (uint16_t)t.mday, F("/" ),(uint16_t)t.wday);
-		serialout( F("    "), (uint16_t)t.hour);
-		serialout(F(":" ), (uint16_t)(t.min));
-		serialout(F(":" ), (uint16_t)(t.sec));
+		serialout( (uint16_t)g_dt.year, F("."));
+		serialout( (uint16_t)g_dt.mon,F("."));
+		serialout( (uint16_t)g_dt.mday, F("/" ),(uint16_t)g_dt.wday);
+		serialout( F("    "), (uint16_t)g_dt.hour);
+		serialout(F(":" ), (uint16_t)(g_dt.min));
+		serialout(F(":" ), (uint16_t)(g_dt.sec));
 		Serial.println();
 	}
 #endif	//	TEST_LCD
 
-	prevt = t;
+	prevt = g_dt;
 #endif	//	TEST_DS3231
 }
 
@@ -436,7 +435,11 @@ void setup()
 	serialoutln(F( CMNTS "------------------ Setup ------------------"));
 	delay(100);
 
+	I2c.begin();
+	I2c.timeOut(1000);
 	g_lcd.init();                      // initialize the lcd
+	Serial.println(F(CMNTS "LCD initialized."));
+
 	g_lcd.backlight();
 	g_lcd.print( freeMemory());
 
@@ -448,7 +451,6 @@ void setup()
 	pinMode( PIN_OUTERLOOP, INPUT );
 	digitalWrite( PIN_OUTERLOOP, HIGH );	//	activate pullup;
 
-	Wire.begin();
 	DS3231_init( DS3231_INTCN );
 
 	g_sd.begin( SS );
@@ -488,15 +490,23 @@ void loop()
 			setrelays( raw );
 			printpins( raw );
 			g_rtstart += g_rtdelay;
+			database::dbrecord	rec;
+			g_db.getParams( s_id, rec );
+			char recbuf[ DBRECORD_WIDTH + 1 ];
+			uitodec(recbuf, s_id, 4);
+			recbuf[4] = ' ';
+			recbuf[5] = 0;
+			Serial.print(recbuf);
+			rec.serialize(recbuf);
+			Serial.println(recbuf);
+			if( ++s_id > 1023 ) s_id = 0;
 		}
-		database::dbrecord	rec;
-		g_db.getParams( s_id, rec );
-		if( ++s_id > 1023 ) s_id = 0;
 	}
 	printloopstatus( digitalRead( PIN_INNERLOOP ) == LOOP_ACTIVE, digitalRead( PIN_OUTERLOOP ) == LOOP_ACTIVE );
 	if( g_codeready ) {
 		printcode( getid( g_code ));
 		serialoutln( g_code, F(", "), getid( g_code ));
+		g_logger.log(logwriter::DEBUG, g_dt, F("CODE"), getid(g_code), getbutton(g_code));
 		g_codeready = false;
 	}
 #ifdef FAILSTATS

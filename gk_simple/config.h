@@ -10,9 +10,14 @@
 #include <Arduino.h>
 
 #define BAUDRATE 115200
-#define __HARD__
 //#define DECODE433_REVERSE
 //#define VERBOSE
+//#define USE_I2CDB
+#define	USE_EEPROMDB
+#define I2CDB_EEPROM_ADDRESS	0x50
+#define I2CDB_EEPROM_BITS		16
+#define	I2CDB_EEPROMPAGE_LENGTH	128
+#define I2CDB_EEPROM_OFFSET		0
 
 #define PIN_RFIN		2
 #define PIN_GATE		A2

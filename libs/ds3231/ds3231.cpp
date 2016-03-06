@@ -32,7 +32,7 @@
    
 */
 
-#include <Wire.h>
+#include <I2C.h>
 #include <stdio.h>
 #include "ds3231.h"
 
@@ -78,15 +78,12 @@ void DS3231_set(struct ts t)
 
     uint8_t TimeDate[7] = { t.sec, t.min, t.hour, t.wday, t.mday, t.mon, t.year_s };
 
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(DS3231_TIME_CAL_ADDR);
     for (i = 0; i <= 6; i++) {
         TimeDate[i] = dectobcd(TimeDate[i]);
         if (i == 5)
             TimeDate[5] += century;
-        Wire.write(TimeDate[i]);
     }
-    Wire.endTransmission();
+    I2c.write(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,TimeDate,7);	// No error check!
 }
 
 void DS3231_get(struct ts *t)
@@ -96,14 +93,10 @@ void DS3231_get(struct ts *t)
     uint8_t i, n;
     uint16_t year_full;
 
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(DS3231_TIME_CAL_ADDR);
-    Wire.endTransmission();
-
-    Wire.requestFrom(DS3231_I2C_ADDR, 7);
+    I2c.read(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,7);	// No error check!
 
     for (i = 0; i <= 6; i++) {
-        n = Wire.read();
+        n = I2c.receive();
         if (i == 5) {
             TimeDate[5] = bcdtodec(n & 0x1F);
             century = (n & 0x80) >> 7;
@@ -132,22 +125,16 @@ void DS3231_get(struct ts *t)
 
 void DS3231_set_addr(const uint8_t addr, const uint8_t val)
 {
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(addr);
-    Wire.write(val);
-    Wire.endTransmission();
+    I2c.write(DS3231_I2C_ADDR,addr,val);	// No error check!
 }
 
 uint8_t DS3231_get_addr(const uint8_t addr)
 {
     uint8_t rv;
 
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(addr);
-    Wire.endTransmission();
+    I2c.read(DS3231_I2C_ADDR,addr,1);	// No error check!
 
-    Wire.requestFrom(DS3231_I2C_ADDR, 1);
-    rv = Wire.read();
+    rv = I2c.receive();
 
     return rv;
 }
@@ -220,13 +207,10 @@ float DS3231_get_treg()
     uint8_t temp_msb, temp_lsb;
     int8_t nint;
 
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(DS3231_TEMPERATURE_ADDR);
-    Wire.endTransmission();
+    I2c.read(DS3231_I2C_ADDR,DS3231_TEMPERATURE_ADDR,2);	// No error check!
 
-    Wire.requestFrom(DS3231_I2C_ADDR, 2);
-    temp_msb = Wire.read();
-    temp_lsb = Wire.read() >> 6;
+    temp_msb = I2c.receive();
+    temp_lsb = I2c.receive() >> 6;
 
     if ((temp_msb & 0x80) != 0)
         nint = temp_msb | ~((1 << 8) - 1);      // if negative get two's complement
@@ -247,17 +231,14 @@ void DS3231_set_a1(const uint8_t s, const uint8_t mi, const uint8_t h, const uin
     uint8_t t[4] = { s, mi, h, d };
     uint8_t i;
 
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(DS3231_ALARM1_ADDR);
-
     for (i = 0; i <= 3; i++) {
         if (i == 3) {
-            Wire.write(dectobcd(t[3]) | (flags[3] << 7) | (flags[4] << 6));
+            t[i]=dectobcd(t[3]) | (flags[3] << 7) | (flags[4] << 6);
         } else
-            Wire.write(dectobcd(t[i]) | (flags[i] << 7));
+            t[i]=dectobcd(t[i]) | (flags[i] << 7);
     }
 
-    Wire.endTransmission();
+    I2c.write(DS3231_I2C_ADDR,DS3231_ALARM1_ADDR,t,4);	// No error check!
 }
 
 void DS3231_get_a1(char *buf, const uint8_t len)
@@ -267,14 +248,10 @@ void DS3231_get_a1(char *buf, const uint8_t len)
     uint8_t f[5];               // flags
     uint8_t i;
 
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(DS3231_ALARM1_ADDR);
-    Wire.endTransmission();
-
-    Wire.requestFrom(DS3231_I2C_ADDR, 4);
+    I2c.read(DS3231_I2C_ADDR,DS3231_ALARM1_ADDR,4);	// No error check!
 
     for (i = 0; i <= 3; i++) {
-        n[i] = Wire.read();
+        n[i] = I2c.receive();
         f[i] = (n[i] & 0x80) >> 7;
         t[i] = bcdtodec(n[i] & 0x7F);
     }
@@ -309,17 +286,14 @@ void DS3231_set_a2(const uint8_t mi, const uint8_t h, const uint8_t d, const uin
     uint8_t t[3] = { mi, h, d };
     uint8_t i;
 
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(DS3231_ALARM2_ADDR);
-
     for (i = 0; i <= 2; i++) {
         if (i == 2) {
-            Wire.write(dectobcd(t[2]) | (flags[2] << 7) | (flags[3] << 6));
+            t[i]=dectobcd(t[2]) | (flags[2] << 7) | (flags[3] << 6);
         } else
-            Wire.write(dectobcd(t[i]) | (flags[i] << 7));
+            t[i]=dectobcd(t[i]) | (flags[i] << 7);
     }
 
-    Wire.endTransmission();
+    I2c.write(DS3231_I2C_ADDR,DS3231_ALARM2_ADDR,t,3);	// No error check!
 }
 
 void DS3231_get_a2(char *buf, const uint8_t len)
@@ -329,14 +303,10 @@ void DS3231_get_a2(char *buf, const uint8_t len)
     uint8_t f[4];               // flags
     uint8_t i;
 
-    Wire.beginTransmission(DS3231_I2C_ADDR);
-    Wire.write(DS3231_ALARM2_ADDR);
-    Wire.endTransmission();
-
-    Wire.requestFrom(DS3231_I2C_ADDR, 3);
+    I2c.read(DS3231_I2C_ADDR,DS3231_ALARM2_ADDR,3);	// No error check!
 
     for (i = 0; i <= 2; i++) {
-        n[i] = Wire.read();
+        n[i] = I2c.receive();
         f[i] = (n[i] & 0x80) >> 7;
         t[i] = bcdtodec(n[i] & 0x7F);
     }

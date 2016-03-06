@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <Wire.h>
 #include <ds3231.h>
 #include <SdFat.h>
 #include <MemoryFree.h>

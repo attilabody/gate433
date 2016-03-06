@@ -27,8 +27,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/Libraries/Wire}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/Libraries/Wire/utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/ds3231}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/I2C}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/SdFat/SdFat}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/gk_simple/Libraries/EEPROM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/I2C_EEPROM}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.508281141" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -50,9 +52,6 @@
 							<tool id="it.baeyens.arduino.tool.size.724469034" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="it.baeyens.arduino.core.toolChain.release.1602549421.128224403" name="thindb.cpp" rcbsApplicability="disable" resourcePath="common/thindb.cpp" toolsToInvoke="it.baeyens.arduino.tool.sketch.compiler.cpp.1598154440.1700346584">
-						<tool id="it.baeyens.arduino.tool.sketch.compiler.cpp.1598154440.1700346584" name="Arduino C++ Compiler" superClass="it.baeyens.arduino.tool.sketch.compiler.cpp.1598154440"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry excluding="common/i2cdb.cpp|libs/ds3231/examples|libs/I2C/examples|libs/SdFat/SdFat/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/html|libs/SdFat/AnalogBinLoggerExtras|common/intdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/flashdb.cpp|libs/Touch-Screen-Library|libs/timerone|libs/TFTLCDplus-Library|libs/Streaming|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
@@ -73,4 +72,5 @@
 			<resource resourceType="PROJECT" workspacePath="/gk_simple"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>
