@@ -12,13 +12,13 @@
 #include "sdfatlogwriter.h"
 #include "globals.h"
 #include "toolbox.h"
+#include <serialout.h>
+#include <commsyms.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
 const char gatehandler::m_authcodes[AUTHRESCNT] = { 'G', 'U', 'D', 'T', 'P' };
-const uint8_t PROGMEM	gatehandler::m_innerlightspins[3] = { INNER_LIGHTS_PINS };
-const uint8_t PROGMEM	gatehandler::m_outerlightspins[3] = { OUTER_LIGHTS_PINS };
 
 //////////////////////////////////////////////////////////////////////////////
 gatehandler::gatehandler( database &db
@@ -26,7 +26,7 @@ gatehandler::gatehandler( database &db
 			, inductiveloop &loop
 			, display &disp )
 : m_db( db )
-, m_lights( m_innerlightspins, m_outerlightspins, cyclelen )
+, m_lights()
 , m_gate( PIN_GATE, RELAY_ON == HIGH )
 , m_indloop( loop )
 , m_display( disp )
@@ -37,6 +37,9 @@ gatehandler::gatehandler( database &db
 , m_inner( false )
 , m_prevdecision( (AUTHRES) -1 )
 {
+	const uint8_t innerlightspins[3] = { INNER_LIGHTS_PINS };
+	const uint8_t outerlightspins[3] = { OUTER_LIGHTS_PINS };
+	m_lights.init( innerlightspins, outerlightspins, cyclelen );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -51,16 +54,16 @@ void gatehandler::loop( unsigned long currmillis )
 	if( g_code2ready ) {
 		uint16_t	id( getid( g_code2 ));
 		if( id >= GODMODE_MIN && id <= GODMODE_MAX ) {
-			g_i2cio.write( PIN_GATE, RELAY_ON );
+			g_outputs.write( PIN_GATE, RELAY_ON );
 		}
 		g_code2ready = false;
 	}
 
 	if( ilchanged ) {
-#ifdef VERBOSE
+#ifdef __GATEHANDLER_VERBOSE
 		serialoutln( F( CMNTS "il changed: "), ilstatus, ", ", conflict );
 		Serial.println( freeMemory());
-#endif	//	VERBOSE
+#endif	//	__GATEHANDLER_VERBOSE
 		bool il(false), ol(false);
 		if( conflict ) il = ol = true;
 		else if( ilstatus == inductiveloop::INNER ) il = true;
@@ -96,10 +99,10 @@ void gatehandler::loop( unsigned long currmillis )
 		}
 		if( g_codeready ) {
 			uint16_t	id( getid( g_code ) );
-#ifdef VERBOSE
+#ifdef __GATEHANDLER___GATEHANDLER_VERBOSE
 			serialoutln( F(CMNTS "Code received: "), id );
 			Serial.println( freeMemory());
-#endif	//	VERBOSE
+#endif	//	__GATEHANDLER_VERBOSE
 			AUTHRES	ar( authorize( id, inner ));
 			m_display.updatelastdecision( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0), id );
 			if( ar == GRANTED ) {
@@ -123,9 +126,9 @@ void gatehandler::loop( unsigned long currmillis )
 			m_db.setStatus( getid( g_code ), m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE );
 			g_logger.log( logwriter::DEBUG, g_t, F("DBUP2"), -1 );
 			m_dbupdated = true;
-#ifdef VERBOSE
+#ifdef __GATEHANDLER_VERBOSE
 			serialoutsepln( ", ", F("setdbstatus "), ilstatus, m_inner, m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
-#endif	//	VERBOSE
+#endif	//	__GATEHANDLER_VERBOSE
 		}
 		if( conflict ) {
 //			m_lights.set( trafficlights::PASS, inner );

@@ -23,14 +23,23 @@ void updatedow( ts &t );
 //////////////////////////////////////////////////////////////////////////////
 void setup()
 {
+#ifdef VERBOSE
 	Serial.begin( BAUDRATE );
 	delay(10);
 	Serial.print( CMNT );
 	for( char c = 0; c < 79; ++c ) Serial.print('-');
 	Serial.println();
+#endif
 
 	memset( &g_t, 0, sizeof( g_t ));
 
+	I2c.begin();
+	I2c.timeOut(1000);
+
+#ifndef USE_IOEXTENDER_OUTPUTS
+	const uint8_t	g_alloutputpins[8] = { ALL_RAW_OUTPUT_PINS };
+	g_outputs.init(g_alloutputpins, RELAY_OFF);
+#endif
 	g_display.init();		//	calls Wire.begin()
 
 	g_display.print( freeMemory() );
@@ -68,7 +77,6 @@ void setup()
 	g_display.print( ' ' );
 	g_display.print( loginitsucc );
 
-
 	delay(1000);
 
 	g_logger.log( logwriter::WARNING, g_t, F("Restart"), -1 );
@@ -77,6 +85,14 @@ void setup()
 	g_display.updateloopstatus( false, false );
 	g_display.updatelastreceivedid( 9999 );
 	g_display.updatelastdecision( 'X', 9999 );
+
+#ifdef VERBOSE
+	Serial.begin( BAUDRATE );
+	delay(10);
+	Serial.print( CMNT );
+	for( char c = 0; c < 79; ++c ) Serial.print('<');
+	Serial.println();
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

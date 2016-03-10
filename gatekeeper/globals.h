@@ -15,6 +15,7 @@
 #include "hybintdb.h"
 #include "i2cdb.h"
 #include "inductiveloop.h"
+#include <arduinooutputs.h>
 #include "trafficlights.h"
 
 struct ts;
@@ -46,7 +47,11 @@ extern hybintdb				g_db;
 extern i2cdb				g_db;
 #endif	//	USE_FLASHDB
 extern inductiveloop		g_indloop;
-extern PCF8574				g_i2cio;
+#ifdef USE_IOEXTENDER_OUTPUTS
+extern PCF8574				g_outputs;
+#else	//	USE_IOEXTENDER_OUTPUTS
+extern arduinooutputs		g_outputs;
+#endif	//	USE_IOEXTENDER_OUTPUTS
 extern char					g_iobuf[32];
 extern uint8_t				g_inidx;
 extern uint16_t				g_codedisplayed;

@@ -55,6 +55,10 @@ uint8_t PCF8574::value()
 
 void PCF8574::write8(uint8_t value)
 {
+#ifdef __PCF8574_VERBOSE
+	Serial.print(F("PCF8574::write8: 0x"));
+	Serial.println(value, HEX );
+#endif	//	PCF8574_VERBOSE
     _data = value;
     _error = I2c.write(_address, value);
 }
@@ -69,6 +73,13 @@ uint8_t PCF8574::read(uint8_t pin)
 // pin should be 0..7
 void PCF8574::write(uint8_t pin, uint8_t value)
 {
+#ifdef __PCF8574_VERBOSE
+	Serial.print(F("PCF8574::write: "));
+	Serial.print(pin);
+	Serial.print(F(", "));
+	Serial.println(value );
+#endif	//	PCF8574_VERBOSE
+
     PCF8574::read8();
     if (value == LOW)
     {

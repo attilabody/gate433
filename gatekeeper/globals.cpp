@@ -11,38 +11,41 @@
 #include "display.h"
 #include "sdfatlogwriter.h"
 
-const uint8_t	g_otherrelaypins[2] = { PIN_GATE, PIN_RELAY_SPARE };
-
-display 			g_display(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
-SdFat				g_sd;
+display 				g_display(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+SdFat					g_sd;
 #ifdef USE_THINDB
-thindb				g_db( g_sd );
+thindb					g_db( g_sd );
 #endif	//	USE_THINDB
 #ifdef USE_INTDB
-intdb				g_db( g_sd );
+intdb					g_db( g_sd );
 #endif	//	USE_INTDB
 #ifdef USE_HYBRIDDB
-hybriddb			g_db( g_sd, HYBRIDDB_EEPROM_ADDRESS);
+hybriddb				g_db( g_sd, HYBRIDDB_EEPROM_ADDRESS);
 #endif	//	USE_HYBRIDDB
 #ifdef USE_HYBINTDB
-hybintdb			g_db( g_sd );
+hybintdb				g_db( g_sd );
 #endif	//	USE_HYBINTDB
 #ifdef USE_I2CDB
-i2cdb				g_db( I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, 128 );
+i2cdb					g_db( I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, 128 );
 #endif	//	USE_FLASHDB
-inductiveloop		g_indloop;
-PCF8574				g_i2cio( PCF8574_ADDRESS );
+inductiveloop			g_indloop;
 
-char				g_iobuf[32];
-uint8_t				g_inidx(0);
+#ifdef USE_IOEXTENDER_OUTPUTS
+PCF8574					g_outputs(PCF8574_ADDRESS);
+#else	//	USE_IOEXTENDER_OUTPUTS
+arduinooutputs			g_outputs;
+#endif	//	USE_IOEXTENDER_OUTPUTS
 
-uint16_t			g_codedisplayed((uint16_t)-1);
+char					g_iobuf[32];
+uint8_t					g_inidx(0);
 
-bool				g_sdpresent(false);
+uint16_t				g_codedisplayed((uint16_t)-1);
 
-ts					g_t;
-unsigned long		g_lastdtupdate(0);
+bool					g_sdpresent(false);
 
-sdfatlogwriter		g_logger( g_sd );
+ts						g_t;
+unsigned long			g_lastdtupdate(0);
 
-uint16_t			g_lastcheckpoint(0);
+sdfatlogwriter			g_logger( g_sd );
+
+uint16_t				g_lastcheckpoint(0);

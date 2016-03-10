@@ -9,8 +9,9 @@
 #include "config.h"
 #include "globals.h"
 #include "trafficlights.h"
-//#define DEBUG_LIGHT
-//#define DEBUG_LIGHT_INIT
+#ifdef __TRAFFICLIGHTS_VERBOSE
+#include <serialout.h>
+#endif	//	__TRAFFICLIGHTS_VERBOSE
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -23,6 +24,9 @@ outputpin::outputpin( uint8_t iopin, bool m_highon )
 //////////////////////////////////////////////////////////////////////////////
 bool outputpin::init( uint8_t iopin, bool highon )
 {
+#ifdef __TRAFFICLIGHTS_VERBOSE
+	serialoutln(F("outputpin::init "), iopin, F(", "), highon );
+#endif
 	m_iopin = iopin;
 	m_highon = highon;
 	m_on = false;
@@ -31,10 +35,10 @@ bool outputpin::init( uint8_t iopin, bool highon )
 	bool ret(false);
 
 	if( m_iopin != 0xff ) {
-		g_i2cio.write( m_iopin, offval() );
+		g_outputs.write( m_iopin, offval() );
 		ret = true;
 	}
-#ifdef DEBUG_LIGHT_INIT
+#ifdef __TRAFFICLIGHTS_VERBOSE
 	Serial.print( m_iopin );
 	Serial.print(F(": light::init return "));
 	Serial.println( ret ? F("true") : F("false"));
@@ -49,12 +53,12 @@ void outputpin::loop( unsigned long curmillis )
 	{
 		if( m_cyclecount ) {
 			m_on = !m_on;
-			g_i2cio.write( m_iopin, onoffval( m_on ) );
+			g_outputs.write( m_iopin, onoffval( m_on ) );
 			if( m_cyclecount != 0xff ) --m_cyclecount;
 		} else {
 			if( m_on && m_endoff ) {
 				m_on = false;
-				g_i2cio.write( m_iopin, offval() );
+				g_outputs.write( m_iopin, offval() );
 			}
 			m_cyclelen = 0;
 		}
@@ -65,7 +69,7 @@ void outputpin::loop( unsigned long curmillis )
 //////////////////////////////////////////////////////////////////////////////
 void outputpin::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis )
 {
-#ifdef DEBUG_LIGHT
+#ifdef __TRAFFICLIGHTS_VERBOSE
 	Serial.print( m_iopin ); Serial.print( ": ");
 	Serial.print( on ? F(" on ") : F("off "));
 	Serial.print( cyclelen ); Serial.print( ' ' );
@@ -76,7 +80,7 @@ void outputpin::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool e
 	m_cyclecount = cyclecount;
 	m_on = on;
 	m_endoff = endoff;
-	g_i2cio.write( m_iopin, onoffval( on ));
+	g_outputs.write( m_iopin, onoffval( on ));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -92,7 +96,7 @@ bool trafficlight::init( const uint8_t pins[], bool m_highon )
 {
 	bool ret( true );
 	for( uint8_t idx = 0; idx<3; ++idx ) {
-		ret &= m_lights[idx].init( pgm_read_byte( pins++ ), m_highon );
+		ret &= m_lights[idx].init( *pins++, m_highon );
 	}
 	return ret;
 }

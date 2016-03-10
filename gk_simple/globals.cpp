@@ -9,3 +9,19 @@
 SdFat			g_sd;
 sdfatlogwriter	g_logger( g_sd );
 
+#ifdef USE_I2CDB
+i2cdb			g_db(I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, I2CDB_EEPROMPAGE_LENGTH);
+#endif
+#ifdef USE_EEPROMDB
+eepromdb		g_db;
+#endif
+
+#ifdef USE_IOEXTENDER_OUTPUTS
+PCF8574					g_outputs(PCF8574_ADDRESS);
+#else	//	USE_IOEXTENDER_OUTPUTS
+arduinooutputs			g_outputs;
+#endif	//	USE_IOEXTENDER_OUTPUTS
+
+
+inductiveloop	g_loop;
+

@@ -65,8 +65,6 @@ protected:
 	bool					m_previnner;
 
 	static const char PROGMEM 		m_authcodes[AUTHRESCNT];
-	static const uint8_t PROGMEM	m_innerlightspins[3];
-	static const uint8_t PROGMEM	m_outerlightspins[3];
 };
 
 #endif /* GATEHANDLER_H_ */

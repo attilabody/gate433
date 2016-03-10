@@ -19,6 +19,7 @@
 #include "eepromdb.h"
 #include "decode433.h"
 #include "sdfatlogwriter.h"
+#include "arduinooutputs.h"
 
 #define TEST_SDCARD
 #define TEST_LCD
@@ -35,12 +36,16 @@ sdfatlogwriter	g_logger( g_sd );
 uint16_t		g_lastcheckpoint(0);
 #endif	//	TEST_SDCARD
 
-uint8_t			g_pins[8] = { 0, 1, 2, 3, 7, 6, 5, 4 };
-uint8_t			g_pinindex( sizeof( g_pins ) - 1 );
-uint16_t		g_rtdelay(50);
+uint8_t			g_pinindex( 8 - 1 );
+uint16_t		g_rtdelay(1000);
 unsigned long	g_rtstart(0);
-PCF8574			g_i2cio(0x20);
 ts				g_dt;
+
+uint8_t			g_pinmap[] = {0,1,2,3,7,6,5,4};
+
+PCF8574			g_ioext(PCF8574_ADDRESS);
+const uint8_t	g_alloutputpins[8] = { ALL_RAW_OUTPUT_PINS };
+arduinooutputs	g_outputs;
 
 #ifdef	TEST_LCD
 #ifndef LCD_I2C_ADDRESS
@@ -67,7 +72,7 @@ void relaysoff()
 {
 	g_pinindex = 0xff;
 	printpins( 0 );
-	g_i2cio.write8( 0xff );
+	g_outputs.write8( 0xff );
 //	for( uint8_t pin = 0; pin < sizeof(g_pins); ++ pin )
 //		g_i2cio.write( pin, RELAY_OFF );
 }
@@ -109,7 +114,7 @@ void processInput()
 	} else if( iscommand( inptr, F("rt"))) {
 		long	delay( getintparam( inptr ));
 		g_rtdelay = delay > 0 ? delay : 1000;
-		g_pinindex = sizeof( g_pins ) - 1;
+		g_pinindex = 8 - 1;
 		g_rtstart = millis();
 
 	} else if( iscommand( inptr, F("de"))) { 	//	dump eeprom
@@ -415,15 +420,12 @@ void printcode( uint16_t code )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void setrelays( uint8_t status )
+void setrelays( uint8_t prev, uint8_t curr )
 {
-	uint8_t	portdata(0);
-	for( uint8_t bit = 0, mask = 1; mask; ++bit, mask <<= 1 ) {
-		if( status & mask ) {
-			portdata |= 1 << g_pins[bit];
-		}
-	}
-	g_i2cio.write8(( RELAY_OFF == HIGH ) ? ~portdata : portdata );
+	g_outputs.write(g_pinmap[prev], RELAY_OFF);
+	g_ioext.write(g_pinmap[prev], RELAY_OFF);
+	g_outputs.write(g_pinmap[curr], RELAY_ON);
+	g_ioext.write(g_pinmap[curr], RELAY_ON);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -443,9 +445,8 @@ void setup()
 	g_lcd.backlight();
 	g_lcd.print( freeMemory());
 
-	for( size_t pin=0; pin<sizeof(g_pins); ++pin ) {
-		g_i2cio.write( g_pins[pin], HIGH );
-	}
+	g_outputs.init(g_alloutputpins, RELAY_OFF);
+
 	pinMode( PIN_INNERLOOP, INPUT );
 	digitalWrite( PIN_INNERLOOP, HIGH );	//	activate pullup;
 	pinMode( PIN_OUTERLOOP, INPUT );
@@ -483,11 +484,12 @@ void loop()
 	{
 		if( millis() - g_rtstart > g_rtdelay )
 		{
-			g_pinindex++;
-			if( g_pinindex >= sizeof( g_pins ))
+
+			uint8_t previndex(g_pinindex++);
+			if( g_pinindex >= 8 )
 				g_pinindex = 0;
 			uint8_t raw( 1 << g_pinindex );
-			setrelays( raw );
+			setrelays(previndex, g_pinindex);
 			printpins( raw );
 			g_rtstart += g_rtdelay;
 			database::dbrecord	rec;

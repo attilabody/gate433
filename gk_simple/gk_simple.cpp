@@ -1,15 +1,12 @@
 // Do not remove the include below
 #include "config.h"
+#include "globals.h"
 #include "gk_simple.h"
 #include "decode433.h"
 #include "toolbox.h"
 #include "commsyms.h"
 #include <serialout.h>
-#include <eepromdb.h>
-#include <thindb.h>
-#include <i2cdb.h>
 #include "sdfatlogwriter.h"
-#include "globals.h"
 #include "inductiveloop.h"
 #include <I2C.h>
 #include <ds3231.h>
@@ -20,15 +17,6 @@ char			g_iobuf[32];
 uint8_t			g_inidx(0);
 uint16_t		g_lastcheckpoint;
 
-#ifdef USE_I2CDB
-i2cdb		g_db(I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, I2CDB_EEPROMPAGE_LENGTH);
-#endif
-#ifdef USE_EEPROMDB
-eepromdb	g_db;
-#endif
-
-inductiveloop	g_loop;
-
 void processinput();
 
 
@@ -38,20 +26,17 @@ void setup()
 {
 	bool loginit(false);
 
-	uint8_t	tlpins[] = {
-			IN_GREEN, IN_YELLOW, IN_RED,
-			OUT_GREEN, OUT_YELLOW, OUT_RED
-	};
+	uint8_t	tlpins[] = { INNER_LIGHTS_PINS, OUTER_LIGHTS_PINS };
 
 	Serial.begin( BAUDRATE );
 #ifdef VERBOSE
 	delay(10);
-	for( char c = 0; c < 79; ++c ) Serial.print('-');
+	Serial.print(CMNT);
+	for( char c = 0; c < 79; ++c ) Serial.print('>');
 	Serial.println();
 #endif
-
-	pinMode( PIN_GATE, OUTPUT );
-	digitalWrite( PIN_GATE, RELAY_OFF );
+	I2c.begin();
+	I2c.timeOut(1000);
 
 	g_loop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOOP_ACTIVE );
 
@@ -59,14 +44,21 @@ void setup()
 	g_codeready = false;
 	g_code = 0;
 
+#ifdef USE_IOEXTENDER_OUTPUTS
+	g_outputs.write8(0xff);
+#else
+	{
+		uint8_t	all_output_pins[8] = { ALL_RAW_OUTPUT_PINS };
+		g_outputs.init(all_output_pins, RELAY_OFF);
+	}
+#endif
 	//setting up traffic lights pins
 	for( uint8_t pin = 0; pin < sizeof(tlpins) + 3; ++pin ) {
 		if(pin < sizeof(tlpins)) {
-			pinMode( tlpins[pin], OUTPUT );
-			digitalWrite(tlpins[pin], RELAY_ON);
+			g_outputs.write( tlpins[pin], RELAY_ON);
 		}
 		if(pin > 2)
-			digitalWrite(tlpins[pin-3], RELAY_OFF);
+			g_outputs.write(tlpins[pin-3], RELAY_OFF);
 		delay(150);
 	}
 
@@ -80,21 +72,24 @@ void setup()
 	{
 		delay(100);
 		for( int i = 0; i < 3;  ++i ) {
-			digitalWrite( IN_RED, RELAY_ON );
-			digitalWrite( OUT_RED, RELAY_ON );
+			g_outputs.write( PIN_IN_RED, RELAY_ON );
+			g_outputs.write( PIN_OUT_RED, RELAY_ON );
 			delay( 500 );
-			digitalWrite( IN_RED, RELAY_OFF );
-			digitalWrite( OUT_RED, RELAY_OFF );
+			g_outputs.write( PIN_IN_RED, RELAY_OFF );
+			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
 			delay( 500 );
 		}
 	}
 
-	I2c.begin();
-	I2c.timeOut(1000);
 	DS3231_init( DS3231_INTCN );
 	DS3231_get( &g_dt );
 	g_logger.log( logwriter::INFO, g_dt, F("Reset") );
 	g_db.init();
+#ifdef VERBOSE
+	Serial.print(CMNT);
+	for( char c = 0; c < 79; ++c ) Serial.print('<');
+	Serial.println();
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -114,22 +109,26 @@ void loop()
 
 	if( ils != previls || conflict != prevconflict )
 	{
+#ifdef VERBOSE
+		Serial.print(CMNT);
+		serialoutsepln(", ", "ilschange", (int)ils, (int)previls, conflict, prevconflict );
+#endif	//	VERBOSE
 		if( ils == inductiveloop::NONE ) {
-			digitalWrite( IN_YELLOW, RELAY_OFF );
-			digitalWrite( OUT_YELLOW, RELAY_OFF );
-			digitalWrite( IN_RED, RELAY_OFF );
-			digitalWrite( OUT_RED, RELAY_OFF );
+			g_outputs.write( PIN_IN_YELLOW, RELAY_OFF );
+			g_outputs.write( PIN_OUT_YELLOW, RELAY_OFF );
+			g_outputs.write( PIN_IN_RED, RELAY_OFF );
+			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
 		}
 		else if( ils == inductiveloop::INNER ) {
-			digitalWrite( IN_YELLOW, RELAY_ON );
-			digitalWrite( OUT_RED, RELAY_ON );
-			digitalWrite( IN_RED, RELAY_OFF );
-			digitalWrite( OUT_YELLOW, RELAY_OFF );
+			g_outputs.write( PIN_IN_YELLOW, RELAY_ON );
+			g_outputs.write( PIN_OUT_RED, RELAY_ON );
+			g_outputs.write( PIN_IN_RED, RELAY_OFF );
+			g_outputs.write( PIN_OUT_YELLOW, RELAY_OFF );
 		} else {
-			digitalWrite( IN_RED, RELAY_ON );
-			digitalWrite( OUT_YELLOW, RELAY_ON );
-			digitalWrite( IN_YELLOW, RELAY_OFF );
-			digitalWrite( OUT_RED, RELAY_OFF );
+			g_outputs.write( PIN_IN_RED, RELAY_ON );
+			g_outputs.write( PIN_OUT_YELLOW, RELAY_ON );
+			g_outputs.write( PIN_IN_YELLOW, RELAY_OFF );
+			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
 		}
 		previls = ils;
 		prevconflict = conflict;
@@ -166,8 +165,8 @@ void loop()
 			g_db.getParams( id, rec );
 			bool enabled(rec.enabled());
 
-			digitalWrite( inner ? IN_YELLOW : OUT_YELLOW, RELAY_OFF );
-			digitalWrite( enabled? (inner ? IN_GREEN : OUT_GREEN) : (inner ? IN_RED : OUT_RED), RELAY_ON );
+			g_outputs.write( inner ? PIN_IN_YELLOW : PIN_OUT_YELLOW, RELAY_OFF );
+			g_outputs.write( enabled? (inner ? PIN_IN_GREEN : PIN_OUT_GREEN) : (inner ? PIN_IN_RED : PIN_OUT_RED), RELAY_ON );
 
 			unsigned long timeout;
 			if( rec.enabled() )
@@ -176,17 +175,17 @@ void loop()
 #ifdef VERBOSE
 				Serial.println(F(" -> opening gate."));
 #endif
-				digitalWrite( PIN_GATE, RELAY_ON );
+				g_outputs.write( PIN_GATE, RELAY_ON );
 				delay(1000);
-				digitalWrite( PIN_GATE, RELAY_OFF );
+				g_outputs.write( PIN_GATE, RELAY_OFF );
 				timeout = 60000;
 
 			} else {
 				g_logger.log( logwriter::INFO, g_dt, F("Deny"), id, btn );
 #ifndef __HARD__
-				digitalWrite( PIN_GATE, RELAY_ON );
+				g_outputs.write( PIN_GATE, RELAY_ON );
 				delay(1000);
-				digitalWrite( PIN_GATE, RELAY_OFF );
+				g_outputs.write( PIN_GATE, RELAY_OFF );
 #endif	//	__HARD__
 #ifdef VERBOSE
 				Serial.println(F(" -> ignoring."));
@@ -201,8 +200,8 @@ void loop()
 			while(conflict == conflicttmp && ils == ilstmp && millis()-waitstart < timeout )
 				conflicttmp = g_loop.update(ilstmp);
 
-			digitalWrite( enabled ? (inner ? IN_GREEN : OUT_GREEN) : (inner ? IN_RED : OUT_RED), RELAY_OFF );
-			digitalWrite( inner ? OUT_RED : IN_RED, RELAY_OFF );
+			g_outputs.write( enabled ? (inner ? PIN_IN_GREEN : PIN_OUT_GREEN) : (inner ? PIN_IN_RED : PIN_OUT_RED), RELAY_OFF );
+			g_outputs.write( inner ? PIN_OUT_RED : PIN_IN_RED, RELAY_OFF );
 
 			previls = inductiveloop::NONE;
 			prevconflict = false;
