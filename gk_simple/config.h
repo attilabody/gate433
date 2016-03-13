@@ -11,7 +11,7 @@
 
 #define BAUDRATE 115200
 //#define DECODE433_REVERSE
-#define VERBOSE
+//#define VERBOSE
 //#define USE_I2CDB
 #define	USE_EEPROMDB
 //#define USE_IOEXTENDER_OUTPUTS

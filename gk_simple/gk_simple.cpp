@@ -200,8 +200,20 @@ void loop()
 			while(conflict == conflicttmp && ils == ilstmp && millis()-waitstart < timeout )
 				conflicttmp = g_loop.update(ilstmp);
 
-			g_outputs.write( enabled ? (inner ? PIN_IN_GREEN : PIN_OUT_GREEN) : (inner ? PIN_IN_RED : PIN_OUT_RED), RELAY_OFF );
-			g_outputs.write( inner ? PIN_OUT_RED : PIN_IN_RED, RELAY_OFF );
+			if(ilstmp != inductiveloop::NONE) {
+				if(enabled) {
+					g_outputs.write(inner ? PIN_IN_GREEN : PIN_OUT_GREEN, RELAY_OFF);
+					g_outputs.write(inner ? PIN_IN_RED : PIN_OUT_RED, RELAY_ON);
+				}
+			} else if(enabled) {
+				g_outputs.write( inner ? PIN_IN_GREEN : PIN_OUT_GREEN, RELAY_OFF );
+			}
+
+			while(ilstmp != inductiveloop::NONE && millis()-waitstart < timeout )
+				g_loop.update(ilstmp);
+
+			g_outputs.write( PIN_IN_RED, RELAY_OFF );
+			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
 
 			previls = inductiveloop::NONE;
 			prevconflict = false;
