@@ -11,6 +11,8 @@
 #include <I2C.h>
 #include <ds3231.h>
 #include "dthelpers.h"
+#include "display.h"
+#include <MemoryFree.h>
 
 ts				g_dt;
 char			g_iobuf[32];
@@ -25,6 +27,8 @@ void processinput();
 void setup()
 {
 	bool loginit(false);
+	bool sdinit(false);
+	bool dbinit(false);
 
 	uint8_t	tlpins[] = { INNER_LIGHTS_PINS, OUTER_LIGHTS_PINS };
 
@@ -38,6 +42,9 @@ void setup()
 	I2c.begin();
 	I2c.timeOut(1000);
 
+	g_display.init();		//	calls Wire.begin()
+
+	g_display.print( freeMemory() );
 	g_loop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOOP_ACTIVE );
 
 	setup433();
@@ -52,6 +59,21 @@ void setup()
 		g_outputs.init(all_output_pins, RELAY_OFF);
 	}
 #endif
+	if((sdinit = g_sd.begin( SS, SPI_HALF_SPEED ))) {
+		if( !(loginit = g_logger.init()) )
+			Serial.println(F("Logger fail"));
+	} else
+		Serial.println(F("SD fail"));
+
+	dbinit = g_db.init();
+
+	g_display.print( ' ' );
+	g_display.print( sdinit );
+	g_display.print( ' ' );
+	g_display.print( loginit );
+	g_display.print( ' ' );
+	g_display.print( dbinit );
+
 	//setting up traffic lights pins
 	for( uint8_t pin = 0; pin < sizeof(tlpins) + 3; ++pin ) {
 		if(pin < sizeof(tlpins)) {
@@ -61,12 +83,6 @@ void setup()
 			g_outputs.write(tlpins[pin-3], RELAY_OFF);
 		delay(150);
 	}
-
-	if( g_sd.begin( SS, SPI_HALF_SPEED )) {
-		if( !(loginit = g_logger.init()) )
-			Serial.println(F("Logger fail"));
-	} else
-		Serial.println(F("SD fail"));
 
 	if( !loginit )
 	{
@@ -84,7 +100,9 @@ void setup()
 	DS3231_init( DS3231_INTCN );
 	DS3231_get( &g_dt );
 	g_logger.log( logwriter::INFO, g_dt, F("Reset") );
-	g_db.init();
+
+	g_display.clear();
+
 #ifdef VERBOSE
 	Serial.print(CMNT);
 	for( char c = 0; c < 79; ++c ) Serial.print('<');
@@ -101,6 +119,7 @@ void loop()
 	static bool						prevconflict(false);
 	inductiveloop::STATUS			ils;
 	bool							conflict;
+	bool							dtupdated(false);
 
 	if( getlinefromserial( g_iobuf, sizeof( g_iobuf ), g_inidx) )
 		processinput();
@@ -109,6 +128,7 @@ void loop()
 
 	if( ils != previls || conflict != prevconflict )
 	{
+		g_display.updateloopstatus(conflict || ils == inductiveloop::INNER, conflict || ils == inductiveloop::OUTER );
 #ifdef VERBOSE
 		Serial.print(CMNT);
 		serialoutsepln(", ", "ilschange", (int)ils, (int)previls, conflict, prevconflict );
@@ -144,6 +164,7 @@ void loop()
 			if( cnt )
 			{
 				DS3231_get( &g_dt );
+				dtupdated = true;
 				g_logger.log( logwriter::DEBUG, g_dt, F("Abort"), id, btn );
 #ifdef VERBOSE
 				Serial.print( F("  Aborting ") );
@@ -162,8 +183,11 @@ void loop()
 			Serial.print( id );
 #endif
 			DS3231_get( &g_dt );
+			dtupdated = true;
 			g_db.getParams( id, rec );
 			bool enabled(rec.enabled());
+			g_display.updatedt(g_dt, 0xff);
+			g_display.updatelastdecision( enabled ? '+' : 'X', id );
 
 			g_outputs.write( inner ? PIN_IN_YELLOW : PIN_OUT_YELLOW, RELAY_OFF );
 			g_outputs.write( enabled? (inner ? PIN_IN_GREEN : PIN_OUT_GREEN) : (inner ? PIN_IN_RED : PIN_OUT_RED), RELAY_ON );
@@ -182,7 +206,7 @@ void loop()
 
 			} else {
 				g_logger.log( logwriter::INFO, g_dt, F("Deny"), id, btn );
-#ifndef __HARD__
+#ifndef ENFORCE
 				g_outputs.write( PIN_GATE, RELAY_ON );
 				delay(1000);
 				g_outputs.write( PIN_GATE, RELAY_OFF );
@@ -199,6 +223,7 @@ void loop()
 
 			while(conflict == conflicttmp && ils == ilstmp && millis()-waitstart < timeout )
 				conflicttmp = g_loop.update(ilstmp);
+			g_display.updateloopstatus(conflicttmp || ilstmp == inductiveloop::INNER, conflicttmp || ilstmp == inductiveloop::OUTER );
 
 			if(ilstmp != inductiveloop::NONE) {
 				if(enabled) {
@@ -210,7 +235,8 @@ void loop()
 			}
 
 			while(ilstmp != inductiveloop::NONE && millis()-waitstart < timeout )
-				g_loop.update(ilstmp);
+				conflicttmp = g_loop.update(ilstmp);
+			g_display.updateloopstatus(conflicttmp || ilstmp == inductiveloop::INNER, conflicttmp || ilstmp == inductiveloop::OUTER );
 
 			g_outputs.write( PIN_IN_RED, RELAY_OFF );
 			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
@@ -228,6 +254,16 @@ void loop()
 		}
 #endif	//	VERBOSE
 		g_codeready = false;
+	}
+
+	if( g_codedisplayed != g_lrcode ) {
+		if(!dtupdated) {
+			DS3231_get(&g_dt);
+			dtupdated = true;
+		}
+		g_display.updatelastreceivedid( getid( g_lrcode ));
+		g_logger.log( logwriter::DEBUG, g_dt, F("NewCode"), g_lrcode >> 2);
+		g_codedisplayed = g_lrcode;
 	}
 }
 

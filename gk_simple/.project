@@ -42,6 +42,16 @@
 			<locationURI>PARENT-1-PROJECT_LOC/common</locationURI>
 		</link>
 		<link>
+			<name>display.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/display.cpp</locationURI>
+		</link>
+		<link>
+			<name>display.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/display.h</locationURI>
+		</link>
+		<link>
 			<name>inductiveloop.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/inductiveloop.cpp</locationURI>

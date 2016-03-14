@@ -5,9 +5,13 @@
  *      Author: abody
  */
 #include <globals.h>
+#include "config.h"
 
 SdFat			g_sd;
 sdfatlogwriter	g_logger( g_sd );
+display 		g_display(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+
+uint16_t		g_codedisplayed(-1);
 
 #ifdef USE_I2CDB
 i2cdb			g_db(I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, I2CDB_EEPROMPAGE_LENGTH);

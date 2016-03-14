@@ -15,9 +15,13 @@
 #include <thindb.h>
 #include <i2cdb.h>
 #include <PCF8574.h>
+#include "display.h"
 
 extern SdFat			g_sd;
 extern sdfatlogwriter	g_logger;
+extern display 			g_display;
+
+extern uint16_t			g_codedisplayed;
 
 #ifdef USE_I2CDB
 extern i2cdb			g_db(I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, I2CDB_EEPROMPAGE_LENGTH);

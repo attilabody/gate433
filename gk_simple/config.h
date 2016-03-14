@@ -10,6 +10,7 @@
 #include <Arduino.h>
 
 #define BAUDRATE 115200
+#define ENFORCE
 //#define DECODE433_REVERSE
 //#define VERBOSE
 //#define USE_I2CDB
@@ -20,6 +21,10 @@
 #define I2CDB_EEPROM_BITS		16
 #define	I2CDB_EEPROMPAGE_LENGTH	128
 #define I2CDB_EEPROM_OFFSET		0
+
+#define LCD_I2C_ADDRESS	0x27	//	usually 0x27 or 0x3f
+#define LCD_WIDTH	16		//	in characters
+#define LCD_HEIGHT	2		//	in lines
 
 #define PIN_IN_GREEN		0
 #define PIN_IN_YELLOW		1
