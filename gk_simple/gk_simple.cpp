@@ -20,8 +20,9 @@ uint8_t			g_inidx(0);
 uint16_t		g_lastcheckpoint;
 
 void processinput();
-
-
+inline void updateloopstatus(inductiveloop::STATUS status, bool conflict) {
+	g_display.updateloopstatus(conflict || status == inductiveloop::INNER, conflict || status == inductiveloop::OUTER );
+}
 
 //////////////////////////////////////////////////////////////////////////////
 void setup()
@@ -128,7 +129,7 @@ void loop()
 
 	if( ils != previls || conflict != prevconflict )
 	{
-		g_display.updateloopstatus(conflict || ils == inductiveloop::INNER, conflict || ils == inductiveloop::OUTER );
+		updateloopstatus(ils, conflict);
 #ifdef VERBOSE
 		Serial.print(CMNT);
 		serialoutsepln(", ", "ilschange", (int)ils, (int)previls, conflict, prevconflict );
@@ -193,7 +194,7 @@ void loop()
 			g_outputs.write( enabled? (inner ? PIN_IN_GREEN : PIN_OUT_GREEN) : (inner ? PIN_IN_RED : PIN_OUT_RED), RELAY_ON );
 
 			unsigned long timeout;
-			if( rec.enabled() )
+			if( enabled )
 			{
 				g_logger.log( logwriter::INFO, g_dt, F("Ack"), id, btn );
 #ifdef VERBOSE
@@ -223,20 +224,17 @@ void loop()
 
 			while(conflict == conflicttmp && ils == ilstmp && millis()-waitstart < timeout )
 				conflicttmp = g_loop.update(ilstmp);
-			g_display.updateloopstatus(conflicttmp || ilstmp == inductiveloop::INNER, conflicttmp || ilstmp == inductiveloop::OUTER );
+			updateloopstatus(ilstmp, conflicttmp );
 
-			if(ilstmp != inductiveloop::NONE) {
-				if(enabled) {
-					g_outputs.write(inner ? PIN_IN_GREEN : PIN_OUT_GREEN, RELAY_OFF);
+			if(enabled) {
+				g_outputs.write(inner ? PIN_IN_GREEN : PIN_OUT_GREEN, RELAY_OFF);
+				if(ilstmp != inductiveloop::NONE)
 					g_outputs.write(inner ? PIN_IN_RED : PIN_OUT_RED, RELAY_ON);
-				}
-			} else if(enabled) {
-				g_outputs.write( inner ? PIN_IN_GREEN : PIN_OUT_GREEN, RELAY_OFF );
 			}
 
 			while(ilstmp != inductiveloop::NONE && millis()-waitstart < timeout )
 				conflicttmp = g_loop.update(ilstmp);
-			g_display.updateloopstatus(conflicttmp || ilstmp == inductiveloop::INNER, conflicttmp || ilstmp == inductiveloop::OUTER );
+			updateloopstatus(ilstmp, conflicttmp);
 
 			g_outputs.write( PIN_IN_RED, RELAY_OFF );
 			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
