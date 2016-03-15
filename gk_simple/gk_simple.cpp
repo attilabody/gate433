@@ -100,9 +100,39 @@ void setup()
 
 	DS3231_init( DS3231_INTCN );
 	DS3231_get( &g_dt );
+#ifdef VERBOSE
+	Serial.print(CMNT);
+	Serial.println(F("DS3231 init done."));
+#endif
 	g_logger.log( logwriter::INFO, g_dt, F("Reset") );
 
 	g_display.clear();
+	if(sdinit)
+	{
+		SdFile	f;
+		if(f.open("IMPORT"))
+		{
+			f.close();
+			g_display.print(F("IMPORTING "));
+			thindb				tdb( g_sd );
+			uint16_t			id(-1);
+			database::dbrecord	rec;
+			if( tdb.init()) {
+				for( id = 0; id <= 1024; ++id ) {
+					if( !tdb.getParams( id, rec ) || !g_db.setParams( id, rec ))
+						break;
+				}
+			}
+			if(id == 1024 ) {
+				g_display.print( F("OK"));
+				g_sd.remove("IMPORT");
+			} else
+				g_display.print(F("FAIL"));
+
+			delay(2000);
+			g_display.clear();
+		}
+	}
 
 #ifdef VERBOSE
 	Serial.print(CMNT);
@@ -304,7 +334,6 @@ void processinput()
 		if( to == 0xffff ) to = 1023;
 		if( tdb.init()) {
 			for( id = from; id <= to; ++id ) {
-				CHECKPOINT;
 				if( !tdb.getParams( id, rec ) || !g_db.setParams( id, rec ))
 					break;
 			}
@@ -322,7 +351,6 @@ void processinput()
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
 		for( id = from; id <= to; ++id ) {
-			CHECKPOINT;
 			if( g_db.getParams( id, rec )) {
 				uitohex( g_iobuf, id, 3 );
 				rec.serialize( g_iobuf + 4 );
