@@ -24,7 +24,7 @@ extern display 			g_display;
 extern uint16_t			g_codedisplayed;
 
 #ifdef USE_I2CDB
-extern i2cdb			g_db(I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, I2CDB_EEPROMPAGE_LENGTH);
+extern i2cdb			g_db;
 #endif
 #ifdef USE_EEPROMDB
 extern eepromdb			g_db;

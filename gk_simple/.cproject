@@ -52,7 +52,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libs/LiquidCrystal_I2C/examples|libs/MemoryFree/examples|common/i2cdb.cpp|libs/ds3231/examples|libs/I2C/examples|libs/SdFat/SdFat/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/html|libs/SdFat/AnalogBinLoggerExtras|common/intdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/flashdb.cpp|libs/Touch-Screen-Library|libs/timerone|libs/TFTLCDplus-Library|libs/Streaming|libs/I2C_EEPROM|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libs/LiquidCrystal_I2C/examples|libs/MemoryFree/examples|libs/ds3231/examples|libs/I2C/examples|libs/SdFat/SdFat/examples|libs/SdFat/SdFatTestSuite|libs/SdFat/html|libs/SdFat/AnalogBinLoggerExtras|common/intdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/flashdb.cpp|libs/Touch-Screen-Library|libs/timerone|libs/TFTLCDplus-Library|libs/Streaming|libs/Adafruit-GFX-Library|Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

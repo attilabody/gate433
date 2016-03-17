@@ -13,8 +13,8 @@
 #define ENFORCE
 //#define DECODE433_REVERSE
 //#define VERBOSE
-//#define USE_I2CDB
-#define	USE_EEPROMDB
+#define USE_I2CDB
+//#define	USE_EEPROMDB
 #define USE_IOEXTENDER_OUTPUTS
 
 #define I2CDB_EEPROM_ADDRESS	0x50
