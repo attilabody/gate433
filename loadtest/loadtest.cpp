@@ -1,23 +1,32 @@
 // Do not remove the include beSTATE2
 #include <Arduino.h>
+#include "config.h"
 #include <TimerOne.h>
+#include <commsyms.h>
+#include <toolbox.h>
 #include "loadtest.h"
 
 
-#define BAUDRATE 115200
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 #define CYCLETIME 440
 
-const uint8_t g_outPin( 3 );
+const uint8_t g_outPin( A0 );
 const uint8_t g_ledPin( LED_BUILTIN );
 const uint8_t g_loopin( 4 );
 const uint8_t g_loopout( 5 );
+
+char			g_iobuf[64];
+uint8_t			g_inidx(0);
 
 #define	LOOP_ACTIVE	LOW
 #define LOOP_INACTIVE HIGH
 
 volatile bool	g_inputavail( false );
-unsigned int	g_input;
+unsigned int	g_input(0xffff);
+unsigned int	g_rawinput(0);
+bool			g_sweep(false);
+unsigned char	g_sendcount(0);
+unsigned char	g_remainingsends(0);
 
 #define ST_WHITE	HIGH
 #define ST_BLACK	LOW
@@ -25,7 +34,10 @@ unsigned int	g_input;
 //#define ST_BLACK	HIGH
 
 void isr();
+void processinput();
+void printcodes();
 
+//////////////////////////////////////////////////////////////////////////////
 void setup()
 {
 	pinMode(g_ledPin, OUTPUT);
@@ -42,68 +54,44 @@ void setup()
 	Serial.begin(BAUDRATE);
 }
 
-void printio( bool inner )
-{
-	Serial.print( inner ? F("inner ") : F("outer ") );
-}
-
-const char PROGMEM g_innerstr[] = "inner";
-const char PROGMEM g_outerstr[] = "outer";
-
-// The loop function is called in an endless loop
+//////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	static bool ledStatus( true );
-	static bool direction;
+	if( getlinefromserial( g_iobuf, sizeof( g_iobuf ), g_inidx) )
+		processinput();
 
-	for( unsigned int code = 0; code < (1024); ++code )
+	if(g_remainingsends)
 	{
-		Serial.print( F("<-------> Starting loop "));
-		Serial.println( code );
-		bool dir(((bool)(code & 1)) == direction);
+		if( !g_inputavail ) {
+			g_rawinput = g_input;// << 2;
+			g_inputavail = true;
 
-		if( !(code & 0xf )) {
-			digitalWrite( g_ledPin, ledStatus ? HIGH : LOW );
-			ledStatus = !ledStatus;
+			printcodes();
+
+			if(g_remainingsends != 0xff )
+				--g_remainingsends;
+		}
+	}
+	else if(g_sweep && !g_inputavail)
+	{
+		if(!g_remainingsends) {
+			++g_input;
+			g_remainingsends = g_sendcount;
+		} else {
+			--g_remainingsends;
 		}
 
+		printcodes();
 
-		digitalWrite( dir ? g_loopin : g_loopout, LOOP_ACTIVE );
-		Serial.print(F("Activating "));
-//		Serial.print(F( dir ? g_innerstr : g_outerstr ));
-		printio(dir);
-		Serial.println(F("loop."));
-		delay( 2000 );
-
-		Serial.println(F("Sending code."));
 		for( int retry = 0; retry < 4; ++retry ) {
-			while( g_inputavail );
-			g_input = code << 2;
+			g_rawinput = g_input; //<< 2
 			g_inputavail = true;
 		}
-		Serial.println(F("Code sent."));
-		delay( 2000 );
-
-		Serial.print(F("Activating "));
-		printio(!dir);
-		Serial.println(F("loop."));
-		digitalWrite( !dir ? g_loopin : g_loopout, LOOP_ACTIVE );
-		delay( 100 );
-		Serial.print(F("Deactivating "));
-		printio(dir);
-		Serial.println(F("loop."));
-		digitalWrite( dir ? g_loopin : g_loopout, LOOP_INACTIVE );
-		delay( 2000 );
-		Serial.print(F("Deactivating "));
-		printio(!dir);
-		Serial.println(F("loop."));
-		digitalWrite( !dir ? g_loopin : g_loopout, LOOP_INACTIVE );
-		delay( 5000 );
 	}
-	direction = ! direction;
 }
 
 
+//////////////////////////////////////////////////////////////////////////////
 void isr()
 {
 	static char			curbit(-2), bitphase(0);
@@ -115,10 +103,10 @@ void isr()
 		if( g_inputavail )
 		{
 			digitalWrite( g_outPin, ST_WHITE );
-			data = g_input;
+			data = g_rawinput;
 			g_inputavail = false;
 			curbit = bitphase = 0;
-			bitmask = 1 << 11;
+			bitmask = 1;
 		}
 	}
 	else if( curbit >= 0 && curbit < 12 )
@@ -135,7 +123,7 @@ void isr()
 			break;
 		case 2:
 			if( !bit ) digitalWrite( g_outPin, ST_WHITE );
-			bitmask >>= 1;
+			bitmask <<= 1;
 			bitphase = 0;
 			++curbit;
 			break;
@@ -149,3 +137,46 @@ void isr()
 }
 
 
+//////////////////////////////////////////////////////////////////////////////
+void processinput()
+{
+	const char	*inptr( g_iobuf );
+
+	Serial.print(CMNT);
+	Serial.println( g_iobuf );
+
+	if( iscommand( inptr, F("stop"))) {
+		g_sweep = false;
+		g_sendcount = 0;
+		g_remainingsends = 0;
+		Serial.println(F(CMNTS "OK"));
+
+	} else if(iscommand(inptr, F("send"))) {
+		g_input = getintparam(inptr);
+		g_remainingsends = getintparam(inptr);
+
+	} else if(iscommand(inptr, F("sweep"))) {
+		g_sendcount = getintparam(inptr);
+		if(g_sendcount == 0xff)
+			g_sendcount = 4;
+		g_remainingsends = g_sendcount;
+
+		g_input = getintparam(inptr);
+		if(g_input == 0xffff)
+			g_input = 0;
+		g_sweep = true;
+
+	} else {
+		Serial.println( F(ERRS "CMD"));
+	}
+	g_inidx = 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void printcodes()
+{
+	Serial.print(F(CMNTS "Sending code "));
+	Serial.print(g_input);
+	Serial.print(F(" -> "));
+	Serial.println(g_remainingsends);
+}

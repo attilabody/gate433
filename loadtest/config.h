@@ -18,4 +18,6 @@
 #define RELAY_OFF	HIGH
 #define RELAY_ON	LOW
 
+#define CYCLETIME 440
+
 #endif /* CONFIG_H_ */
