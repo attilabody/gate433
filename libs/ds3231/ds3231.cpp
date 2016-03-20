@@ -48,6 +48,10 @@
  #define pgm_read_byte(addr) (*(const uint8_t *)(addr))
 #endif
 
+#define CheckLevel_Mon		2
+#define CheckLevel_Day		1
+#define CheckLevel_Hour		0
+
 /* control register 0Eh/8Eh
 bit7 EOSC   Enable Oscillator (1 if oscillator must be stopped when on battery)
 bit6 BBSQW  Battery Backed Square Wave
@@ -59,55 +63,85 @@ bit1 A2IE   Alarm2 interrupt enable (1 to enable)
 bit0 A1IE   Alarm1 interrupt enable (1 to enable)
 */
 
-void DS3231_init(const uint8_t ctrl_reg)
+uint8_t DS3231::init(const uint8_t ctrl_reg)
 {
-    DS3231_set_creg(ctrl_reg);
+    return set_creg(ctrl_reg);
 }
 
-void DS3231_set(struct ts t)
+uint8_t DS3231::set(struct ts t)
 {
-    uint8_t i, century;
+    uint8_t i;
 
-    if (t.year > 2000) {
-        century = 0x80;
-        t.year_s = t.year - 2000;
-    } else {
-        century = 0;
-        t.year_s = t.year - 1900;
-    }
+    t.year_s = t.year - 2000;
+
+    dst=check_dst(t.year_s,t.mon,t.mday,t.hour);
+    if (dst)									// Just hour correction!
+    	t.hour--;
+
 
     uint8_t TimeDate[7] = { t.sec, t.min, t.hour, t.wday, t.mday, t.mon, t.year_s };
 
     for (i = 0; i <= 6; i++) {
         TimeDate[i] = dectobcd(TimeDate[i]);
         if (i == 5)
-            TimeDate[5] += century;
+            TimeDate[5] |= 0x80;
     }
-    I2c.write(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,TimeDate,7);	// No error check!
+    t.error=I2c.write(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,TimeDate,7);
+    if (!t.error)
+    	t.error=set_sreg(0x0F);	// OSF clear
+    if (t.error) {
+    	m_year=0;
+    	return t.error;
+    }
+
+    m_year=t.year_s;
+    m_mon=t.mon;
+    m_mday=t.mday;
+    m_hour=t.hour;
+
+    return 0;
 }
 
-void DS3231_get(struct ts *t)
+uint8_t DS3231::set(const char *buf)
+{
+	struct ts t;
+	buf+=2;
+	t.year=2000+inp2toi(buf);
+	t.mon=inp2toi(buf);
+	t.mday=inp2toi(buf);
+	t.hour=inp2toi(buf);
+	t.min=inp2toi(buf);
+	t.sec=0;
+	t.wday=dow(t.year-2000,t.mon,t.mday);
+	return set(t);
+}
+
+void DS3231::get(struct ts *t)
 {
     uint8_t TimeDate[7];        //second,minute,hour,dow,day,month,year
-    uint8_t century = 0;
     uint8_t i, n;
-    uint16_t year_full;
 
-    I2c.read(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,7);	// No error check!
+    t->error=get_sreg(&i);
+    if (t->error)
+    	return;
+
+    if (i & DS3231_OSF)
+    {
+    	t->error=0xFF;
+    	return;
+    }
+
+    t->error=I2c.read(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,7);
+
+    if (t->error)
+    	return;
 
     for (i = 0; i <= 6; i++) {
         n = I2c.receive();
         if (i == 5) {
             TimeDate[5] = bcdtodec(n & 0x1F);
-            century = (n & 0x80) >> 7;
         } else
             TimeDate[i] = bcdtodec(n);
-    }
-
-    if (century == 1) {
-        year_full = 2000 + TimeDate[6];
-    } else {
-        year_full = 1900 + TimeDate[6];
     }
 
     t->sec = TimeDate[0];
@@ -115,37 +149,80 @@ void DS3231_get(struct ts *t)
     t->hour = TimeDate[2];
     t->mday = TimeDate[4];
     t->mon = TimeDate[5];
-    t->year = year_full;
+    t->year = 2000 + TimeDate[6];
     t->wday = TimeDate[3];
     t->year_s = TimeDate[6];
 #ifdef CONFIG_UNIXTIME
     t->unixtime = get_unixtime(*t);
 #endif
+
+    i=0;
+    switch (m_checklevel)
+    {
+    case CheckLevel_Hour:
+    	if (t->hour!=m_hour)
+    	{
+    		i=1;
+    		break;
+    	}
+    case CheckLevel_Day:
+    	if (t->wday!=m_mday)
+    	{
+    		i=1;
+    		break;
+    	}
+    case CheckLevel_Mon:
+    	if ((t->mon!=m_mon) ||
+    		(t->year_s!=m_year))
+    		i=1;
+    }
+    if (i)
+    {
+    	m_year=t->year_s;
+    	m_mon=t->mon;
+    	m_mday=t->mday;
+    	m_hour=t->hour;
+    	dst=check_dst(m_year,m_mon,m_mday,m_hour);
+    }
+    if (!dst)
+    	return;
+    if (++t->hour<24)
+    	return;
+    t->hour=0;
+    if (++t->mday<=mon_last_day(t->year,t->mon))
+    	return;
+    t->mday=1;
+    if (++t->mon<13)
+    	return;
+    t->mon=1;
+    t->year++;
 }
 
-void DS3231_set_addr(const uint8_t addr, const uint8_t val)
+uint8_t DS3231::set_addr(const uint8_t addr, const uint8_t val)
 {
-    I2c.write(DS3231_I2C_ADDR,addr,val);	// No error check!
+    return I2c.write(DS3231_I2C_ADDR,addr,val);
 }
 
-uint8_t DS3231_get_addr(const uint8_t addr)
+uint8_t DS3231::get_addr(const uint8_t addr, uint8_t * val)
 {
     uint8_t rv;
 
-    I2c.read(DS3231_I2C_ADDR,addr,1);	// No error check!
+    rv=I2c.read(DS3231_I2C_ADDR,addr,1);
+    if (rv)
+    	return rv;
 
-    rv = I2c.receive();
+    *val= I2c.receive();
 
-    return rv;
+    return 0;
 }
 
 
 
 // control register
 
-void DS3231_set_creg(const uint8_t val)
+uint8_t DS3231::set_creg(const uint8_t val)
 {
-    DS3231_set_addr(DS3231_CONTROL_ADDR, val);
+    return set_addr(DS3231_CONTROL_ADDR, val);
 }
 
 // status register 0Fh/8Fh
@@ -158,21 +235,19 @@ bit1 A2F      Alarm 2 Flag - (1 if alarm2 was triggered)
 bit0 A1F      Alarm 1 Flag - (1 if alarm1 was triggered)
 */
 
-void DS3231_set_sreg(const uint8_t val)
+uint8_t DS3231::set_sreg(const uint8_t val)
 {
-    DS3231_set_addr(DS3231_STATUS_ADDR, val);
+    return set_addr(DS3231_STATUS_ADDR, val);
 }
 
-uint8_t DS3231_get_sreg(void)
+uint8_t DS3231::get_sreg(uint8_t * val)
 {
-    uint8_t rv;
-    rv = DS3231_get_addr(DS3231_STATUS_ADDR);
-    return rv;
+	return get_addr(DS3231_STATUS_ADDR, val);
 }
 
 // aging register
 
-void DS3231_set_aging(const int8_t val)
+uint8_t DS3231::set_aging(const int8_t val)
 {
     uint8_t reg;
 
@@ -181,27 +256,28 @@ void DS3231_set_aging(const int8_t val)
     else
         reg = ~(-val) + 1;      // 2C
 
-    DS3231_set_addr(DS3231_AGING_OFFSET_ADDR, reg);
+    return set_addr(DS3231_AGING_OFFSET_ADDR, reg);
 }
 
-int8_t DS3231_get_aging(void)
+uint8_t DS3231::get_aging(int8_t * val)
 {
-    uint8_t reg;
-    int8_t rv;
+    uint8_t ret,reg;
 
-    reg = DS3231_get_addr(DS3231_AGING_OFFSET_ADDR);
+    ret=get_addr(DS3231_AGING_OFFSET_ADDR,&reg);
+    if (!ret)
+    	return ret;
 
     if ((reg & 0x80) != 0)
-        rv = reg | ~((1 << 8) - 1);     // if negative get two's complement
+        *val = reg | ~((1 << 8) - 1);     // if negative get two's complement
     else
-        rv = reg;
+        *val = reg;
 
-    return rv;
+    return 0;
 }
 
 // temperature register
 
-float DS3231_get_treg()
+float DS3231::get_treg()
 {
     float rv;
     uint8_t temp_msb, temp_lsb;
@@ -226,7 +302,7 @@ float DS3231_get_treg()
 
 // flags are: A1M1 (seconds), A1M2 (minutes), A1M3 (hour), 
 // A1M4 (day) 0 to enable, 1 to disable, DY/DT (dayofweek == 1/dayofmonth == 0)
-void DS3231_set_a1(const uint8_t s, const uint8_t mi, const uint8_t h, const uint8_t d, const uint8_t * flags)
+void DS3231::set_a1(const uint8_t s, const uint8_t mi, const uint8_t h, const uint8_t d, const uint8_t * flags)
 {
     uint8_t t[4] = { s, mi, h, d };
     uint8_t i;
@@ -241,7 +317,7 @@ void DS3231_set_a1(const uint8_t s, const uint8_t mi, const uint8_t h, const uin
     I2c.write(DS3231_I2C_ADDR,DS3231_ALARM1_ADDR,t,4);	// No error check!
 }
 
-void DS3231_get_a1(char *buf, const uint8_t len)
+void DS3231::get_a1(char *buf, const uint8_t len)
 {
     uint8_t n[4];
     uint8_t t[4];               //second,minute,hour,day
@@ -267,36 +343,45 @@ void DS3231_get_a1(char *buf, const uint8_t len)
 }
 
 // when the alarm flag is cleared the pulldown on INT is also released
-void DS3231_clear_a1f(void)
+void DS3231::clear_a1f(void)
 {
     uint8_t reg_val;
 
-    reg_val = DS3231_get_sreg() & ~DS3231_A1F;
-    DS3231_set_sreg(reg_val);
+    if (!get_sreg(&reg_val))
+    	return;
+    set_sreg(reg_val & ~DS3231_A1F);
 }
 
-uint8_t DS3231_triggered_a1(void)
+uint8_t DS3231::triggered_a1(void)
 {
-    return  DS3231_get_sreg() & DS3231_A1F;
+    uint8_t reg_val;
+    if (!get_sreg(&reg_val))
+    	reg_val=0;
+	return  reg_val & DS3231_A1F;
 }
 
-// flags are: A2M2 (minutes), A2M3 (hour), A2M4 (day) 0 to enable, 1 to disable, DY/DT (dayofweek == 1/dayofmonth == 0) - 
-void DS3231_set_a2(const uint8_t mi, const uint8_t h, const uint8_t d, const uint8_t * flags)
+/* flag bits are:
+ * 0:	DY/DT (dayofweek == 1/dayofmonth == 0)
+ * 1:	A2M4 (day) 0 to enable
+ * 2:	A2M3 (hour) 0 to enable
+ * 3:	A2M2 (minutes) 0 to enable
+ */
+void DS3231::set_a2(const uint8_t mi, const uint8_t h, const uint8_t d, const uint8_t flags)
 {
     uint8_t t[3] = { mi, h, d };
     uint8_t i;
 
     for (i = 0; i <= 2; i++) {
         if (i == 2) {
-            t[i]=dectobcd(t[2]) | (flags[2] << 7) | (flags[3] << 6);
+            t[i]=dectobcd(t[2]) | ((flags << 6) & 0xC0);
         } else
-            t[i]=dectobcd(t[i]) | (flags[i] << 7);
+            t[i]=dectobcd(t[i]) | ((flags << (4-i)) & 0x80);
     }
 
     I2c.write(DS3231_I2C_ADDR,DS3231_ALARM2_ADDR,t,3);	// No error check!
 }
 
-void DS3231_get_a2(char *buf, const uint8_t len)
+void DS3231::get_a2(char *buf, const uint8_t len)
 {
     uint8_t n[3];
     uint8_t t[3];               //second,minute,hour,day
@@ -320,17 +405,21 @@ void DS3231_get_a2(char *buf, const uint8_t len)
 }
 
 // when the alarm flag is cleared the pulldown on INT is also released
-void DS3231_clear_a2f(void)
+void DS3231::clear_a2f(void)
 {
     uint8_t reg_val;
 
-    reg_val = DS3231_get_sreg() & ~DS3231_A2F;
-    DS3231_set_sreg(reg_val);
+    if (!get_sreg(&reg_val))
+        	return;
+    set_sreg(reg_val & ~DS3231_A2F);
 }
 
-uint8_t DS3231_triggered_a2(void)
+uint8_t DS3231::triggered_a2(void)
 {
-    return  DS3231_get_sreg() & DS3231_A2F;
+    uint8_t reg_val;
+    if (!get_sreg(&reg_val))
+    	reg_val=0;
+	return  reg_val & DS3231_A2F;
 }
 
 // helpers
@@ -339,7 +428,7 @@ uint8_t DS3231_triggered_a2(void)
 const uint8_t days_in_month [12] PROGMEM = { 31,28,31,30,31,30,31,31,30,31,30,31 };
 
 // returns the number of seconds since 01.01.1970 00:00:00 UTC, valid for 2000..FIXME
-uint32_t get_unixtime(struct ts t)
+uint32_t DS3231::get_unixtime(struct ts t)
 {
     uint8_t i;
     uint16_t d;
@@ -366,20 +455,88 @@ uint32_t get_unixtime(struct ts t)
 }
 #endif
 
-uint8_t dectobcd(const uint8_t val)
+uint8_t DS3231::dectobcd(const uint8_t val)
 {
     return ((val / 10 * 16) + (val % 10));
 }
 
-uint8_t bcdtodec(const uint8_t val)
+uint8_t DS3231::bcdtodec(const uint8_t val)
 {
     return ((val / 16 * 10) + (val % 16));
 }
 
-uint8_t inp2toi(char *cmd, const uint16_t seek)
+uint8_t DS3231::inp2toi(const char * &c)
 {
     uint8_t rv;
-    rv = (cmd[seek] - 48) * 10 + cmd[seek + 1] - 48;
+    rv = (*c++ - 48) * 10;
+    rv += *c++ - 48;
     return rv;
 }
 
+uint8_t DS3231::dow(uint8_t y, uint8_t m, uint8_t d)
+{
+	static uint8_t t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+	y -= m < 3;
+	return ((y + (y >> 2) + t[m-1] + d + 6) % 7) +1;
+}
+
+uint8_t DS3231::last_sun_of_month31(uint8_t y, uint8_t m)
+{
+	uint8_t d = 31;
+	uint8_t f;
+	f=dow(y,m,31);
+	while (f!=7)
+	{
+		d--;
+		if (!(--f))
+			break;
+	}
+	return d;
+}
+
+uint8_t DS3231::mon_last_day(uint8_t y, uint8_t m)
+{
+	if (m!=2)
+		return 31 - (m - 1) % 7 % 2;
+	return ((y & 3)?28:29);
+}
+
+uint8_t DS3231::check_dst(uint8_t year, uint8_t mon, uint8_t day, uint8_t hour)
+{
+	uint8_t temp;
+	uint8_t res;
+	if ((mon<3) ||
+		(mon>10))
+	{
+		m_checklevel=CheckLevel_Mon;
+		return 0;
+	}
+	if ((mon>3) &&
+		(mon<10))
+	{
+		m_checklevel=CheckLevel_Mon;
+		return 1;
+	}
+	res=(mon==3)?0:1;
+	temp=last_sun_of_month31(year,mon);
+	if (day<temp)
+	{
+		m_checklevel=CheckLevel_Day;
+		return res;
+	}
+	if ((day>temp) ||
+		(hour>=2))
+	{
+		m_checklevel=CheckLevel_Mon;
+		return res^1;
+	}
+	m_checklevel=CheckLevel_Hour;
+	return res;
+}
+
+uint8_t DS3231::m_year=0;
+uint8_t DS3231::m_mon=0;
+uint8_t DS3231::m_mday=0;
+uint8_t DS3231::m_hour=0;
+uint8_t DS3231::m_checklevel=0;
+uint8_t DS3231::dst=0;
