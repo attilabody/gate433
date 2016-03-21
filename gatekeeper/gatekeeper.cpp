@@ -19,12 +19,13 @@ void setuprelaypins( const uint8_t *pins, uint8_t size );
 void processinput();
 int getlinefromfile( SdFile &f, char* buffer, uint8_t buflen );
 void updatedow( ts &t );
+uint16_t importdb(uint16_t start, uint16_t end);
 
 //////////////////////////////////////////////////////////////////////////////
 void setup()
 {
-#ifdef VERBOSE
 	Serial.begin( BAUDRATE );
+#ifdef VERBOSE
 	delay(10);
 	Serial.print( CMNT );
 	for( char c = 0; c < 79; ++c ) Serial.print('-');
@@ -78,6 +79,26 @@ void setup()
 	g_display.print( loginitsucc );
 
 	delay(1000);
+
+	g_display.clear();
+	if(g_sdpresent)
+	{
+		SdFile	f;
+		if(f.open("IMPORT"))
+		{
+			f.close();
+			g_display.print(F("IMPORTING "));
+			uint16_t	imported(importdb(0, 1024));
+			if(imported != (uint16_t) -1) {
+				g_display.print(imported);
+				g_sd.remove("IMPORT");
+			} else
+				g_display.print(F("FAIL"));
+
+			delay(2000);
+			g_display.clear();
+		}
+	}
 
 	g_logger.log( logwriter::WARNING, g_t, F("Restart"), -1 );
 	g_display.clear();
@@ -143,8 +164,9 @@ void loop()
 	handler.loop( now );
 
 	if( g_codedisplayed != g_lrcode ) {
-		g_display.updatelastreceivedid( getid( g_lrcode ));
-		g_logger.log( logwriter::DEBUG, g_t, F("NewCode"), g_lrcode >> 2);
+		uint16_t	id( getid( g_lrcode ));
+		g_display.updatelastreceivedid( getid( id ));
+		g_logger.log( logwriter::DEBUG, g_t, F("NewCode"), id );
 		g_codedisplayed = g_lrcode;
 	}
 }
@@ -169,17 +191,17 @@ void setuprelaypins( const uint8_t *pins, uint8_t size )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-const char PROGMEM CMD_GET[] = "get";
-const char PROGMEM CMD_SET[] = "set";
-const char PROGMEM CMD_EXP[] = "exp";
-const char PROGMEM CMD_IMP[] = "imp";
-const char PROGMEM CMD_DMP[] = "dmp";
-const char PROGMEM CMD_CS[] = "cs";
-const char PROGMEM CMD_GDT[] = "gdt";
-const char PROGMEM CMD_SDT[] = "sdt";
-const char PROGMEM CMD_DS[] = "ds";
-const char PROGMEM CMD_DL[] = "dl";
-const char PROGMEM CMD_TL[] = "tl";
+const char PROGMEM CMD_GET[] = "get";	//	get db record
+const char PROGMEM CMD_SET[] = "set";	//	set db record
+const char PROGMEM CMD_EXP[] = "edb";	//	export database
+const char PROGMEM CMD_IMP[] = "idb";	//	import database
+const char PROGMEM CMD_DMP[] = "ddb";	//	dump database
+const char PROGMEM CMD_GDT[] = "gdt";	//	get datetime
+const char PROGMEM CMD_SDT[] = "sdt";	//	set datetime
+const char PROGMEM CMD_CS[] = "cs";		//	clear statuses
+const char PROGMEM CMD_DS[] = "ds";		//	dump shuffle
+const char PROGMEM CMD_DL[] = "dl";		//	dump log
+const char PROGMEM CMD_TL[] = "tl";		//	reuncate log
 const char PROGMEM CMD_IL[] = "il";		//	infinite loop
 
 
@@ -227,22 +249,16 @@ void processinput()
 		else Serial.println( F(ERRS "ERR" ));
 
 	} else if( iscommand( inptr, CMD_IMP)) {	//	import
-		thindb				tdb( g_sd );
-		uint16_t			from( getintparam( inptr ));
-		uint16_t			to( getintparam( inptr ));
-		uint16_t			id(-1);
-		database::dbrecord	rec;
+		uint16_t	from( getintparam( inptr ));
+		uint16_t	to( getintparam( inptr ));
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
-		if( tdb.init()) {
-			for( id = from; id <= to; ++id ) {
-				CHECKPOINT;
-				if( !tdb.getParams( id, rec ) || !g_db.setParams( id, rec ))
-					break;
-			}
+		uint16_t	imported(importdb(from, to));
+		if(imported != (uint16_t)-1) {
+			Serial.print(F(RESPS "OK "));
+			Serial.println(imported);
 		}
-		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
-		else serialoutln( F(ERRS "ERR "), id );
+		else Serial.println(F(ERRS "ERR "));
 
 	} else if( iscommand( inptr, CMD_DMP )) {	//	dump
 		database::dbrecord	rec;
@@ -383,4 +399,39 @@ void updatedow( ts &t )
 		}
 		f.close();
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+uint16_t importdb(uint16_t start, uint16_t end)
+{
+	if(end > 1024) return -1;
+
+	thindb				tdb( g_sd );
+	uint16_t			id(-1);
+	database::dbrecord	rec,old;
+	uint16_t			imported(0);
+	if( tdb.init()) {
+		for( id = start; id <= end; ++id ) {
+			if( !tdb.getParams( id, rec ) || !g_db.getParams(id, old)) {
+				break;
+			}
+			if(!rec.infoequal(old)){
+#ifdef VERBOSE
+				serialoutln(F(CMNTS "Importing "), id);
+#endif
+				if(!g_db.setParams( id, rec ))
+					break;
+				else
+					++imported;
+			}
+#ifdef VERBOSE
+			else {
+				serialoutln(F(CMNTS "Skipping "), id);
+			}
+#endif
+		}
+		if(id == end + 1 ) return imported;
+		else return -1;
+	}
+	return imported;
 }

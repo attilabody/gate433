@@ -55,6 +55,15 @@ bool i2cdb::setStatus( int code, dbrecord::POSITION pos )
 }
 
 //////////////////////////////////////////////////////////////////////////////
+bool i2cdb::setInfo( int code, const dbrecord& recin )
+{
+	uint8_t	buffer[ PACKEDDBRECORD_WIDTH ];
+	recin.pack( buffer );
+	write_page( m_eeoffset + code * PACKEDDBRECORD_WIDTH, buffer, sizeof(buffer)-1 );
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 void i2cdb::cleanstatuses()
 {
 	for( uint16_t rec = 0; rec < 1024; ++rec )

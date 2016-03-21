@@ -145,3 +145,13 @@ void database::dbrecord::settimes( uint16_t is, uint16_t ie, uint16_t os, uint16
 	out_start = os;
 	out_end  = oe;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+bool database::dbrecord::infoequal(const dbrecord &other)
+{
+	return in_start == other.in_start
+			&& in_end == other.in_end
+			&& out_start == other.out_start
+			&& out_end == other.out_end
+			&& days == other.days;
+}

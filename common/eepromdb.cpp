@@ -78,6 +78,28 @@ bool eepromdb::setParams( int code, const dbrecord &recin )
 }
 
 //////////////////////////////////////////////////////////////////////////////
+bool eepromdb::setInfo( int code, const dbrecord& recin )
+{
+	uint8_t pos( EEPROM.read( code ) & POS_MASK), rawdata(0);
+
+	if( recin.enabled() )
+	{
+		if( recin.in_start > 0 || recin.in_end < 24 * 60
+				|| recin.out_start > 0 || recin.out_end < 24 * 60
+				|| (recin.days & 0x7f) != 0x7f )
+		{
+			rawdata |= 1 << TYPE_SHIFT;
+		}
+		rawdata |= pos << POS_SHIFT;
+	} else {
+		rawdata = 3 << POS_SHIFT;
+	}
+	EEPROM.update( code, rawdata);
+	return true;
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
 bool eepromdb::setStatus( int code, dbrecord::POSITION pos )
 {
 	uint8_t rawdata( EEPROM.read( code )), shadow( rawdata );

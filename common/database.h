@@ -51,6 +51,7 @@ public:
 		void unpack( uint8_t *buffer );
 		bool enabled() const { return (in_start < in_end || out_start < out_end ) && (days & 0x7f) != 0; }
 		void settimes( uint16_t is, uint16_t ie, uint16_t os, uint16_t oe );
+		bool infoequal(const dbrecord &other);
 
 		uint16_t	in_start;
 		uint16_t	in_end;
@@ -60,8 +61,9 @@ public:
 		POSITION	position;
 	};
 
-	virtual bool getParams( int code, dbrecord &out ) = 0;
-	virtual bool setParams( int code, const dbrecord &in ) = 0;
+	virtual bool getParams( int code, dbrecord &recout ) = 0;
+	virtual bool setParams( int code, const dbrecord &recin ) = 0;
+	virtual bool setInfo( int code, const dbrecord &recin ) = 0;
 	virtual bool setStatus( int code, dbrecord::POSITION pos ) = 0;
 	virtual void cleanstatuses() = 0;
 };

@@ -10,7 +10,7 @@
 #include <Arduino.h>
 
 #define BAUDRATE 115200
-#define ENFORCE
+#define ENFORCE_REG
 //#define DECODE433_REVERSE
 //#define VERBOSE
 #define USE_I2CDB

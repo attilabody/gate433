@@ -35,15 +35,15 @@ protected:
 
 	AUTHRES 	authorize( uint16_t id, bool inner );
 	void		tocodewait( bool inner );
-	inline void topass( bool inner, unsigned long curmillis ) {
+	inline void topass( bool inner, unsigned long currmillis ) {
 		m_lights.set( trafficlights::ACCEPTED, inner );
-		m_gate.set( true, GATE_OPEN_PULSE_WIDTH, 0, true, curmillis );
-		m_inner = inner; m_dbupdated = false; m_status = PASS;
+		m_gate.set( true, 0, 0, true, currmillis );
+		m_inner = inner; m_status = PASS; m_phasestart = currmillis;
 	}
-	inline void topass_warn( bool inner, unsigned long curmillis ) {
+	inline void topass_warn( bool inner, unsigned long currmillis ) {
 		m_lights.set( trafficlights::WARNED, inner );
-		m_gate.set( true, GATE_OPEN_PULSE_WIDTH, 0, true, curmillis );
-		m_inner = inner; m_dbupdated = false; m_status = PASS;
+		m_gate.set( true, 0, 0, true, currmillis );
+		m_inner = inner; m_status = PASS; m_phasestart = currmillis;
 	}
 
 	database			&m_db;
@@ -58,8 +58,8 @@ protected:
 	inductiveloop::STATUS	m_ilstatus;
 	bool					m_conflict;
 	bool					m_inner;
-	bool					m_dbupdated;
 
+	unsigned long			m_phasestart;
 	uint16_t				m_previd;
 	AUTHRES					m_prevdecision;
 	bool					m_previnner;

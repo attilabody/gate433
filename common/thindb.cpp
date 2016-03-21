@@ -76,17 +76,23 @@ bool thindb::getParams( int code, dbrecord &recout )
 //////////////////////////////////////////////////////////////////////////////
 bool thindb::setParams( int code, const dbrecord &recin )
 {
-	bool ret( false );
-	char infobuffer[DBRECORD_WIDTH + 1];
+	return set(code, recin, DBRECORD_WIDTH );
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+bool thindb::set( int code, const dbrecord &recin, uint8_t size )
+{
+	bool 		ret( false );
+	char 		infobuffer[DBRECORD_WIDTH + 1];
+	SdFile		f;
 
 	recin.serialize( infobuffer );
-	Serial.println( infobuffer );
-	SdFile		f;
 
 	if( f.open( m_sd.vwd(), m_dirindex, O_RDWR | O_CREAT ) )
 	{
 		if( f.seekSet( code * DBRECORD_WIDTH )
-			&& f.write( infobuffer, DBRECORD_WIDTH - 1 ) == DBRECORD_WIDTH - 1 )
+			&& f.write( infobuffer, size - 1 ) == size - 1 )	//	trailing ' '
 		{
 			ret = true;
 		}
@@ -95,6 +101,12 @@ bool thindb::setParams( int code, const dbrecord &recin )
 	return ret;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////
+bool thindb::setInfo( int code, const dbrecord& recin )
+{
+	return set(code, recin, INFORECORD_WIDTH );
+}
 
 //////////////////////////////////////////////////////////////////////////////
 bool thindb::setStatus( int code, dbrecord::POSITION pos )

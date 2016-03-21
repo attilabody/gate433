@@ -15,6 +15,9 @@
 #include <serialout.h>
 #include <commsyms.h>
 
+#define PASS_TIMEOUT 60000
+#define RETREAT_TIMEOUT 30000
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -46,6 +49,8 @@ gatehandler::gatehandler( database &db
 void gatehandler::loop( unsigned long currmillis )
 {
 	inductiveloop::STATUS	ilstatus;
+	static	uint16_t	code(-1);
+	static	uint8_t		codecount(0);
 
 	bool	conflict( m_indloop.update( ilstatus ));
 	bool	ilchanged((ilstatus != m_ilstatus) || (conflict != m_conflict ));
@@ -61,8 +66,7 @@ void gatehandler::loop( unsigned long currmillis )
 
 	if( ilchanged ) {
 #ifdef __GATEHANDLER_VERBOSE
-		serialoutln( F( CMNTS "il changed: "), ilstatus, ", ", conflict );
-		Serial.println( freeMemory());
+		serialoutln( F( CMNTS "il changed: "), ilstatus, ", ", conflict, " - ", freeMemory() );
 #endif	//	__GATEHANDLER_VERBOSE
 		bool il(false), ol(false);
 		if( conflict ) il = ol = true;
@@ -95,58 +99,66 @@ void gatehandler::loop( unsigned long currmillis )
 			} else {
 				tocodewait( inner );	// wtf???
 			}
-			break;
 		}
-		if( g_codeready ) {
-			uint16_t	id( getid( g_code ) );
-#ifdef __GATEHANDLER___GATEHANDLER_VERBOSE
-			serialoutln( F(CMNTS "Code received: "), id );
-			Serial.println( freeMemory());
+		else if( g_codeready )
+		{
+			if(code != g_code) {
+				code = g_code;
+				codecount = 0;
+				g_codeready = false;
+#ifdef __GATEHANDLER_VERBOSE
+				serialoutln( F(CMNTS "Aborted code: "), getid(g_code), ", ", getid(code), " - ", freeMemory() );
 #endif	//	__GATEHANDLER_VERBOSE
-			AUTHRES	ar( authorize( id, inner ));
-			m_display.updatelastdecision( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0), id );
-			if( ar == GRANTED ) {
-				topass( inner, currmillis );
+			}
+			else if( codecount++ )
+			{
+				uint16_t	id( getid( g_code ) );
+#ifdef __GATEHANDLER_VERBOSE
+				serialoutln( F(CMNTS "Code received: "), id, " - ", freeMemory() );
+#endif	//	__GATEHANDLER_VERBOSE
+				AUTHRES	ar( authorize( id, inner ));
+				m_display.updatelastdecision( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0), id );
+				if( ar == GRANTED ) {
+					topass( inner, currmillis );
 #ifndef ENFORCING
-			} else if( ar ==  POSITION || ar == DAY || ar == TIME) {
-				topass_warn( inner, currmillis );
+				} else if( ar ==  POSITION || ar == DAY || ar == TIME) {
+					topass_warn( inner, currmillis );
 #endif	//	ENFORCING
-			} else {
-				m_lights.set( trafficlights::DENIED, inner );
-				m_inner = inner;
-				m_status = RETREAT;
+				} else {
+					m_lights.set( trafficlights::DENIED, inner );
+					m_inner = inner;
+					m_status = RETREAT;
+					m_phasestart = currmillis;
+				}
 			}
 		}
 		break;
 
 	case PASS:
-		if( !ilchanged ) break;
-		if( !m_dbupdated && ilstatus != (m_inner ? inductiveloop::INNER : inductiveloop::OUTER) ) {
-			g_logger.log( logwriter::DEBUG, g_t, F("DBUP1"), -1 );
+		if( !ilchanged && currmillis - m_phasestart <= PASS_TIMEOUT )
+			break;
+		if( ilstatus == inductiveloop::NONE || currmillis - m_phasestart > PASS_TIMEOUT ) {
 			m_db.setStatus( getid( g_code ), m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE );
-			g_logger.log( logwriter::DEBUG, g_t, F("DBUP2"), -1 );
-			m_dbupdated = true;
+			g_logger.log( logwriter::DEBUG, g_t, F("DBUP"), -1 );
 #ifdef __GATEHANDLER_VERBOSE
 			serialoutsepln( ", ", F("setdbstatus "), ilstatus, m_inner, m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
 #endif	//	__GATEHANDLER_VERBOSE
-		}
-		if( conflict ) {
-//			m_lights.set( trafficlights::PASS, inner );
-		} else if( ilstatus == inductiveloop::NONE ) {
 			m_lights.set( trafficlights::OFF, inner );
+			m_gate.set( false, 0, 0, true, currmillis );
+			ilstatus = inductiveloop::NONE;
 			m_status = WAITSETTLE;
+		}
+		else if( conflict ) {
+			m_lights.set( trafficlights::PASS, inner );
 		}
 		break;
 
 	case RETREAT:
-		if( !ilchanged ) break;
-		if( ilstatus != ( m_inner ? inductiveloop::INNER : inductiveloop::OUTER)) {
-			if( ilstatus == inductiveloop::NONE ) {
-				m_lights.set( trafficlights::OFF, inner );
-				m_status = WAITSETTLE;
-			} else {
-				tocodewait( inner );
-			}
+		if( ilchanged || currmillis - m_phasestart > RETREAT_TIMEOUT ) {
+			m_lights.set( trafficlights::OFF, inner );
+			m_gate.set( false, 0, 0, true, currmillis );
+			ilstatus = inductiveloop::NONE;
+			m_status = WAITSETTLE;
 		}
 		break;
 	default:		// Invalid state
