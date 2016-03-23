@@ -189,12 +189,17 @@ void DS3231::get(struct ts *t)
     if (++t->hour<24)
     	return;
     t->hour=0;
-    if (++t->mday<=mon_last_day(t->year,t->mon))
+    t->mday++;
+    t->wday++;
+    if (t->wday>7)
+    	t->wday=1;
+    if (t->mday<=mon_last_day(t->year_s,t->mon))
     	return;
     t->mday=1;
     if (++t->mon<13)
     	return;
     t->mon=1;
+    t->year_s++;
     t->year++;
 }
 
@@ -215,8 +220,6 @@ uint8_t DS3231::get_addr(const uint8_t addr, uint8_t * val)
 
     return 0;
 }
-
-
 
 // control register
 
