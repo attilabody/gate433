@@ -115,7 +115,7 @@ void setup()
 		{
 			f.close();
 			g_display.print(F("IMPORTING "));
-			uint16_t	imported(importdb(0, 1024));
+			uint16_t	imported(importdb(0, 1023));
 			if(imported != (uint16_t) -1) {
 				g_display.print(imported);
 				g_sd.remove("IMPORT");
@@ -327,7 +327,7 @@ void processinput()
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;
 
-		uint16_t			imported(importdb(from, to+1));
+		uint16_t			imported(importdb(from, to));
 		if( imported != (uint16_t)-1 ) {
 			serialoutln(F(RESPS "OK "), imported);
 		}
@@ -361,14 +361,14 @@ void processinput()
 //////////////////////////////////////////////////////////////////////////////
 uint16_t importdb(uint16_t start, uint16_t end)
 {
-	if(end > 1024) return -1;
+	if(end > 1023) return -1;
 
 	thindb				tdb( g_sd );
 	uint16_t			id(-1);
 	database::dbrecord	rec,old;
 	uint16_t			imported(0);
 	if( tdb.init()) {
-		for( id = start; id < end; ++id ) {
+		for( id = start; id <= end; ++id ) {
 			if( !tdb.getParams( id, rec ) || !g_db.getParams(id, old)) {
 				break;
 			}
@@ -387,8 +387,7 @@ uint16_t importdb(uint16_t start, uint16_t end)
 			}
 #endif
 		}
-		if(id == end ) return imported;
-		else return -1;
+		if(id != end+1 ) return -1;
 	}
 	return imported;
 }
