@@ -74,11 +74,6 @@ uint8_t DS3231::set(struct ts t)
 
     t.year_s = t.year - 2000;
 
-    dst=check_dst(t.year_s,t.mon,t.mday,t.hour);
-    if (dst)									// Just hour correction!
-    	t.hour--;
-
-
     uint8_t TimeDate[7] = { t.sec, t.min, t.hour, t.wday, t.mday, t.mon, t.year_s };
 
     for (i = 0; i <= 6; i++) {
@@ -89,30 +84,13 @@ uint8_t DS3231::set(struct ts t)
     t.error=I2c.write(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,TimeDate,7);
     if (!t.error)
     	t.error=set_sreg(0x0F);	// OSF clear
-    if (t.error) {
-    	m_year=0;
-    	return t.error;
-    }
-
-    m_year=t.year_s;
-    m_mon=t.mon;
-    m_mday=t.mday;
-    m_hour=t.hour;
-
-    return 0;
+   	return t.error;
 }
 
 uint8_t DS3231::set(const char *buf)
 {
 	struct ts t;
-	buf+=2;
-	t.year=2000+inp2toi(buf);
-	t.mon=inp2toi(buf);
-	t.mday=inp2toi(buf);
-	t.hour=inp2toi(buf);
-	t.min=inp2toi(buf);
-	t.sec=0;
-	t.wday=dow(t.year-2000,t.mon,t.mday);
+	strtots(buf,&t);
 	return set(t);
 }
 
@@ -155,52 +133,6 @@ void DS3231::get(struct ts *t)
 #ifdef CONFIG_UNIXTIME
     t->unixtime = get_unixtime(*t);
 #endif
-
-    i=0;
-    switch (m_checklevel)
-    {
-    case CheckLevel_Hour:
-    	if (t->hour!=m_hour)
-    	{
-    		i=1;
-    		break;
-    	}
-    case CheckLevel_Day:
-    	if (t->wday!=m_mday)
-    	{
-    		i=1;
-    		break;
-    	}
-    case CheckLevel_Mon:
-    	if ((t->mon!=m_mon) ||
-    		(t->year_s!=m_year))
-    		i=1;
-    }
-    if (i)
-    {
-    	m_year=t->year_s;
-    	m_mon=t->mon;
-    	m_mday=t->mday;
-    	m_hour=t->hour;
-    	dst=check_dst(m_year,m_mon,m_mday,m_hour);
-    }
-    if (!dst)
-    	return;
-    if (++t->hour<24)
-    	return;
-    t->hour=0;
-    t->mday++;
-    t->wday++;
-    if (t->wday>7)
-    	t->wday=1;
-    if (t->mday<=mon_last_day(t->year_s,t->mon))
-    	return;
-    t->mday=1;
-    if (++t->mon<13)
-    	return;
-    t->mon=1;
-    t->year_s++;
-    t->year++;
 }
 
 uint8_t DS3231::set_addr(const uint8_t addr, const uint8_t val)
@@ -483,7 +415,110 @@ uint8_t DS3231::dow(uint8_t y, uint8_t m, uint8_t d)
 	return ((y + (y >> 2) + t[m-1] + d + 6) % 7) +1;
 }
 
-uint8_t DS3231::last_sun_of_month31(uint8_t y, uint8_t m)
+void DS3231::strtots(const char *buf, struct ts *t)
+{
+	buf+=2;
+	t->year=2000+inp2toi(buf);
+	t->mon=inp2toi(buf);
+	t->mday=inp2toi(buf);
+	t->hour=inp2toi(buf);
+	t->min=inp2toi(buf);
+	t->sec=0;
+	t->wday=dow(t->year-2000,t->mon,t->mday);
+}
+
+// ----------------------------- DS3231_DST -------------------------------
+
+uint8_t DS3231_DST::set(struct ts t)
+{
+    uint8_t i;
+
+    t.year_s = t.year - 2000;
+
+    dst=check_dst(t.year_s,t.mon,t.mday,t.hour);
+    if (dst)									// Just hour correction!
+    	t.hour--;
+
+    i=DS3231::set(t);
+
+    if (i)
+    {
+    	m_year=0;
+    	return i;
+    }
+
+    m_year=t.year_s;
+    m_mon=t.mon;
+    m_mday=t.mday;
+    m_hour=t.hour;
+
+    return 0;
+}
+
+uint8_t DS3231_DST::set(const char *buf)
+{
+	struct ts t;
+	strtots(buf,&t);
+	return set(t);
+}
+
+void DS3231_DST::get(struct ts *t)
+{
+    uint8_t i;
+
+    DS3231::get(t);
+
+    if (t->error)
+    	return;
+
+    i=0;
+    switch (m_checklevel)
+    {
+    case CheckLevel_Hour:
+    	if (t->hour!=m_hour)
+    	{
+    		i=1;
+    		break;
+    	}
+    case CheckLevel_Day:
+    	if (t->wday!=m_mday)
+    	{
+    		i=1;
+    		break;
+    	}
+    case CheckLevel_Mon:
+    	if ((t->mon!=m_mon) ||
+    		(t->year_s!=m_year))
+    		i=1;
+    }
+    if (i)
+    {
+    	m_year=t->year_s;
+    	m_mon=t->mon;
+    	m_mday=t->mday;
+    	m_hour=t->hour;
+    	dst=check_dst(m_year,m_mon,m_mday,m_hour);
+    }
+    if (!dst)
+    	return;
+    if (++t->hour<24)
+    	return;
+    t->hour=0;
+    t->mday++;
+    t->wday++;
+    if (t->wday>7)
+    	t->wday=1;
+    if (t->mday<=mon_last_day(t->year_s,t->mon))
+    	return;
+    t->mday=1;
+    if (++t->mon<13)
+    	return;
+    t->mon=1;
+    t->year_s++;
+    t->year++;
+}
+
+uint8_t DS3231_DST::last_sun_of_month31(uint8_t y, uint8_t m)
 {
 	uint8_t d = 31;
 	uint8_t f;
@@ -497,14 +532,14 @@ uint8_t DS3231::last_sun_of_month31(uint8_t y, uint8_t m)
 	return d;
 }
 
-uint8_t DS3231::mon_last_day(uint8_t y, uint8_t m)
+uint8_t DS3231_DST::mon_last_day(uint8_t y, uint8_t m)
 {
 	if (m!=2)
 		return 31 - (m - 1) % 7 % 2;
 	return ((y & 3)?28:29);
 }
 
-uint8_t DS3231::check_dst(uint8_t year, uint8_t mon, uint8_t day, uint8_t hour)
+uint8_t DS3231_DST::check_dst(uint8_t year, uint8_t mon, uint8_t day, uint8_t hour)
 {
 	uint8_t temp;
 	uint8_t res;
@@ -537,9 +572,9 @@ uint8_t DS3231::check_dst(uint8_t year, uint8_t mon, uint8_t day, uint8_t hour)
 	return res;
 }
 
-uint8_t DS3231::m_year=0;
-uint8_t DS3231::m_mon=0;
-uint8_t DS3231::m_mday=0;
-uint8_t DS3231::m_hour=0;
-uint8_t DS3231::m_checklevel=0;
-uint8_t DS3231::dst=0;
+uint8_t DS3231_DST::m_year=0;
+uint8_t DS3231_DST::m_mon=0;
+uint8_t DS3231_DST::m_mday=0;
+uint8_t DS3231_DST::m_hour=0;
+uint8_t DS3231_DST::m_checklevel=0;
+uint8_t DS3231_DST::dst=0;

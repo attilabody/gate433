@@ -43,8 +43,8 @@ void setup()
 #endif	//	USE_LCD
 
 #ifdef USE_RTC
-	DS3231_init( DS3231_INTCN );
-	DS3231_get( &g_dt );
+	DS3231_DST::init( DS3231_INTCN );
+	DS3231_DST::get( &g_dt );
 #endif//USE_RTC
 
 #ifdef	USE_SDCARD
@@ -80,7 +80,7 @@ void loop()
 		uint8_t	btn( getbutton( g_code ));
 
 #ifdef USE_RTC
-		DS3231_get( & g_dt );
+		DS3231_DST::get( & g_dt );
 #endif	//	USE_RTC
 		g_logger.log( logwriter::DEBUG, g_dt, F("Code"), id, btn );
 

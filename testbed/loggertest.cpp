@@ -26,8 +26,8 @@ void setup()
 	Serial.begin( 115200 );
 	g_sd.begin( SS );
 	Wire.begin();
-	DS3231_init( DS3231_INTCN );
-	DS3231_get( &g_dt );
+	DS3231_DST::init( DS3231_INTCN );
+	DS3231_DST::get( &g_dt );
 
 	Serial.println( g_log.init() ? F("Log init succeeded") : F("Log init FAILED!"));
 	g_log.log( logwriter::INFO, g_dt, "Logtest" );

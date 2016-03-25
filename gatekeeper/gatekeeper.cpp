@@ -69,9 +69,9 @@ void setup()
 
 	setup433();
 
-	DS3231_init( DS3231_INTCN );
+	DS3231_DST::init( DS3231_INTCN );
 	g_lastdtupdate = millis();
-	DS3231_get( &g_t );
+	DS3231_DST::get( &g_t );
 	updatedow( g_t );
 
 	bool loginitsucc = g_sdpresent && g_logger.init();
@@ -128,7 +128,7 @@ void loop()
 	if( now - g_lastdtupdate > 980 )
 	{
 		ts	t;
-		DS3231_get( &t );
+		DS3231_DST::get( &t );
 
 		if( t.sec != g_t.sec ) {
 			dtcmask |= 1;
@@ -303,7 +303,7 @@ void processinput()
 	} else if( iscommand( inptr, CMD_SDT )) {	//	set datetime
 		ts	t;
 		if( parsedatetime( t, inptr )) {
-			DS3231_set( t );
+			DS3231_DST::set( t );
 			Serial.println( F(RESPS "OK"));
 		} else
 			Serial.println( F(ERRS " (DATETIMEFMT)"));

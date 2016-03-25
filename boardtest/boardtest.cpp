@@ -90,7 +90,7 @@ void processInput()
 	if( iscommand( inptr, F("sdt"))) {
 #ifdef	TEST_DS3231
 		if( parsedatetime( t, inptr )) {
-			DS3231_set( t );
+			DS3231_DST::set( t );
 			Serial.println( F(RESPS "OK"));
 		} else
 			Serial.println( F(ERRS ERRS " (DATETIMEFMT)"));
@@ -100,7 +100,7 @@ void processInput()
 
 	} else if( iscommand( inptr, F("gdt"))) {	// get datetime
 #ifdef	TEST_DS3231
-		DS3231_get( &t );
+		DS3231_DST::get( &t );
 		serialout( (uint16_t)t.year, F("."));
 		serialout( (uint16_t)t.mon,F("."));
 		serialout( (uint16_t)t.mday, F("/" ),(uint16_t)t.wday);
@@ -317,7 +317,7 @@ void printdatetime( bool yeardigits = 0, bool showdow = true )
 	char	lcdbuffer[17];
 	char	*lbp(lcdbuffer);
 
-	DS3231_get( &g_dt );
+	DS3231_DST::get( &g_dt );
 
 #ifdef	TEST_LCD
 	if( prevt.year != g_dt.year || prevt.mon != g_dt. mon || prevt.mday != g_dt.mday ) {
@@ -452,7 +452,7 @@ void setup()
 	pinMode( PIN_OUTERLOOP, INPUT );
 	digitalWrite( PIN_OUTERLOOP, HIGH );	//	activate pullup;
 
-	DS3231_init( DS3231_INTCN );
+	DS3231_DST::init( DS3231_INTCN );
 
 	g_sd.begin( SS );
 	g_db.init();

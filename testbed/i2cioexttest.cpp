@@ -28,8 +28,8 @@ void setup()
 	Serial.begin( 115200 );
 	I2c.begin();
 	I2c.timeOut(1000);
-	DS3231_init( DS3231_INTCN );
-	DS3231_get( &g_dt );
+	DS3231_DST::init( DS3231_INTCN );
+	DS3231_DST::get( &g_dt );
 	g_lcd.init();
 	g_lcd.backlight();
 	g_lcd.print("Minden fasza");

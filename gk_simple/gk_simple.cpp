@@ -99,8 +99,8 @@ void setup()
 		}
 	}
 
-	DS3231_init( DS3231_INTCN );
-	DS3231_get( &g_dt );
+	DS3231_DST::init( DS3231_INTCN );
+	DS3231_DST::get( &g_dt );
 #ifdef VERBOSE
 	Serial.print(CMNT);
 	Serial.println(F("DS3231 init done."));
@@ -187,7 +187,7 @@ void loop()
 		if( code != g_code ) {
 			if( cnt )
 			{
-				DS3231_get( &g_dt );
+				DS3231_DST::get( &g_dt );
 				dtupdated = true;
 				g_logger.log( logwriter::DEBUG, g_dt, F("Abort"), id, btn );
 #ifdef VERBOSE
@@ -206,7 +206,7 @@ void loop()
 			Serial.print(' ');
 			Serial.print( id );
 #endif
-			DS3231_get( &g_dt );
+			DS3231_DST::get( &g_dt );
 			dtupdated = true;
 			g_db.getParams( id, rec );
 			bool enabled(rec.enabled());
@@ -279,7 +279,7 @@ void loop()
 
 	if( g_codedisplayed != g_lrcode ) {
 		if(!dtupdated) {
-			DS3231_get(&g_dt);
+			DS3231_DST::get(&g_dt);
 			dtupdated = true;
 		}
 		g_display.updatelastreceivedid( getid( g_lrcode ));

@@ -3,8 +3,6 @@
 #include <I2C.h>
 #include <ds3231.h>
 
-DS3231 Time;
-
 void TestDST(uint16_t y, uint8_t m, uint8_t d, uint8_t h, uint8_t w)
 {
 	Serial.print(y);
@@ -17,7 +15,7 @@ void TestDST(uint16_t y, uint8_t m, uint8_t d, uint8_t h, uint8_t w)
 	Serial.print('=');
 	Serial.print(w);
 	Serial.print('?');
-	Serial.print(Time.check_dst(y-2000,m,d,h));
+	Serial.print(DS3231_DST::check_dst(y-2000,m,d,h));
 	Serial.print("\n");
 }
 
@@ -27,17 +25,17 @@ void setup()
 	Serial.begin(115200);
 	I2c.begin();
 	I2c.timeOut(100);
-	Time.init(DS3231_INTCN);
+	DS3231_DST::init(DS3231_INTCN);
 	for (int i=1;i<=12;i++) {
 		if (i>1)
 			Serial.print(',');
-		Serial.print(Time.dow(16,i,1));
+		Serial.print(DS3231_DST::dow(16,i,1));
 	}
 	Serial.print("\n");
 	for (int i=1;i<=12;i++) {
 		if (i>1)
 			Serial.print(',');
-		Serial.print(Time.mon_last_day(16,i));
+		Serial.print(DS3231_DST::mon_last_day(16,i));
 	}
 	Serial.print("\n");
 	TestDST(2016,1,1,12,0);
@@ -60,7 +58,7 @@ void setup()
 	TestDST(2016,10,30,12,0);
 	TestDST(2016,10,31,12,0);
 	TestDST(2016,12,31,12,0);
-	Time.set("201603270159");
+	DS3231_DST::set("201603270159");
 	//Time.set("201610300159");
 }
 
@@ -68,7 +66,7 @@ ts			g_dt;
 // The loop function is called in an endless loop
 void loop()
 {
-	Time.get(&g_dt);
+	DS3231_DST::get(&g_dt);
 	delay(1000);
 	Serial.print(g_dt.year);
 	Serial.print('-');

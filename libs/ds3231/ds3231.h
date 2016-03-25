@@ -54,45 +54,56 @@ struct ts {
 class DS3231
 {
   public:
-	uint8_t init(const uint8_t creg);
-	uint8_t set(struct ts t);
-	uint8_t set(const char *buf);
-	void get(struct ts *t);
+	static uint8_t init(const uint8_t creg);
+	static uint8_t set(struct ts t);
+	static uint8_t set(const char *buf);
+	static void get(struct ts *t);
 
-	uint8_t set_addr(const uint8_t addr, const uint8_t val);
-	uint8_t get_addr(const uint8_t addr, uint8_t * val);
+	static uint8_t set_addr(const uint8_t addr, const uint8_t val);
+	static uint8_t get_addr(const uint8_t addr, uint8_t * val);
 
 	// control/status register
-	uint8_t set_creg(const uint8_t val);
-	uint8_t set_sreg(const uint8_t val);
-	uint8_t get_sreg(uint8_t * val);
+	static uint8_t set_creg(const uint8_t val);
+	static uint8_t set_sreg(const uint8_t val);
+	static uint8_t get_sreg(uint8_t * val);
 
 	// aging offset register
-	uint8_t set_aging(const int8_t val);
-	uint8_t get_aging(int8_t * val);
+	static uint8_t set_aging(const int8_t val);
+	static uint8_t get_aging(int8_t * val);
 
 	// temperature register
-	float get_treg(void);
+	static float get_treg(void);
 
 	// alarms
-	void set_a1(const uint8_t s, const uint8_t mi, const uint8_t h, const uint8_t d,
+	static void set_a1(const uint8_t s, const uint8_t mi, const uint8_t h, const uint8_t d,
 	                   const uint8_t * flags);
-	void get_a1(char *buf, const uint8_t len);
-	void clear_a1f(void);
-	uint8_t triggered_a1(void);
+	static void get_a1(char *buf, const uint8_t len);
+	static void clear_a1f(void);
+	static uint8_t triggered_a1(void);
 
-	void set_a2(const uint8_t mi, const uint8_t h, const uint8_t d, const uint8_t flags);
-	void get_a2(char *buf, const uint8_t len);
-	void clear_a2f(void);
-	uint8_t triggered_a2(void);
+	static void set_a2(const uint8_t mi, const uint8_t h, const uint8_t d, const uint8_t flags);
+	static void get_a2(char *buf, const uint8_t len);
+	static void clear_a2f(void);
+	static uint8_t triggered_a2(void);
 
 	// helpers
-	uint32_t get_unixtime(struct ts t);
+	static uint32_t get_unixtime(struct ts t);
 	static uint8_t dectobcd(const uint8_t val);
 	static uint8_t bcdtodec(const uint8_t val);
 	static uint8_t inp2toi(const char * &c);
 
 	static uint8_t dow(uint8_t y, uint8_t m, uint8_t d);
+	static void strtots(const char *buf, struct ts *t);
+};
+
+class DS3231_DST: public DS3231
+{
+  public:
+	static uint8_t set(struct ts t);
+	static uint8_t set(const char *buf);
+	static void get(struct ts *t);
+
+	// helpers
 	static uint8_t last_sun_of_month31(uint8_t y, uint8_t m);
 	static uint8_t mon_last_day(uint8_t y, uint8_t m);
 	static uint8_t check_dst(uint8_t y, uint8_t m, uint8_t d, uint8_t h);
