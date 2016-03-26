@@ -24,6 +24,7 @@ class PCF8574;
 class LiquidCrystal_I2C;
 class sdfatlogwriter;
 class display;
+class DS3231_DST;
 
 extern const uint8_t	g_innerlightspins[3];
 extern const uint8_t	g_outerlightspins[3];
@@ -56,6 +57,7 @@ extern char					g_iobuf[32];
 extern uint8_t				g_inidx;
 extern uint16_t				g_codedisplayed;
 extern bool					g_sdpresent;
+extern DS3231_DST			g_clk;
 extern ts					g_t;
 extern unsigned long		g_lastdtupdate;
 

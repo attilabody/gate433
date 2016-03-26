@@ -36,6 +36,8 @@
 #include <stdio.h>
 #include "ds3231.h"
 
+#define Skip_DS3231Extra	1
+
 #ifdef __AVR__
  #include <avr/pgmspace.h>
  // Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
@@ -81,10 +83,10 @@ uint8_t DS3231::set(struct ts t)
         if (i == 5)
             TimeDate[5] |= 0x80;
     }
-    t.error=I2c.write(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,TimeDate,7);
-    if (!t.error)
-    	t.error=set_sreg(0x0F);	// OSF clear
-   	return t.error;
+    if ((i=I2c.write(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,TimeDate,7)))
+    	return i;
+    i=set_sreg(0x0F);	// OSF clear
+   	return i;
 }
 
 uint8_t DS3231::set(const char *buf)
@@ -94,25 +96,18 @@ uint8_t DS3231::set(const char *buf)
 	return set(t);
 }
 
-void DS3231::get(struct ts *t)
+uint8_t DS3231::get(struct ts *t)
 {
     uint8_t TimeDate[7];        //second,minute,hour,dow,day,month,year
-    uint8_t i, n;
+    uint8_t i, n, ret, osf_error;
 
-    t->error=get_sreg(&i);
-    if (t->error)
-    	return;
+    if ((ret=get_sreg(&i)))
+    	return ret;
 
-    if (i & DS3231_OSF)
-    {
-    	t->error=0xFF;
-    	return;
-    }
+    osf_error=(i & DS3231_OSF)?0xFF:0;
 
-    t->error=I2c.read(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,7);
-
-    if (t->error)
-    	return;
+    if ((ret=I2c.read(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,7)))
+    	return ret;
 
     for (i = 0; i <= 6; i++) {
         n = I2c.receive();
@@ -133,6 +128,7 @@ void DS3231::get(struct ts *t)
 #ifdef CONFIG_UNIXTIME
     t->unixtime = get_unixtime(*t);
 #endif
+    return osf_error;
 }
 
 uint8_t DS3231::set_addr(const uint8_t addr, const uint8_t val)
@@ -180,6 +176,7 @@ uint8_t DS3231::get_sreg(uint8_t * val)
 	return get_addr(DS3231_STATUS_ADDR, val);
 }
 
+#ifndef Skip_DS3231Extra
 // aging register
 
 uint8_t DS3231::set_aging(const int8_t val)
@@ -357,6 +354,8 @@ uint8_t DS3231::triggered_a2(void)
 	return  reg_val & DS3231_A2F;
 }
 
+#endif
+
 // helpers
 
 #ifdef CONFIG_UNIXTIME
@@ -462,14 +461,15 @@ uint8_t DS3231_DST::set(const char *buf)
 	return set(t);
 }
 
-void DS3231_DST::get(struct ts *t)
+uint8_t DS3231_DST::get(struct ts *t)
 {
-    uint8_t i;
+    uint8_t i,error;
 
-    DS3231::get(t);
+    error=DS3231::get(t);
 
-    if (t->error)
-    	return;
+    if ((error) &&
+    	(error!=0xFF))
+    	return error;
 
     i=0;
     switch (m_checklevel)
@@ -499,8 +499,13 @@ void DS3231_DST::get(struct ts *t)
     	m_hour=t->hour;
     	dst=check_dst(m_year,m_mon,m_mday,m_hour);
     }
-    if (!dst)
-    	return;
+    if (dst)
+    	fix_summer_time(t);
+   	return error;
+}
+
+void DS3231_DST::fix_summer_time(struct ts *t)
+{
     if (++t->hour<24)
     	return;
     t->hour=0;

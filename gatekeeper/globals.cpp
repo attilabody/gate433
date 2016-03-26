@@ -43,6 +43,7 @@ uint16_t				g_codedisplayed((uint16_t)-1);
 
 bool					g_sdpresent(false);
 
+DS3231_DST				g_clk;
 ts						g_t;
 unsigned long			g_lastdtupdate(0);
 
