@@ -130,19 +130,18 @@ void loop()
 		ts	t;
 		g_clk.get( &t );
 
-		if( t.sec != g_t.sec ) {
+		if( t.sec != g_t.sec )
 			dtcmask |= 1;
-			if( t.min != g_t.min ) {
-				dtcmask |= 2;
-				if( t.hour != g_t.hour ) {
-					dtcmask |= 4;
-					if( t.mday != g_t.mday ) {
-						dtcmask |= 8;
-						if( t.mon != g_t.mon ) {
-							dtcmask |= 0x10;
-							if( t.year != g_t.year )
-								dtcmask |= 0x20;
-		}}}}}
+		if( t.min != g_t.min )
+			dtcmask |= 2;
+		if( t.hour != g_t.hour )
+			dtcmask |= 4;
+		if( t.mday != g_t.mday )
+			dtcmask |= 8;
+		if( t.mon != g_t.mon )
+			dtcmask |= 0x10;
+		if( t.year != g_t.year )
+			dtcmask |= 0x20;
 
 		if( dtcmask & 0x38 ) {
 				g_t = t;
