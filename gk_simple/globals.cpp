@@ -26,6 +26,6 @@ PCF8574					g_outputs(PCF8574_ADDRESS);
 arduinooutputs			g_outputs;
 #endif	//	USE_IOEXTENDER_OUTPUTS
 
-
+DS3231_DST		g_clk;
 inductiveloop	g_loop;
 

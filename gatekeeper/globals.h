@@ -59,6 +59,7 @@ extern uint16_t				g_codedisplayed;
 extern bool					g_sdpresent;
 extern DS3231_DST			g_clk;
 extern ts					g_t;
+extern bool					g_timevalid;
 extern unsigned long		g_lastdtupdate;
 
 extern sdfatlogwriter		g_logger;

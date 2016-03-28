@@ -45,6 +45,7 @@ bool					g_sdpresent(false);
 
 DS3231_DST				g_clk;
 ts						g_t;
+bool					g_timevalid(false);
 unsigned long			g_lastdtupdate(0);
 
 sdfatlogwriter			g_logger( g_sd );

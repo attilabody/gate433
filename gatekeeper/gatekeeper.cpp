@@ -71,7 +71,7 @@ void setup()
 
 	g_clk.init( DS3231_INTCN );
 	g_lastdtupdate = millis();
-	g_clk.get( &g_t );
+	g_timevalid = g_clk.get( &g_t ) == 0;
 	updatedow( g_t );
 
 	bool loginitsucc = g_sdpresent && g_logger.init();
@@ -128,7 +128,7 @@ void loop()
 	if( now - g_lastdtupdate > 980 )
 	{
 		ts	t;
-		g_clk.get( &t );
+		g_timevalid = g_clk.get( &t ) == 0;
 
 		if( t.sec != g_t.sec )
 			dtcmask |= 1;
@@ -190,6 +190,16 @@ void setuprelaypins( const uint8_t *pins, uint8_t size )
 }
 
 //////////////////////////////////////////////////////////////////////////////
+void printrespok() {
+	Serial.println( F( RESPS "OK"));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void printresperr() {
+	Serial.println( F( ERRS "ERR"));
+}
+
+//////////////////////////////////////////////////////////////////////////////
 const char PROGMEM CMD_GET[] = "get";	//	get db record
 const char PROGMEM CMD_SET[] = "set";	//	set db record
 const char PROGMEM CMD_EXP[] = "edb";	//	export database
@@ -218,16 +228,16 @@ void processinput()
 		if( id != -1 && g_db.getParams( id, rec )) {
 			rec.serialize( g_iobuf );
 			serialoutln( RESP, g_iobuf );
-		} else Serial.println( F(ERRS "ERR"));
+		} else printresperr();
 
 	} else if( iscommand( inptr, CMD_SET )) {	//	set
 		database::dbrecord	rec;
 		int 				id( getintparam( inptr ));
 		if( id != -1 && rec.parse( inptr )) {
 			if( g_db.setParams( id, rec ))
-				Serial.println( F( RESPS "OK"));
-			else Serial.println( F(ERRS "ERR"));
-		} else Serial.println( F(ERRS "ERR"));
+				printrespok();
+			else printresperr();
+		} else printresperr();
 
 	} else if( iscommand( inptr, CMD_EXP )) {	//	export
 		thindb		tdb( g_sd );
@@ -244,8 +254,8 @@ void processinput()
 					break;
 			}
 		}
-		if( id == to + 1 )  Serial.println(F(RESPS "OK"));
-		else Serial.println( F(ERRS "ERR" ));
+		if( id == to + 1 )  printrespok();
+		else printresperr();
 
 	} else if( iscommand( inptr, CMD_IMP)) {	//	import
 		uint16_t	from( getintparam( inptr ));
@@ -257,7 +267,7 @@ void processinput()
 			Serial.print(F(RESPS "OK "));
 			Serial.println(imported);
 		}
-		else Serial.println(F(ERRS "ERR "));
+		else printresperr();
 
 	} else if( iscommand( inptr, CMD_DMP )) {	//	dump
 		database::dbrecord	rec;
@@ -276,8 +286,8 @@ void processinput()
 				serialoutln( RESP, g_iobuf );
 			} else break;
 		}
-		if( id == to + 1 ) Serial.println( RESP );
-		else Serial.println( F(ERRS "ERR" ));
+		if( id == to + 1 ) printrespok();
+		else printresperr();
 
 	} else if( iscommand( inptr, CMD_CS )) {	//	clear statuses
 		uint16_t			from( getintparam( inptr ));
@@ -290,6 +300,7 @@ void processinput()
 			CHECKPOINT;
 			g_db.setStatus( id, database::dbrecord::UNKNOWN );
 		}
+		printrespok();
 
 	} else if( iscommand( inptr, CMD_GDT )) {	// get datetime
 		serialout( RESP, (uint16_t)g_t.year, F("."));
@@ -303,14 +314,14 @@ void processinput()
 		ts	t;
 		if( parsedatetime( t, inptr )) {
 			g_clk.set( t );
-			Serial.println( F(RESPS "OK"));
+			printrespok();
 		} else
-			Serial.println( F(ERRS " (DATETIMEFMT)"));
+			Serial.println( F(ERRS " DTFMT"));
 
 	} else if( iscommand( inptr, CMD_DS )) {	// dump shuffle
 		SdFile	f;
 		char buffer[16];
-		if( f.open( "shuffle.txt", FILE_READ )) {
+		if( f.open( "SHUFFLE.TXT", FILE_READ )) {
 			while( getlinefromfile( f, buffer, sizeof(buffer)) != -1 ) {
 				CHECKPOINT;
 				serialoutln( RESP, buffer );
@@ -318,14 +329,16 @@ void processinput()
 			Serial.println( RESP );
 			f.close();
 		} else {
-			Serial.println( F(ERRS "Cannot open file."));
+			Serial.println( F(ERRS "CANTOPEN"));
 		}
 
 	} else if( iscommand( inptr, CMD_DL )) {	// dump log
 		g_logger.dump( &Serial );
+		printrespok();
 
 	} else if( iscommand( inptr, CMD_TL )) {	// truncate log
 		g_logger.truncate();
+		printrespok();
 
 	} else if( iscommand( inptr, CMD_IL )) {	// infinite loop
 		while( true ) {
@@ -384,7 +397,7 @@ void updatedow( ts &t )
 
 	if( !g_sdpresent ) return;
 
-	if( f.open( "shuffle.txt", FILE_READ )) {
+	if( f.open( "SHUFFLE.TXT", FILE_READ )) {
 		while( getlinefromfile( f, buffer, sizeof(buffer)) != -1 ) {
 			bp = buffer;
 			if( (month = getintparam( bp, true, true, false )) != 0xff &&

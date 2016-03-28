@@ -192,16 +192,18 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t id, bool inner )
 		ret = UNREGISTERED;
 	else if( rec.position == ( inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE ) )
 		ret = POSITION;
-	else if( !( rec.days & dow ))
-		ret = DAY;
-	else {
-		uint16_t	start( inner ? rec.out_start : rec.in_start );
-		uint16_t	end( inner ? rec.out_end : rec.in_end );
+	else if(g_timevalid)
+	{
+		if( !( rec.days & dow ))
+			ret = DAY;
+		else {
+			uint16_t	start( inner ? rec.out_start : rec.in_start );
+			uint16_t	end( inner ? rec.out_end : rec.in_end );
 
-		if( mod < start || mod > end )
-			ret = TIME;
+			if( mod < start || mod > end )
+				ret = TIME;
+		}
 	}
-
 	g_logger.log( logwriter::INFO, g_t, F("Auth"), id, rec.position, inner, ret );
 	return ret;
 }

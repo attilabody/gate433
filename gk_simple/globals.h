@@ -15,6 +15,7 @@
 #include <thindb.h>
 #include <i2cdb.h>
 #include <PCF8574.h>
+#include <ds3231.h>
 #include "display.h"
 
 extern SdFat			g_sd;
@@ -35,6 +36,8 @@ extern PCF8574			g_outputs;
 #else	//	USE_IOEXTENDER_OUTPUTS
 extern arduinooutputs	g_outputs;
 #endif	//	USE_IOEXTENDER_OUTPUTS
+
+extern DS3231_DST		g_clk;
 
 extern inductiveloop	g_loop;
 

@@ -34,7 +34,7 @@
 #define DS3231_OSF      0x80
 
 // DO NOT MODIFY first 7 members of this struct as they are representing internal
-//registers of DS3231. DOING SO SURELY WILL BREAK HIGHLY OPTIMIZED DS3231 CODE
+// registers of DS3231. DOING SO SURELY WILL BREAK HIGHLY OPTIMIZED DS3231 CODE
 // !!!YOU HAVE BEEN WARNED!!!
 struct ts {
     uint8_t sec;         /* seconds */
@@ -45,8 +45,6 @@ struct ts {
     uint8_t mon;         /* month */
     uint8_t year_s;      /* year in short notation */
     int16_t year;        /* year */
-    uint8_t yday;        /* day in the year */
-    uint8_t isdst;       /* daylight saving time */
 #ifdef CONFIG_UNIXTIME
     uint32_t unixtime;   /* seconds since 01.01.1970 00:00:00 UTC*/
 #endif
