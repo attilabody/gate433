@@ -73,6 +73,7 @@ uint8_t DS3231::set(struct ts t)
     uint8_t i, *_t((uint8_t*)&t);
 
     t.year_s = t.year - 2000;
+	t.wday=dow(t.year_s,t.mon,t.mday);
 
     for (i = 0; i <= 6; i++, _t++) {
     	*_t = (i == 5 ? 0x80 : 0) | dectobcd(*_t);

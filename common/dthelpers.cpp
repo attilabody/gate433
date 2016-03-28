@@ -69,15 +69,13 @@ void printtime( Print *p, uint8_t hour, uint8_t min, uint8_t sec, char sep )
 //////////////////////////////////////////////////////////////////////////////
 bool parsedatetime( ts &t, const char *&inptr )
 {
-	//	"2015.10.28-3 16:37:05"
+	//	"2015.10.28 16:37:05"
 	t.year = getintparam( inptr );
 	if( t.year == -1 ) return false;
 	t.mon = getintparam( inptr );
 	if( t.mon == -1 ) return false;
 	t.mday = getintparam( inptr );
 	if( t.mday == -1 ) return false;
-	t.wday = getintparam( inptr );
-	if( t.wday == -1 ) return false;
 	t.hour = getintparam( inptr );
 	if( t.hour == -1 ) return false;
 	t.min = getintparam( inptr );
