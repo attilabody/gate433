@@ -36,8 +36,6 @@
 #include <stdio.h>
 #include "ds3231.h"
 
-#define Skip_DS3231Extra	1
-
 #ifdef __AVR__
  #include <avr/pgmspace.h>
  // Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
@@ -72,18 +70,15 @@ uint8_t DS3231::init(const uint8_t ctrl_reg)
 
 uint8_t DS3231::set(struct ts t)
 {
-    uint8_t i;
+    uint8_t i, *_t((uint8_t*)&t);
 
     t.year_s = t.year - 2000;
 
-    uint8_t TimeDate[7] = { t.sec, t.min, t.hour, t.wday, t.mday, t.mon, t.year_s };
+    for (i = 0; i <= 6; i++, _t++) {
+    	*_t = (i == 5 ? 0x80 : 0) | dectobcd(*_t);
+	}
 
-    for (i = 0; i <= 6; i++) {
-        TimeDate[i] = dectobcd(TimeDate[i]);
-        if (i == 5)
-            TimeDate[5] |= 0x80;
-    }
-    if ((i=I2c.write(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,TimeDate,7)))
+    if ((i=I2c.write(DS3231_I2C_ADDR,DS3231_TIME_CAL_ADDR,(uint8_t*)&t,7)))
     	return i;
     i=set_sreg(0x0F);	// OSF clear
    	return i;
@@ -98,8 +93,7 @@ uint8_t DS3231::set(const char *buf)
 
 uint8_t DS3231::get(struct ts *t)
 {
-    uint8_t TimeDate[7];        //second,minute,hour,dow,day,month,year
-    uint8_t i, n, ret, osf_error;
+    uint8_t i, ret, osf_error, *_t((uint8_t*)t);
 
     if ((ret=get_sreg(&i)))
     	return ret;
@@ -110,21 +104,10 @@ uint8_t DS3231::get(struct ts *t)
     	return ret;
 
     for (i = 0; i <= 6; i++) {
-        n = I2c.receive();
-        if (i == 5) {
-            TimeDate[5] = bcdtodec(n & 0x1F);
-        } else
-            TimeDate[i] = bcdtodec(n);
+        *_t++ = bcdtodec(I2c.receive() & (i == 5 ? 0x1f : 0xff));
     }
 
-    t->sec = TimeDate[0];
-    t->min = TimeDate[1];
-    t->hour = TimeDate[2];
-    t->mday = TimeDate[4];
-    t->mon = TimeDate[5];
-    t->year = 2000 + TimeDate[6];
-    t->wday = TimeDate[3];
-    t->year_s = TimeDate[6];
+    t->year = t->year_s + 2000;
 #ifdef CONFIG_UNIXTIME
     t->unixtime = get_unixtime(*t);
 #endif
@@ -176,7 +159,6 @@ uint8_t DS3231::get_sreg(uint8_t * val)
 	return get_addr(DS3231_STATUS_ADDR, val);
 }
 
-#ifndef Skip_DS3231Extra
 // aging register
 
 uint8_t DS3231::set_aging(const int8_t val)
@@ -354,8 +336,6 @@ uint8_t DS3231::triggered_a2(void)
 	return  reg_val & DS3231_A2F;
 }
 
-#endif
-
 // helpers
 
 #ifdef CONFIG_UNIXTIME
@@ -435,8 +415,10 @@ uint8_t DS3231_DST::set(struct ts t)
     t.year_s = t.year - 2000;
 
     dst=check_dst(t.year_s,t.mon,t.mday,t.hour);
-    if (dst)									// Just hour correction!
+    if (dst) {									// Just hour correction!
+    	if(!t.hour) return 0xff;
     	t.hour--;
+    }
 
     i=DS3231::set(t);
 

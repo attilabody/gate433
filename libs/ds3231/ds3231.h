@@ -33,18 +33,20 @@
 #define DS3231_A2F      0x2
 #define DS3231_OSF      0x80
 
-
+// DO NOT MODIFY first 7 members of this struct as they are representing internal
+//registers of DS3231. DOING SO SURELY WILL BREAK HIGHLY OPTIMIZED DS3231 CODE
+// !!!YOU HAVE BEEN WARNED!!!
 struct ts {
     uint8_t sec;         /* seconds */
     uint8_t min;         /* minutes */
     uint8_t hour;        /* hours */
+    uint8_t wday;        /* day of the week */
     uint8_t mday;        /* day of the month */
     uint8_t mon;         /* month */
+    uint8_t year_s;      /* year in short notation */
     int16_t year;        /* year */
-    uint8_t wday;        /* day of the week */
     uint8_t yday;        /* day in the year */
     uint8_t isdst;       /* daylight saving time */
-    uint8_t year_s;      /* year in short notation */
 #ifdef CONFIG_UNIXTIME
     uint32_t unixtime;   /* seconds since 01.01.1970 00:00:00 UTC*/
 #endif
@@ -57,18 +59,6 @@ class DS3231
 	static uint8_t set(struct ts t);
 	static uint8_t set(const char *buf);
 	static uint8_t get(struct ts *t);
-
-	static uint8_t set_addr(const uint8_t addr, const uint8_t val);
-	static uint8_t get_addr(const uint8_t addr, uint8_t * val);
-
-	// control/status register
-	static uint8_t set_creg(const uint8_t val);
-	static uint8_t set_sreg(const uint8_t val);
-	static uint8_t get_sreg(uint8_t * val);
-
-	// aging offset register
-	static uint8_t set_aging(const int8_t val);
-	static uint8_t get_aging(int8_t * val);
 
 	// temperature register
 	static float get_treg(void);
@@ -87,6 +77,20 @@ class DS3231
 
 	// helpers
 	static uint32_t get_unixtime(struct ts t);
+
+  protected:
+	static uint8_t set_addr(const uint8_t addr, const uint8_t val);
+	static uint8_t get_addr(const uint8_t addr, uint8_t * val);
+
+	// control/status register
+	static uint8_t set_creg(const uint8_t val);
+	static uint8_t set_sreg(const uint8_t val);
+	static uint8_t get_sreg(uint8_t * val);
+
+	// aging offset register
+	static uint8_t set_aging(const int8_t val);
+	static uint8_t get_aging(int8_t * val);
+
 	static uint8_t dectobcd(const uint8_t val);
 	static uint8_t bcdtodec(const uint8_t val);
 	static uint8_t inp2toi(const char * &c);
