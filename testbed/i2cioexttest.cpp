@@ -14,7 +14,7 @@
 #include "toolbox.h"
 #include "commsyms.h"
 
-ts					g_dt;
+ts					g_time;
 PCF8574				g_ioext( PCF8574_ADDRESS );
 uint8_t				g_portstatus( 0xa5 );
 LiquidCrystal_I2C	g_lcd( LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT );
@@ -29,7 +29,7 @@ void setup()
 	I2c.begin();
 	I2c.timeOut(1000);
 	DS3231_DST::init( DS3231_INTCN );
-	DS3231_DST::get( &g_dt );
+	DS3231_DST::get( &g_time );
 	g_lcd.init();
 	g_lcd.backlight();
 	g_lcd.print("Minden fasza");

@@ -39,7 +39,7 @@ uint16_t		g_lastcheckpoint(0);
 uint8_t			g_pinindex( 8 - 1 );
 uint16_t		g_rtdelay(1000);
 unsigned long	g_rtstart(0);
-ts				g_dt;
+ts				g_time;
 
 uint8_t			g_pinmap[] = {0,1,2,3,7,6,5,4};
 
@@ -316,43 +316,43 @@ void processInput()
 void printdatetime( bool yeardigits = 0, bool showdow = true )
 {
 #ifdef	TEST_DS3231
-	static ts		prevt = {0,0,0,0,0,0,0,0,0,0};
+	static ts		prevt = {0,0,0,0,0,0,0,0};
 
 	char	lcdbuffer[17];
 	char	*lbp(lcdbuffer);
 
-	g_clk.get( &g_dt );
+	g_clk.get( &g_time );
 
 #ifdef	TEST_LCD
-	if( prevt.year != g_dt.year || prevt.mon != g_dt. mon || prevt.mday != g_dt.mday ) {
+	if( prevt.year != g_time.year || prevt.mon != g_time. mon || prevt.mday != g_time.mday ) {
 		g_lcd.setCursor(0,0);
-		datetostring( lbp, g_dt.year, g_dt.mon, g_dt.mday, g_dt.wday, yeardigits, showdow, '.', '/' ); *lbp = 0;
+		datetostring( lbp, g_time.year, g_time.mon, g_time.mday, g_time.wday, yeardigits, showdow, '.', '/' ); *lbp = 0;
 		g_lcd.print( lcdbuffer );
 	}
 
-	if( prevt.hour != g_dt.hour || prevt.min != g_dt.min || prevt.sec != g_dt.sec ) {
+	if( prevt.hour != g_time.hour || prevt.min != g_time.min || prevt.sec != g_time.sec ) {
 		g_lcd.setCursor(0,1);
 		lbp = lcdbuffer;
-		timetostring( lbp, g_dt.hour, g_dt.min, g_dt.sec, ':' ); *lbp++ = 0;
+		timetostring( lbp, g_time.hour, g_time.min, g_time.sec, ':' ); *lbp++ = 0;
 		g_lcd.print( lcdbuffer);
 	}
 
 #else	//	TEST_LCD
 
-	if( prevt.year != g_dt.year || prevt.mon != g_dt. mon || prevt.mday != g_dt.mday ||
-		prevt.hour != g_dt.hour || prevt.min != g_dt.min || prevt.sec != g_dt.sec )
+	if( prevt.year != g_time.year || prevt.mon != g_time. mon || prevt.mday != g_time.mday ||
+		prevt.hour != g_time.hour || prevt.min != g_time.min || prevt.sec != g_time.sec )
 	{
-		serialout( (uint16_t)g_dt.year, F("."));
-		serialout( (uint16_t)g_dt.mon,F("."));
-		serialout( (uint16_t)g_dt.mday, F("/" ),(uint16_t)g_dt.wday);
-		serialout( F("    "), (uint16_t)g_dt.hour);
-		serialout(F(":" ), (uint16_t)(g_dt.min));
-		serialout(F(":" ), (uint16_t)(g_dt.sec));
+		serialout( (uint16_t)g_time.year, F("."));
+		serialout( (uint16_t)g_time.mon,F("."));
+		serialout( (uint16_t)g_time.mday, F("/" ),(uint16_t)g_time.wday);
+		serialout( F("    "), (uint16_t)g_time.hour);
+		serialout(F(":" ), (uint16_t)(g_time.min));
+		serialout(F(":" ), (uint16_t)(g_time.sec));
 		Serial.println();
 	}
 #endif	//	TEST_LCD
 
-	prevt = g_dt;
+	prevt = g_time;
 #endif	//	TEST_DS3231
 }
 
@@ -512,7 +512,7 @@ void loop()
 	if( g_codeready ) {
 		printcode( getid( g_code ));
 		serialoutln( g_code, F(", "), getid( g_code ));
-		g_logger.log(logwriter::DEBUG, g_dt, F("CODE"), getid(g_code), getbutton(g_code));
+		g_logger.log(logwriter::DEBUG, g_time, F("CODE"), getid(g_code), getbutton(g_code));
 		g_codeready = false;
 	}
 #ifdef FAILSTATS

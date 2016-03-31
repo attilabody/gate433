@@ -139,7 +139,7 @@ void gatehandler::loop( unsigned long currmillis )
 			break;
 		if( ilstatus == inductiveloop::NONE || currmillis - m_phasestart > PASS_TIMEOUT ) {
 			m_db.setStatus( getid( g_code ), m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE );
-			g_logger.log( logwriter::DEBUG, g_t, F("DBUP"), -1 );
+			g_logger.log( logwriter::DEBUG, g_time, F("DBUP"), -1 );
 #ifdef __GATEHANDLER_VERBOSE
 			serialoutsepln( ", ", F("setdbstatus "), ilstatus, m_inner, m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
 #endif	//	__GATEHANDLER_VERBOSE
@@ -181,8 +181,8 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t id, bool inner )
 	database::dbrecord	rec;
 	AUTHRES				ret( GRANTED );
 
-	uint16_t	mod( g_t.min + g_t.hour * 60 );
-	uint8_t		dow( 1<<(g_t.wday - 1));
+	uint16_t	mod( g_time.min + g_time.hour * 60 );
+	uint8_t		dow( 1<<(g_time.wday - 1));
 	if( !m_db.getParams(id, rec ) )
 		return ret;
 	if( rec.days & 0x80 )
@@ -204,7 +204,7 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t id, bool inner )
 				ret = TIME;
 		}
 	}
-	g_logger.log( logwriter::INFO, g_t, F("Auth"), id, rec.position, inner, ret );
+	g_logger.log( logwriter::INFO, g_time, F("Auth"), id, rec.position, inner, ret );
 	return ret;
 }
 

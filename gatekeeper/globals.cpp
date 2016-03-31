@@ -7,7 +7,6 @@
 
 #include "globals.h"
 #include <ds3231.h>
-#include <PCF8574.h>
 #include "display.h"
 #include "sdfatlogwriter.h"
 
@@ -31,7 +30,7 @@ i2cdb					g_db( I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, 128 );
 inductiveloop			g_indloop;
 
 #ifdef USE_IOEXTENDER_OUTPUTS
-PCF8574					g_outputs(PCF8574_ADDRESS);
+PCF8574outputs			g_outputs(PCF8574_ADDRESS);
 #else	//	USE_IOEXTENDER_OUTPUTS
 arduinooutputs			g_outputs;
 #endif	//	USE_IOEXTENDER_OUTPUTS
@@ -44,7 +43,7 @@ uint16_t				g_codedisplayed((uint16_t)-1);
 bool					g_sdpresent(false);
 
 DS3231_DST				g_clk;
-ts						g_t;
+ts						g_time;
 bool					g_timevalid(false);
 unsigned long			g_lastdtupdate(0);
 

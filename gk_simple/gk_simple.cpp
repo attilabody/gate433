@@ -14,16 +14,18 @@
 #include "display.h"
 #include <MemoryFree.h>
 
-ts				g_dt;
 char			g_iobuf[32];
 uint8_t			g_inidx(0);
 uint16_t		g_lastcheckpoint;
+bool			g_timevalid(false);
 
 void processinput();
 uint16_t importdb(uint16_t start, uint16_t end);
 inline void updateloopstatus(inductiveloop::STATUS status, bool conflict) {
 	g_display.updateloopstatus(conflict || status == inductiveloop::INNER, conflict || status == inductiveloop::OUTER );
 }
+inline bool updatedt() { return g_clk.get(&g_time) == 0; }
+void updatedt(bool &dtupdated);
 
 //////////////////////////////////////////////////////////////////////////////
 void setup()
@@ -100,12 +102,12 @@ void setup()
 	}
 
 	g_clk.init( DS3231_INTCN );
-	g_clk.get( &g_dt );
+	g_timevalid = updatedt();
 #ifdef VERBOSE
 	Serial.print(CMNT);
 	Serial.println(F("DS3231 init done."));
 #endif
-	g_logger.log( logwriter::INFO, g_dt, F("Reset") );
+	g_logger.log( logwriter::INFO, g_time, F("Reset") );
 
 	g_display.clear();
 	if(sdinit)
@@ -157,6 +159,7 @@ void loop()
 		Serial.print(CMNT);
 		serialoutsepln(", ", "ilschange", (int)ils, (int)previls, conflict, prevconflict );
 #endif	//	VERBOSE
+		g_logger.log(logwriter::DEBUG, g_time, F("ILS"), (uint16_t)ils);
 		if( ils == inductiveloop::NONE ) {
 			g_outputs.write( PIN_IN_YELLOW, RELAY_OFF );
 			g_outputs.write( PIN_OUT_YELLOW, RELAY_OFF );
@@ -187,9 +190,8 @@ void loop()
 		if( code != g_code ) {
 			if( cnt )
 			{
-				g_clk.get( &g_dt );
-				dtupdated = true;
-				g_logger.log( logwriter::DEBUG, g_dt, F("Abort"), id, btn );
+				updatedt(dtupdated);
+				g_logger.log( logwriter::DEBUG, g_time, F("Abort"), id, btn );
 #ifdef VERBOSE
 				Serial.print( F("  Aborting ") );
 				Serial.print( code );
@@ -206,11 +208,10 @@ void loop()
 			Serial.print(' ');
 			Serial.print( id );
 #endif
-			g_clk.get( &g_dt );
-			dtupdated = true;
+			updatedt(dtupdated);
 			g_db.getParams( id, rec );
 			bool enabled(rec.enabled());
-			g_display.updatedt(g_dt, 0xff);
+			g_display.updatedt(g_time, 0xff);
 			g_display.updatelastdecision( enabled ? '+' : 'X', id );
 
 			g_outputs.write( inner ? PIN_IN_YELLOW : PIN_OUT_YELLOW, RELAY_OFF );
@@ -219,7 +220,7 @@ void loop()
 			unsigned long timeout;
 			if( enabled )
 			{
-				g_logger.log( logwriter::INFO, g_dt, F("Ack"), id, btn );
+				g_logger.log( logwriter::INFO, g_time, F("Ack"), id, btn );
 #ifdef VERBOSE
 				Serial.println(F(" -> opening gate."));
 #endif
@@ -229,7 +230,7 @@ void loop()
 				timeout = 60000;
 
 			} else {
-				g_logger.log( logwriter::INFO, g_dt, F("Deny"), id, btn );
+				g_logger.log( logwriter::INFO, g_time, F("Deny"), id, btn );
 #ifndef ENFORCE_REG
 				g_outputs.write( PIN_GATE, RELAY_ON );
 				delay(1000);
@@ -278,12 +279,9 @@ void loop()
 	}
 
 	if( g_codedisplayed != g_lrcode ) {
-		if(!dtupdated) {
-			g_clk.get(&g_dt);
-			dtupdated = true;
-		}
+		updatedt(dtupdated);
 		g_display.updatelastreceivedid( getid( g_lrcode ));
-		g_logger.log( logwriter::DEBUG, g_dt, F("NewCode"), g_lrcode >> 2);
+		g_logger.log( logwriter::DEBUG, g_time, F("NewCode"), getid(g_lrcode));
 		g_codedisplayed = g_lrcode;
 	}
 }
@@ -356,6 +354,18 @@ void processinput()
 		Serial.println( F(ERRS "CMD"));
 	}
 	g_inidx = 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void updatedt(bool &dtupdated)
+{
+	if(dtupdated) return;
+	bool dtsync = updatedt();
+	if(dtsync != g_timevalid) {
+		g_logger.log( dtsync ? logwriter::INFO : logwriter::ERROR, g_time, dtsync ? F("TV") : F("TIV"), -1 );
+		g_timevalid = dtsync;
+	}
+	if(dtsync) dtupdated = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

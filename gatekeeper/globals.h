@@ -16,6 +16,7 @@
 #include "i2cdb.h"
 #include "inductiveloop.h"
 #include <arduinooutputs.h>
+#include <PCF8574outputs.h>
 #include "trafficlights.h"
 
 struct ts;
@@ -49,7 +50,7 @@ extern i2cdb				g_db;
 #endif	//	USE_FLASHDB
 extern inductiveloop		g_indloop;
 #ifdef USE_IOEXTENDER_OUTPUTS
-extern PCF8574				g_outputs;
+extern PCF8574outputs		g_outputs;
 #else	//	USE_IOEXTENDER_OUTPUTS
 extern arduinooutputs		g_outputs;
 #endif	//	USE_IOEXTENDER_OUTPUTS
@@ -58,7 +59,7 @@ extern uint8_t				g_inidx;
 extern uint16_t				g_codedisplayed;
 extern bool					g_sdpresent;
 extern DS3231_DST			g_clk;
-extern ts					g_t;
+extern ts					g_time;
 extern bool					g_timevalid;
 extern unsigned long		g_lastdtupdate;
 

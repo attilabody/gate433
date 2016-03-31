@@ -35,7 +35,7 @@ bool arduinooutputs::init(const uint8_t pins[], uint8_t value)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void arduinooutputs::write(uint8_t pin, uint8_t value)
+uint8_t arduinooutputs::write(uint8_t pin, uint8_t value)
 {
 #if defined(__ARDUINOOUTPUTS_VERBOSE)
 	Serial.print(F("arduinooutputs::write: "));
@@ -46,16 +46,20 @@ void arduinooutputs::write(uint8_t pin, uint8_t value)
 	Serial.print(F("), "));
 	Serial.println(value);
 #endif
-	if(pin < 8)
+	if(pin < 8) {
 		digitalWrite(m_pins[pin], value);
+		return 0;
+	}
+	else return 0xff;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void arduinooutputs::write8(uint8_t value)
+uint8_t arduinooutputs::write8(uint8_t value)
 {
 	uint8_t	mask(1);
 	for(uint8_t pin = 0; pin < 8; ++pin) {
 		write(pin, (value & mask) ? HIGH : LOW);
 		mask <<= 1;
 	}
+	return 0;
 }

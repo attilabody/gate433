@@ -21,11 +21,12 @@ eepromdb		g_db;
 #endif
 
 #ifdef USE_IOEXTENDER_OUTPUTS
-PCF8574					g_outputs(PCF8574_ADDRESS);
+PCF8574outputs	g_outputs(PCF8574_ADDRESS);
 #else	//	USE_IOEXTENDER_OUTPUTS
 arduinooutputs			g_outputs;
 #endif	//	USE_IOEXTENDER_OUTPUTS
 
 DS3231_DST		g_clk;
 inductiveloop	g_loop;
+ts				g_time;
 

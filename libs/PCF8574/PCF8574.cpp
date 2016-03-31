@@ -22,8 +22,10 @@
 #include <I2C.h>
 
 PCF8574::PCF8574(uint8_t deviceAddress)
+: _address(deviceAddress)
+, _data(0xff)
+, _error(0)
 {
-    _address = deviceAddress;
     // Wire.begin();
     // TWBR = 12; // 400KHz
 }
@@ -33,19 +35,20 @@ PCF8574::PCF8574(uint8_t deviceAddress)
 // without @100KHz -> 132 micros()
 // without @400KHz -> 52 micros()
 // TODO @800KHz -> ??
+uint8_t PCF8574::read8( uint8_t &value)
+{
+	read8();
+	value = _data; // last value
+    return _error;
+}
+
 uint8_t PCF8574::read8()
 {
-	if(I2c.read( _address, 1))
-    {
-        _error = 10;
-        return _data; // last value
+	_error = I2c.read( _address, 1);
+	if(!_error) {
+	    _data = I2c.receive();
     }
-#if (ARDUINO <  100)
-    _data = Wire.receive();
-#else
-    _data = I2c.receive();
-#endif
-    return _data;
+    return _error;
 }
 
 uint8_t PCF8574::value()
@@ -53,7 +56,7 @@ uint8_t PCF8574::value()
     return _data;
 }
 
-void PCF8574::write8(uint8_t value)
+uint8_t PCF8574::write8(uint8_t value)
 {
 #ifdef __PCF8574_VERBOSE
 	Serial.print(F("PCF8574::write8: 0x"));
@@ -61,17 +64,19 @@ void PCF8574::write8(uint8_t value)
 #endif	//	PCF8574_VERBOSE
     _data = value;
     _error = I2c.write(_address, value);
+    return _error;
 }
 
 // pin should be 0..7
-uint8_t PCF8574::read(uint8_t pin)
+uint8_t PCF8574::read(uint8_t pin, uint8_t &value)
 {
     PCF8574::read8();
-    return (_data & (1<<pin)) > 0;
+    value = (_data & (1<<pin)) > 0;
+    return _error;
 }
 
 // pin should be 0..7
-void PCF8574::write(uint8_t pin, uint8_t value)
+uint8_t PCF8574::write(uint8_t pin, uint8_t value)
 {
 #ifdef __PCF8574_VERBOSE
 	Serial.print(F("PCF8574::write: "));
@@ -80,42 +85,32 @@ void PCF8574::write(uint8_t pin, uint8_t value)
 	Serial.println(value );
 #endif	//	PCF8574_VERBOSE
 
-    PCF8574::read8();
-    if (value == LOW)
-    {
-        _data &= ~(1<<pin);
-    }
-    else
-    {
-        _data |= (1<<pin);
-    }
-    PCF8574::write8(_data);
+    if (value == LOW) _data &= ~(1<<pin);
+    else _data |= (1<<pin);
+    return PCF8574::write8(_data);
 }
 
 // pin should be 0..7
-void PCF8574::toggle(uint8_t pin)
+uint8_t PCF8574::toggle(uint8_t pin)
 {
-    PCF8574::read8();
     _data ^=  (1 << pin);
-    PCF8574::write8(_data);
+    return PCF8574::write8(_data);
 }
 
 // n should be 0..7
-void PCF8574::shiftRight(uint8_t n)
+uint8_t PCF8574::shiftRight(uint8_t n)
 {
-    if (n == 0 || n > 7 ) return;
-    PCF8574::read8();
+    if (n == 0 || n > 7 ) return 0xff;
     _data >>= n;
-    PCF8574::write8(_data);
+    return PCF8574::write8(_data);
 }
 
 // n should be 0..7
-void PCF8574::shiftLeft(uint8_t n)
+uint8_t PCF8574::shiftLeft(uint8_t n)
 {
-    if (n == 0 || n > 7) return;
-    PCF8574::read8();
+    if (n == 0 || n > 7) return 0xff;
     _data <<= n;
-    PCF8574::write8(_data);
+    return PCF8574::write8(_data);
 }
 
 int PCF8574::lastError()

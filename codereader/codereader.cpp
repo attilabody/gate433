@@ -21,7 +21,7 @@ LiquidCrystal_I2C	g_lcd( LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT );
 
 //The setup function is called once at startup of the sketch
 
-ts		g_dt;
+ts		g_time;
 
 void setup()
 {
@@ -44,7 +44,7 @@ void setup()
 
 #ifdef USE_RTC
 	DS3231_DST::init( DS3231_INTCN );
-	DS3231_DST::get( &g_dt );
+	DS3231_DST::get( &g_time );
 #endif//USE_RTC
 
 #ifdef	USE_SDCARD
@@ -55,7 +55,7 @@ void setup()
 		Serial.println(F("SD fail"));
 #endif	//	USE_SDCARD
 
-	g_logger.log( logwriter::DEBUG, g_dt, F("Start"));
+	g_logger.log( logwriter::DEBUG, g_time, F("Start"));
 }
 
 // The loop function is called in an endless loop
@@ -80,9 +80,9 @@ void loop()
 		uint8_t	btn( getbutton( g_code ));
 
 #ifdef USE_RTC
-		DS3231_DST::get( & g_dt );
+		DS3231_DST::get( & g_time );
 #endif	//	USE_RTC
-		g_logger.log( logwriter::DEBUG, g_dt, F("Code"), id, btn );
+		g_logger.log( logwriter::DEBUG, g_time, F("Code"), id, btn );
 
 		if( code != g_code ) {
 			if( cnt ) {
@@ -106,7 +106,7 @@ void loop()
 			g_lcd.print('.');
 			g_lcd.print( getbutton( g_code ) );
 #endif	//	USE_LCD
-			g_logger.log( logwriter::INFO, g_dt, F("Remote"), id, btn);
+			g_logger.log( logwriter::INFO, g_time, F("Remote"), id, btn);
 			cnt = 0;
 		} else Serial.print('.');
 		g_codeready = false;

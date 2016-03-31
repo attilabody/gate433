@@ -32,7 +32,7 @@ void setup()
 	Serial.println();
 #endif
 
-	memset( &g_t, 0, sizeof( g_t ));
+	memset( &g_time, 0, sizeof( g_time ));
 
 	I2c.begin();
 	I2c.timeOut(1000);
@@ -71,8 +71,8 @@ void setup()
 
 	g_clk.init( DS3231_INTCN );
 	g_lastdtupdate = millis();
-	g_timevalid = g_clk.get( &g_t ) == 0;
-	updatedow( g_t );
+	g_timevalid = g_clk.get( &g_time ) == 0;
+	updatedow( g_time );
 
 	bool loginitsucc = g_sdpresent && g_logger.init();
 	g_display.print( ' ' );
@@ -100,9 +100,9 @@ void setup()
 		}
 	}
 
-	g_logger.log( logwriter::WARNING, g_t, F("Restart"), -1 );
+	g_logger.log( logwriter::WARNING, g_time, F("Restart"), -1 );
 	g_display.clear();
-	g_display.updatedt( g_t, 0xff );
+	g_display.updatedt( g_time, 0xff );
 	g_display.updateloopstatus( false, false );
 	g_display.updatelastreceivedid( 9999 );
 	g_display.updatelastdecision( 'X', 9999 );
@@ -122,38 +122,43 @@ void loop()
 	static gatehandler	handler( g_db, 500, g_indloop, g_display );
 	unsigned long		now( millis() );
 	byte				dtcmask(0);
+	bool				timevalid;
 
 	CHECKPOINT;
 
 	if( now - g_lastdtupdate > 980 )
 	{
 		ts	t;
-		g_timevalid = g_clk.get( &t ) == 0;
+		timevalid = g_clk.get( &t ) == 0;
+		if(timevalid != g_timevalid) {
+			g_logger.log( timevalid ? logwriter::INFO : logwriter::ERROR, g_time, timevalid ? F("TV") : F("TIV"), -1 );
+			g_timevalid = timevalid;
+		}
 
-		if( t.sec != g_t.sec )
+		if( t.sec != g_time.sec )
 			dtcmask |= 1;
-		if( t.min != g_t.min )
+		if( t.min != g_time.min )
 			dtcmask |= 2;
-		if( t.hour != g_t.hour )
+		if( t.hour != g_time.hour )
 			dtcmask |= 4;
-		if( t.mday != g_t.mday )
+		if( t.mday != g_time.mday )
 			dtcmask |= 8;
-		if( t.mon != g_t.mon )
+		if( t.mon != g_time.mon )
 			dtcmask |= 0x10;
-		if( t.year != g_t.year )
+		if( t.year != g_time.year )
 			dtcmask |= 0x20;
 
 		if( dtcmask & 0x38 ) {
-				g_t = t;
-				updatedow( g_t );
+				g_time = t;
+				updatedow( g_time );
 		} else if( dtcmask &7) {
-			g_t.sec = t.sec;
-			g_t.min = t.min;
-			g_t.hour = t.hour;
+			g_time.sec = t.sec;
+			g_time.min = t.min;
+			g_time.hour = t.hour;
 		}
 		if( dtcmask ) {
 			g_lastdtupdate = now;
-			g_display.updatedt( g_t, dtcmask );
+			g_display.updatedt( g_time, dtcmask );
 		}
 	}
 
@@ -165,7 +170,7 @@ void loop()
 	if( g_codedisplayed != g_lrcode ) {
 		uint16_t	id( getid( g_lrcode ));
 		g_display.updatelastreceivedid( getid( id ));
-		g_logger.log( logwriter::DEBUG, g_t, F("NewCode"), id );
+		g_logger.log( logwriter::DEBUG, g_time, F("NewCode"), id );
 		g_codedisplayed = g_lrcode;
 	}
 }
@@ -303,12 +308,12 @@ void processinput()
 		printrespok();
 
 	} else if( iscommand( inptr, CMD_GDT )) {	// get datetime
-		serialout( RESP, (uint16_t)g_t.year, F("."));
-		serialout( (uint16_t)g_t.mon,F("."));
-		serialout( (uint16_t)g_t.mday, F("/" ),(uint16_t)g_t.wday);
-		serialout( F("    "), (uint16_t)g_t.hour);
-		serialout(F(":" ), (uint16_t)(g_t.min));
-		serialoutln(F(":" ), (uint16_t)(g_t.sec));
+		serialout( RESP, (uint16_t)g_time.year, F("."));
+		serialout( (uint16_t)g_time.mon,F("."));
+		serialout( (uint16_t)g_time.mday, F("/" ),(uint16_t)g_time.wday);
+		serialout( F("    "), (uint16_t)g_time.hour);
+		serialout(F(":" ), (uint16_t)(g_time.min));
+		serialoutln(F(":" ), (uint16_t)(g_time.sec));
 
 	} else if( iscommand( inptr, CMD_SDT )) {	//	set datetime
 		ts	t;
@@ -403,9 +408,9 @@ void updatedow( ts &t )
 			if( (month = getintparam( bp, true, true, false )) != 0xff &&
 				(day = getintparam( bp, true, true, false )) != 0xff &&
 				(dow = getintparam( bp, true, true, false )) != 0xff &&
-				month == g_t.mon && day == g_t.mday )
+				month == g_time.mon && day == g_time.mday )
 			{
-				g_t.wday = dow;
+				g_time.wday = dow;
 				break;
 			}
 		}

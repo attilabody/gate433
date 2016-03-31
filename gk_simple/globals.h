@@ -10,11 +10,11 @@
 #include "config.h"
 #include "sdfatlogwriter.h"
 #include "arduinooutputs.h"
+#include "PCF8574outputs.h"
 #include "inductiveloop.h"
 #include <eepromdb.h>
 #include <thindb.h>
 #include <i2cdb.h>
-#include <PCF8574.h>
 #include <ds3231.h>
 #include "display.h"
 
@@ -32,7 +32,7 @@ extern eepromdb			g_db;
 #endif
 
 #ifdef USE_IOEXTENDER_OUTPUTS
-extern PCF8574			g_outputs;
+extern PCF8574outputs	g_outputs;
 #else	//	USE_IOEXTENDER_OUTPUTS
 extern arduinooutputs	g_outputs;
 #endif	//	USE_IOEXTENDER_OUTPUTS
@@ -40,6 +40,8 @@ extern arduinooutputs	g_outputs;
 extern DS3231_DST		g_clk;
 
 extern inductiveloop	g_loop;
+
+extern ts				g_time;
 
 
 #endif /* GLOBALS_H_ */
