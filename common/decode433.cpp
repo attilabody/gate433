@@ -20,6 +20,7 @@ volatile stats 		g_stats;
 enum RCVSTATUS : uint8_t {
 	  START
 	, DATA
+	, STOP
 };
 
 
@@ -102,25 +103,33 @@ void isr()
 			}
 			newbit( code, lowdeltat < highdeltat );
 			if( ++curbit == 12 ) {
-#ifdef FAILSTATS
-				++g_stats.probes[stats::SUCCESS];
-#endif
-				state = START;
-				if( !g_codeready ) {
-					g_code = code;
-					g_codeready = true;
-				}
-				if( !g_code2ready ) {
-					g_code2 = code;
-					g_code2ready = true;
-				}
-
-				g_lrcode = code;
-				//g_lrready = true;
-				g_codetime = lastedge;
+				state = STOP;
 			}
 		}
 		break;
+
+	case STOP:
+		if ((!curlevel) &&
+			(deltat > cyclet)) {
+#ifdef FAILSTATS
+			++g_stats.probes[stats::SUCCESS];
+#endif
+			if( !g_codeready ) {
+				g_code = code;
+				g_codeready = true;
+			}
+			if( !g_code2ready ) {
+				g_code2 = code;
+				g_code2ready = true;
+			}
+
+			g_lrcode = code;
+			//g_lrready = true;
+			g_codetime = lastedge;
+		}
+		state = START;
+		break;
+
 	}
 
 	g_lastedge = lastedge = curedge;
