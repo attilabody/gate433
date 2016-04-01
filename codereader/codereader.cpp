@@ -34,6 +34,7 @@ void setup()
 	g_codeready = false;
 	g_code = 0;
 #ifdef USE_LCD
+	I2c.begin();
 	g_lcd.init();
 	g_lcd.backlight();
 	g_lcd.print(F("OK"));

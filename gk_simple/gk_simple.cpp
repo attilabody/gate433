@@ -154,6 +154,7 @@ void loop()
 
 	if( ils != previls || conflict != prevconflict )
 	{
+		updatedt(dtupdated);
 		updateloopstatus(ils, conflict);
 #ifdef VERBOSE
 		Serial.print(CMNT);
