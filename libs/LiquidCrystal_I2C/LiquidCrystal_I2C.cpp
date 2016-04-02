@@ -13,7 +13,7 @@
 
 inline size_t LiquidCrystal_I2C::write(uint8_t value) {
 	send(value, Rs);
-	return 0;
+	return 1;
 }
 
 // When the display powers up, it is configured as follows:
