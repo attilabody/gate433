@@ -6,6 +6,11 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
+			<name>it.baeyens.arduino.core.inoToCpp</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
 			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
 			<triggers>clean,full,incremental,</triggers>
 			<arguments>
@@ -23,23 +28,18 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
+		<nature>it.baeyens.arduinonature</nature>
 	</natures>
 	<linkedResources>
 		<link>
-			<name>common</name>
+			<name>core/core</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/common</locationURI>
+			<location>/opt/eclipseArduino_3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/cores/arduino</location>
 		</link>
 		<link>
-			<name>fakelibs</name>
+			<name>core/variant</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/fakelibs</locationURI>
+			<location>/opt/eclipseArduino_3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/variants/eightanaloginputs</location>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>copy_PARENT</name>
-			<value>$%7BPARENT-1-PROJECT_LOC%7D/gate433</value>
-		</variable>
-	</variableList>
 </projectDescription>
