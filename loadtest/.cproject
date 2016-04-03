@@ -21,6 +21,8 @@
 								<option id="it.baeyens.arduino.compiler.cpp.sketch.option.incpath.1703300593" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.cpp.sketch.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/loadtest/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/loadtest/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/common}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libs/TimerOne}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.939828603" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -40,7 +42,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="common/decode433.cpp|common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp|libraries/**/?xamples/**|libraries/**/?xtras/**|libraries/**/test/**|libraries/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="libs/TimerOne/examples|libs/Time|libs/Touch-Screen-Library|libs/TFTLCDplus-Library|libs/Streaming|libs/SdFat|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|common/decode433.cpp|common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp|libraries/**/?xamples/**|libraries/**/?xtras/**|libraries/**/test/**|libraries/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -77,7 +79,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="common/decode433.cpp|common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libs/TimerOne/examples|libs/Time|libs/Touch-Screen-Library|libs/TFTLCDplus-Library|libs/Streaming|libs/SdFat|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|common/decode433.cpp|common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
