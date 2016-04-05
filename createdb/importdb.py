@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import os.path
+
 OWNERS='owners.txt'
 TENANTS='tenants.txt'
 
@@ -21,6 +23,11 @@ with open(TENANTS, 'r') as infile:
         if len(sline) > 0 and not sline.startswith('#'):
             # print( len( sline), ' ', sline)
             active[int(sline)] = 2
+
+if os.path.isfile('DB.TXT'):
+    if os.path.exists('DB.BAK'):
+        os.remove('DB.BAK')
+    os.rename('DB.TXT', 'DB.BAK')
 
 with open('INFO.TXT', 'w') as info, open('STATUS.TXT', 'w') as status, open('DB.TXT', 'w') as dbfile :
     statusline = '000\n'
