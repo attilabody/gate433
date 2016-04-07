@@ -48,17 +48,18 @@ bool sdfatlogwriter::sdfwbuffer::flush()
 //////////////////////////////////////////////////////////////////////////////
 bool sdfatlogwriter::sdfwbuffer::write( ts &dt )
 {
-	write( dt.year , 4 );
-	writebuffer::write( '.' );
-	write( dt.mon, 2 );
-	writebuffer::write( '.' );
-	write( dt.mday, 2 );
-	writebuffer::write( ' ' );
-	write( dt.hour, 2 );
-	writebuffer::write(':' );
-	write( dt.min, 2 );
-	writebuffer::write( ':' );
-	write( dt.sec, 2 );
+	return
+		   write( dt.year , 4 )
+		&& writebuffer::write( '.' )
+		&& write( dt.mon, 2 )
+		&& writebuffer::write( '.' )
+		&& write( dt.mday, 2 )
+		&& writebuffer::write( ' ' )
+		&& write( dt.hour, 2 )
+		&& writebuffer::write(':' )
+		&& write( dt.min, 2 )
+		&& writebuffer::write( ':' )
+		&& write( dt.sec, 2 );
 }
 
 //////////////////////////////////////////////////////////////////////////////

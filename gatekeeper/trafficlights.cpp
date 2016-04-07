@@ -150,7 +150,6 @@ trafficlights::trafficlights( const uint8_t innerpins[], const uint8_t outerpins
 //////////////////////////////////////////////////////////////////////////////
 bool trafficlights::init( const uint8_t innerpins[], const uint8_t outerpins[], unsigned long cyclelen )
 {
-	bool ret;
 	m_status = OFF;
 	m_cyclelen = cyclelen;
 	return m_inner.init( innerpins, RELAY_ON == HIGH ) &&

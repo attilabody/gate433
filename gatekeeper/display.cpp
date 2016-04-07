@@ -66,7 +66,7 @@ void display::updatelastreceivedid( uint16_t id )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool display::updatelastdecision( char decision, uint16_t id )
+void display::updatelastdecision( char decision, uint16_t id )
 {
 	char buf[5];
 

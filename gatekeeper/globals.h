@@ -10,10 +10,19 @@
 #include <Arduino.h>
 #include "config.h"
 #include "thindb.h"
+#ifdef USE_INTDB
 #include "intdb.h"
+#endif
+#ifdef USE_HYBRIDDB
 #include "hybriddb.h"
+#endif
+#ifdef USE_HYBINTDB
 #include "hybintdb.h"
+#endif
+#ifdef USE_I2CDB
 #include "i2cdb.h"
+#endif
+#include <SdFat.h>
 #include "inductiveloop.h"
 #include <arduinooutputs.h>
 #include <PCF8574outputs.h>

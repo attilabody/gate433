@@ -248,7 +248,7 @@ void processinput()
 		thindb		tdb( g_sd );
 		uint16_t	from( getintparam( inptr ));
 		uint16_t	to( getintparam( inptr ));
-		uint16_t	id;
+		uint16_t	id(0);
 		database::dbrecord	rec;
 		if( from == 0xffff ) from = 0;
 		if( to == 0xffff ) to = 1023;

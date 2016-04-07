@@ -120,10 +120,16 @@ void gatehandler::loop( unsigned long currmillis )
 				m_display.updatelastdecision( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0), id );
 				if( ar == GRANTED ) {
 					topass( inner, currmillis );
-#ifndef ENFORCING
+#if defined(ALLOW_POS) && defined(ALLOW_TIME)
 				} else if( ar ==  POSITION || ar == DAY || ar == TIME) {
 					topass_warn( inner, currmillis );
-#endif	//	ENFORCING
+#elif defined(ALLOW_POS)
+				} else if( ar ==  POSITION ) {
+					topass_warn( inner, currmillis );
+#elif defined(ALLOW_TIME)
+				} else if( ar == DAY || ar == TIME) {
+					topass_warn( inner, currmillis );
+#endif
 				} else {
 					m_lights.set( trafficlights::DENIED, inner );
 					m_inner = inner;

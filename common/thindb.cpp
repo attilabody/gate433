@@ -57,10 +57,10 @@ bool thindb::getParams( int code, dbrecord &recout )
 		return false;
 	}
 
-	if( (recout.in_start = getintparam( bufptr, false, true )) == - 1
-			|| (recout.in_end = getintparam( bufptr, false, true )) ==  -1
-			|| (recout.out_start = getintparam( bufptr, false, true )) ==  -1
-			|| (recout.out_end = getintparam( bufptr, false, true )) ==  -1
+	if( (recout.in_start = getintparam( bufptr, false, true )) == (uint16_t) -1
+			|| (recout.in_end = getintparam( bufptr, false, true )) == (uint16_t) -1
+			|| (recout.out_start = getintparam( bufptr, false, true )) == (uint16_t) -1
+			|| (recout.out_end = getintparam( bufptr, false, true )) == (uint16_t) -1
 			|| (tmp1 = getintparam( bufptr, false, true )) ==  -1
 			|| (tmp2 = getintparam( bufptr, false, true )) ==  -1 )
 	{

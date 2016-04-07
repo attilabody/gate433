@@ -61,7 +61,8 @@
 //to disable godmode, simply define GODMODE_MIN/_MAX above possible maximum (1023)
 #define	GODMODE_MIN 0x3f8
 #define	GODMODE_MAX 0x3ff
-//#define ENFORCING
+//#define ALLOW_TIME
+#define ALLOW_POS
 
 #define GATE_OPEN_PULSE_WIDTH	1000
 

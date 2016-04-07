@@ -51,10 +51,5 @@
 			<type>2</type>
 			<location>/opt/eclipseArduino_3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/variants/eightanaloginputs</location>
 		</link>
-		<link>
-			<name>libraries/EEPROM</name>
-			<type>2</type>
-			<location>/opt/eclipseArduino_3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/libraries/EEPROM</location>
-		</link>
 	</linkedResources>
 </projectDescription>

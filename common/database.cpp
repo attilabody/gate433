@@ -34,12 +34,12 @@ bool database::dbrecord::parse( const char* &dbstring )
 {
 	int16_t	sflags, dflags;
 
-	if( (in_start = getintparam( dbstring, false, true )) == - 1
-			|| (in_end = getintparam( dbstring, false, true )) ==  -1
-			|| (out_start = getintparam( dbstring, false, true )) ==  -1
-			|| (out_end = getintparam( dbstring, false, true )) ==  -1
-			|| (sflags = getintparam( dbstring, false, true )) ==  -1
-			|| (dflags = getintparam( dbstring, false, true )) ==  -1
+	if( (in_start = getintparam( dbstring, false, true )) == (uint16_t) -1
+			|| (in_end = getintparam( dbstring, false, true )) == (uint16_t) -1
+			|| (out_start = getintparam( dbstring, false, true )) == (uint16_t) -1
+			|| (out_end = getintparam( dbstring, false, true )) == (uint16_t) -1
+			|| (sflags = getintparam( dbstring, false, true )) == -1
+			|| (dflags = getintparam( dbstring, false, true )) == -1
 	) {
 		in_start = -1;
 		return false;
