@@ -35,6 +35,7 @@ PCF8574outputs			g_outputs(PCF8574_ADDRESS);
 arduinooutputs			g_outputs;
 #endif	//	USE_IOEXTENDER_OUTPUTS
 
+trafficlights			g_lights;
 char					g_iobuf[32];
 uint8_t					g_inidx(0);
 

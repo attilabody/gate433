@@ -15,9 +15,6 @@
 #include <serialout.h>
 #include <commsyms.h>
 
-#define PASS_TIMEOUT 60000
-#define RETREAT_TIMEOUT 30000
-
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -25,14 +22,15 @@ const char gatehandler::m_authcodes[AUTHRESCNT] = { 'G', 'U', 'D', 'T', 'P' };
 
 //////////////////////////////////////////////////////////////////////////////
 gatehandler::gatehandler( database &db
-			, unsigned long cyclelen
-			, inductiveloop &loop
-			, display &disp )
+		, trafficlights &lights
+		, inductiveloop &loop
+		, display &disp
+		, unsigned long cyclelen)
 : m_db( db )
-, m_lights()
-, m_gate( PIN_GATE, RELAY_ON == HIGH )
+, m_lights(lights)
 , m_indloop( loop )
 , m_display( disp )
+, m_gate( PIN_GATE, RELAY_ON == HIGH )
 , m_status( WAITSETTLE )
 , m_tlstatus( trafficlights::OFF )
 , m_ilstatus( inductiveloop::NONE )
@@ -56,6 +54,7 @@ void gatehandler::loop( unsigned long currmillis )
 	bool	ilchanged((ilstatus != m_ilstatus) || (conflict != m_conflict ));
 	bool	inner( ilstatus == inductiveloop::INNER );
 
+#ifdef ENABLE_GODMODE
 	if( g_code2ready ) {
 		uint16_t	id( getid( g_code2 ));
 		if( id >= GODMODE_MIN && id <= GODMODE_MAX ) {
@@ -63,6 +62,7 @@ void gatehandler::loop( unsigned long currmillis )
 		}
 		g_code2ready = false;
 	}
+#endif	//	ENABLE_GODMODE
 
 	if( ilchanged ) {
 #ifdef __GATEHANDLER_VERBOSE
@@ -120,13 +120,13 @@ void gatehandler::loop( unsigned long currmillis )
 				m_display.updatelastdecision( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0), id );
 				if( ar == GRANTED ) {
 					topass( inner, currmillis );
-#if defined(ALLOW_POS) && defined(ALLOW_TIME)
+#if defined(RELAXED_POS) && defined(RELAXED_TIME)
 				} else if( ar ==  POSITION || ar == DAY || ar == TIME) {
 					topass_warn( inner, currmillis );
-#elif defined(ALLOW_POS)
+#elif defined(RELAXED_POS)
 				} else if( ar ==  POSITION ) {
 					topass_warn( inner, currmillis );
-#elif defined(ALLOW_TIME)
+#elif defined(RELAXED_TIME)
 				} else if( ar == DAY || ar == TIME) {
 					topass_warn( inner, currmillis );
 #endif

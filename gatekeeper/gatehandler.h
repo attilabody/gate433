@@ -23,9 +23,10 @@
 class gatehandler {
 public:
 	gatehandler( database &db
-			, unsigned long cyclelen
+			, trafficlights &lights
 			, inductiveloop &loop
-			, display &disp );
+			, display &disp
+			, unsigned long cyclelen );
 	void loop( unsigned long currmillis );
 
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
@@ -47,10 +48,10 @@ protected:
 	}
 
 	database			&m_db;
-	trafficlights		m_lights;
-	outputpin			m_gate;
+	trafficlights		&m_lights;
 	inductiveloop		&m_indloop;
 	display				&m_display;
+	outputpin			m_gate;
 
 //		char					m_lcdbuf[LCD_WIDTH + 1];
 	STATUS					m_status;

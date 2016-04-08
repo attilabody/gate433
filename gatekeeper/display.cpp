@@ -27,7 +27,7 @@ void display::init()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void display::updatedt( const ts &dt, byte updatemask )
+void display::updatedt( const ts &dt, byte updatemask, bool timevalid )
 {
 	char	lcdbuffer[13], *lbp( lcdbuffer );
 
@@ -42,6 +42,11 @@ void display::updatedt( const ts &dt, byte updatemask )
 		lbp = lcdbuffer;
 		timetostring( lbp, dt.hour, dt.min, dt.sec, ':' ); *lbp++ = 0;
 		print( lcdbuffer);
+	}
+
+	if(updatemask & 0x40) {
+		setCursor(7,0);
+		print(timevalid ? ' ' : '!');
 	}
 
 }

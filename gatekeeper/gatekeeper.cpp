@@ -59,13 +59,10 @@ void setup()
 	g_display.print( dbinitsucc );
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
-//	setuprelaypins( g_otherrelaypins, sizeof(g_otherrelaypins));
 
 	noInterrupts();
-	// disable all interrupts
 	TIMSK0 |= ( 1 << OCIE0A );  // enable timer compare interrupt
 	interrupts();
-	// enable all interrupts
 
 	setup433();
 
@@ -78,7 +75,11 @@ void setup()
 	g_display.print( ' ' );
 	g_display.print( loginitsucc );
 
-	delay(1000);
+	g_outputs.write8(0xf8);
+	delay(500);
+	g_outputs.write8(0x37);
+	delay(500);
+	g_outputs.write8(0xff);
 
 	g_display.clear();
 	if(g_sdpresent)
@@ -102,7 +103,7 @@ void setup()
 
 	g_logger.log( logwriter::WARNING, g_time, F("Restart"), -1 );
 	g_display.clear();
-	g_display.updatedt( g_time, 0xff );
+	g_display.updatedt( g_time, 0xff, g_timevalid );
 	g_display.updateloopstatus( false, false );
 	g_display.updatelastreceivedid( 9999 );
 	g_display.updatelastdecision( 'X', 9999 );
@@ -119,10 +120,11 @@ void setup()
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-	static gatehandler	handler( g_db, 500, g_indloop, g_display );
+	static gatehandler	handler( g_db, g_lights, g_indloop, g_display, 500 );
 	unsigned long		now( millis() );
-	byte				dtcmask(0);
+	uint8_t				dtcmask(0);
 	bool				timevalid;
+	bool				tvchanged;
 
 	CHECKPOINT;
 
@@ -130,7 +132,8 @@ void loop()
 	{
 		ts	t;
 		timevalid = g_clk.get( &t ) == 0;
-		if(timevalid != g_timevalid) {
+		tvchanged = timevalid != g_timevalid;
+		if(tvchanged){
 			g_logger.log( timevalid ? logwriter::INFO : logwriter::ERROR, g_time, timevalid ? F("TV") : F("TIV"), -1 );
 			g_timevalid = timevalid;
 		}
@@ -147,6 +150,8 @@ void loop()
 			dtcmask |= 0x10;
 		if( t.year != g_time.year )
 			dtcmask |= 0x20;
+		if( tvchanged )
+			dtcmask |= 0x40;
 
 		if( dtcmask & 0x38 ) {
 				g_time = t;
@@ -158,7 +163,7 @@ void loop()
 		}
 		if( dtcmask ) {
 			g_lastdtupdate = now;
-			g_display.updatedt( g_time, dtcmask );
+			g_display.updatedt( g_time, dtcmask, g_timevalid );
 		}
 	}
 

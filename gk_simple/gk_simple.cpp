@@ -78,7 +78,7 @@ void setup()
 	g_display.print( ' ' );
 	g_display.print( dbinit );
 
-	//setting up traffic lights pins
+	//runlight
 	for( uint8_t pin = 0; pin < sizeof(tlpins) + 3; ++pin ) {
 		if(pin < sizeof(tlpins)) {
 			g_outputs.write( tlpins[pin], RELAY_ON);
@@ -212,7 +212,7 @@ void loop()
 			updatedt(dtupdated);
 			g_db.getParams( id, rec );
 			bool enabled(rec.enabled());
-			g_display.updatedt(g_time, 0xff);
+			g_display.updatedt(g_time, 0xff, true);	//TODO: time validity
 			g_display.updatelastdecision( enabled ? '+' : 'X', id );
 
 			g_outputs.write( inner ? PIN_IN_YELLOW : PIN_OUT_YELLOW, RELAY_OFF );

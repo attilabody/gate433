@@ -63,6 +63,7 @@ extern PCF8574outputs		g_outputs;
 #else	//	USE_IOEXTENDER_OUTPUTS
 extern arduinooutputs		g_outputs;
 #endif	//	USE_IOEXTENDER_OUTPUTS
+extern trafficlights		g_lights;
 extern char					g_iobuf[32];
 extern uint8_t				g_inidx;
 extern uint16_t				g_codedisplayed;

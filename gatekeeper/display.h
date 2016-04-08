@@ -19,7 +19,7 @@ public:
 	~display();
 	void init();
 
-	void updatedt( const ts &dt, byte updatemask );
+	void updatedt( const ts &dt, byte updatemask, bool timevalid );
 	void updateloopstatus( bool inner, bool outer );
 	void updatelastreceivedid( uint16_t id );
 	void updatelastdecision( char decision, uint16_t id );
