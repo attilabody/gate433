@@ -32,26 +32,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>PCF8574outputs.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/PCF8574outputs.cpp</locationURI>
-		</link>
-		<link>
-			<name>PCF8574outputs.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/PCF8574outputs.h</locationURI>
-		</link>
-		<link>
-			<name>arduinooutputs.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/arduinooutputs.cpp</locationURI>
-		</link>
-		<link>
-			<name>arduinooutputs.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/gatekeeper/arduinooutputs.h</locationURI>
-		</link>
-		<link>
 			<name>common</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/common</locationURI>
