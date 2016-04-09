@@ -38,12 +38,12 @@ protected:
 	void		tocodewait( bool inner );
 	inline void topass( bool inner, unsigned long currmillis ) {
 		m_lights.set( trafficlights::ACCEPTED, inner );
-		m_gate.set( true, 0, 0, true, currmillis );
+		m_gate.set( true, 5000, 0xff, true, currmillis );
 		m_inner = inner; m_status = PASS; m_phasestart = currmillis;
 	}
 	inline void topass_warn( bool inner, unsigned long currmillis ) {
 		m_lights.set( trafficlights::WARNED, inner );
-		m_gate.set( true, 0, 0, true, currmillis );
+		m_gate.set( true, 5000, 0xff, true, currmillis );
 		m_inner = inner; m_status = PASS; m_phasestart = currmillis;
 	}
 
