@@ -16,10 +16,29 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-outputpin::outputpin( uint8_t iopin, bool m_highon )
+outputpin::outputpin(outputs& outputs)
+: m_outputs(outputs)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+outputpin::outputpin(outputs &outputs, uint8_t iopin, bool m_highon )
+: m_outputs(outputs)
 {
 	init( iopin, m_highon );
 }
+
+//////////////////////////////////////////////////////////////////////////////
+outputpin::outputpin(const outputpin &base)
+: m_outputs(base.m_outputs)
+, m_iopin(base.m_iopin)
+, m_highon(base.m_highon)
+, m_on(base.m_on)
+, m_cyclelen(base.m_cyclelen)
+, m_cyclecount(base.m_cyclecount)
+, m_endoff(base.m_endoff)
+, m_lastmilli(base.m_lastmilli)
+{}
 
 //////////////////////////////////////////////////////////////////////////////
 bool outputpin::init( uint8_t iopin, bool highon )
@@ -35,7 +54,7 @@ bool outputpin::init( uint8_t iopin, bool highon )
 	bool ret(false);
 
 	if( m_iopin != 0xff ) {
-		g_outputs.write( m_iopin, offval() );
+		g_outputs.set( m_iopin, offval() );
 		ret = true;
 	}
 #ifdef __TRAFFICLIGHTS_VERBOSE
@@ -53,12 +72,12 @@ void outputpin::loop( unsigned long curmillis )
 	{
 		if( m_cyclecount ) {
 			m_on = !m_on;
-			g_outputs.write( m_iopin, onoffval( m_on ) );
+			m_outputs.set( m_iopin, onoffval( m_on ) );
 			if( m_cyclecount != 0xff ) --m_cyclecount;
 		} else {
 			if( m_on && m_endoff ) {
 				m_on = false;
-				g_outputs.write( m_iopin, offval() );
+				m_outputs.set( m_iopin, offval() );
 			}
 			m_cyclelen = 0;
 		}
@@ -80,13 +99,19 @@ void outputpin::set( bool on, uint16_t cyclelen, uint8_t cyclecount, bool endoff
 	m_cyclecount = cyclecount;
 	m_on = on;
 	m_endoff = endoff;
-	g_outputs.write( m_iopin, onoffval( on ));
+	m_outputs.set( m_iopin, onoffval( on ));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
+trafficlight::trafficlight()
+: m_lights{g_outputs, g_outputs, g_outputs}
+{
+}
+//////////////////////////////////////////////////////////////////////////////
 trafficlight::trafficlight( const uint8_t pins[], bool m_highon )
+: m_lights{g_outputs, g_outputs, g_outputs}
 {
 	init( pins, m_highon );
 }

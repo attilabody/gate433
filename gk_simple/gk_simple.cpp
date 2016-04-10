@@ -56,7 +56,7 @@ void setup()
 	g_code = 0;
 
 #ifdef USE_IOEXTENDER_OUTPUTS
-	g_outputs.write8(0xff);
+	g_outputs.set(0xff);
 #else
 	{
 		uint8_t	all_output_pins[8] = { ALL_RAW_OUTPUT_PINS };
@@ -81,10 +81,10 @@ void setup()
 	//runlight
 	for( uint8_t pin = 0; pin < sizeof(tlpins) + 3; ++pin ) {
 		if(pin < sizeof(tlpins)) {
-			g_outputs.write( tlpins[pin], RELAY_ON);
+			g_outputs.set( tlpins[pin], RELAY_ON);
 		}
 		if(pin > 2)
-			g_outputs.write(tlpins[pin-3], RELAY_OFF);
+			g_outputs.set(tlpins[pin-3], RELAY_OFF);
 		delay(150);
 	}
 
@@ -92,11 +92,11 @@ void setup()
 	{
 		delay(100);
 		for( int i = 0; i < 3;  ++i ) {
-			g_outputs.write( PIN_IN_RED, RELAY_ON );
-			g_outputs.write( PIN_OUT_RED, RELAY_ON );
+			g_outputs.set( PIN_IN_RED, RELAY_ON );
+			g_outputs.set( PIN_OUT_RED, RELAY_ON );
 			delay( 500 );
-			g_outputs.write( PIN_IN_RED, RELAY_OFF );
-			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
+			g_outputs.set( PIN_IN_RED, RELAY_OFF );
+			g_outputs.set( PIN_OUT_RED, RELAY_OFF );
 			delay( 500 );
 		}
 	}
@@ -162,21 +162,21 @@ void loop()
 #endif	//	VERBOSE
 		g_logger.log(logwriter::DEBUG, g_time, F("ILS"), (uint16_t)ils);
 		if( ils == inductiveloop::NONE ) {
-			g_outputs.write( PIN_IN_YELLOW, RELAY_OFF );
-			g_outputs.write( PIN_OUT_YELLOW, RELAY_OFF );
-			g_outputs.write( PIN_IN_RED, RELAY_OFF );
-			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
+			g_outputs.set( PIN_IN_YELLOW, RELAY_OFF );
+			g_outputs.set( PIN_OUT_YELLOW, RELAY_OFF );
+			g_outputs.set( PIN_IN_RED, RELAY_OFF );
+			g_outputs.set( PIN_OUT_RED, RELAY_OFF );
 		}
 		else if( ils == inductiveloop::INNER ) {
-			g_outputs.write( PIN_IN_YELLOW, RELAY_ON );
-			g_outputs.write( PIN_OUT_RED, RELAY_ON );
-			g_outputs.write( PIN_IN_RED, RELAY_OFF );
-			g_outputs.write( PIN_OUT_YELLOW, RELAY_OFF );
+			g_outputs.set( PIN_IN_YELLOW, RELAY_ON );
+			g_outputs.set( PIN_OUT_RED, RELAY_ON );
+			g_outputs.set( PIN_IN_RED, RELAY_OFF );
+			g_outputs.set( PIN_OUT_YELLOW, RELAY_OFF );
 		} else {
-			g_outputs.write( PIN_IN_RED, RELAY_ON );
-			g_outputs.write( PIN_OUT_YELLOW, RELAY_ON );
-			g_outputs.write( PIN_IN_YELLOW, RELAY_OFF );
-			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
+			g_outputs.set( PIN_IN_RED, RELAY_ON );
+			g_outputs.set( PIN_OUT_YELLOW, RELAY_ON );
+			g_outputs.set( PIN_IN_YELLOW, RELAY_OFF );
+			g_outputs.set( PIN_OUT_RED, RELAY_OFF );
 		}
 		previls = ils;
 		prevconflict = conflict;
@@ -215,8 +215,8 @@ void loop()
 			g_display.updatedt(g_time, 0xff, true);	//TODO: time validity
 			g_display.updatelastdecision( enabled ? '+' : 'X', id );
 
-			g_outputs.write( inner ? PIN_IN_YELLOW : PIN_OUT_YELLOW, RELAY_OFF );
-			g_outputs.write( enabled? (inner ? PIN_IN_GREEN : PIN_OUT_GREEN) : (inner ? PIN_IN_RED : PIN_OUT_RED), RELAY_ON );
+			g_outputs.set( inner ? PIN_IN_YELLOW : PIN_OUT_YELLOW, RELAY_OFF );
+			g_outputs.set( enabled? (inner ? PIN_IN_GREEN : PIN_OUT_GREEN) : (inner ? PIN_IN_RED : PIN_OUT_RED), RELAY_ON );
 
 			unsigned long timeout;
 			if( enabled )
@@ -225,17 +225,17 @@ void loop()
 #ifdef VERBOSE
 				Serial.println(F(" -> opening gate."));
 #endif
-				g_outputs.write( PIN_GATE, RELAY_ON );
+				g_outputs.set( PIN_GATE, RELAY_ON );
 				delay(1000);
-				g_outputs.write( PIN_GATE, RELAY_OFF );
+				g_outputs.set( PIN_GATE, RELAY_OFF );
 				timeout = 60000;
 
 			} else {
 				g_logger.log( logwriter::INFO, g_time, F("Deny"), id, btn );
 #ifndef ENFORCE_REG
-				g_outputs.write( PIN_GATE, RELAY_ON );
+				g_outputs.set( PIN_GATE, RELAY_ON );
 				delay(1000);
-				g_outputs.write( PIN_GATE, RELAY_OFF );
+				g_outputs.set( PIN_GATE, RELAY_OFF );
 #endif	//	__HARD__
 #ifdef VERBOSE
 				Serial.println(F(" -> ignoring."));
@@ -252,17 +252,17 @@ void loop()
 			updateloopstatus(ilstmp, conflicttmp );
 
 			if(enabled) {
-				g_outputs.write(inner ? PIN_IN_GREEN : PIN_OUT_GREEN, RELAY_OFF);
+				g_outputs.set(inner ? PIN_IN_GREEN : PIN_OUT_GREEN, RELAY_OFF);
 				if(ilstmp != inductiveloop::NONE)
-					g_outputs.write(inner ? PIN_IN_RED : PIN_OUT_RED, RELAY_ON);
+					g_outputs.set(inner ? PIN_IN_RED : PIN_OUT_RED, RELAY_ON);
 			}
 
 			while(ilstmp != inductiveloop::NONE && millis()-waitstart < timeout )
 				conflicttmp = g_loop.update(ilstmp);
 			updateloopstatus(ilstmp, conflicttmp);
 
-			g_outputs.write( PIN_IN_RED, RELAY_OFF );
-			g_outputs.write( PIN_OUT_RED, RELAY_OFF );
+			g_outputs.set( PIN_IN_RED, RELAY_OFF );
+			g_outputs.set( PIN_OUT_RED, RELAY_OFF );
 
 			previls = inductiveloop::NONE;
 			prevconflict = false;

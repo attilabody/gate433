@@ -9,13 +9,15 @@
 #define PCF8574OUTPUTS_H_
 
 #include <PCF8574.h>
+#include <outputs.h>
 
-class PCF8574outputs: private PCF8574
+class PCF8574outputs: private PCF8574, public outputs
 {
 public:
 	PCF8574outputs(uint8_t i2caddress);
-	uint8_t write(uint8_t pin, uint8_t value);
-	uint8_t write8(uint8_t value);
+
+	virtual uint8_t set(uint8_t pin, uint8_t value) { return PCF8574::write(pin, value); }
+	virtual uint8_t set(uint8_t value) { return PCF8574::write8(value); }
 };
 
 #endif /* PCF8574OUTPUTS_H_ */

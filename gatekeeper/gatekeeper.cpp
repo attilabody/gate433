@@ -75,11 +75,11 @@ void setup()
 	g_display.print( ' ' );
 	g_display.print( loginitsucc );
 
-	g_outputs.write8(0xf8);
+	g_outputs.set(0xf8);
 	delay(500);
-	g_outputs.write8(0x37);
+	g_outputs.set(0x37);
 	delay(500);
-	g_outputs.write8(0xff);
+	g_outputs.set(0xff);
 
 	g_display.clear();
 	if(g_sdpresent)

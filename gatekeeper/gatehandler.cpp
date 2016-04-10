@@ -30,7 +30,7 @@ gatehandler::gatehandler( database &db
 , m_lights(lights)
 , m_indloop( loop )
 , m_display( disp )
-, m_gate( PIN_GATE, RELAY_ON == HIGH )
+, m_gate( g_outputs, PIN_GATE, RELAY_ON == HIGH )
 , m_status( WAITSETTLE )
 , m_tlstatus( trafficlights::OFF )
 , m_ilstatus( inductiveloop::NONE )

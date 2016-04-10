@@ -9,13 +9,15 @@
 #define TRAFFICLIGHTS_H_
 
 #include <Arduino.h>
+#include <outputs.h>
 
 //////////////////////////////////////////////////////////////////////////////
 class outputpin
 {
 public:
-				outputpin() {};
-				outputpin( uint8_t iopin, bool highon );
+				outputpin(outputs &outputs);
+				outputpin(outputs &outputs, uint8_t iopin, bool highon );
+				outputpin(const outputpin &base);
 	bool 		init( uint8_t iopin, bool highon );
 	void 		loop( unsigned long curmillis );
 	bool 		get() { return m_on; }
@@ -24,6 +26,7 @@ public:
 	void set( bool on, uint16_t	cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis = 0 );
 
 private:
+	outputs			&m_outputs;
 	uint8_t			m_iopin;
 	bool			m_highon;
 	bool			m_on;
@@ -43,7 +46,7 @@ class trafficlight
 public:
 	enum COLORS { GREEN=0, YELLOW=1, RED=2 };
 
-			trafficlight() {}
+			trafficlight();
 			trafficlight( const uint8_t pins[], bool highon );
 	bool 	init( const uint8_t pins[], bool highon );
 	void	loop( unsigned long currmillis );
