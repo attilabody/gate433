@@ -11,7 +11,6 @@ volatile uint16_t 	g_code(-1);
 volatile uint16_t 	g_code2(-1);
 volatile uint16_t 	g_lrcode(-1);
 volatile uint32_t 	g_codetime( 0 );
-volatile uint32_t 	g_lastedge;
 
 #ifdef FAILSTATS
 volatile stats 		g_stats;
@@ -132,7 +131,7 @@ void isr()
 
 	}
 
-	g_lastedge = lastedge = curedge;
+	lastedge = curedge;
 }
 
 

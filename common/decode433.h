@@ -24,7 +24,6 @@ extern volatile uint16_t 	g_code;
 extern volatile uint16_t 	g_code2;	//free running code
 extern volatile uint16_t	g_lrcode;
 extern volatile uint32_t 	g_codetime;
-extern volatile uint32_t 	g_lastedge;
 
 //////////////////////////////////////////////////////////////////////////////
 void 	isr();

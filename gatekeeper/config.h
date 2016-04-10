@@ -8,10 +8,11 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-//#define VERBOSE
+//#define VERBOSE 1
 //#define __ARDUINOOUTPUTS_VERBOSE 1
 //#define __TRAFFICLIGHTS_VERBOSE 1
 //#define __GATEHANDLER_VERBOSE 1
+//#define __IMPORTDB_VERBOSE 1
 //#define DBGSERIALIN
 
 #define BAUDRATE 115200

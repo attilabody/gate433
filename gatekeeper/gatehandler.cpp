@@ -68,6 +68,7 @@ void gatehandler::loop( unsigned long currmillis )
 #ifdef __GATEHANDLER_VERBOSE
 		serialoutln( F( CMNTS "il changed: "), ilstatus, ", ", conflict, " - ", freeMemory() );
 #endif	//	__GATEHANDLER_VERBOSE
+		g_logger.log(logwriter::DEBUG, g_time, F("ILS"), (uint16_t)ilstatus, (uint8_t)conflict);
 		bool il(false), ol(false);
 		if( conflict ) il = ol = true;
 		else if( ilstatus == inductiveloop::INNER ) il = true;

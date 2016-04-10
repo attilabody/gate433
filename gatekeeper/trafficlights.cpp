@@ -67,7 +67,7 @@ void outputpin::loop( unsigned long curmillis )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void outputpin::set( bool on, unsigned long cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis )
+void outputpin::set( bool on, uint16_t cyclelen, uint8_t cyclecount, bool endoff, unsigned long currmillis )
 {
 #ifdef __TRAFFICLIGHTS_VERBOSE
 	Serial.print( m_iopin ); Serial.print( ": ");
@@ -110,14 +110,14 @@ void trafficlight::loop( unsigned long currmillis )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void trafficlight::set( COLORS color, bool on, unsigned long cyclelen, unsigned long currmillis )
+void trafficlight::set( COLORS color, bool on, uint16_t cyclelen, unsigned long currmillis )
 {
 	if( !currmillis ) currmillis = millis();
 	m_lights[color].set( on, cyclelen, 0xff, true );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void trafficlight::set( bool r, unsigned long rc, bool y, unsigned long yc, bool g, unsigned long gc, unsigned long currmillis )
+void trafficlight::set( bool r, uint16_t rc, bool y, uint16_t yc, bool g, uint16_t gc, unsigned long currmillis )
 {
 	if( !currmillis ) currmillis = millis();
 	set( RED, r, rc );
@@ -142,13 +142,13 @@ const uint16_t	trafficlights::m_compstates[trafficlights::NUMSTATES] = {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-trafficlights::trafficlights( const uint8_t innerpins[], const uint8_t outerpins[], unsigned long cyclelen )
+trafficlights::trafficlights( const uint8_t innerpins[], const uint8_t outerpins[], uint16_t cyclelen )
 {
 	init( innerpins, outerpins, cyclelen );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool trafficlights::init( const uint8_t innerpins[], const uint8_t outerpins[], unsigned long cyclelen )
+bool trafficlights::init( const uint8_t innerpins[], const uint8_t outerpins[], uint16_t cyclelen )
 {
 	m_status = OFF;
 	m_cyclelen = cyclelen;

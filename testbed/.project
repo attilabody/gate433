@@ -44,17 +44,17 @@
 		<link>
 			<name>core/core</name>
 			<type>2</type>
-			<location>/opt/eclipseArduino_3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/cores/arduino</location>
+			<location>/opt/eclipse/eclipseArduino_V3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/cores/arduino</location>
 		</link>
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<location>/opt/eclipseArduino_3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/variants/eightanaloginputs</location>
+			<location>/opt/eclipse/eclipseArduino_V3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/variants/eightanaloginputs</location>
 		</link>
 		<link>
 			<name>libraries/EEPROM</name>
 			<type>2</type>
-			<location>/opt/eclipseArduino_3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/libraries/EEPROM</location>
+			<location>/opt/eclipse/eclipseArduino_V3.0/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/libraries/EEPROM</location>
 		</link>
 	</linkedResources>
 </projectDescription>

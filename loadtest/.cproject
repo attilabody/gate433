@@ -42,7 +42,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libs/TimerOne/examples|libs/Time|libs/Touch-Screen-Library|libs/TFTLCDplus-Library|libs/Streaming|libs/SdFat|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|common/decode433.cpp|common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp|libraries/**/?xamples/**|libraries/**/?xtras/**|libraries/**/test/**|libraries/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="common/PCF8574outputs.cpp|common/arduinooutputs.cpp|libs/TimerOne/examples|libs/Time|libs/Touch-Screen-Library|libs/TFTLCDplus-Library|libs/Streaming|libs/SdFat|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|common/decode433.cpp|common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp|libraries/**/?xamples/**|libraries/**/?xtras/**|libraries/**/test/**|libraries/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -79,7 +79,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libs/TimerOne/examples|libs/Time|libs/Touch-Screen-Library|libs/TFTLCDplus-Library|libs/Streaming|libs/SdFat|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|common/decode433.cpp|common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="common/PCF8574outputs.cpp|common/arduinooutputs.cpp|libs/TimerOne/examples|libs/Time|libs/Touch-Screen-Library|libs/TFTLCDplus-Library|libs/Streaming|libs/SdFat|libs/PCF8574|libs/MemoryFree|libs/LiquidCrystal_I2C|libs/I2C_EEPROM|libs/I2C|libs/ds3231|libs/Adafruit-GFX-Library|common/decode433.cpp|common/writebuffer.cpp|common/thindb.cpp|common/sdfatlogwriter.cpp|common/intdb.cpp|common/i2cdb.cpp|common/hybriddb.cpp|common/hybintdb.cpp|common/eepromdb.cpp|common/dthelpers.cpp|common/database.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

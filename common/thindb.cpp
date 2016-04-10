@@ -67,7 +67,7 @@ bool thindb::getParams( int code, dbrecord &recout )
 		recout.in_start = -1;
 		return false;
 	}
-	recout.days = tmp1 & 0x7f;
+	recout.days = tmp1;
 	recout.position = (dbrecord::POSITION)(tmp2 & 3);
 	return true;
 }

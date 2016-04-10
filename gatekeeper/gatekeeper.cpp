@@ -438,19 +438,19 @@ uint16_t importdb(uint16_t start, uint16_t end)
 				break;
 			}
 			if(!rec.infoequal(old)){
-#ifdef VERBOSE
-				serialoutln(F(CMNTS "Importing "), id);
+#ifdef __IMPORTDB_VERBOSE
+				serialout(F(CMNTS "Importing "), id, F(": "));
+				old.serialize(g_iobuf);
+				Serial.print(g_iobuf);
+				Serial.print(F(" -> "));
+				rec.serialize(g_iobuf);
+				Serial.println(g_iobuf);
 #endif
 				if(!g_db.setParams( id, rec ))
 					break;
 				else
 					++imported;
 			}
-#ifdef VERBOSE
-			else {
-				serialoutln(F(CMNTS "Skipping "), id);
-			}
-#endif
 		}
 		if(id != end+1 ) return -1;
 	}
