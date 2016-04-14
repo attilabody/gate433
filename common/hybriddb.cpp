@@ -41,6 +41,7 @@ bool hybriddb::getParams( int code, dbrecord &recout )
 	static char linebuffer[INFORECORD_WIDTH + 1];
 	const char	*bufptr( linebuffer );
 	int16_t		tmp;
+	uint8_t 	tmppos;
 	SdFile		f;
 
 
@@ -71,7 +72,9 @@ bool hybriddb::getParams( int code, dbrecord &recout )
 	}
 
 	recout.days = tmp & 0x7f;
-	recout.position = (dbrecord::POSITION)( read_byte( HYBRIDDB_EEPROM_OFFSET + code ) & 3);
+
+	read_byte( HYBRIDDB_EEPROM_OFFSET + code, tmppos );
+	recout.position = (dbrecord::POSITION)(tmppos & 3);
 	return true;
 }
 

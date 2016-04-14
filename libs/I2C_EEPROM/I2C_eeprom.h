@@ -18,16 +18,16 @@ public:
 	typedef uint16_t	eepromaddress_t;
 	i2c_eeprom( uint8_t i2caddress, uint8_t addresbits, uint8_t pagesize );
 
-	void write_byte( eepromaddress_t eeaddress, uint8_t data );
-	uint8_t read_byte( eepromaddress_t eeaddress );
-	void write_page( eepromaddress_t eeaddress, uint8_t* data, eepromaddress_t length );
-	void read_page( eepromaddress_t eeaddress, uint8_t* data, eepromaddress_t length);
-	void fill_page( eepromaddress_t eeaddresspage, uint8_t data, eepromaddress_t length );
+	uint8_t write_byte( eepromaddress_t eeaddress, uint8_t data );
+	uint8_t read_byte( eepromaddress_t eeaddress, uint8_t &result );
+	uint8_t write_page( eepromaddress_t eeaddress, uint8_t* data, eepromaddress_t length );
+	uint8_t read_page( eepromaddress_t eeaddress, uint8_t* data, eepromaddress_t length);
+	uint8_t fill_page( eepromaddress_t eeaddresspage, uint8_t data, eepromaddress_t length );
 
 protected:
-	void _write_page( eepromaddress_t eeaddresspage, uint8_t* data, uint8_t length );
-	void _fill_page( eepromaddress_t eeaddresspage, uint8_t data, uint8_t length );
-	void _read_page( eepromaddress_t eeaddress, uint8_t *buffer, uint8_t length );
+	uint8_t _write_page( eepromaddress_t eeaddresspage, uint8_t* data, uint8_t length );
+	uint8_t _fill_page( eepromaddress_t eeaddresspage, uint8_t data, uint8_t length );
+	uint8_t _read_page( eepromaddress_t eeaddress, uint8_t *buffer, uint8_t length );
 private:
 	uint8_t m_i2caddress;
 	uint8_t m_addressbits;
