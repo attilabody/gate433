@@ -1,14 +1,17 @@
 // Do not remove the include below
-#include <Arduino.h>"
+#include <Arduino.h>
 #include "LiquidCrystal.h"
+#include "decode433.h"
 
 LiquidCrystal lcd(4,5,6,7,8,9);
 
-void setup() {
+void setup()
+{
   Serial.begin(19200);
   lcd.begin(16, 2);
   lcd.print("hello, world!");
   pinMode(13, OUTPUT);
+  setup433();
 }
 
 void loop() {
