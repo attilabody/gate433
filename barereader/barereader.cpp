@@ -3,28 +3,26 @@
 #include "LiquidCrystal.h"
 #include "decode433.h"
 
-LiquidCrystal lcd(4,5,6,7,8,9);
+//////////////////////////////////////////////////////////////////////////////
+uint8_t			g_ledpin(13);
+LiquidCrystal	g_lcd(4,5,6,7,8,9);
 
+//////////////////////////////////////////////////////////////////////////////
 void setup()
 {
   Serial.begin(19200);
-  lcd.begin(16, 2);
-//  lcd.print("hello, world!");
-  pinMode(13, OUTPUT);
+  g_lcd.begin(16, 2);
+  pinMode(g_ledpin, OUTPUT);
   setup433();
+  noInterrupts();           // disable all interrupts
+  TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
+  interrupts();             // enable all interrupts
+
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-//  static uint16_t lastsec(0);
-//  lcd.setCursor(0, 1);
-//  uint16_t cursec(millis()/1000);
-//  if(lastsec != cursec) {
-//    lcd.print(cursec);
-//    digitalWrite(13, (cursec & 1) ? HIGH : LOW);
-//    Serial.println(cursec);
-//    lastsec = cursec;
-//  }
 	static uint16_t	code(0);
 	static uint8_t	cnt(0);
 
@@ -47,16 +45,36 @@ void loop()
 			Serial.print(F(", "));
 			Serial.println((uint16_t) btn );
 
-			lcd.setCursor(0,0);
-			if(id < 10 ) lcd.print(' ');
-			if(id < 100 ) lcd.print(' ');
-			if(id < 1000 ) lcd.print(' ');
-			lcd.print( id );
-			lcd.print('.');
-			lcd.print( getbutton( g_code ) );
+			g_lcd.setCursor(0,0);
+			if(id < 10 ) g_lcd.print(' ');
+			if(id < 100 ) g_lcd.print(' ');
+			if(id < 1000 ) g_lcd.print(' ');
+			g_lcd.print( id );
+			g_lcd.print('.');
+			g_lcd.print( getbutton( g_code ) );
 			cnt = 0;
 		} else Serial.print('.');
 		g_codeready = false;
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////
+ISR( TIMER0_COMPA_vect )
+{
+  unsigned long now(micros());
+  static bool	ledstatus(false);
+
+  if( now - g_codetime < 500000 ) {
+	  if(!ledstatus) {
+		  digitalWrite(g_ledpin, HIGH);
+		  ledstatus = true;
+	  }
+  } else {
+	  if(ledstatus) {
+		  digitalWrite(g_ledpin, LOW);
+		  ledstatus = false;
+	  }
+  }
+}
+
 

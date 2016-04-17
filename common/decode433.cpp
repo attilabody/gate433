@@ -11,6 +11,7 @@ volatile uint16_t 	g_code(-1);
 volatile uint16_t 	g_code2(-1);
 volatile uint16_t 	g_lrcode(-1);
 volatile uint32_t 	g_codetime( 0 );
+volatile uint8_t	g_skiped(0);
 
 #ifdef FAILSTATS
 volatile stats 		g_stats;
@@ -116,6 +117,9 @@ void isr()
 			if( !g_codeready ) {
 				g_code = code;
 				g_codeready = true;
+				g_skiped = 0;
+			} else if(g_skiped < 255 ) {
+				++g_skiped;
 			}
 			if( !g_code2ready ) {
 				g_code2 = code;
