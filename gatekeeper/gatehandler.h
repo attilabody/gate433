@@ -32,18 +32,18 @@ public:
 	enum STATUS : uint8_t { WAITSETTLE, CODEWAIT, PASS, RETREAT };
 
 protected:
-	enum AUTHRES : uint8_t { GRANTED = 0, UNREGISTERED, DAY, TIME, POSITION, AUTHRESCNT };
+	enum AUTHRES : uint8_t { GRANTED = 0, WARN, UNREGISTERED, DAY, TIME, POSITION, AUTHRESCNT };
 
 	AUTHRES 	authorize( uint16_t id, bool inner );
 	void		tocodewait( bool inner );
 	inline void topass( bool inner, unsigned long currmillis ) {
 		m_lights.set( trafficlights::ACCEPTED, inner );
-		m_gate.set( true, 5000, 0xff, true, currmillis );
+		m_gate.set( true, OPEN_PULSE_WIDTH, 0xff, true, currmillis );
 		m_inner = inner; m_status = PASS; m_phasestart = currmillis;
 	}
 	inline void topass_warn( bool inner, unsigned long currmillis ) {
 		m_lights.set( trafficlights::WARNED, inner );
-		m_gate.set( true, 5000, 0xff, true, currmillis );
+		m_gate.set( true, OPEN_PULSE_WIDTH, 0xff, true, currmillis );
 		m_inner = inner; m_status = PASS; m_phasestart = currmillis;
 	}
 

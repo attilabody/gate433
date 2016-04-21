@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-const char gatehandler::m_authcodes[AUTHRESCNT] = { 'G', 'U', 'D', 'T', 'P' };
+const char gatehandler::m_authcodes[AUTHRESCNT] = { 'G', 'W', 'U', 'D', 'T', 'P' };
 
 //////////////////////////////////////////////////////////////////////////////
 gatehandler::gatehandler( database &db
@@ -121,16 +121,8 @@ void gatehandler::loop( unsigned long currmillis )
 				m_display.updatelastdecision( pgm_read_byte( m_authcodes+ ar ) + (inner ? 'a'-'A' : 0), id );
 				if( ar == GRANTED ) {
 					topass( inner, currmillis );
-#if defined(RELAXED_POS) && defined(RELAXED_TIME)
-				} else if( ar ==  POSITION || ar == DAY || ar == TIME) {
+				} else if( ar ==  WARN ) {
 					topass_warn( inner, currmillis );
-#elif defined(RELAXED_POS)
-				} else if( ar ==  POSITION ) {
-					topass_warn( inner, currmillis );
-#elif defined(RELAXED_TIME)
-				} else if( ar == DAY || ar == TIME) {
-					topass_warn( inner, currmillis );
-#endif
 				} else {
 					m_lights.set( trafficlights::DENIED, inner );
 					m_inner = inner;
@@ -192,8 +184,6 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t id, bool inner )
 	uint8_t		dow( 1<<(g_time.wday - 1));
 	if( !m_db.getParams(id, rec ) )
 		return ret;
-	if( rec.days & 0x80 )
-		return ret;
 
 	if( !rec.in_start && !rec.in_end )
 		ret = UNREGISTERED;
@@ -212,6 +202,16 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t id, bool inner )
 		}
 	}
 	g_logger.log( logwriter::INFO, g_time, F("Auth"), id, rec.position, inner, ret );
+#if defined(RELAXED_POS) && defined(RELAXED_TIME)
+	if(ret == DAY || ret == TIME || ret == POSITION )
+#elif defined(RELAXED_POS)
+	if(((rec.days & 0x80) && ret > UNREGISTERED) || ret == POSITION)
+#elif defined(RELAXED_TIME)
+	if(((rec.days & 0x80) && ret > UNREGISTERED) || ret == DAY || ret == TIME)
+#else
+	if((rec.days & 0x80) && ret > UNREGISTERED)
+#endif
+		ret = WARN;
 	return ret;
 }
 
@@ -222,4 +222,3 @@ void gatehandler::tocodewait( bool inner )
 	g_codeready = false;
 	m_status = CODEWAIT;
 }
-

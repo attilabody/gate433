@@ -60,9 +60,9 @@ void setup()
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 
-	noInterrupts();
-	TIMSK0 |= ( 1 << OCIE0A );  // enable timer compare interrupt
-	interrupts();
+//	noInterrupts();
+//	TIMSK0 |= ( 1 << OCIE0A );  // enable timer compare interrupt
+//	interrupts();
 
 	setup433();
 
@@ -180,15 +180,15 @@ void loop()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////
-ISR( TIMER0_COMPA_vect )
-{
-	if( ++g_lastcheckpoint > 5000 ) {
-		pinMode( PIN_RESET, OUTPUT );
-		digitalWrite( PIN_RESET, LOW );
-	}
-}
-
+////////////////////////////////////////////////////////////////////////////////
+//ISR( TIMER0_COMPA_vect )
+//{
+//	if( ++g_lastcheckpoint > 5000 ) {
+//		pinMode( PIN_RESET, OUTPUT );
+//		digitalWrite( PIN_RESET, LOW );
+//	}
+//}
+//
 //////////////////////////////////////////////////////////////////////////////
 void setuprelaypins( const uint8_t *pins, uint8_t size )
 {
