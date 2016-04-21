@@ -165,7 +165,17 @@ void processinput()
 		if(g_input == 0xffff)
 			g_input = 0;
 		g_sweep = true;
-
+	} else if(iscommand(inptr, F("tone"))) {
+		uint16_t	freq = getintparam((inptr));
+		int 		pin = getintparam(inptr);
+		if(freq == (uint16_t)-1) freq = 1000;
+		if(pin == (uint16_t)-1) pin = 8;
+		pinMode(pin, OUTPUT);
+		tone(pin, freq);
+	} else if(iscommand(inptr, F("notone"))) {
+		int 		pin = getintparam(inptr);
+		if(pin == (uint16_t)-1) pin = 8;
+		noTone(pin);
 	} else {
 		Serial.println( F(ERRS "CMD"));
 	}
