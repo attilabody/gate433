@@ -76,7 +76,7 @@ void relaysoff()
 {
 	g_pinindex = 0xff;
 	printpins( 0 );
-	g_outputs.write8( 0xff );
+	g_outputs.set( 0xff );
 //	for( uint8_t pin = 0; pin < sizeof(g_pins); ++ pin )
 //		g_i2cio.write( pin, RELAY_OFF );
 }
@@ -129,7 +129,7 @@ void processInput()
 		{
 			if( offset && !( offset & 0xf ))	Serial.println();
 			else if( offset ) Serial.print(' ');
-			b = g_db.read_byte( address + offset );
+			g_db.read_byte( address + offset, b );
 			Serial.print( halfbytetohex( b >> 4));
 			Serial.print( halfbytetohex( b & 0xf));
 			delay(10);
@@ -166,7 +166,8 @@ void processInput()
 //
 	} else if( iscommand( inptr, F("ge"))) {	//	get eeprom
 		uint16_t	address = getintparam( inptr );
-		uint8_t		value = g_db.read_byte( address );
+		uint8_t		value;
+		g_db.read_byte( address, value );
 		Serial.print( halfbytetohex( value >> 4 ));
 		Serial.println( halfbytetohex( value & 0xf ));
 
@@ -426,9 +427,9 @@ void printcode( uint16_t code )
 //////////////////////////////////////////////////////////////////////////////
 void setrelays( uint8_t prev, uint8_t curr )
 {
-	g_outputs.write(g_pinmap[prev], RELAY_OFF);
+	g_outputs.set(g_pinmap[prev], RELAY_OFF);
 	g_ioext.write(g_pinmap[prev], RELAY_OFF);
-	g_outputs.write(g_pinmap[curr], RELAY_ON);
+	g_outputs.set(g_pinmap[curr], RELAY_ON);
 	g_ioext.write(g_pinmap[curr], RELAY_ON);
 }
 
