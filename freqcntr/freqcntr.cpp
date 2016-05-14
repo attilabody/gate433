@@ -12,14 +12,18 @@ unsigned long g_overflowCount;
 unsigned int g_timerTicks;
 unsigned int g_timerPeriod;
 
+#ifdef USE_I2CLCD
 LiquidCrystal_I2C	g_lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+#endif	//	USE_I2CLCD
 
 void setup()
 {
 	Serial.begin(BAUDRATE);
+#ifdef	USE_I2CLCD
 	I2c.begin();
 	g_lcd.init();
 	g_lcd.backlight();
+#endif	//	USE_I2CLCD
 }
 
 
@@ -61,6 +65,7 @@ void startCounting(unsigned int ms)
 	TCCR1B = bit (CS10) | bit(CS11) | bit(CS12);
 }  // end of startCounting
 
+////******************************************************************
 ISR (TIMER1_OVF_vect)
 {
 	++g_overflowCount;               // count number of Counter1 overflows
@@ -101,6 +106,7 @@ ISR (TIMER2_COMPA_vect)
 	g_counterReady = true;              // set global flag for end count period
 }  // end of TIMER2_COMPA_vect
 
+//******************************************************************
 void loop()
 {
 	// stop Timer 0 interrupts from throwing the count out
@@ -118,10 +124,11 @@ void loop()
 	float frq = (g_timerCounts * 1000.0) / g_timerPeriod;
 
 	long lf((unsigned long)frq);
-
+#ifdef USE_I2CLCD
 	g_lcd.setCursor(0,0);
 	g_lcd.print(lf);
 	g_lcd.print(F(" Hz        "));
+#endif	//	USE_I2CLCD
 
 	Serial.print("Frequency: ");
 	Serial.print(lf);
