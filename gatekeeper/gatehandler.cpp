@@ -49,6 +49,7 @@ void gatehandler::loop( unsigned long currmillis )
 	inductiveloop::STATUS	ilstatus;
 	static	uint16_t	code(-1);
 	static	uint8_t		codecount(0);
+	unsigned long		ellapsed;
 
 	bool	conflict( m_indloop.update( ilstatus ));
 	bool	ilchanged((ilstatus != m_ilstatus) || (conflict != m_conflict ));
@@ -134,9 +135,10 @@ void gatehandler::loop( unsigned long currmillis )
 		break;
 
 	case PASS:
-		if( !ilchanged && currmillis - m_phasestart <= PASS_TIMEOUT )
+		ellapsed = currmillis - m_phasestart;
+		if( !ilchanged && ellapsed <= PASS_TIMEOUT && (ellapsed <= PASS_WARN_TIMEOUT || m_warned))
 			break;
-		if( ilstatus == inductiveloop::NONE || currmillis - m_phasestart > PASS_TIMEOUT ) {
+		if( ilstatus == inductiveloop::NONE || ellapsed > PASS_TIMEOUT ) {
 			m_db.setStatus( getid( g_code ), m_inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE );
 			g_logger.log( logwriter::DEBUG, g_time, F("DBUP"), -1 );
 #ifdef __GATEHANDLER_VERBOSE
@@ -146,9 +148,12 @@ void gatehandler::loop( unsigned long currmillis )
 			m_gate.set( false, 0, 0, true, currmillis );
 			ilstatus = inductiveloop::NONE;
 			m_status = WAITSETTLE;
-		}
-		else if( conflict ) {
+		} else if( conflict ) {
 			m_lights.set( trafficlights::PASS, inner );
+			m_warned = true;
+		} else if(ellapsed > PASS_WARN_TIMEOUT && !m_warned) {
+			m_lights.set(trafficlights::WARNED, inner);
+			m_warned = true;
 		}
 		break;
 
