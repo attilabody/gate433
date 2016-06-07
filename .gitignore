@@ -11,3 +11,7 @@ Debug_AVaRICE/
 *.pdf
 *.job
 *.pro
+!kicad/*.pro
+kicad/*_log.txt
+kicad/*.*bak
+kicad/*.net
