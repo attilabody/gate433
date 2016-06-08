@@ -10751,16 +10751,16 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 <instance part="OK8" gate="A" x="91.44" y="35.56"/>
 <instance part="P+1" gate="1" x="157.48" y="180.34"/>
 <instance part="PE1" gate="M" x="187.96" y="10.16"/>
-<instance part="X1" gate="-1" x="210.82" y="114.3" rot="MR0"/>
-<instance part="X1" gate="-2" x="210.82" y="109.22" rot="MR0"/>
-<instance part="X1" gate="-3" x="210.82" y="104.14" rot="MR0"/>
-<instance part="X1" gate="-4" x="210.82" y="99.06" rot="MR0"/>
-<instance part="X1" gate="-5" x="210.82" y="93.98" rot="MR0"/>
-<instance part="X1" gate="-6" x="210.82" y="88.9" rot="MR0"/>
-<instance part="X1" gate="-7" x="210.82" y="83.82" rot="MR0"/>
-<instance part="X1" gate="-8" x="210.82" y="78.74" rot="MR0"/>
-<instance part="X1" gate="-9" x="210.82" y="73.66" rot="MR0"/>
-<instance part="X1" gate="-10" x="210.82" y="68.58" rot="MR0"/>
+<instance part="X1" gate="-1" x="213.36" y="68.58" rot="R180"/>
+<instance part="X1" gate="-2" x="213.36" y="73.66" rot="R180"/>
+<instance part="X1" gate="-3" x="213.36" y="78.74" rot="R180"/>
+<instance part="X1" gate="-4" x="213.36" y="83.82" rot="R180"/>
+<instance part="X1" gate="-5" x="213.36" y="88.9" rot="R180"/>
+<instance part="X1" gate="-6" x="213.36" y="93.98" rot="R180"/>
+<instance part="X1" gate="-7" x="213.36" y="99.06" rot="R180"/>
+<instance part="X1" gate="-8" x="213.36" y="104.14" rot="R180"/>
+<instance part="X1" gate="-9" x="213.36" y="109.22" rot="R180"/>
+<instance part="X1" gate="-10" x="213.36" y="114.3" rot="R180"/>
 <instance part="RN1" gate="1" x="33.02" y="149.86" rot="R270"/>
 <instance part="Q1" gate="G$1" x="180.34" y="167.64" smashed="yes">
 <attribute name="NAME" x="175.26" y="170.18" size="1.778" layer="95"/>
@@ -10828,10 +10828,10 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 <net name="N$20" class="0">
 <segment>
 <pinref part="Q1" gate="G$1" pin="D"/>
-<pinref part="X1" gate="-2" pin="KL"/>
-<wire x1="205.74" y1="109.22" x2="203.2" y2="109.22" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="109.22" x2="203.2" y2="172.72" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="172.72" x2="182.88" y2="172.72" width="0.1524" layer="91"/>
+<pinref part="X1" gate="-9" pin="KL"/>
+<wire x1="203.2" y1="109.22" x2="208.28" y2="109.22" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$13" class="0">
@@ -11292,74 +11292,74 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 <pinref part="R1" gate="G$1" pin="2"/>
 <wire x1="134.62" y1="144.78" x2="157.48" y2="144.78" width="0.1524" layer="91"/>
 <junction x="157.48" y="144.78"/>
-<pinref part="X1" gate="-10" pin="KL"/>
-<wire x1="205.74" y1="68.58" x2="190.5" y2="68.58" width="0.1524" layer="91"/>
 <wire x1="190.5" y1="68.58" x2="190.5" y2="175.26" width="0.1524" layer="91"/>
 <wire x1="190.5" y1="175.26" x2="157.48" y2="175.26" width="0.1524" layer="91"/>
 <junction x="157.48" y="175.26"/>
+<pinref part="X1" gate="-1" pin="KL"/>
+<wire x1="190.5" y1="68.58" x2="208.28" y2="68.58" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$67" class="0">
 <segment>
 <pinref part="Q2" gate="G$1" pin="D"/>
-<pinref part="X1" gate="-3" pin="KL"/>
-<wire x1="205.74" y1="104.14" x2="200.66" y2="104.14" width="0.1524" layer="91"/>
 <wire x1="200.66" y1="104.14" x2="200.66" y2="152.4" width="0.1524" layer="91"/>
 <wire x1="200.66" y1="152.4" x2="182.88" y2="152.4" width="0.1524" layer="91"/>
+<pinref part="X1" gate="-8" pin="KL"/>
+<wire x1="200.66" y1="104.14" x2="208.28" y2="104.14" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$72" class="0">
 <segment>
 <pinref part="Q3" gate="G$1" pin="D"/>
-<pinref part="X1" gate="-4" pin="KL"/>
-<wire x1="205.74" y1="99.06" x2="198.12" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="198.12" y1="99.06" x2="198.12" y2="132.08" width="0.1524" layer="91"/>
 <wire x1="198.12" y1="132.08" x2="182.88" y2="132.08" width="0.1524" layer="91"/>
+<pinref part="X1" gate="-7" pin="KL"/>
+<wire x1="198.12" y1="99.06" x2="208.28" y2="99.06" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$77" class="0">
 <segment>
 <pinref part="Q4" gate="G$1" pin="D"/>
-<pinref part="X1" gate="-5" pin="KL"/>
-<wire x1="205.74" y1="93.98" x2="195.58" y2="93.98" width="0.1524" layer="91"/>
 <wire x1="195.58" y1="93.98" x2="195.58" y2="111.76" width="0.1524" layer="91"/>
 <wire x1="195.58" y1="111.76" x2="182.88" y2="111.76" width="0.1524" layer="91"/>
+<pinref part="X1" gate="-6" pin="KL"/>
+<wire x1="195.58" y1="93.98" x2="208.28" y2="93.98" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$81" class="0">
 <segment>
 <pinref part="Q5" gate="G$1" pin="D"/>
-<pinref part="X1" gate="-6" pin="KL"/>
-<wire x1="205.74" y1="88.9" x2="193.04" y2="88.9" width="0.1524" layer="91"/>
 <wire x1="193.04" y1="88.9" x2="193.04" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="193.04" y1="91.44" x2="182.88" y2="91.44" width="0.1524" layer="91"/>
+<pinref part="X1" gate="-5" pin="KL"/>
+<wire x1="193.04" y1="88.9" x2="208.28" y2="88.9" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$85" class="0">
 <segment>
 <pinref part="Q6" gate="G$1" pin="D"/>
-<pinref part="X1" gate="-7" pin="KL"/>
-<wire x1="205.74" y1="83.82" x2="198.12" y2="83.82" width="0.1524" layer="91"/>
 <wire x1="198.12" y1="83.82" x2="198.12" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="198.12" y1="71.12" x2="182.88" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="X1" gate="-4" pin="KL"/>
+<wire x1="198.12" y1="83.82" x2="208.28" y2="83.82" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$89" class="0">
 <segment>
 <pinref part="Q7" gate="G$1" pin="D"/>
-<pinref part="X1" gate="-8" pin="KL"/>
-<wire x1="205.74" y1="78.74" x2="200.66" y2="78.74" width="0.1524" layer="91"/>
 <wire x1="200.66" y1="78.74" x2="200.66" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="200.66" y1="50.8" x2="182.88" y2="50.8" width="0.1524" layer="91"/>
+<pinref part="X1" gate="-3" pin="KL"/>
+<wire x1="200.66" y1="78.74" x2="208.28" y2="78.74" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$93" class="0">
 <segment>
 <pinref part="Q8" gate="G$1" pin="D"/>
-<pinref part="X1" gate="-9" pin="KL"/>
-<wire x1="205.74" y1="73.66" x2="203.2" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="73.66" x2="203.2" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="30.48" x2="182.88" y2="30.48" width="0.1524" layer="91"/>
+<pinref part="X1" gate="-2" pin="KL"/>
+<wire x1="203.2" y1="73.66" x2="208.28" y2="73.66" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="PE" class="0">
@@ -11457,10 +11457,10 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 <wire x1="182.88" y1="114.3" x2="187.96" y2="114.3" width="0.1524" layer="91"/>
 <junction x="182.88" y="114.3"/>
 <junction x="187.96" y="114.3"/>
-<pinref part="X1" gate="-1" pin="KL"/>
-<wire x1="205.74" y1="114.3" x2="187.96" y2="114.3" width="0.1524" layer="91"/>
 <pinref part="PE1" gate="M" pin="PE"/>
 <junction x="187.96" y="12.7"/>
+<pinref part="X1" gate="-10" pin="KL"/>
+<wire x1="208.28" y1="114.3" x2="187.96" y2="114.3" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$69" class="0">
