@@ -156,12 +156,12 @@
 <wire x1="85" y1="0" x2="85" y2="75" width="0.1" layer="20"/>
 <wire x1="85" y1="75" x2="0" y2="75" width="0.1" layer="20"/>
 <wire x1="0" y1="75" x2="0" y2="0" width="0.1" layer="20"/>
-<dimension x1="0" y1="0" x2="85" y2="0" x3="42.5" y3="-8" textsize="1.778" layer="47"/>
-<dimension x1="85" y1="0" x2="85" y2="75" x3="96" y3="37.5" textsize="1.778" layer="47"/>
-<dimension x1="80" y1="5" x2="80" y2="70" x3="91" y3="37.5" textsize="1.778" layer="47"/>
-<dimension x1="10" y1="5" x2="80" y2="5" x3="45" y3="-4" textsize="1.778" layer="47"/>
-<dimension x1="10" y1="5" x2="0" y2="0" x3="5" y3="-4" textsize="1.778" layer="47" dtype="horizontal"/>
-<dimension x1="80" y1="5" x2="85" y2="0" x3="91" y3="2.5" textsize="1.778" layer="47" dtype="vertical"/>
+<dimension x1="0" y1="0" x2="85" y2="0" x3="42.5" y3="-8" textsize="1.778" layer="48"/>
+<dimension x1="85" y1="0" x2="85" y2="75" x3="96" y3="37.5" textsize="1.778" layer="48"/>
+<dimension x1="80" y1="5" x2="80" y2="70" x3="91" y3="37.5" textsize="1.778" layer="48"/>
+<dimension x1="10" y1="5" x2="80" y2="5" x3="45" y3="-4" textsize="1.778" layer="48"/>
+<dimension x1="10" y1="5" x2="0" y2="0" x3="5" y3="-4" textsize="1.778" layer="48" dtype="horizontal"/>
+<dimension x1="80" y1="5" x2="85" y2="0" x3="91" y3="2.5" textsize="1.778" layer="48" dtype="vertical"/>
 <text x="82.256" y="43.872" size="2.286" layer="21" font="vector" ratio="10" rot="R90">Gatekeeper
 433 v2.0</text>
 </plain>

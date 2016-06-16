@@ -1213,6 +1213,129 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <rectangle x1="8.509" y1="-4.699" x2="9.271" y2="-2.921" layer="51"/>
 <rectangle x1="8.509" y1="-5.461" x2="9.271" y2="-4.699" layer="21"/>
 </package>
+<package name="JMP0805W-A">
+<wire x1="-1.35" y1="0.635" x2="-0.53" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="-1.35" y1="-0.635" x2="-0.53" y2="-0.635" width="0.1524" layer="51"/>
+<smd name="A" x="-1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1.5" dy="1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="-0.5336" y1="-0.6985" x2="0.1164" y2="0.7015" layer="51"/>
+<rectangle x1="-2.0068" y1="-0.6985" x2="-1.3568" y2="0.7015" layer="51"/>
+<smd name="B" x="1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<wire x1="-2.913" y1="0.983" x2="2.913" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="0.983" x2="2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="-0.983" x2="-2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-2.913" y1="-0.983" x2="-2.913" y2="0.983" width="0.0508" layer="39"/>
+</package>
+<package name="JMP0805W-B">
+<wire x1="0.53" y1="0.635" x2="1.35" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="0.53" y1="-0.635" x2="1.35" y2="-0.635" width="0.1524" layer="51"/>
+<smd name="A" x="-1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1.5" dy="1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="1.3464" y1="-0.6985" x2="1.9964" y2="0.7015" layer="51"/>
+<rectangle x1="-0.1268" y1="-0.6985" x2="0.5232" y2="0.7015" layer="51"/>
+<smd name="B" x="1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<wire x1="-2.913" y1="0.983" x2="2.913" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="0.983" x2="2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="-0.983" x2="-2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-2.913" y1="-0.983" x2="-2.913" y2="0.983" width="0.0508" layer="39"/>
+</package>
+<package name="JMP0805W-NONE">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
+chip, wave soldering</description>
+<wire x1="-2.913" y1="0.983" x2="2.913" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="0.983" x2="2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="-0.983" x2="-2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-2.913" y1="-0.983" x2="-2.913" y2="0.983" width="0.0508" layer="39"/>
+<smd name="A" x="-1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1.5" dy="1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="-0.1999" y1="-0.5001" x2="0.1999" y2="0.5001" layer="35"/>
+<smd name="B" x="1.88" y="0" dx="1.5" dy="1" layer="1"/>
+</package>
+<package name="JMP0603-A">
+<wire x1="-1.15" y1="0.635" x2="-0.53" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="-1.15" y1="-0.635" x2="-0.53" y2="-0.635" width="0.1524" layer="51"/>
+<smd name="A" x="-1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="-0.55" y1="-0.7" x2="0.1" y2="0.7" layer="51"/>
+<rectangle x1="-1.8" y1="-0.7" x2="-1.15" y2="0.7" layer="51"/>
+<smd name="B" x="1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="1.275" y1="0.425" x2="2.125" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="2.125" y1="0.425" x2="1.275" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="21"/>
+</package>
+<package name="JMP0603-B">
+<wire x1="0.55" y1="0.635" x2="1.17" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="0.55" y1="-0.635" x2="1.17" y2="-0.635" width="0.1524" layer="51"/>
+<smd name="A" x="-1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="1.15" y1="-0.7" x2="1.8" y2="0.7" layer="51"/>
+<rectangle x1="-0.1" y1="-0.7" x2="0.55" y2="0.7" layer="51"/>
+<smd name="B" x="1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="-2.125" y1="0.425" x2="-1.275" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-1.275" y1="0.425" x2="-2.125" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="21"/>
+</package>
+<package name="JMP0603-NONE">
+<smd name="A" x="-1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<smd name="B" x="1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="-2.125" y1="0.425" x2="-1.275" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-1.275" y1="0.425" x2="-2.125" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-0.425" y1="0.425" x2="0.425" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="0.425" y1="0.425" x2="-0.425" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="1.275" y1="0.425" x2="2.125" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="2.125" y1="0.425" x2="1.275" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="21"/>
+</package>
+<package name="JMP0603-ACLOSED">
+<smd name="A" x="-1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<smd name="B" x="1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="0" y1="0" x2="-1.524" y2="0" width="0.254" layer="1"/>
+</package>
 </packages>
 <symbols>
 <symbol name="OK">
@@ -1397,6 +1520,20 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <pin name="14" x="5.08" y="-7.62" visible="pad" length="short" direction="pas" function="dot" rot="R180"/>
 <pin name="15" x="-2.54" y="-10.16" visible="pad" length="short" direction="pas" function="dot"/>
 <pin name="16" x="5.08" y="-10.16" visible="pad" length="short" direction="pas" function="dot" rot="R180"/>
+</symbol>
+<symbol name="0RJM">
+<wire x1="2.54" y1="0" x2="1.778" y2="0" width="0.1524" layer="94"/>
+<wire x1="0.508" y1="0" x2="-0.508" y2="0" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="0" x2="-1.778" y2="0" width="0.1524" layer="94"/>
+<wire x1="1.524" y1="0.254" x2="1.524" y2="-0.254" width="0.508" layer="94" curve="-180" cap="flat"/>
+<wire x1="-1.016" y1="0.254" x2="-1.016" y2="-0.254" width="0.508" layer="94" curve="-180" cap="flat"/>
+<wire x1="1.016" y1="-0.254" x2="1.016" y2="0.254" width="0.508" layer="94" curve="-180" cap="flat"/>
+<wire x1="-1.524" y1="-0.254" x2="-1.524" y2="0.254" width="0.508" layer="94" curve="-180" cap="flat"/>
+<text x="0" y="4.826" size="1.778" layer="95" align="bottom-center">&gt;NAME</text>
+<pin name="C" x="0" y="-5.08" visible="pad" length="middle" direction="pas" rot="R90"/>
+<pin name="B" x="7.62" y="0" visible="pad" length="middle" direction="pas" rot="R180"/>
+<pin name="A" x="-7.62" y="0" visible="pad" length="middle" direction="pas"/>
+<text x="0" y="2.286" size="1.778" layer="95" align="bottom-center">&gt;VALUE</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -1898,6 +2035,84 @@ Source: http://www.irf.com/product-info/datasheets/data/irlz44n.pdf</description
 <connect gate="A" pin="7" pad="7"/>
 <connect gate="A" pin="8" pad="8"/>
 <connect gate="A" pin="9" pad="9"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="0R-JUMP" prefix="JMP">
+<description>&lt;b&gt;SMD 0R 0805 Jumper&lt;/b&gt;&lt;p&gt;</description>
+<gates>
+<gate name="-0R" symbol="0RJM" x="0" y="0" addlevel="always"/>
+</gates>
+<devices>
+<device name="-A" package="JMP0805W-A">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-B" package="JMP0805W-B">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-NONE" package="JMP0805W-NONE">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-A" package="JMP0603-A">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-B" package="JMP0603-B">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-NONE" package="JMP0603-NONE">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-ACLOSED" package="JMP0603-ACLOSED">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -7572,6 +7787,8 @@ Metric Code Size 5664</description>
 <part name="R16" library="resistor" deviceset="R-EU_" device="R0603" value="33k"/>
 <part name="D8" library="gate433" deviceset="ZENER-DIODE" device="SOD80C"/>
 <part name="C1" library="resistor" deviceset="C-EU" device="C0603" value="1uF"/>
+<part name="JMP1" library="gate433" deviceset="0R-JUMP" device="0603-ACLOSED"/>
+<part name="JMP2" library="gate433" deviceset="0R-JUMP" device="0603-ACLOSED"/>
 </parts>
 <sheets>
 <sheet>
@@ -7659,6 +7876,8 @@ Metric Code Size 5664</description>
 <instance part="R16" gate="G$1" x="175.26" y="17.78" rot="R90"/>
 <instance part="D8" gate="G$1" x="170.18" y="17.78" rot="R90"/>
 <instance part="C1" gate="G$1" x="-5.08" y="83.82"/>
+<instance part="JMP1" gate="-0R" x="-20.32" y="43.18" rot="R90"/>
+<instance part="JMP2" gate="-0R" x="-12.7" y="27.94" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -8316,17 +8535,22 @@ Metric Code Size 5664</description>
 <wire x1="35.56" y1="55.88" x2="33.02" y2="55.88" width="0.1524" layer="91"/>
 <pinref part="C1" gate="G$1" pin="1"/>
 <wire x1="-5.08" y1="86.36" x2="10.16" y2="86.36" width="0.1524" layer="91"/>
+<pinref part="JMP2" gate="-0R" pin="B"/>
+<wire x1="-12.7" y1="35.56" x2="-12.7" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="-12.7" y1="50.8" x2="-12.7" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="-12.7" y1="86.36" x2="-5.08" y2="86.36" width="0.1524" layer="91"/>
+<junction x="-5.08" y="86.36"/>
+<pinref part="JMP1" gate="-0R" pin="B"/>
+<wire x1="-20.32" y1="50.8" x2="-12.7" y2="50.8" width="0.1524" layer="91"/>
+<junction x="-12.7" y="50.8"/>
 </segment>
 </net>
-<net name="N$71" class="0">
+<net name="N$1" class="0">
 <segment>
-<pinref part="IC1" gate="G$1" pin="A0"/>
-<wire x1="10.16" y1="38.1" x2="7.62" y2="38.1" width="0.1524" layer="91"/>
-<wire x1="7.62" y1="38.1" x2="7.62" y2="35.56" width="0.1524" layer="91"/>
-<pinref part="IC1" gate="G$1" pin="A1"/>
-<wire x1="7.62" y1="35.56" x2="7.62" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="10.16" y1="35.56" x2="7.62" y2="35.56" width="0.1524" layer="91"/>
-<junction x="7.62" y="35.56"/>
+<pinref part="C1" gate="G$1" pin="2"/>
+<pinref part="JP1" gate="A" pin="1"/>
+<wire x1="2.54" y1="78.74" x2="17.78" y2="78.74" width="0.1524" layer="91"/>
+<wire x1="2.54" y1="78.74" x2="-5.08" y2="78.74" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="G$1" pin="A2"/>
 <wire x1="10.16" y1="33.02" x2="7.62" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="G$1" pin="VSS"/>
@@ -8334,25 +8558,44 @@ Metric Code Size 5664</description>
 <wire x1="35.56" y1="27.94" x2="35.56" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="35.56" y1="20.32" x2="7.62" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="7.62" y1="20.32" x2="7.62" y2="33.02" width="0.1524" layer="91"/>
-<junction x="7.62" y="33.02"/>
-<wire x1="7.62" y1="38.1" x2="2.54" y2="38.1" width="0.1524" layer="91"/>
-<junction x="7.62" y="38.1"/>
-<pinref part="JP1" gate="A" pin="1"/>
-<wire x1="2.54" y1="78.74" x2="17.78" y2="78.74" width="0.1524" layer="91"/>
-<pinref part="C1" gate="G$1" pin="2"/>
-<wire x1="-5.08" y1="78.74" x2="-5.08" y2="38.1" width="0.1524" layer="91"/>
-<wire x1="-5.08" y1="38.1" x2="2.54" y2="38.1" width="0.1524" layer="91"/>
-<wire x1="2.54" y1="78.74" x2="-5.08" y2="78.74" width="0.1524" layer="91"/>
+<pinref part="JMP2" gate="-0R" pin="A"/>
+<wire x1="-12.7" y1="20.32" x2="-5.08" y2="20.32" width="0.1524" layer="91"/>
+<junction x="7.62" y="20.32"/>
+<pinref part="JMP1" gate="-0R" pin="A"/>
+<wire x1="-5.08" y1="20.32" x2="7.62" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="-20.32" y1="35.56" x2="-20.32" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="-20.32" y1="20.32" x2="-12.7" y2="20.32" width="0.1524" layer="91"/>
+<junction x="-12.7" y="20.32"/>
+<wire x1="-5.08" y1="78.74" x2="-5.08" y2="20.32" width="0.1524" layer="91"/>
 <junction x="-5.08" y="78.74"/>
+<junction x="-5.08" y="20.32"/>
+</segment>
+</net>
+<net name="N$2" class="0">
+<segment>
+<pinref part="JMP1" gate="-0R" pin="C"/>
+<wire x1="-15.24" y1="43.18" x2="-2.54" y2="43.18" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="43.18" x2="-2.54" y2="38.1" width="0.1524" layer="91"/>
+<pinref part="IC1" gate="G$1" pin="A0"/>
+<wire x1="-2.54" y1="38.1" x2="10.16" y2="38.1" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$3" class="0">
+<segment>
+<pinref part="JMP2" gate="-0R" pin="C"/>
+<wire x1="-7.62" y1="27.94" x2="-2.54" y2="27.94" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="27.94" x2="-2.54" y2="35.56" width="0.1524" layer="91"/>
+<pinref part="IC1" gate="G$1" pin="A1"/>
+<wire x1="-2.54" y1="35.56" x2="10.16" y2="35.56" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
 </sheet>
 </sheets>
 <errors>
-<approved hash="104,1,33.02,27.94,IC1,VSS,N$71,,,"/>
+<approved hash="104,1,33.02,27.94,IC1,VSS,N$1,,,"/>
 <approved hash="104,1,33.02,55.88,IC1,VDD,N$69,,,"/>
-<approved hash="113,1,209.788,114.3,X1,,,,,"/>
+<approved hash="113,1,212.328,68.58,X1,,,,,"/>
 <approved hash="113,1,168.982,160.02,D1,,,,,"/>
 <approved hash="113,1,18.0171,76.3312,JP1,,,,,"/>
 <approved hash="113,1,128.228,162.691,JP2,,,,,"/>

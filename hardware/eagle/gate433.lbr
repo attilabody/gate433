@@ -3036,6 +3036,129 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <rectangle x1="-0.889" y1="-1.27" x2="0.889" y2="-0.762" layer="51"/>
 <rectangle x1="1.651" y1="-1.27" x2="3.429" y2="-0.762" layer="51"/>
 </package>
+<package name="JMP0805W-A">
+<wire x1="-1.35" y1="0.635" x2="-0.53" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="-1.35" y1="-0.635" x2="-0.53" y2="-0.635" width="0.1524" layer="51"/>
+<smd name="A" x="-1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1.5" dy="1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="-0.5336" y1="-0.6985" x2="0.1164" y2="0.7015" layer="51"/>
+<rectangle x1="-2.0068" y1="-0.6985" x2="-1.3568" y2="0.7015" layer="51"/>
+<smd name="B" x="1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<wire x1="-2.913" y1="0.983" x2="2.913" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="0.983" x2="2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="-0.983" x2="-2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-2.913" y1="-0.983" x2="-2.913" y2="0.983" width="0.0508" layer="39"/>
+</package>
+<package name="JMP0805W-B">
+<wire x1="0.53" y1="0.635" x2="1.35" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="0.53" y1="-0.635" x2="1.35" y2="-0.635" width="0.1524" layer="51"/>
+<smd name="A" x="-1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1.5" dy="1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="1.3464" y1="-0.6985" x2="1.9964" y2="0.7015" layer="51"/>
+<rectangle x1="-0.1268" y1="-0.6985" x2="0.5232" y2="0.7015" layer="51"/>
+<smd name="B" x="1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<wire x1="-2.913" y1="0.983" x2="2.913" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="0.983" x2="2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="-0.983" x2="-2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-2.913" y1="-0.983" x2="-2.913" y2="0.983" width="0.0508" layer="39"/>
+</package>
+<package name="JMP0805W-NONE">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
+chip, wave soldering</description>
+<wire x1="-2.913" y1="0.983" x2="2.913" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="0.983" x2="2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="2.913" y1="-0.983" x2="-2.913" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-2.913" y1="-0.983" x2="-2.913" y2="0.983" width="0.0508" layer="39"/>
+<smd name="A" x="-1.88" y="0" dx="1.5" dy="1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1.5" dy="1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="-0.1999" y1="-0.5001" x2="0.1999" y2="0.5001" layer="35"/>
+<smd name="B" x="1.88" y="0" dx="1.5" dy="1" layer="1"/>
+</package>
+<package name="JMP0603-A">
+<wire x1="-1.15" y1="0.635" x2="-0.53" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="-1.15" y1="-0.635" x2="-0.53" y2="-0.635" width="0.1524" layer="51"/>
+<smd name="A" x="-1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="-0.55" y1="-0.7" x2="0.1" y2="0.7" layer="51"/>
+<rectangle x1="-1.8" y1="-0.7" x2="-1.15" y2="0.7" layer="51"/>
+<smd name="B" x="1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="1.275" y1="0.425" x2="2.125" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="2.125" y1="0.425" x2="1.275" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="21"/>
+</package>
+<package name="JMP0603-B">
+<wire x1="0.55" y1="0.635" x2="1.17" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="0.55" y1="-0.635" x2="1.17" y2="-0.635" width="0.1524" layer="51"/>
+<smd name="A" x="-1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="1.15" y1="-0.7" x2="1.8" y2="0.7" layer="51"/>
+<rectangle x1="-0.1" y1="-0.7" x2="0.55" y2="0.7" layer="51"/>
+<smd name="B" x="1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="-2.125" y1="0.425" x2="-1.275" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-1.275" y1="0.425" x2="-2.125" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="21"/>
+</package>
+<package name="JMP0603-NONE">
+<smd name="A" x="-1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<smd name="B" x="1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="-2.125" y1="0.425" x2="-1.275" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-1.275" y1="0.425" x2="-2.125" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-0.425" y1="0.425" x2="0.425" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="0.425" y1="0.425" x2="-0.425" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="1.275" y1="0.425" x2="2.125" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="2.125" y1="0.425" x2="1.275" y2="-0.425" width="0.127" layer="27"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="21"/>
+</package>
+<package name="JMP0603-ACLOSED">
+<smd name="A" x="-1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="C" x="0" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="0" y="1.016" size="0.8128" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.159" size="0.8128" layer="27" align="bottom-center">&gt;VALUE</text>
+<smd name="B" x="1.7" y="0" dx="1" dy="1.1" layer="1"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="39"/>
+<wire x1="-2.5" y1="0.95" x2="2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="0.95" x2="2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="2.5" y1="-0.95" x2="-2.5" y2="-0.95" width="0.0508" layer="21"/>
+<wire x1="-2.5" y1="-0.95" x2="-2.5" y2="0.95" width="0.0508" layer="21"/>
+<wire x1="0" y1="0" x2="-1.524" y2="0" width="0.254" layer="1"/>
+</package>
 </packages>
 <symbols>
 <symbol name="PCF8574">
@@ -3773,6 +3896,20 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <pin name="14" x="5.08" y="-7.62" visible="pad" length="short" direction="pas" function="dot" rot="R180"/>
 <pin name="15" x="-2.54" y="-10.16" visible="pad" length="short" direction="pas" function="dot"/>
 <pin name="16" x="5.08" y="-10.16" visible="pad" length="short" direction="pas" function="dot" rot="R180"/>
+</symbol>
+<symbol name="0RJM">
+<wire x1="2.54" y1="0" x2="1.778" y2="0" width="0.1524" layer="94"/>
+<wire x1="0.508" y1="0" x2="-0.508" y2="0" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="0" x2="-1.778" y2="0" width="0.1524" layer="94"/>
+<wire x1="1.524" y1="0.254" x2="1.524" y2="-0.254" width="0.508" layer="94" curve="-180" cap="flat"/>
+<wire x1="-1.016" y1="0.254" x2="-1.016" y2="-0.254" width="0.508" layer="94" curve="-180" cap="flat"/>
+<wire x1="1.016" y1="-0.254" x2="1.016" y2="0.254" width="0.508" layer="94" curve="-180" cap="flat"/>
+<wire x1="-1.524" y1="-0.254" x2="-1.524" y2="0.254" width="0.508" layer="94" curve="-180" cap="flat"/>
+<text x="0" y="4.826" size="1.778" layer="95" align="bottom-center">&gt;NAME</text>
+<pin name="C" x="0" y="-5.08" visible="pad" length="middle" direction="pas" rot="R90"/>
+<pin name="B" x="7.62" y="0" visible="pad" length="middle" direction="pas" rot="R180"/>
+<pin name="A" x="-7.62" y="0" visible="pad" length="middle" direction="pas"/>
+<text x="0" y="2.286" size="1.778" layer="95" align="bottom-center">&gt;VALUE</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -4953,6 +5090,84 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <connect gate="A" pin="7" pad="7"/>
 <connect gate="A" pin="8" pad="8"/>
 <connect gate="A" pin="9" pad="9"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="0R-JUMP" prefix="JMP">
+<description>&lt;b&gt;SMD 0R 0805 Jumper&lt;/b&gt;&lt;p&gt;</description>
+<gates>
+<gate name="-0R" symbol="0RJM" x="0" y="0" addlevel="always"/>
+</gates>
+<devices>
+<device name="-A" package="JMP0805W-A">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-B" package="JMP0805W-B">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-NONE" package="JMP0805W-NONE">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-A" package="JMP0603-A">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-B" package="JMP0603-B">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-NONE" package="JMP0603-NONE">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="0603-ACLOSED" package="JMP0603-ACLOSED">
+<connects>
+<connect gate="-0R" pin="A" pad="A"/>
+<connect gate="-0R" pin="B" pad="B"/>
+<connect gate="-0R" pin="C" pad="C"/>
 </connects>
 <technologies>
 <technology name=""/>
