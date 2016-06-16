@@ -8545,7 +8545,7 @@ Metric Code Size 5664</description>
 <junction x="-12.7" y="50.8"/>
 </segment>
 </net>
-<net name="N$1" class="0">
+<net name="GND" class="0">
 <segment>
 <pinref part="C1" gate="G$1" pin="2"/>
 <pinref part="JP1" gate="A" pin="1"/>
@@ -8593,7 +8593,7 @@ Metric Code Size 5664</description>
 </sheet>
 </sheets>
 <errors>
-<approved hash="104,1,33.02,27.94,IC1,VSS,N$1,,,"/>
+<approved hash="104,1,33.02,27.94,IC1,VSS,GND,,,"/>
 <approved hash="104,1,33.02,55.88,IC1,VDD,N$69,,,"/>
 <approved hash="113,1,212.328,68.58,X1,,,,,"/>
 <approved hash="113,1,168.982,160.02,D1,,,,,"/>
