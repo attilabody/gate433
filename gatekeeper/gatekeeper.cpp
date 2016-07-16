@@ -60,10 +60,6 @@ void setup()
 
 	g_indloop.init( PIN_INNERLOOP, PIN_OUTERLOOP, LOW );
 
-//	noInterrupts();
-//	TIMSK0 |= ( 1 << OCIE0A );  // enable timer compare interrupt
-//	interrupts();
-
 	setup433();
 
 	g_clk.init( DS3231_INTCN );
@@ -85,28 +81,37 @@ void setup()
 	if(g_sdpresent)
 	{
 		SdFile	f;
-		if(f.open("IMPORT"))
+		if(f.open("IMP"))
 		{
 			f.close();
-			g_display.print(F("IMPORTING "));
+			g_display.print("IMP");
 			uint16_t	imported(importdb(0, 1023));
 			if(imported != (uint16_t) -1) {
+				g_display.print(' ');
 				g_display.print(imported);
-				g_sd.remove("IMPORT");
+				g_sd.remove("IMP");
 			} else
 				g_display.print(F("FAIL"));
 
 			delay(2000);
 			g_display.clear();
 		}
+		if(f.open("CLR"))
+		{
+			f.close();
+			g_display.print("CLR");
+			g_db.cleanstatuses();
+			g_sd.remove("CLR");
+			g_display.clear();
+		}
 	}
 
 	g_logger.log( logwriter::WARNING, g_time, F("Restart"), -1 );
 	g_display.clear();
-	g_display.updatedt( g_time, 0xff, g_timevalid );
-	g_display.updateloopstatus( false, false );
-	g_display.updatelastreceivedid( 9999 );
-	g_display.updatelastdecision( 'X', 9999 );
+	g_display.updatedt(g_time, 0xff, g_timevalid);
+	g_display.updateloopstatus(false, false);
+	g_display.updatelastreceivedid(9999);
+	g_display.updatelastdecision('X', 9999);
 
 #ifdef VERBOSE
 	Serial.begin( BAUDRATE );
