@@ -29,11 +29,7 @@ i2cdb					g_db( I2CDB_EEPROM_ADDRESS, I2CDB_EEPROM_BITS, 128 );
 #endif	//	USE_FLASHDB
 inductiveloop			g_indloop;
 
-#ifdef USE_IOEXTENDER_OUTPUTS
 PCF8574outputs			g_outputs(PCF8574_ADDRESS);
-#else	//	USE_IOEXTENDER_OUTPUTS
-arduinooutputs			g_outputs;
-#endif	//	USE_IOEXTENDER_OUTPUTS
 
 trafficlights			g_lights;
 char					g_iobuf[32];

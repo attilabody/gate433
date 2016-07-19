@@ -36,16 +36,7 @@ protected:
 
 	AUTHRES 	authorize( uint16_t id, bool inner );
 	void		tocodewait( bool inner );
-	inline void topass( bool inner, unsigned long currmillis ) {
-		m_lights.set( trafficlights::ACCEPTED, inner );
-		m_gate.set( true, OPEN_PULSE_WIDTH, 0xff, true, currmillis );
-		m_inner = inner; m_status = PASS; m_phasestart = currmillis; m_warned = false;
-	}
-	inline void topass_warn( bool inner, unsigned long currmillis ) {
-		m_lights.set( trafficlights::WARNED, inner );
-		m_gate.set( true, OPEN_PULSE_WIDTH, 0xff, true, currmillis );
-		m_inner = inner; m_status = PASS; m_phasestart = currmillis; m_warned = true;
-	}
+	bool 		dbup(bool inner, uint16_t id);
 
 	database			&m_db;
 	trafficlights		&m_lights;
@@ -53,7 +44,6 @@ protected:
 	display				&m_display;
 	outputpin			m_gate;
 
-//		char					m_lcdbuf[LCD_WIDTH + 1];
 	STATUS					m_status;
 	trafficlights::STATUS	m_tlstatus;
 	inductiveloop::STATUS	m_ilstatus;
@@ -61,10 +51,12 @@ protected:
 	bool					m_inner;
 
 	unsigned long			m_phasestart;
-	bool					m_warned;
 	uint16_t				m_previd;
 	AUTHRES					m_prevdecision;
 	bool					m_previnner;
+	uint16_t				m_code;
+	uint8_t					m_codecount;
+	uint16_t				m_id;
 
 	static const char PROGMEM 		m_authcodes[AUTHRESCNT];
 };

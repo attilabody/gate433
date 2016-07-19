@@ -37,10 +37,6 @@ void setup()
 	I2c.begin();
 	I2c.timeOut(1000);
 
-#ifndef USE_IOEXTENDER_OUTPUTS
-	const uint8_t	g_alloutputpins[8] = { ALL_RAW_OUTPUT_PINS };
-	g_outputs.init(g_alloutputpins, RELAY_OFF);
-#endif
 	g_display.init();		//	calls Wire.begin()
 
 	g_display.print( freeMemory() );
@@ -73,7 +69,11 @@ void setup()
 
 	g_outputs.set(0xf8);
 	delay(500);
+#ifdef STRAIGHT_IOEXT_PINS
+	g_outputs.set(0xc7);
+#else	//	STRAIGHT_IOEXT_PINS
 	g_outputs.set(0x37);
+#endif	//	STRAIGHT_IOEXT_PINS
 	delay(500);
 	g_outputs.set(0xff);
 

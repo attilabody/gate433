@@ -55,8 +55,8 @@ void display::updatedt( const ts &dt, byte updatemask, bool timevalid )
 void display::updateloopstatus( bool inner, bool outer )
 {
 	setCursor( 9, 0 );
-	print( inner ? '*' : '_' );
-	print( outer ? '*' : '_' );
+	print( outer ? 'O' : '_' );
+	print( inner ? 'I' : '_' );
 }
 
 //////////////////////////////////////////////////////////////////////////////

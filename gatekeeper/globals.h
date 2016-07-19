@@ -58,11 +58,7 @@ extern hybintdb				g_db;
 extern i2cdb				g_db;
 #endif	//	USE_FLASHDB
 extern inductiveloop		g_indloop;
-#ifdef USE_IOEXTENDER_OUTPUTS
 extern PCF8574outputs		g_outputs;
-#else	//	USE_IOEXTENDER_OUTPUTS
-extern arduinooutputs		g_outputs;
-#endif	//	USE_IOEXTENDER_OUTPUTS
 extern trafficlights		g_lights;
 extern char					g_iobuf[32];
 extern uint8_t				g_inidx;
