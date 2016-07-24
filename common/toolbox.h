@@ -6,8 +6,8 @@
 #ifndef _toolbox_H_
 #define _toolbox_H_
 //#define DBGSERIALIN	1
+#include <avr/wdt.h>
 #include <Arduino.h>
-
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
 
 inline char halfbytetohex( uint8_t data ) { return data + ( data < 10 ? '0' : ( 'A' - 10 ) ); }
@@ -22,6 +22,7 @@ uint8_t ultohex( char* buffer, uint32_t data, uint8_t digits );
 uint8_t uitodec( char* buffer, uint16_t data, uint8_t digits );
 uint8_t ultodec( char* buffer, uint32_t data, uint8_t digits );
 
-#define CHECKPOINT g_lastcheckpoint=0
+#define CHECKPOINT wdt_reset()
+
 
 #endif /* _toolbox_H_ */

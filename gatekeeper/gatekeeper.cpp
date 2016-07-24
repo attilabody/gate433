@@ -1,3 +1,4 @@
+#include <avr/wdt.h>
 #include <Arduino.h>
 #include <ds3231.h>
 #include <SdFat.h>
@@ -24,7 +25,7 @@ uint16_t importdb(uint16_t start, uint16_t end);
 //////////////////////////////////////////////////////////////////////////////
 void setup()
 {
-	Serial.begin( BAUDRATE );
+	Serial.begin( BAUD );
 #ifdef VERBOSE
 	delay(10);
 	Serial.print( CMNT );
@@ -69,10 +70,10 @@ void setup()
 
 	g_outputs.set(0xf8);
 	delay(500);
-#ifdef STRAIGHT_IOEXT_PINS
-	g_outputs.set(0xc7);
-#else	//	STRAIGHT_IOEXT_PINS
+#ifdef REORDERED_IOEXT_PINS
 	g_outputs.set(0x37);
+#else	//	STRAIGHT_IOEXT_PINS
+	g_outputs.set(0xc7);
 #endif	//	STRAIGHT_IOEXT_PINS
 	delay(500);
 	g_outputs.set(0xff);
@@ -113,8 +114,10 @@ void setup()
 	g_display.updatelastreceivedid(9999);
 	g_display.updatelastdecision('X', 9999);
 
+	wdt_enable(WDTO_1S);
+
 #ifdef VERBOSE
-	Serial.begin( BAUDRATE );
+	Serial.begin( BAUD );
 	delay(10);
 	Serial.print( CMNT );
 	for( char c = 0; c < 79; ++c ) Serial.print('<');
@@ -298,7 +301,7 @@ void processinput()
 			if( g_db.getParams( id, rec )) {
 				uitohex( g_iobuf, id, 3 );
 				rec.serialize( g_iobuf + 4 );
-				serialoutln( RESP, g_iobuf );
+				serialoutln( DATA, g_iobuf );
 			} else break;
 		}
 		if( id == to + 1 ) printrespok();
@@ -348,7 +351,8 @@ void processinput()
 		}
 
 	} else if( iscommand( inptr, CMD_DL )) {	// dump log
-		g_logger.dump( &Serial );
+		int16_t	trunc(getintparam(inptr));
+		g_logger.dump(&Serial, trunc > 0);
 		printrespok();
 
 	} else if( iscommand( inptr, CMD_TL )) {	// truncate log
@@ -357,8 +361,8 @@ void processinput()
 
 	} else if( iscommand( inptr, CMD_IL )) {	// infinite loop
 		while( true ) {
-			Serial.println( g_lastcheckpoint );
-			delay(500);
+			Serial.print( '.' );
+			delay(250);
 		}
 
 	} else {

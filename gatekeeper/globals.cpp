@@ -45,5 +45,3 @@ bool					g_timevalid(false);
 unsigned long			g_lastdtupdate(0);
 
 sdfatlogwriter			g_logger( g_sd );
-
-uint16_t				g_lastcheckpoint(0);

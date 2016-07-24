@@ -127,38 +127,39 @@ void sdfatlogwriter::log( CATEGORY category, ts &datetime, const __FlashStringHe
 }
 
 /////////////////////////////////////////////////////////////////////////////
-bool sdfatlogwriter::dump( Print *p )
+bool sdfatlogwriter::dump(Print *p, bool trunc)
 {
 	SdFile		f;
 	char		buffer[32], *bptr;
 	int			nio;
-	char		c('\n');
+	char		lastprinted('\n');
 
 	if( !m_initialized ) return false;
-
 	if( f.open( m_sd.vwd(), m_dirindex, FILE_READ ))
 	{
 		do
 		{
 			nio = f.read( buffer, sizeof( buffer ));
-			if( nio == -1 ) break;
+			if( nio < 0 ) break;
 			bptr = buffer;
-			for( uint8_t bc = nio; bc != 0; --bc ) {
-				if( c == '\n' ) {
+			for( uint8_t bc = nio; bc != 0; --bc )
+			{
+				if( lastprinted == '\n' ) {
 					CHECKPOINT;
-					p->print( RESP );
+					p->print( DATA );
 				}
-				c = *bptr++;
-				p->print( c );
+				lastprinted = *bptr++;
+				if(lastprinted == '\n')
+					p->print('\r');
+				p->print( lastprinted );
 			}
 		} while( nio == sizeof( buffer ) );
-
-		if( nio == -1 ) p->println( F( ERRS "ERR" ));
-		else {
-			if( c != '\n' ) p->println();
-			p->println( RESP );
-		}
 		f.close();
+
+		if( lastprinted != '\n' ) p->println();
+		if( nio < 0 ) p->println( F( ERRS "ERR" ));
+		else if(trunc) truncate();
+
 		return true;
 	}
 	return false;
