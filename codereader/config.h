@@ -14,7 +14,7 @@
 #define USE_LCD
 
 
-#define BAUDRATE 115200
+#define BAUD 115200
 
 //#define DECODE433_REVERSE
 

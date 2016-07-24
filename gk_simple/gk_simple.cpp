@@ -36,7 +36,7 @@ void setup()
 
 	uint8_t	tlpins[] = { INNER_LIGHTS_PINS, OUTER_LIGHTS_PINS };
 
-	Serial.begin( BAUDRATE );
+	Serial.begin( BAUD );
 #ifdef VERBOSE
 	delay(10);
 	Serial.print(CMNT);

@@ -35,7 +35,6 @@
 							<tool id="it.baeyens.arduino.tool.ar.1308542676" name="Arduino archiver" superClass="it.baeyens.arduino.tool.ar"/>
 							<tool id="it.baeyens.arduino.tool.combine.1151566403" name="Arduino combiner" superClass="it.baeyens.arduino.tool.combine"/>
 							<tool id="it.baeyens.arduino.tool.objcopy.eep.63321090" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep"/>
-							<tool id="it.baeyens.arduino.tool.objcopy.flash.1705916870" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash"/>
 							<tool id="it.baeyens.arduino.tool.size.1306794920" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
 						</toolChain>
 					</folderInfo>

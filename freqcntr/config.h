@@ -8,7 +8,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define BAUDRATE 115200
+#define BAUD 115200
 
 #define USE_I2CLCD
 

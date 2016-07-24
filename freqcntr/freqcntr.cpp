@@ -18,7 +18,7 @@ LiquidCrystal_I2C	g_lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 
 void setup()
 {
-	Serial.begin(BAUDRATE);
+	Serial.begin(BAUD);
 #ifdef	USE_I2CLCD
 	I2c.begin();
 	g_lcd.init();

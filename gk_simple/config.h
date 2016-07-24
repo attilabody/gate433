@@ -9,7 +9,7 @@
 #define CONFIG_H_
 #include <Arduino.h>
 
-#define BAUDRATE 115200
+#define BAUD 115200
 #define ENFORCE_REG
 //#define DECODE433_REVERSE
 //#define VERBOSE

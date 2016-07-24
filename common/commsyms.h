@@ -10,6 +10,8 @@
 
 #define RESP ':'
 #define RESPS ":"
+#define DATA '>'
+#define DATAS ">"
 #define ERR '!'
 #define ERRS "!"
 #define CMNT '#'

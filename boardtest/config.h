@@ -12,7 +12,7 @@
 //#define DBGSERIALIN
 //#define ENFORCING
 
-#define BAUDRATE 115200
+#define BAUD 115200
 
 //#define USE_INTDB
 //#define USE_THINDB

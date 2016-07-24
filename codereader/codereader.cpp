@@ -25,7 +25,7 @@ ts		g_time;
 
 void setup()
 {
-	Serial.begin( BAUDRATE );
+	Serial.begin( BAUD );
 	delay(10);
 	for( char c = 0; c < 79; ++c ) Serial.print('-');
 	Serial.println();

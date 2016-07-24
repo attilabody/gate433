@@ -51,7 +51,7 @@ void setup()
 	Timer1.initialize( CYCLETIME );
 	Timer1.attachInterrupt( isr );
 
-	Serial.begin(BAUDRATE);
+	Serial.begin(BAUD);
 }
 
 //////////////////////////////////////////////////////////////////////////////

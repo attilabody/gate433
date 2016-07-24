@@ -12,7 +12,7 @@
 //#define DBGSERIALIN
 //#define ENFORCING
 #define USE_IOEXTENDER_OUTPUTS
-#define BAUDRATE 115200
+#define BAUD 115200
 
 #define PIN_RFIN		2
 #define PIN_INNERLOOP	A0

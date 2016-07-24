@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #define NUMDELTAS 600
-#define BAUDRATE 115200
+#define BAUD 115200
 #define MSB ( sizeof( datatype ) * 8 )
 
 #define ITEMCOUNT(A) (sizeof(A)/sizeof(A[0]))
@@ -161,7 +161,7 @@ void setup()
   TIMSK0 |= (1 << OCIE0A);  // enable timer compare interrupt
   interrupts();             // enable all interrupts
 
-  Serial.begin(BAUDRATE);
+  Serial.begin(BAUD);
   attachInterrupt(digitalPinToInterrupt(g_inPin), isr, CHANGE);
   Serial.println( ">>> Start <<<" );
   //g_serbuf[sizeof(g_serbuf) - 1] = 0;

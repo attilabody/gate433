@@ -39,17 +39,17 @@
 		<link>
 			<name>core/core</name>
 			<type>2</type>
-			<location>/opt/shared/eclipse/mars-2/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/cores/arduino</location>
+			<location>/opt/shared/eclipse/neon/arduinoPlugin/packages/arduino/hardware/avr/1.6.11/cores/arduino</location>
 		</link>
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<location>/opt/shared/eclipse/mars-2/arduinoPlugin/packages/arduino/hardware/avr/1.6.10/variants/eightanaloginputs</location>
+			<location>/opt/shared/eclipse/neon/arduinoPlugin/packages/arduino/hardware/avr/1.6.11/variants/eightanaloginputs</location>
 		</link>
 		<link>
 			<name>libraries/LiquidCrystal</name>
 			<type>2</type>
-			<location>/opt/shared/eclipse/mars-2/arduinoPlugin/libraries/LiquidCrystal/1.0.4</location>
+			<location>/opt/shared/eclipse/neon/arduinoPlugin/libraries/LiquidCrystal/1.0.4</location>
 		</link>
 	</linkedResources>
 </projectDescription>
