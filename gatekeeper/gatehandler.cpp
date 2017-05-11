@@ -204,7 +204,7 @@ gatehandler::AUTHRES gatehandler::authorize( uint16_t id, bool inner )
 				ret = TIME;
 		}
 	}
-	g_logger.log( logwriter::INFO, g_time, F("Auth"), id, rec.position, inner, ret );
+	g_logger.log( logwriter::INFO, g_time, F("Auth"), id, 0xff, rec.position, inner, ret );
 #if defined(RELAXED_POS) && defined(RELAXED_TIME)
 	if(ret == DAY || ret == TIME || ret == POSITION )
 #elif defined(RELAXED_POS)
