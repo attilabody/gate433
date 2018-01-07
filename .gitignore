@@ -2,6 +2,7 @@ Release/
 Debug/
 .ino.cpp
 *.d
+*.bak
 .settings/
 Debug_AVaRICE/
 .metadata/
