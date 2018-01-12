@@ -74,6 +74,7 @@ void SystemClock_Config(void);
 /* Private function prototypes -----------------------------------------------*/
 
 /* USER CODE END PFP */
+void MainLoop();
 
 /* USER CODE BEGIN 0 */
 
@@ -83,15 +84,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	HAL_TIM_Base_Start(&htim2);
-	HAL_TIM_Base_Start(&htim3);
-
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 
   /* USER CODE END 1 */
 
@@ -126,15 +118,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		HAL_Delay(100);
+	MainLoop();
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
 
-  }
   /* USER CODE END 3 */
 
 }

@@ -3,6 +3,7 @@ Debug/
 .ino.cpp
 *.d
 *.bak
+*.tmp
 .settings/
 Debug_AVaRICE/
 .metadata/
