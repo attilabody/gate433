@@ -12,6 +12,8 @@
 #include "usart.h"
 #include "gpio.h"
 
+#include <RFDecoder.h>
+
 struct AnalogOutput {
 	TIM_HandleTypeDef*	handle;
 	uint32_t			channel;
@@ -28,6 +30,12 @@ AnalogOutput AnalogOuts[6] = {
 
 extern "C" void MainLoop();
 
+////////////////////////////////////////////////////////////////////
+static inline void EnableIrq(uint8_t wasEnabled) {
+	if(wasEnabled) __enable_irq();
+}
+
+////////////////////////////////////////////////////////////////////
 void MainLoop()
 {
 	HAL_TIM_Base_Start(&htim2);
@@ -38,6 +46,12 @@ void MainLoop()
 		__HAL_TIM_SET_COMPARE(out.handle, out.channel, 0);
 
 	}
+
+	uint8_t				irqEnabled = __get_PRIMASK() == 0;
+
+	__disable_irq();
+	RFDecoder::Instance();
+	EnableIrq(irqEnabled);
 
 	uint32_t	counter = 0;
 	while(true)
