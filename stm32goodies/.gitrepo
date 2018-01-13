@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@git.pcmuhely.hu:compi/stm32goodies.git
+	branch = master
+	commit = cfe0653cd46f529f9ce471c2cd0af22a397b9b83
+	parent = aa3207333210867e845b2d19f72aa0badbec251a
+	cmdver = 0.3.1
