@@ -8,6 +8,8 @@
 #ifndef SINGLETON_H_
 #define SINGLETON_H_
 
+#include <sg/itlock.h>
+
 template<typename T> class Singleton
 {
 protected:
@@ -17,6 +19,14 @@ public:
 	static T& Instance() {
 		static T instance;
 		return instance;
+	}
+};
+
+template<typename T> struct SafeSingletonInitializer
+{
+	SafeSingletonInitializer() {
+		sg::ItLock	l;
+		T::Instance();
 	}
 };
 

@@ -13,6 +13,7 @@
 #include "gpio.h"
 
 #include <RFDecoder.h>
+#include <sg/itlock.h>
 
 struct AnalogOutput {
 	TIM_HandleTypeDef*	handle;
@@ -31,11 +32,6 @@ AnalogOutput AnalogOuts[6] = {
 extern "C" void MainLoop();
 
 ////////////////////////////////////////////////////////////////////
-static inline void EnableIrq(uint8_t wasEnabled) {
-	if(wasEnabled) __enable_irq();
-}
-
-////////////////////////////////////////////////////////////////////
 void MainLoop()
 {
 	HAL_TIM_Base_Start(&htim2);
@@ -44,14 +40,9 @@ void MainLoop()
 	for(auto &out : AnalogOuts) {
 		HAL_TIM_PWM_Start(out.handle, out.channel);
 		__HAL_TIM_SET_COMPARE(out.handle, out.channel, 0);
-
 	}
 
-	uint8_t				irqEnabled = __get_PRIMASK() == 0;
-
-	__disable_irq();
-	RFDecoder::Instance();
-	EnableIrq(irqEnabled);
+	SafeSingletonInitializer<RFDecoder>	si;
 
 	uint32_t	counter = 0;
 	while(true)

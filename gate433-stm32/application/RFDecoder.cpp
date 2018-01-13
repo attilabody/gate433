@@ -10,11 +10,6 @@
 #include <gpio.h>
 
 ////////////////////////////////////////////////////////////////////
-static inline void EnableIrq(uint8_t wasEnabled) {
-	if(wasEnabled) __enable_irq();
-}
-
-////////////////////////////////////////////////////////////////////
 RFDecoder::RFDecoder()
 {
 	HAL_StatusTypeDef	res = HAL_OK;
@@ -24,23 +19,27 @@ RFDecoder::RFDecoder()
 	res = HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_2);
 }
 
+////////////////////////////////////////////////////////////////////
 void RFDecoder::PeriodEllapsed(TIM_HandleTypeDef *htim)
 {
 	static uint32_t	callCount = 0;
 	++callCount;
 }
 
+////////////////////////////////////////////////////////////////////
 void RFDecoder::CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	static uint32_t	callCount = 0;
 	++callCount;
 }
 
+////////////////////////////////////////////////////////////////////
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	RFDecoder::Instance().PeriodEllapsed(htim);
 }
 
+////////////////////////////////////////////////////////////////////
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	RFDecoder::Instance().CaptureCallback(htim);
