@@ -42,7 +42,10 @@ void MainLoop()
 		__HAL_TIM_SET_COMPARE(out.handle, out.channel, 0);
 	}
 
-	SafeSingletonInitializer<RFDecoder>	si;
+	{
+		sg::SafeSingletonInitializer<RFDecoder>	si;
+	}
+	//RFDecoder::Instance();
 
 	uint32_t	counter = 0;
 	while(true)
@@ -57,5 +60,3 @@ void MainLoop()
 		HAL_Delay(20);
 	}
 }
-
-

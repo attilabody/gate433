@@ -9,7 +9,7 @@
 #define RFDECODER_H_
 
 #include "stm32f1xx_hal.h"
-#include <Singleton.h>
+#include <sg/singleton.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +26,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
 
 extern "C" TIM_HandleTypeDef htim1;
 
-class RFDecoder : public Singleton<RFDecoder>
+class RFDecoder : public sg::Singleton<RFDecoder>
 {
 	friend class Singleton<RFDecoder>;
 	friend void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);

@@ -9,6 +9,7 @@
 #define SINGLETON_H_
 
 #include <sg/itlock.h>
+namespace sg {
 
 template<typename T> class Singleton
 {
@@ -29,5 +30,6 @@ template<typename T> struct SafeSingletonInitializer
 		T::Instance();
 	}
 };
+}	//	namespace sg
 
 #endif /* SINGLETON_H_ */
