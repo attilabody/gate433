@@ -14,6 +14,7 @@
 
 #include <RFDecoder.h>
 #include <sg/itlock.h>
+#include <sg/usart.h>
 
 struct AnalogOutput {
 	TIM_HandleTypeDef*	handle;
@@ -32,6 +33,10 @@ AnalogOutput AnalogOuts[6] = {
 extern "C" void MainLoop();
 
 ////////////////////////////////////////////////////////////////////
+uint8_t			g_serialBuffer[64];
+sg::DbgUsart	&g_com = sg::DbgUsart::Instance();
+
+////////////////////////////////////////////////////////////////////
 void MainLoop()
 {
 	HAL_TIM_Base_Start(&htim2);
@@ -42,10 +47,11 @@ void MainLoop()
 		__HAL_TIM_SET_COMPARE(out.handle, out.channel, 0);
 	}
 
+	g_com.Init(sg::UsartCallbackDispatcher::Instance(), &huart1, g_serialBuffer, sizeof(g_serialBuffer), true);
+
 	{
 		sg::SafeSingletonInitializer<RFDecoder>	si;
 	}
-	//RFDecoder::Instance();
 
 	uint32_t	counter = 0;
 	while(true)

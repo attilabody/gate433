@@ -43,6 +43,8 @@ private:
 	uint16_t	m_lastCapture = 0;
 	uint16_t	m_lastHLength = 0;
 	uint16_t	m_lastLLength = 0;
+
+	bool		m_syncing = true;
 };
 
 #endif /* __cplusplus */
