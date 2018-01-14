@@ -38,13 +38,26 @@ private:
 	void PeriodEllapsed(TIM_HandleTypeDef *htim);
 	void CaptureCallback(TIM_HandleTypeDef *htim);
 
+	void ProcessPeriod(bool level, uint16_t length);
+
 	TIM_HandleTypeDef &m_htim = htim1;
 
 	uint16_t	m_lastCapture = 0;
 	uint16_t	m_lastHLength = 0;
 	uint16_t	m_lastLLength = 0;
+	uint8_t		m_overflow = 0;
 
-	bool		m_syncing = true;
+	uint16_t	m_syncLength = 0;
+	static const uint16_t SYNCLENGTH_MIN = 8000;
+	static const uint16_t SYNCLENGTH_MAX = 15000;
+	uint16_t	m_minShort;
+	uint16_t	m_maxShort;
+	uint16_t	m_minLong;
+	uint16_t	m_maxLong;
+
+	bool		m_lowLong;
+	uint16_t	m_code, m_bits;
+	uint16_t	m_lastDecoded;
 };
 
 #endif /* __cplusplus */

@@ -9,10 +9,6 @@
 #include <tim.h>
 #include <gpio.h>
 
-#include <sg/usart.h>
-
-extern sg::DbgUsart	&g_com;
-
 ////////////////////////////////////////////////////////////////////
 RFDecoder::RFDecoder()
 {
@@ -26,44 +22,84 @@ RFDecoder::RFDecoder()
 ////////////////////////////////////////////////////////////////////
 void RFDecoder::PeriodEllapsed(TIM_HandleTypeDef *htim)
 {
-	static uint32_t	callCount = 0;
-	++callCount;
+	if(m_overflow < 0xff)
+		++m_overflow;
 }
 
 ////////////////////////////////////////////////////////////////////
 void RFDecoder::CaptureCallback(TIM_HandleTypeDef *htim)
 {
-	uint32_t	currentCapture;
+	uint16_t	currentCapture, length;
+	bool		level;
 
 	switch(htim->Channel)
 	{
 	case HAL_TIM_ACTIVE_CHANNEL_1:
 		currentCapture = __HAL_TIM_GET_COMPARE(htim, TIM_CHANNEL_1);
+		level = true;
 		break;
 
 	case HAL_TIM_ACTIVE_CHANNEL_2:
 		currentCapture = __HAL_TIM_GET_COMPARE(htim, TIM_CHANNEL_2);
+		level = false;
 		break;
 
 	default:
 		return;
 	}
 
-	g_com.Send(currentCapture, true, false, false);
-	g_com.Send("\r\n", 2);
+	length = currentCapture - m_lastCapture;
 
-//	if(m_syncing)
-//	{
-//		if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-//		{
-//
-//		}
-//	}
-//	else
-//	{
-//
-//	}
+	ProcessPeriod(level, m_overflow < 2 ? length : 0xffff);
+
 	m_lastCapture = currentCapture;
+	m_overflow = 0;
+}
+
+////////////////////////////////////////////////////////////////////
+void RFDecoder::ProcessPeriod(bool level, uint16_t length)
+{
+	bool highLong;
+
+	if(!m_syncLength) {	//looking for sync
+		if(level && length > SYNCLENGTH_MIN && length < SYNCLENGTH_MAX )
+		{	//high pulse with appropriate length
+			m_syncLength = length;
+			m_code = 0;
+			m_bits = 0;
+			m_minShort = length >> 1;								// 0.5
+			m_maxShort = length + (length >> 2);					// 1 + 0.25 = 1.25
+			m_minLong = length + (length >> 1) - (length >> 3);		// 1 + 0.5 - 0.125 = 1.325
+			m_maxLong = length << 1;								// 2
+		}
+	}
+	else
+	{
+		if(length < m_minShort || (length > m_maxShort && length < m_minLong) || length > m_maxLong) {
+			//invalid length, back to sync seek
+			m_syncLength = 0;
+		}
+		else
+		{
+			if( !level ) {	//	low pulse
+				m_lowLong = length > m_maxShort;
+			} else
+			{	//	high pulse
+				highLong = length >= m_minLong;
+				if(m_lowLong == highLong)
+					m_syncLength = 0;	//both half are the same => invalid
+				else {
+					if( !m_lowLong )	//	1
+						m_code |= 1 << m_bits;
+					if(++m_bits == 12) {
+						m_lastDecoded = m_code;
+						m_syncLength = 0;
+						//TODO: notify
+					}
+				}
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////
