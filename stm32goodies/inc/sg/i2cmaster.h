@@ -1,6 +1,7 @@
 #ifndef _I2CMASTER_H_
 #define _I2CMASTER_H_
 #include <sg/stm32_hal.h>
+#include <sg/singleton.h>
 #include <inttypes.h>
 #include <string.h>
 
@@ -22,11 +23,10 @@ namespace sg {
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-class I2cCallbackDispatcher
+class I2cCallbackDispatcher : public Singleton<I2cCallbackDispatcher>
 {
+	friend class Singleton<I2cCallbackDispatcher>;
 public:
-	static I2cCallbackDispatcher& Instance() { return m_instance; }
-
 	class II2cCallback
 	{
 	public:
@@ -54,8 +54,6 @@ private:
 	I2cCallbackDispatcher(const I2cCallbackDispatcher &rhs) = delete;
 
 	void Callback(I2C_HandleTypeDef *hi2c, II2cCallback::CallbackType type);
-
-	static I2cCallbackDispatcher	m_instance;
 
 	II2cCallback 					*m_handlers[2];
 

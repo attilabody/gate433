@@ -42,9 +42,6 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-UsartCallbackDispatcher UsartCallbackDispatcher::m_instance;
-
-//////////////////////////////////////////////////////////////////////////////
 bool UsartCallbackDispatcher::Register(IUsartCallback *handler)
 {
 	decltype(handler)*	hp = nullptr;
@@ -52,8 +49,10 @@ bool UsartCallbackDispatcher::Register(IUsartCallback *handler)
 	for( auto& h : m_handlers) {
 		if( h == handler )
 			return true;
-		if(!hp && !h)
+		if(!hp && !h) {
 			hp = &h;
+			break;
+		}
 	}
 	if(hp) {
 		*hp = handler;
@@ -74,9 +73,6 @@ void UsartCallbackDispatcher::Callback(UART_HandleTypeDef *huart, IUsartCallback
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-DbgUsart DbgUsart::m_instance;
-
-////////////////////////////////////////////////////////////////////
 bool DbgUsart::Init(UsartCallbackDispatcher &disp, UART_HandleTypeDef *huart, uint8_t *buffer, uint16_t size, bool block)
 {
 	if(m_buffer) {

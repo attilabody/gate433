@@ -9,13 +9,12 @@
 #define USART_H
 
 #include <sg/stm32_hal.h>
+#include <sg/singleton.h>
 #include <stddef.h>
 #include <string.h>
 #include <inttypes.h>
 
 namespace sg {
-
-#define USART_COUNT 3
 
 extern "C" {
 	void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
@@ -25,11 +24,11 @@ extern "C" {
 	void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);
 }
 
-class UsartCallbackDispatcher
+class UsartCallbackDispatcher : public Singleton<UsartCallbackDispatcher>
 {
+private:
+	static const uint8_t	USART_COUNT = 3;
 public:
-	static UsartCallbackDispatcher& Instance() { return m_instance; }
-
 	class IUsartCallback
 	{
 	public:
@@ -54,8 +53,6 @@ private:
 
 	void Callback(UART_HandleTypeDef *hi2c, IUsartCallback::CallbackType type);
 
-	static UsartCallbackDispatcher	m_instance;
-
 	IUsartCallback 					*m_handlers[USART_COUNT];
 
 	friend void ::HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
@@ -63,19 +60,19 @@ private:
 	friend void ::HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 	friend void ::HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
 	friend void ::HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);
-
+	friend class Singleton<UsartCallbackDispatcher>;
 };
 
 ////////////////////////////////////////////////////////////////////
-class DbgUsart : public UsartCallbackDispatcher::IUsartCallback
+class DbgUsart : public UsartCallbackDispatcher::IUsartCallback, public Singleton<DbgUsart>
 {
+	friend class Singleton<DbgUsart>;
 public:
 	DbgUsart(const DbgUsart &) = delete;
 	DbgUsart(DbgUsart &&) = delete;
 	DbgUsart &operator=(const DbgUsart &) = delete;
 
 	bool Init(UsartCallbackDispatcher &disp, UART_HandleTypeDef *huart, uint8_t *buffer, uint16_t size, bool block);
-	static DbgUsart& Instance() { return m_instance; }
 	void SetBlock(bool block) { m_block = block; }
 
 	uint16_t Send(const void *buffer, uint16_t count);
@@ -90,8 +87,6 @@ private:
 	DbgUsart() = default;
 	uint16_t FillTxBuffer(const uint8_t *buffer, uint16_t count);
 	virtual bool UsartCallback(UART_HandleTypeDef *huart, CallbackType type);
-
-	static DbgUsart		m_instance;
 
 	UART_HandleTypeDef	*m_huart;
 	uint8_t				*m_buffer = nullptr;
