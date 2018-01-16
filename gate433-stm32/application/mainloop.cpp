@@ -75,39 +75,50 @@ void MainLoop()
 	if((ret = FATFS_LinkDriver(&SD_Driver, SDPath)) == 0)
 	{
 		uint32_t byteswritten, bytesread;                     /* File write/read counts */
-		uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
+		uint8_t wtext[] = "This is STM32 working with FatFs\r\n"; /* File write buffer */
 		uint8_t rtext[100];                                   /* File read buffer */
 
 		TICK();
-		/*##-2- Register the file system object to the FatFs module ##############*/
 		if((ret = f_mount(&SDFatFs, (TCHAR const*)SDPath, 0)) != FR_OK) { /* FatFs Initialization Error */
 			Error_Handler();
 		}
-		else
+
+		MSG("openw");
+		TICK();
+		if((ret = f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE)) == FR_OK)
 		{
+			MSG("write1");
+			TICK();
+			if((ret = f_write(&MyFile, wtext, sizeof(wtext), (UINT *)&byteswritten)) != FR_OK
+					|| byteswritten == 0)
+			{
+				f_close(&MyFile);
+				MSG("write1fail");
+				Error_Handler();
+			}
+
 			MSG("openr1");
 			TICK();
-			/*##-7- Open the text file object with read access ###############*/
-			if((ret = f_open(&MyFile, "FILE.TXT", FA_READ)) == FR_OK)
+
+			FIL MyFile2;     /* File object */
+
+			if((ret = f_open(&MyFile2, "FILE.TXT", FA_READ)) == FR_OK)
 			{
 				MSG("read1");
 				TICK();
-				/*##-8- Read data from the text file ###########################*/
-				ret = f_read(&MyFile, rtext, sizeof(rtext), (UINT*)&bytesread);
+				ret = f_read(&MyFile2, rtext, sizeof(rtext), (UINT*)&bytesread);
 
 				if((bytesread == 0) || (ret != FR_OK)) { /* 'STM32.TXT' file Read or EOF Error */
 					MSG("read1fail")
 				}
 				else
 				{
-					/*##-9- Close the open text file #############################*/
 					rtext[bytesread] = 0;
-					g_com.Send(rtext, bytesread);
-					g_com.Send("\r\n", 2);
+					g_com << sg::DbgUsart::Buffer(rtext, bytesread) << "\r\n";
 				}
 				MSG("closer1");
 				TICK();
-				if((ret = f_close(&MyFile)) != FR_OK) {
+				if((ret = f_close(&MyFile2)) != FR_OK) {
 					MSG("closer1fai");
 					Error_Handler();
 				}
@@ -117,74 +128,62 @@ void MainLoop()
 				MSG("openr1fail")
 			}
 
-			/*##-4- Create and Open a new text file object with write access #####*/
-			MSG("openw");
+			MSG("write2");
 			TICK();
-			if((ret = f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE)) == FR_OK)
+			if((ret = f_write(&MyFile, wtext, sizeof(wtext), (UINT *)&byteswritten)) != FR_OK
+					|| byteswritten == 0)
 			{
-				MSG("write");
-				TICK();
-				/*##-5- Write data to the text file ################################*/
-				ret = f_write(&MyFile, wtext, sizeof(wtext), (UINT *)&byteswritten);
+				f_close(&MyFile);
+				MSG("write2fail");
+				Error_Handler();
+			}
 
-				/*##-6- Close the open text file #################################*/
-				MSG("closew");
+			MSG("closew");
+			TICK();
+			if (f_close(&MyFile) != FR_OK ) {
+				MSG("closewfail");
+				Error_Handler();
+			}
+
+			MSG("openr2");
+			TICK();
+			if(f_open(&MyFile, "STM32.TXT", FA_READ) == FR_OK)
+			{
+				MSG("read2");
 				TICK();
-				if (f_close(&MyFile) != FR_OK ) {
-					MSG("closewfail");
+				ret = f_read(&MyFile, rtext, sizeof(rtext), (UINT*)&bytesread);
+
+				if((bytesread == 0) || (ret != FR_OK)) {
+					MSG("read2fail");
+				} else {
+					g_com << sg::DbgUsart::Buffer(rtext, bytesread) << "\r\n";
+				}
+
+				MSG("closer2");
+				TICK();
+				if((ret = f_close(&MyFile)) != FR_OK) {
+					MSG("closer2fail");
 					Error_Handler();
-				}
-
-				if((byteswritten == 0) || (ret != FR_OK)) { /* 'STM32.TXT' file Write or EOF Error */
-					MSG("writefail");
-				}
-				else
-				{
-					MSG("openr2");
-					TICK();
-					/*##-7- Open the text file object with read access ###############*/
-					if(f_open(&MyFile, "STM32.TXT", FA_READ) == FR_OK)
-					{ /* 'STM32.TXT' file Open for read Error */
-						MSG("read2");
-						TICK();
-						/*##-8- Read data from the text file ###########################*/
-						ret = f_read(&MyFile, rtext, sizeof(rtext), (UINT*)&bytesread);
-
-						if((bytesread == 0) || (ret != FR_OK)) { /* 'STM32.TXT' file Read or EOF Error */
-							MSG("read2fail");
-						}
-						else
-						{ /*##-9- Close the open text file #############################*/
-							g_com.Send(rtext, bytesread);
-							g_com.Send("\r\n", 2);
-						}
-						MSG("closer2");
-						TICK();
-						if((ret = f_close(&MyFile)) != FR_OK) {
-							MSG("closer2fail");
-							Error_Handler();
-						}
-					}
-					else
-					{
-						MSG("openr2fail");
-					}
-				}
-
-				MSG("unlink");
-				TICK();
-				if(( ret = f_unlink("STM32.TXT")) != FR_OK) {
-					MSG("unlinkfail");
 				}
 			}
 			else
 			{
-				MSG("openwfail");
-				Error_Handler();
+				MSG("openr2fail");
 			}
 
+			MSG("unlink");
 			TICK();
+			if(( ret = f_unlink("STM32.TXT")) != FR_OK) {
+				MSG("unlinkfail");
+			}
 		}
+		else
+		{
+			MSG("openwfail");
+			Error_Handler();
+		}
+
+		TICK();
 	}
 
 
