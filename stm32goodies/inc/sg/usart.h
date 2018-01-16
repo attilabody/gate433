@@ -78,20 +78,50 @@ public:
 	uint16_t Send(const void *buffer, uint16_t count);
 	uint16_t Send(char c);
 	uint16_t Send(bool b);
-	uint16_t Send(uint32_t l, bool hex = false, bool prefix = true, bool zeroes = false);
-	uint16_t Send(uint16_t i, bool hex = false, bool prefix = true, bool zeroes = false);
-	uint16_t Send(uint8_t i, bool hex = false, bool prefix = true);
+	uint16_t Send(uint32_t u, bool hex = false, bool prefix = true, bool pad = false);
+	uint16_t Send(uint16_t u, bool hex = false, bool prefix = true, bool pad = false);
+	uint16_t Send(uint8_t u, bool hex = false, bool prefix = true);
 	uint16_t Send(const char *str);
+
+	class Hex {};
+	class Dec {};
+	class Prefix {};
+	class Noprefix {};
+	class Pad {};
+	class Nopad {};
+	struct Buffer {
+		Buffer(void* buffer, uint16_t count) : m_buffer(buffer), m_count(count) {}
+		void *m_buffer;
+		uint16_t m_count;
+	};
+
+	DbgUsart& operator<<(const Buffer& b) { Send(b.m_buffer, b.m_count); return *this; }
+	DbgUsart& operator<<(const char* str) { Send((void *)str, strlen(str)); return *this; }
+	DbgUsart& operator<<(char c) { Send(&c, 1); return *this; }
+	DbgUsart& operator<<(bool b) { Send(b ? '1' : '0'); return *this; }
+	DbgUsart& operator<<(uint32_t u);
+	DbgUsart& operator<<(uint16_t u);
+	DbgUsart& operator<<(uint8_t u);
+
+	DbgUsart& operator<<(Hex) { m_hex = true; return *this; }
+	DbgUsart& operator<<(Dec) { m_hex = false; return *this; }
+	DbgUsart& operator<<(Prefix) { m_prefix = true; return *this; }
+	DbgUsart& operator<<(Noprefix) { m_prefix = false; return *this; }
+	DbgUsart& operator<<(Pad) { m_pad = true; return *this; }
+	DbgUsart& operator<<(Nopad) { m_pad = false; return *this; }
 
 private:
 	DbgUsart() = default;
 	uint16_t FillTxBuffer(const uint8_t *buffer, uint16_t count);
 	virtual bool UsartCallback(UART_HandleTypeDef *huart, CallbackType type);
 
-	UART_HandleTypeDef	*m_huart;
+	UART_HandleTypeDef	*m_huart = nullptr;
 	uint8_t				*m_buffer = nullptr;
 	uint16_t			m_size = 0;
 	bool				m_block = true;
+	bool				m_prefix = false;
+	bool				m_hex = false;
+	bool				m_pad = false;
 
 	volatile uint16_t	m_txStart = 0;
 	volatile uint16_t	m_txCount = 0;

@@ -181,16 +181,14 @@ uint16_t  DbgUsart::Send(char c)
 	return Send(&c, 1);
 }
 
-
 ////////////////////////////////////////////////////////////////////
 uint16_t DbgUsart::Send(bool b)
 {
 	return Send(b ? '1' : '0');
 }
 
-
 ////////////////////////////////////////////////////////////////////
-uint16_t DbgUsart::Send(uint32_t u, bool hex, bool prefix, bool zeroes)
+uint16_t DbgUsart::Send(uint32_t u, bool hex, bool prefix, bool pad)
 {
 	if(hex) {
 		uint16_t ret = 0;
@@ -200,11 +198,11 @@ uint16_t DbgUsart::Send(uint32_t u, bool hex, bool prefix, bool zeroes)
 		uint8_t b;
 		for(uint8_t byte = 0; byte < sizeof(u); ++byte) {
 			b = *pb >> 4;
-			if(zeroes || b)
+			if(pad || b)
 				ret += Send(tochr(b));
-			if(b) zeroes = true;
+			if(b) pad = true;
 			b = *pb & 0xF;
-			if(zeroes || b || !byte)
+			if(pad || b || !byte)
 				ret += Send(tochr(b));
 			--pb;
 		}
@@ -216,9 +214,8 @@ uint16_t DbgUsart::Send(uint32_t u, bool hex, bool prefix, bool zeroes)
 	}
 }
 
-
 ////////////////////////////////////////////////////////////////////
-uint16_t DbgUsart::Send(uint16_t u, bool hex, bool prefix, bool zeroes)
+uint16_t DbgUsart::Send(uint16_t u, bool hex, bool prefix, bool pad)
 {
 	if(hex) {
 		uint16_t  ret = 0;
@@ -228,11 +225,11 @@ uint16_t DbgUsart::Send(uint16_t u, bool hex, bool prefix, bool zeroes)
 		uint8_t b;
 		for(uint8_t byte = 0; byte < sizeof(u); ++byte) {
 			b = *pb >> 4;
-			if(zeroes || b)
+			if(pad || b)
 				ret += Send(tochr(b));
-			if(b) zeroes = true;
+			if(b) pad = true;
 			b = *pb & 0xF;
-			if(zeroes || b || !byte)
+			if(pad || b || !byte)
 				ret += Send(tochr(b));
 			--pb;
 		}
@@ -262,12 +259,77 @@ uint16_t DbgUsart::Send(uint8_t u, bool hex, bool prefix)
 	}
 }
 
-
 ////////////////////////////////////////////////////////////////////
 uint16_t DbgUsart::Send(const char *str)
 {
 	return Send((void *)str, strlen(str));
 }
 
+////////////////////////////////////////////////////////////////////
+DbgUsart& DbgUsart::operator<<(uint32_t u)
+{
+	if(m_hex) {
+		if(m_prefix)
+			Send("0x");
+		uint8_t	*pb = ((uint8_t *)((&u) + 1) - 1);
+		uint8_t b;
+		for(uint8_t byte = 0; byte < sizeof(u); ++byte) {
+			b = *pb >> 4;
+			if(m_pad || b)
+				Send(tochr(b));
+			if(b) m_pad = true;
+			b = *pb & 0xF;
+			if(m_pad || b || !byte)
+				Send(tochr(b));
+			--pb;
+		}
+	} else {
+		char buffer[13];
+		uitodec(u, buffer);
+		Send(buffer, strlen(buffer));
+	}
+	return *this;
+}
 
+////////////////////////////////////////////////////////////////////
+DbgUsart& DbgUsart::operator<<(uint16_t u)
+{
+	if(m_hex) {
+		if(m_prefix)
+			Send("0x");
+		uint8_t	*pb = ((uint8_t *)((&u) + 1) - 1);
+		uint8_t b;
+		for(uint8_t byte = 0; byte < sizeof(u); ++byte) {
+			b = *pb >> 4;
+			if(m_pad || b)
+				Send(tochr(b));
+			if(b) m_pad = true;
+			b = *pb & 0xF;
+			if(m_pad || b || !byte)
+				Send(tochr(b));
+			--pb;
+		}
+	} else {
+		char    buffer[8];
+		uitodec(u, buffer);
+		Send(buffer, strlen(buffer));
+	}
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////
+DbgUsart& DbgUsart::operator<<(uint8_t u)
+{
+	if(m_hex) {
+		if(m_prefix)
+			Send("0x");
+		Send(tochr(u >> 4));
+		Send(tochr(u & 0x0F));
+	} else {
+		char    buffer[4];
+		uitodec(u, buffer);
+		Send(buffer, strlen(buffer));
+	}
+	return *this;
+}
 
