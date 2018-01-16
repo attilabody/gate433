@@ -48,10 +48,7 @@ void MainLoop()
 	}
 
 	g_com.Init(sg::UsartCallbackDispatcher::Instance(), &huart1, g_serialBuffer, sizeof(g_serialBuffer), true);
-
-	{
-		sg::SafeSingletonInitializer<RFDecoder>	si;
-	}
+	RFDecoder::Instance().Init();
 
 	uint32_t	counter = 0;
 	while(true)

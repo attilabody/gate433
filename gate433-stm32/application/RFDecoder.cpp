@@ -10,13 +10,15 @@
 #include <gpio.h>
 
 ////////////////////////////////////////////////////////////////////
-RFDecoder::RFDecoder()
+HAL_StatusTypeDef RFDecoder::Init()
 {
 	HAL_StatusTypeDef	res = HAL_OK;
 
-	res = HAL_TIM_Base_Start_IT(&htim1);
-	res = HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_1);
-	res = HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_2);
+	if((res = HAL_TIM_Base_Start_IT(&htim1)) != HAL_OK)
+		return res;
+	if((res = HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_1)) != HAL_OK)
+		return res;
+	return HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_2);
 }
 
 ////////////////////////////////////////////////////////////////////

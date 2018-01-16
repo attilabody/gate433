@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>gate433-stm32</name>
-	<comment></comment>
+	<comment />
 	<projects>
 	</projects>
 	<buildSpec>
@@ -34,12 +34,12 @@
 		<link>
 			<name>stm32goodies/inc</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/stm32goodies/inc</locationURI>
+			<location>PARENT-1-PROJECT_LOC/stm32goodies/inc</location>
 		</link>
 		<link>
 			<name>stm32goodies/src</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/stm32goodies/src</locationURI>
+			<location>PARENT-1-PROJECT_LOC/stm32goodies/src</location>
 		</link>
 	</linkedResources>
 </projectDescription>

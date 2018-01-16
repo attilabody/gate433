@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=/mnt/userdata/compi/work/gate433/gate433-stm32/Inc
+HeaderPath=/mnt/userdata/compi/work/gate433/gate433/gate433-stm32/Inc
 HeaderFiles=gpio.h;ffconf.h;user_diskio.h;fatfs.h;i2c.h;spi.h;usart.h;stm32f1xx_it.h;stm32f1xx_hal_conf.h;main.h;tim.h;
-SourcePath=/mnt/userdata/compi/work/gate433/gate433-stm32/Src
+SourcePath=/mnt/userdata/compi/work/gate433/gate433/gate433-stm32/Src
 SourceFiles=gpio.c;user_diskio.c;fatfs.c;i2c.c;spi.c;usart.c;stm32f1xx_it.c;stm32f1xx_hal_msp.c;main.c;tim.c;
 
 [PreviousLibFiles]

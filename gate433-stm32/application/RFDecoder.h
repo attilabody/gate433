@@ -31,9 +31,11 @@ class RFDecoder : public sg::Singleton<RFDecoder>
 	friend class Singleton<RFDecoder>;
 	friend void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 	friend void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
+public:
+	HAL_StatusTypeDef Init();
 
 private:
-	RFDecoder();
+	RFDecoder() = default;
 
 	void PeriodEllapsed(TIM_HandleTypeDef *htim);
 	void CaptureCallback(TIM_HandleTypeDef *htim);
