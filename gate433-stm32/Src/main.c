@@ -72,6 +72,7 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+void MainLoop();
 
 /* USER CODE END PFP */
 
