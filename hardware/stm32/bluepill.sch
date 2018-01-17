@@ -1,15 +1,8 @@
 EESchema Schematic File Version 2
 LIBS:power
 LIBS:device
-LIBS:switches
-LIBS:relays
-LIBS:motors
-LIBS:transistors
-LIBS:conn
 LIBS:linear
 LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
 LIBS:adc-dac
 LIBS:memory
 LIBS:xilinx
@@ -30,14 +23,14 @@ LIBS:siliconi
 LIBS:opto
 LIBS:atmel
 LIBS:contrib
-LIBS:valves
 LIBS:bluepill
+LIBS:Connector
 LIBS:bluepill-cache
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 1
+Sheet 1 4
 Title ""
 Date ""
 Rev ""
@@ -47,26 +40,36 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-$Comp
-L bluepill U?
-U 1 1 5A5E15DC
-P 5600 4950
-F 0 "U?" H 5600 6050 60  0000 C CNN
-F 1 "bluepill" H 5600 5000 60  0000 C CNN
-F 2 "" H 5600 5050 60  0001 C CNN
-F 3 "" H 5600 5050 60  0001 C CNN
-	1    5600 4950
-	1    0    0    -1  
-$EndComp
-$Comp
-L 24LC512 U?
-U 1 1 5A5E16FC
-P -94500 -291750
-F 0 "U?" H -94750 -291500 50  0000 C CNN
-F 1 "24LC512" H -94450 -291500 50  0000 L CNN
-F 2 "Housings_SOIC:SOIC-8_3.9x4.9mm_Pitch1.27mm" H -94450 -292000 50  0001 L CNN
-F 3 "" H -94500 -291850 50  0001 C CNN
-	1    -94500 -291750
-	1    0    0    -1  
-$EndComp
+$Sheet
+S 3400 4250 850  550 
+U 5A5F2F18
+F0 "EEPROM" 60
+F1 "eeprom.sch" 60
+F2 "SCL" O R 4250 4550 60 
+F3 "SDA" B R 4250 4400 60 
+$EndSheet
+$Sheet
+S 4450 4250 700  800 
+U 5A5F2F24
+F0 "MCU" 60
+F1 "mcu.sch" 60
+F2 "SDA" B L 4450 4400 60 
+F3 "SCL" O L 4450 4550 60 
+F4 "IG" O R 5150 4850 60 
+F5 "IY" O R 5150 4750 60 
+F6 "IR" O R 5150 4650 60 
+F7 "OG" O R 5150 4550 60 
+F8 "OY" O R 5150 4450 60 
+F9 "OR" O R 5150 4350 60 
+$EndSheet
+Wire Wire Line
+	4250 4400 4450 4400
+Wire Wire Line
+	4250 4550 4450 4550
+$Sheet
+S 5350 4250 750  800 
+U 5A5F710E
+F0 "Outputs" 60
+F1 "Outputs.sch" 60
+$EndSheet
 $EndSCHEMATC
