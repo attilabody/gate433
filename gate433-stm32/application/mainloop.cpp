@@ -40,8 +40,8 @@ uint8_t			g_serialBuffer[64];
 sg::DbgUsart	&g_com = sg::DbgUsart::Instance();
 
 FATFS SDFatFs;  /* File system object for SD card logical drive */
-FIL MyFile;     /* File object */
 char SDPath[4]; /* SD card logical drive path */
+FIL MyFile;     /* File object */
 
 uint8_t	g_sdBuffer[512];
 

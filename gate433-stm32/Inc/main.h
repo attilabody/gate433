@@ -59,6 +59,18 @@
 
 #define SD_CS_Pin GPIO_PIN_4
 #define SD_CS_GPIO_Port GPIOA
+#define LOOP_O_Pin GPIO_PIN_14
+#define LOOP_O_GPIO_Port GPIOB
+#define LOOP_I_Pin GPIO_PIN_15
+#define LOOP_I_GPIO_Port GPIOB
+#define BTN1_Pin GPIO_PIN_10
+#define BTN1_GPIO_Port GPIOA
+#define BTN2_Pin GPIO_PIN_11
+#define BTN2_GPIO_Port GPIOA
+#define BTN3_Pin GPIO_PIN_12
+#define BTN3_GPIO_Port GPIOA
+#define BTN4_Pin GPIO_PIN_15
+#define BTN4_GPIO_Port GPIOA
 
 /* ########################## Assert Selection ############################## */
 /**
