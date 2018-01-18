@@ -1,4 +1,4 @@
-update=1/17/2018 11:26:11 AM
+update=2018. jan. 17., szerda, 22:34:26 CET
 version=1
 last_client=kicad
 [pcbnew]
@@ -62,4 +62,4 @@ LibName30=atmel
 LibName31=contrib
 LibName32=valves
 LibName33=libs/bluepill
-LibName34=C:/Program Files/KiCad/share/kicad/library/Connector
+LibName34=/home/compi/kicad_sources/library-repos/kicad-library/library/Connector
