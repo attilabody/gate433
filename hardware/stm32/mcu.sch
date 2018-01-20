@@ -114,17 +114,6 @@ F 3 "" H 6200 5050 50  0001 C CNN
 	1    6200 5050
 	1    0    0    -1  
 $EndComp
-$Comp
-L +5V #PWR12
-U 1 1 5A5F3181
-P 4500 4050
-F 0 "#PWR12" H 4500 3900 50  0001 C CNN
-F 1 "+5V" H 4500 4190 50  0000 C CNN
-F 2 "" H 4500 4050 50  0001 C CNN
-F 3 "" H 4500 4050 50  0001 C CNN
-	1    4500 4050
-	1    0    0    -1  
-$EndComp
 Text HLabel 3650 4650 0    60   BiDi ~ 0
 SDA
 Text HLabel 3650 4550 0    60   Output ~ 0
@@ -466,7 +455,7 @@ Wire Wire Line
 Wire Wire Line
 	3800 4100 4500 4100
 Wire Wire Line
-	4350 4250 4350 4100
+	4350 4000 4350 4250
 Connection ~ 4350 4100
 Connection ~ 4150 4100
 Wire Wire Line
@@ -476,7 +465,7 @@ Wire Wire Line
 Wire Wire Line
 	4800 3550 4750 3550
 Wire Wire Line
-	4750 3450 4750 3550
+	4750 3550 4750 3450
 Wire Wire Line
 	3800 3450 4800 3450
 Connection ~ 4750 3450
@@ -658,7 +647,7 @@ F 3 "" H 4100 1700 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4500 4050 4500 4850
+	4500 4100 4500 4850
 $Comp
 L Conn_01x02_Male J16
 U 1 1 5A60708A
@@ -672,7 +661,6 @@ F 3 "" H 4150 4750 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	4500 4850 4350 4850
-Connection ~ 4500 4100
 $Comp
 L CP_Small C8
 U 1 1 5A607484
@@ -999,4 +987,16 @@ Wire Wire Line
 	7350 5050 7600 5050
 Text Label 7600 5050 0    60   ~ 0
 USB+
+$Comp
+L +5V #PWR12
+U 1 1 5A5F3181
+P 4350 4000
+F 0 "#PWR12" H 4350 3850 50  0001 C CNN
+F 1 "+5V" H 4350 4140 50  0000 C CNN
+F 2 "" H 4350 4000 50  0001 C CNN
+F 3 "" H 4350 4000 50  0001 C CNN
+	1    4350 4000
+	1    0    0    -1  
+$EndComp
+NoConn ~ 4800 3750
 $EndSCHEMATC
