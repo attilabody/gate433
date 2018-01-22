@@ -1,3 +1,6 @@
 *.net
 _autosave-*
 *.kicad_pcb-bak
+*.zip
+*.gbr
+*.drl
