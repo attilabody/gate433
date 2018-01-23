@@ -15,9 +15,13 @@
 #include <RFDecoder.h>
 #include <sg/itlock.h>
 #include <sg/usart.h>
+#include <sg/i2ceeprom.h>
 
-#include "sd_diskio.h"
-#include "diskio.h"
+#include "SdFile.h"
+
+#include "config.h"
+
+//#define TEST_SDCARD
 
 struct AnalogOutput {
 	TIM_HandleTypeDef*	handle;
@@ -43,16 +47,33 @@ FATFS SDFatFs;  /* File system object for SD card logical drive */
 char SDPath[4]; /* SD card logical drive path */
 FIL MyFile;     /* File object */
 
-uint8_t	g_sdBuffer[512];
+sg::I2cMaster	g_i2c(&hi2c1, &sg::I2cCallbackDispatcher::Instance());
+sg::I2cEEPROM	g_eeprom(g_i2c, EEPROM_I2C_ADDRESS, EEPROM_I2C_ADDRESS_LENGTH, 128);
+
+uint8_t	g_bigFancyBuffer[256];
 
 
 ////////////////////////////////////////////////////////////////////
-#define TICK() 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13)
-#define MSG(x)	g_com.Send(x);g_com.Send("\r\n",2);
+#define TICK(x) HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); g_com << x << "\r\n"
+#define MSG(x)	g_com << x << "\r\n";
+
+////////////////////////////////////////////////////////////////////
+void Fail(const char * file, int line)
+{
+	g_com << file << ": " << (uint32_t)line << "\r\n";
+	while(1) {
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		HAL_Delay(100);
+	}
+}
+
+#define FAIL() Fail(__FILE__, __LINE__)
 
 ////////////////////////////////////////////////////////////////////
 void MainLoop()
 {
+	HAL_StatusTypeDef	ret = HAL_OK;
+
 	HAL_TIM_Base_Start(&htim2);
 	HAL_TIM_Base_Start(&htim3);
 
@@ -64,128 +85,69 @@ void MainLoop()
 	g_com.Init(sg::UsartCallbackDispatcher::Instance(), &huart1, g_serialBuffer, sizeof(g_serialBuffer), true);
 	RFDecoder::Instance().Init();
 
-	uint8_t	ret;
 
 	for(uint8_t cnt = 0; cnt < 16; ++cnt) {
 	  uint32_t start = SysTick->VAL;
 	  while(SysTick->VAL - start < 1000 );
-	  TICK();
+	  TICK('.');
 	}
 
-	if((ret = FATFS_LinkDriver(&SD_Driver, SDPath)) == 0)
-	{
-		uint32_t byteswritten, bytesread;                     /* File write/read counts */
-		uint8_t wtext[] = "This is STM32 working with FatFs\r\n"; /* File write buffer */
-		uint8_t rtext[100];                                   /* File read buffer */
+#ifdef TEST_SDCARD
+	uint32_t byteswritten, bytesread;                     /* File write/read counts */
+	uint8_t wtext[] = "This is STM32 working with FatFs\r\n"; /* File write buffer */
+	uint8_t rtext[100];                                   /* File read buffer */
 
-		TICK();
-		if((ret = f_mount(&SDFatFs, (TCHAR const*)SDPath, 0)) != FR_OK) { /* FatFs Initialization Error */
-			Error_Handler();
-		}
+	uint32_t fpos = 0;
+	SdFile sdFileW;
 
-		MSG("openw");
-		TICK();
-		if((ret = f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE)) == FR_OK)
-		{
-			MSG("write1");
-			TICK();
-			if((ret = f_write(&MyFile, wtext, sizeof(wtext), (UINT *)&byteswritten)) != FR_OK
-					|| byteswritten == 0)
-			{
-				f_close(&MyFile);
-				MSG("write1fail");
-				Error_Handler();
-			}
+	TICK("openw1");
+	if(sdFileW.Open("STM32.TXT", SdFile::OpenMode::WRITE_TRUNC)) {
+		SdFile sdFileR;
+		TICK("openr1");
+		if(sdFileR.Open("FILE.TXT", SdFile::OpenMode::READ)) {
+			TICK("read1");
+			if((bytesread = sdFileR.Read(rtext, sizeof(rtext))) != 0) {
+				g_com << sg::DbgUsart::Buffer(rtext, bytesread) << "\r\n";
+				fpos = sdFileR.Ftell();
+				TICK("write1.1");
+				byteswritten = sdFileW.Write(wtext, sizeof(wtext)-1);
+				TICK("closer1");
+				sdFileR.Close();
+				if(byteswritten) {
+					TICK("closew1");
+					sdFileW.Close();
+					if(sdFileW.Open("STM32.TXT", SdFile::OpenMode::WRITE_APPEND)) {
+						TICK("write1.2");
+						byteswritten = sdFileW.Write(rtext, bytesread);
+						TICK("closew1");
+						sdFileW.Close();
+					}
+					TICK("openr2");
+					if(sdFileR.Open("STM32.TXT", SdFile::OpenMode::READ)) {
+						do {
+							TICK("read2");
+							if((bytesread = sdFileR.Read(rtext, sizeof(rtext))))
+								g_com.Send(rtext, bytesread);
+						} while(bytesread != 0);
+						TICK("closer2");
+						sdFileR.Close();
+					} else FAIL();
+				} else FAIL();
+			} else FAIL();
+		} else FAIL();
+	} else FAIL();
+#endif
 
-			MSG("openr1");
-			TICK();
+	for(uint16_t i=0; i < sizeof(g_bigFancyBuffer); ++i)
+		g_bigFancyBuffer[i] = 0xff-i;
 
-			FIL MyFile2;     /* File object */
-
-			if((ret = f_open(&MyFile2, "FILE.TXT", FA_READ)) == FR_OK)
-			{
-				MSG("read1");
-				TICK();
-				ret = f_read(&MyFile2, rtext, sizeof(rtext), (UINT*)&bytesread);
-
-				if((bytesread == 0) || (ret != FR_OK)) { /* 'STM32.TXT' file Read or EOF Error */
-					MSG("read1fail")
-				}
-				else
-				{
-					rtext[bytesread] = 0;
-					g_com << sg::DbgUsart::Buffer(rtext, bytesread) << "\r\n";
-				}
-				MSG("closer1");
-				TICK();
-				if((ret = f_close(&MyFile2)) != FR_OK) {
-					MSG("closer1fai");
-					Error_Handler();
-				}
-			}
-			else
-			{
-				MSG("openr1fail")
-			}
-
-			MSG("write2");
-			TICK();
-			if((ret = f_write(&MyFile, wtext, sizeof(wtext), (UINT *)&byteswritten)) != FR_OK
-					|| byteswritten == 0)
-			{
-				f_close(&MyFile);
-				MSG("write2fail");
-				Error_Handler();
-			}
-
-			MSG("closew");
-			TICK();
-			if (f_close(&MyFile) != FR_OK ) {
-				MSG("closewfail");
-				Error_Handler();
-			}
-
-			MSG("openr2");
-			TICK();
-			if(f_open(&MyFile, "STM32.TXT", FA_READ) == FR_OK)
-			{
-				MSG("read2");
-				TICK();
-				ret = f_read(&MyFile, rtext, sizeof(rtext), (UINT*)&bytesread);
-
-				if((bytesread == 0) || (ret != FR_OK)) {
-					MSG("read2fail");
-				} else {
-					g_com << sg::DbgUsart::Buffer(rtext, bytesread) << "\r\n";
-				}
-
-				MSG("closer2");
-				TICK();
-				if((ret = f_close(&MyFile)) != FR_OK) {
-					MSG("closer2fail");
-					Error_Handler();
-				}
-			}
-			else
-			{
-				MSG("openr2fail");
-			}
-
-			MSG("unlink");
-			TICK();
-			if(( ret = f_unlink("STM32.TXT")) != FR_OK) {
-				MSG("unlinkfail");
-			}
-		}
-		else
-		{
-			MSG("openwfail");
-			Error_Handler();
-		}
-
-		TICK();
-	}
-
+	ret = g_eeprom.Write(sizeof(g_bigFancyBuffer), g_bigFancyBuffer, sizeof(g_bigFancyBuffer));
+	g_eeprom.Sync();
+	memset(g_bigFancyBuffer, 0xaa, sizeof(g_bigFancyBuffer));
+	ret = g_eeprom.Read(0, g_bigFancyBuffer, sizeof(g_bigFancyBuffer));
+	g_eeprom.Sync();
+	ret = g_eeprom.Read(sizeof(g_bigFancyBuffer), g_bigFancyBuffer, sizeof(g_bigFancyBuffer));
+	g_eeprom.Sync();
 
 	uint32_t	counter = 0;
 	while(true)
@@ -198,5 +160,9 @@ void MainLoop()
 		}
 		counter += 256;
 		HAL_Delay(20);
+		if(counter >= 8192) {
+			counter -= 8192;
+			TICK('#');
+		}
 	}
 }
