@@ -73,14 +73,19 @@ void UsartCallbackDispatcher::Callback(UART_HandleTypeDef *huart, IUsartCallback
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-bool DbgUsart::Init(UsartCallbackDispatcher &disp, UART_HandleTypeDef *huart, uint8_t *buffer, uint16_t size, bool block)
+bool DbgUsart::Init(
+		UsartCallbackDispatcher &disp,
+		UART_HandleTypeDef *huart,
+		uint8_t *outputBuffer,
+		uint16_t outputBufferSize,
+		bool block)
 {
-	if(m_buffer) {
+	if(m_outputBuffer) {
 		return false;
 	}
 	m_huart = huart;
-	m_buffer = buffer;
-	m_size = size;
+	m_outputBuffer = outputBuffer;
+	m_outputBufferSize = outputBufferSize;
 	m_block = block;
 
 	disp.Register(this);
@@ -89,51 +94,52 @@ bool DbgUsart::Init(UsartCallbackDispatcher &disp, UART_HandleTypeDef *huart, ui
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t DbgUsart::FillTxBuffer(const uint8_t *buffer, uint16_t count)
+HAL_StatusTypeDef DbgUsart::FillTxBuffer(const uint8_t *buffer, uint16_t &count)
 {
-	HAL_StatusTypeDef	st;
-	uint16_t   			free, freestart, tocopy, copied = 0;
+	HAL_StatusTypeDef	st = HAL_OK;
+	uint16_t   			free, freestart, tocopy, canCopy;
 
 	{
 		ItLock	lock;
 		freestart = m_txStart + m_txCount;
-		free = m_size - m_txCount;
+		free = m_outputBufferSize - m_txCount;
 	}
-	freestart -= (freestart >= m_size) ? m_size : 0;
-	if(count > free) count = free;
-	tocopy = freestart + count > m_size ? m_size - freestart : count;
+	freestart -= (freestart >= m_outputBufferSize) ? m_outputBufferSize : 0;
+	canCopy = count > free ? free : count;
+	tocopy = freestart + canCopy > m_outputBufferSize ? m_outputBufferSize - freestart : canCopy;
 
-	memcpy(m_buffer + freestart, buffer, tocopy);
+	memcpy(m_outputBuffer + freestart, buffer, tocopy);
 
 	{
 		ItLock	lock;
 		if(!m_txCount) {
 			lock.Release();
 			m_chunkSize = tocopy;
-			st = HAL_UART_Transmit_IT(m_huart, m_buffer + freestart, tocopy);
+			st = HAL_UART_Transmit_IT(m_huart, m_outputBuffer + freestart, tocopy);
 		}
-		copied = tocopy;
-		count -= tocopy;
 		lock.Acquire();
 		m_txCount += tocopy;
 	}
+	count -= tocopy;
+	canCopy -= tocopy;
 
-	if(!count)
-		return copied;
+	if(!canCopy)
+		return st;
 
 	buffer += tocopy;
-	memcpy(m_buffer, buffer, count);
+	memcpy(m_outputBuffer, buffer, canCopy);
 
 	bool schedule;
 	{
 		ItLock lock;
 		schedule = !m_txCount;
-		m_txCount += count;
+		m_txCount += canCopy;
 	}
+	count -= canCopy;
 	if(schedule)	//	unlikely corner case
-		st = HAL_UART_Transmit_IT(m_huart, m_buffer, count);
+		st = HAL_UART_Transmit_IT(m_huart, m_outputBuffer, canCopy);
 
-	return copied + count;
+	return st;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -143,36 +149,42 @@ bool DbgUsart::UsartCallback(UART_HandleTypeDef *huart, CallbackType type)
 
 	if(huart != m_huart)
 		return false;
-	if(m_txCount && type == CallbackType::TxCpltCallback)
+	if(m_inputBuffer && type == CallbackType::RxCpltCallback)
+	{
+		m_receiverCallback->LineReceived(m_inputBufferSize - huart->RxXferCount);
+	}
+	else if(m_txCount && type == CallbackType::TxCpltCallback)
 	{
 		m_txCount -= m_chunkSize;
 		m_txStart += m_chunkSize;
-		if(m_txStart >= m_size)
-			m_txStart -= m_size;
-		m_chunkSize = m_txStart + m_txCount > m_size ? m_size - m_txStart : m_txCount;
+		if(m_txStart >= m_outputBufferSize)
+			m_txStart -= m_outputBufferSize;
+		m_chunkSize = m_txStart + m_txCount > m_outputBufferSize ? m_outputBufferSize - m_txStart : m_txCount;
 		if(m_chunkSize)
-			st = HAL_UART_Transmit_IT(m_huart, m_buffer + m_txStart, m_chunkSize);
+			st = HAL_UART_Transmit_IT(m_huart, m_outputBuffer + m_txStart, m_chunkSize);
 	}
+
+	(void)st;
+
 	return true;
 }
 
 ////////////////////////////////////////////////////////////////////
 uint16_t  DbgUsart::Send(const void *buffer, uint16_t count)
 {
-	uint16_t  sent = 0, copied;
+	uint16_t			requestedSize = count;
+	HAL_StatusTypeDef	st;
 
 	while(count) {
-		while(m_txCount == m_size)
+		while(m_txCount == m_outputBufferSize)
 			if(!m_block)
-				return sent;
+				return requestedSize - count;
 
-		copied = FillTxBuffer((uint8_t*)buffer, count);
-		buffer = (uint8_t*)buffer + copied;
-		count -= copied;
-		sent += copied;
+		if((st = FillTxBuffer((uint8_t*)buffer + requestedSize - count, count)) != HAL_OK)
+				return requestedSize - count;
 	}
 
-	return sent;
+	return requestedSize;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -331,5 +343,26 @@ DbgUsart& DbgUsart::operator<<(uint8_t u)
 		Send(buffer, strlen(buffer));
 	}
 	return *this;
+}
+
+////////////////////////////////////////////////////////////////////
+HAL_StatusTypeDef DbgUsart::Receive(uint8_t *buffer, uint16_t bufferSize, IReceiverCallback *callback, void *callbackUserPtr)
+{
+	HAL_StatusTypeDef st;
+
+	if( m_inputBuffer ) {
+		HAL_UART_AbortReceive(m_huart);
+		m_inputBuffer = nullptr;
+	}
+
+	m_inputBufferSize = bufferSize;
+	m_receiverCallback = callback;
+	m_receivedCallbackUserPtr = callbackUserPtr;
+	m_inputBuffer = buffer;
+
+	if((st = HAL_UART_Receive_IT(m_huart, m_inputBuffer, m_inputBufferSize)) != HAL_OK)
+		m_inputBuffer = nullptr;
+
+	return st;
 }
 

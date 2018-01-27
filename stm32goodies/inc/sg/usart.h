@@ -72,7 +72,12 @@ public:
 	DbgUsart(DbgUsart &&) = delete;
 	DbgUsart &operator=(const DbgUsart &) = delete;
 
-	bool Init(UsartCallbackDispatcher &disp, UART_HandleTypeDef *huart, uint8_t *buffer, uint16_t size, bool block);
+	bool Init(
+			UsartCallbackDispatcher &disp,
+			UART_HandleTypeDef *huart,
+			uint8_t *outputBuffer,
+			uint16_t outputBufferSize,
+			bool block);
 	void SetBlock(bool block) { m_block = block; }
 
 	uint16_t Send(const void *buffer, uint16_t count);
@@ -96,7 +101,7 @@ public:
 	};
 
 	DbgUsart& operator<<(const Buffer& b) { Send(b.m_buffer, b.m_count); return *this; }
-	DbgUsart& operator<<(const char* str) { Send((void *)str, strlen(str)); return *this; }
+	template<typename T> DbgUsart& operator<<(T* ptr) { Send(reinterpret_cast<const char*>(ptr)); return *this; }
 	DbgUsart& operator<<(char c) { Send(&c, 1); return *this; }
 	DbgUsart& operator<<(bool b) { Send(b ? '1' : '0'); return *this; }
 	DbgUsart& operator<<(uint32_t u);
@@ -110,14 +115,27 @@ public:
 	DbgUsart& operator<<(Pad) { m_pad = true; return *this; }
 	DbgUsart& operator<<(Nopad) { m_pad = false; return *this; }
 
+	struct IReceiverCallback {
+		virtual void LineReceived(uint16_t count) = 0;
+	};
+	HAL_StatusTypeDef Receive(
+			uint8_t *buffer,
+			uint16_t bufferSize,
+			IReceiverCallback *callback,
+			void *callbackUserPtr = nullptr);
+
 private:
 	DbgUsart() = default;
-	uint16_t FillTxBuffer(const uint8_t *buffer, uint16_t count);
+	HAL_StatusTypeDef FillTxBuffer(const uint8_t *buffer, uint16_t &count);
 	virtual bool UsartCallback(UART_HandleTypeDef *huart, CallbackType type);
 
 	UART_HandleTypeDef	*m_huart = nullptr;
-	uint8_t				*m_buffer = nullptr;
-	uint16_t			m_size = 0;
+	uint8_t				*m_outputBuffer = nullptr;
+	uint16_t			m_outputBufferSize = 0;
+	uint8_t				*m_inputBuffer = nullptr;
+	uint16_t			m_inputBufferSize = 0;
+	IReceiverCallback	*m_receiverCallback = nullptr;
+	void				*m_receivedCallbackUserPtr = nullptr;
 	bool				m_block = true;
 	bool				m_prefix = false;
 	bool				m_hex = false;
