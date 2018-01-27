@@ -79,10 +79,10 @@ public:
 
 	I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher *disp = nullptr);
 
-	Status Write(const uint16_t i2cAddress, uint8_t *data, uint8_t size, Mode mode = Poll);
-	Status Read(const uint16_t i2cAddress, uint8_t *data, uint8_t size, Mode mode = Poll);
-	Status WriteMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode = Poll);
-	Status ReadMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode = Poll);
+	Status Write(const uint16_t i2cAddress, const void *data, uint8_t size, Mode mode = Poll);
+	Status Read(const uint16_t i2cAddress, void *data, uint8_t size, Mode mode = Poll);
+	Status WriteMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, const void *data, uint16_t size, Mode mode = Poll);
+	Status ReadMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, void *data, uint16_t size, Mode mode = Poll);
 
 	inline uint32_t WaitCallback();
 	inline uint32_t	GetCallbackError() { return m_callbackError; }
