@@ -8,11 +8,12 @@
 
 namespace sg
 {
-I2cEEPROM::I2cEEPROM(I2cMaster &i2c, uint8_t i2cAddress, uint8_t addressLength, uint8_t pageLength)
-	: m_i2c(i2c)
-	, m_i2cAddress(i2cAddress)
-	, m_addressLengt(addressLength)
-	, m_pageLength(pageLength)
+I2cEEPROM::I2cEEPROM(I2cMaster &i2c, uint8_t i2cAddress, uint8_t addressLength, uint8_t pageLength, I2cMaster::Mode mode)
+: m_i2c(i2c)
+, m_i2cAddress(i2cAddress)
+, m_addressLengt(addressLength)
+, m_pageLength(pageLength)
+, m_mode(mode)
 {}
 
 //////////////////////////////////////////////////////////////////////////////
