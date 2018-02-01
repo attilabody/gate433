@@ -88,15 +88,25 @@ public:
 	uint16_t Send(uint8_t u, bool hex = false, bool prefix = true);
 	uint16_t Send(const char *str);
 
-	class Hex {};
-	class Dec {};
-	class Prefix {};
-	class Noprefix {};
-	class Pad {};
-	class Nopad {};
+	struct Hex {};
+	struct Dec {};
+	struct Prefix {};
+	struct NoPrefix {};
+	struct Pad {};
+	struct NoPad {};
+	struct Endl {};
+
+	static const Hex		hex;
+	static const Dec		dec;
+	static const Prefix		prefix;
+	static const NoPrefix	noprefix;
+	static const Pad		pad;
+	static const NoPad		nopad;
+	static const Endl		endl;
+
 	struct Buffer {
-		Buffer(void* buffer, uint16_t count) : m_buffer(buffer), m_count(count) {}
-		void *m_buffer;
+		Buffer(const void* buffer, uint16_t count) : m_buffer(buffer), m_count(count) {}
+		const void *m_buffer;
 		uint16_t m_count;
 	};
 
@@ -104,16 +114,17 @@ public:
 	template<typename T> DbgUsart& operator<<(T* ptr) { Send(reinterpret_cast<const char*>(ptr)); return *this; }
 	DbgUsart& operator<<(char c) { Send(&c, 1); return *this; }
 	DbgUsart& operator<<(bool b) { Send(b ? '1' : '0'); return *this; }
-	DbgUsart& operator<<(uint32_t u);
-	DbgUsart& operator<<(uint16_t u);
-	DbgUsart& operator<<(uint8_t u);
+	DbgUsart& operator<<(uint32_t u) { Send(u, m_hex, m_prefix, m_pad); return *this; }
+	DbgUsart& operator<<(uint16_t u) { Send(u, m_hex, m_prefix, m_pad); return *this; }
+	DbgUsart& operator<<(uint8_t u) { Send(u, m_hex, m_prefix); return *this; }
 
 	DbgUsart& operator<<(Hex) { m_hex = true; return *this; }
 	DbgUsart& operator<<(Dec) { m_hex = false; return *this; }
 	DbgUsart& operator<<(Prefix) { m_prefix = true; return *this; }
-	DbgUsart& operator<<(Noprefix) { m_prefix = false; return *this; }
+	DbgUsart& operator<<(NoPrefix) { m_prefix = false; return *this; }
 	DbgUsart& operator<<(Pad) { m_pad = true; return *this; }
-	DbgUsart& operator<<(Nopad) { m_pad = false; return *this; }
+	DbgUsart& operator<<(NoPad) { m_pad = false; return *this; }
+	DbgUsart& operator<<(Endl) { Send("\r\n", 2); return *this; }
 
 	struct IReceiverCallback {
 		virtual void LineReceived(uint16_t count) = 0;
