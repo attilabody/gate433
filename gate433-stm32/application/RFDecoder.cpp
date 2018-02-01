@@ -10,9 +10,11 @@
 #include <gpio.h>
 
 ////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef RFDecoder::Init()
+HAL_StatusTypeDef RFDecoder::Init(IDecoderCallback *callback)
 {
 	HAL_StatusTypeDef	res = HAL_OK;
+
+	m_callback = callback;
 
 	if((res = HAL_TIM_Base_Start_IT(&htim1)) != HAL_OK)
 		return res;
@@ -96,6 +98,8 @@ void RFDecoder::ProcessPeriod(bool level, uint16_t length)
 					if(++m_bits == 12) {
 						m_lastDecoded = m_code;
 						m_syncLength = 0;
+						if(m_callback)
+							m_callback->CodeReceived(m_lastDecoded);
 						//TODO: notify
 					}
 				}

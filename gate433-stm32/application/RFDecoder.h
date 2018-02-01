@@ -32,7 +32,10 @@ class RFDecoder : public sg::Singleton<RFDecoder>
 	friend void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 	friend void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
 public:
-	HAL_StatusTypeDef Init();
+	struct IDecoderCallback {
+		virtual void CodeReceived(uint16_t code) = 0;
+	};
+	HAL_StatusTypeDef Init(IDecoderCallback* callback);
 
 private:
 	RFDecoder() = default;
@@ -60,6 +63,7 @@ private:
 	bool		m_lowLong;
 	uint16_t	m_code, m_bits;
 	uint16_t	m_lastDecoded;
+	IDecoderCallback *m_callback = nullptr;
 };
 
 #endif /* __cplusplus */

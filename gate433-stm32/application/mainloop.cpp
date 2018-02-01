@@ -5,7 +5,6 @@
  *      Author: compi
  */
 #include "stm32f1xx_hal.h"
-#include "fatfs.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
@@ -15,13 +14,27 @@
 #include <RFDecoder.h>
 #include <sg/itlock.h>
 #include <sg/usart.h>
-#include <sg/i2ceeprom.h>
 
-#include "SdFile.h"
 
 #include "config.h"
 
-//#define TEST_SDCARD
+#define TEST_SDCARD
+#define TEST_EEPROM
+#define TEST_RTC
+
+#if defined(TEST_SDCARD)
+#include "SdFile.h"
+#endif	//	TEST_SDCARD
+
+#if defined(TEST_EEPROM)
+#include <sg/i2ceeprom.h>
+#endif
+
+#if defined(TEST_RTC)
+#include <sg/ds3231.h>
+#endif
+
+#include "RFDecoder.h"
 
 struct AnalogOutput {
 	TIM_HandleTypeDef*	handle;
@@ -43,15 +56,23 @@ extern "C" void MainLoop();
 uint8_t			g_serialBuffer[64];
 sg::DbgUsart	&g_com = sg::DbgUsart::Instance();
 
-FATFS SDFatFs;  /* File system object for SD card logical drive */
-char SDPath[4]; /* SD card logical drive path */
-FIL MyFile;     /* File object */
-
+#if defined(TEST_EEPROM) || defined(TEST_RTC)
 sg::I2cMaster	g_i2c(&hi2c1, &sg::I2cCallbackDispatcher::Instance());
+#endif
+
+#ifdef TEST_EEPROM
 sg::I2cEEPROM	g_eeprom(g_i2c, EEPROM_I2C_ADDRESS, EEPROM_I2C_ADDRESS_LENGTH, 128);
+#endif	//	TEST_EEPROM
 
-uint8_t	g_bigFancyBuffer[256];
+#ifdef TEST_RTC
+sg::DS3231_DST	g_rtc(g_i2c);
+#endif	//	TEST_RTC
 
+uint8_t			g_buffer[256];
+volatile bool	g_lineReceived = false;
+
+uint16_t		g_code;
+bool			g_codeReceived;
 
 ////////////////////////////////////////////////////////////////////
 #define TICK(x) HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); g_com << x << "\r\n"
@@ -70,6 +91,41 @@ void Fail(const char * file, int line)
 #define FAIL() Fail(__FILE__, __LINE__)
 
 ////////////////////////////////////////////////////////////////////
+void DumpBufferLine(uint16_t base, uint16_t offset, uint8_t count)
+{
+	g_com << sg::DbgUsart::hex << sg::DbgUsart::pad << (uint16_t)(base + offset);
+	while(count--) {
+		g_com << ' ' << g_buffer[offset++];
+	}
+	g_com << sg::DbgUsart::endl;
+
+}
+
+////////////////////////////////////////////////////////////////////
+struct ReceiverCallback : public sg::DbgUsart::IReceiverCallback
+{
+	virtual void LineReceived(uint16_t count)
+	{
+		uint8_t	*bufPtr = g_buffer + count -1;
+		while(bufPtr != g_buffer && (*bufPtr == '\r' || *bufPtr == '\n' || !*bufPtr))
+			--bufPtr;
+		if(bufPtr < g_buffer + count -1)
+			*(bufPtr + 1) = 0;
+		g_lineReceived = true;
+	}
+} g_lrcb;
+
+struct CodeReceivedCallback : public RFDecoder::IDecoderCallback
+{
+	virtual void CodeReceived(uint16_t code) {
+		if(!g_codeReceived) {
+			g_code = code;
+			g_codeReceived = true;
+		}
+	}
+} g_crcb;
+
+////////////////////////////////////////////////////////////////////
 void MainLoop()
 {
 	HAL_StatusTypeDef	ret = HAL_OK;
@@ -83,7 +139,7 @@ void MainLoop()
 	}
 
 	g_com.Init(sg::UsartCallbackDispatcher::Instance(), &huart1, g_serialBuffer, sizeof(g_serialBuffer), true);
-	RFDecoder::Instance().Init();
+	RFDecoder::Instance().Init(&g_crcb);
 
 
 	for(uint8_t cnt = 0; cnt < 16; ++cnt) {
@@ -91,6 +147,7 @@ void MainLoop()
 	  while(SysTick->VAL - start < 1000 );
 	  TICK('.');
 	}
+	g_com << "\r\n";
 
 #ifdef TEST_SDCARD
 	uint32_t byteswritten, bytesread;                     /* File write/read counts */
@@ -136,18 +193,38 @@ void MainLoop()
 			} else FAIL();
 		} else FAIL();
 	} else FAIL();
+	(void)fpos;
 #endif
 
-	for(uint16_t i=0; i < sizeof(g_bigFancyBuffer); ++i)
-		g_bigFancyBuffer[i] = 0xff-i;
+#ifdef TEST_EEPROM
+	for(uint16_t i=0; i < sizeof(g_buffer); ++i)
+		g_buffer[i] = 0xff-i;
 
-	ret = g_eeprom.Write(sizeof(g_bigFancyBuffer), g_bigFancyBuffer, sizeof(g_bigFancyBuffer));
+	ret = g_eeprom.Write(sizeof(g_buffer), g_buffer, sizeof(g_buffer));
 	g_eeprom.Sync();
-	memset(g_bigFancyBuffer, 0xaa, sizeof(g_bigFancyBuffer));
-	ret = g_eeprom.Read(0, g_bigFancyBuffer, sizeof(g_bigFancyBuffer));
+	memset(g_buffer, 0xaa, sizeof(g_buffer));
+	ret = g_eeprom.Read(0, g_buffer, sizeof(g_buffer));
 	g_eeprom.Sync();
-	ret = g_eeprom.Read(sizeof(g_bigFancyBuffer), g_bigFancyBuffer, sizeof(g_bigFancyBuffer));
+	for(uint16_t offset = 0; offset < sizeof(g_buffer); offset += 32)
+		DumpBufferLine(0, offset, 32);
+	g_com << sg::DbgUsart::endl;
+
+	ret = g_eeprom.Read(sizeof(g_buffer), g_buffer, sizeof(g_buffer));
 	g_eeprom.Sync();
+	for(uint16_t offset = 0; offset < sizeof(g_buffer); offset += 32)
+		DumpBufferLine(sizeof(g_buffer), offset, 32);
+	g_com << sg::DbgUsart::endl;
+
+	uint16_t	base = 0;
+#endif	//	TEST_EEPROM
+
+#ifdef TEST_RTC
+	using Ts = sg::DS3231::Ts;
+	ret = g_rtc.Init();
+	Ts		ts;
+	bool	desync = false;
+#endif	//	TEST_RTC
+	ret = g_com.Receive(g_buffer, sizeof(g_buffer), &g_lrcb);
 
 	uint32_t	counter = 0;
 	while(true)
@@ -159,10 +236,41 @@ void MainLoop()
 			offset += 4096/5;
 		}
 		counter += 256;
-		HAL_Delay(20);
+
+		auto firstTick = HAL_GetTick();
+		do {
+			if(g_lineReceived) {
+				g_com << g_buffer << "\r\n";
+				g_lineReceived = false;
+				ret = g_com.Receive(g_buffer, sizeof(g_buffer), &g_lrcb);
+			}
+		} while(HAL_GetTick() - firstTick < 20 );
+
 		if(counter >= 8192) {
 			counter -= 8192;
+#ifdef TEST_RTC
+			ret = g_rtc.Get(ts, desync);
+			g_com << sg::DbgUsart::dec << (ts.hour < 10 ? "0" : "") << ts.hour << (ts.min < 10 ? ":0" : ":") << ts.min << (ts.sec < 10 ? ":0" : ":") << ts.sec << "  ";
+#else
 			TICK('#');
+#endif
+			if(g_codeReceived) {
+				g_com << g_code;
+				g_codeReceived = false;
+			}
+			g_com << sg::DbgUsart::endl;
+
+			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+#if defined(TEST_EEPROM)
+			g_com << sg::DbgUsart::endl;
+			ret = g_eeprom.Read(base, g_buffer, sizeof(g_buffer));
+			g_eeprom.Sync();
+			for(uint16_t offset = 0; offset < sizeof(g_buffer); offset += 32)
+				DumpBufferLine(base, offset, 32);
+			g_com << sg::DbgUsart::endl << sg::DbgUsart::endl;
+			base += 256;
+#endif
 		}
 	}
+	(void)ret;
 }
