@@ -73,7 +73,7 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-void MainLoop();
+void _MainLoop();
 
 /* USER CODE END PFP */
 
@@ -121,7 +121,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	MainLoop();
+	_MainLoop();
 
   /* USER CODE END WHILE */
 

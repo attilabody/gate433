@@ -35,7 +35,7 @@ public:
 	struct IDecoderCallback {
 		virtual void CodeReceived(uint16_t code) = 0;
 	};
-	HAL_StatusTypeDef Init(IDecoderCallback* callback);
+	HAL_StatusTypeDef Init(IDecoderCallback &callback);
 
 private:
 	RFDecoder() = default;

@@ -10,11 +10,11 @@
 #include <gpio.h>
 
 ////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef RFDecoder::Init(IDecoderCallback *callback)
+HAL_StatusTypeDef RFDecoder::Init(IDecoderCallback &callback)
 {
 	HAL_StatusTypeDef	res = HAL_OK;
 
-	m_callback = callback;
+	m_callback = &callback;
 
 	if((res = HAL_TIM_Base_Start_IT(&htim1)) != HAL_OK)
 		return res;
