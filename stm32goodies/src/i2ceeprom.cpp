@@ -33,7 +33,7 @@ HAL_StatusTypeDef I2cEEPROM::PollStatus()
 
 //////////////////////////////////////////////////////////////////////////////
 
-HAL_StatusTypeDef I2cEEPROM::Read(uint32_t address, void* _buffer, uint32_t length)
+HAL_StatusTypeDef I2cEEPROM::Read(void* _buffer, uint32_t address, uint32_t length)
 {
 	HAL_StatusTypeDef	ret = HAL_OK;
 	uint16_t			toRead;
@@ -60,7 +60,7 @@ HAL_StatusTypeDef I2cEEPROM::Read(uint32_t address, void* _buffer, uint32_t leng
 
 
 //////////////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef I2cEEPROM::Write(uint32_t address, const void* _buffer, uint32_t length)
+HAL_StatusTypeDef I2cEEPROM::Write(const void* _buffer, uint32_t address, uint32_t length)
 {
 	HAL_StatusTypeDef	ret = HAL_OK;
 	uint8_t				toWrite;

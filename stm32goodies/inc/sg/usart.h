@@ -132,7 +132,7 @@ public:
 	HAL_StatusTypeDef Receive(
 			uint8_t *buffer,
 			uint16_t bufferSize,
-			IReceiverCallback *callback,
+			IReceiverCallback &callback,
 			void *callbackUserPtr = nullptr);
 
 private:

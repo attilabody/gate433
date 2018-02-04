@@ -19,8 +19,8 @@ class I2cEEPROM
 public:
 	I2cEEPROM(I2cMaster &i2c, uint8_t i2cAddress, uint8_t addressLength, uint8_t pageLength, I2cMaster::Mode mode = I2cMaster::It);
 
-	HAL_StatusTypeDef Read(uint32_t address, void* _buffer, uint32_t length);
-	HAL_StatusTypeDef Write(uint32_t address, const void* _buffer, uint32_t length);
+	HAL_StatusTypeDef Read(void* _buffer, uint32_t address, uint32_t length);
+	HAL_StatusTypeDef Write(const void* _buffer, uint32_t address, uint32_t length);
 	uint32_t Sync() { return m_i2c.WaitCallback(); }
 
 protected:

@@ -196,11 +196,19 @@ I2cMaster::Status I2cLcd::Print(const char *str)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-size_t I2cLcd::Print(unsigned int u, bool hex)
+I2cMaster::Status I2cLcd::Print(uint32_t u, bool hex, uint8_t pad, uint8_t *count)
 {
 	char	buffer[11];
-	size_t ret = hex ? uitohex(u, buffer) : uitodec(u, buffer);
-	Print(buffer);
+	I2cMaster::Status	ret = HAL_OK;
+
+	if(pad > 10) pad = 10;
+
+	size_t _count = hex ? tohex(buffer, u, pad, '0') : todec(buffer, u, pad, '0');
+	if((ret = Print(buffer)) != HAL_OK)
+		return ret;
+
+	if(count)
+		*count = _count > pad ? _count : pad;
 	return ret;
 }
 

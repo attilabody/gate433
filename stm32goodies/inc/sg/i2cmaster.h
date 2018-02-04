@@ -73,16 +73,16 @@ private:
 class I2cMaster : public I2cCallbackDispatcher::II2cCallback
 {
 public:
-	enum Mode { Poll, It, Dma };
+	enum Mode { Poll, It, Dma, Default };
 
 	typedef HAL_StatusTypeDef Status;
 
-	I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher *disp = nullptr);
+	I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher &disp, Mode defaultMode = Poll);
 
-	Status Write(const uint16_t i2cAddress, const void *data, uint8_t size, Mode mode = Poll);
-	Status Read(const uint16_t i2cAddress, void *data, uint8_t size, Mode mode = Poll);
-	Status WriteMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, const void *data, uint16_t size, Mode mode = Poll);
-	Status ReadMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, void *data, uint16_t size, Mode mode = Poll);
+	Status Write(const uint16_t i2cAddress, const void *data, uint8_t size, Mode mode = Default);
+	Status Read(const uint16_t i2cAddress, void *data, uint8_t size, Mode mode = Default);
+	Status WriteMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, const void *data, uint16_t size, Mode mode = Default);
+	Status ReadMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, void *data, uint16_t size, Mode mode = Default);
 
 	inline uint32_t WaitCallback();
 	inline uint32_t	GetCallbackError() { return m_callbackError; }
@@ -94,6 +94,7 @@ protected:
 	I2C_HandleTypeDef			*m_hi2c;
 	volatile CallbackType		m_expectedCallback = None;
 	uint32_t 					m_callbackError = HAL_I2C_ERROR_NONE;
+	Mode						m_defautMode;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -5,55 +5,52 @@
  *      Author: compi
  */
 #include "sg/strutil.h"
-#include <stdint.h>
+#include <cstdint>
 
 using namespace sg;
 
 //////////////////////////////////////////////////////////////////////////////
-size_t sg::uitodec( unsigned int data, char* buffer)
+char sg::fromchr( char c, bool decimal)
 {
-	char *b2 = buffer;
-	if(!data) {
-		*b2++ = '0';
-		*b2 = '\0';
-		return 1;
-	}
-
-	while(data) {
-		*b2++ = (data % 10) + '0';
-		data /= 10;
-	}
-	size_t ret = b2 - buffer;
-
-	*b2-- = 0;
-
-	strrev(buffer, b2);
-    return ret;
+	if(c >= '0' && c <= '9') return c - '0';
+	if(decimal) return -1;
+	if( c >= 'a' && c <= 'f' ) return c - 'a' + 10;
+	if( c >= 'A' && c <= 'F' ) return c - 'A' + 10;
+	return -1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-size_t sg::uitohex(unsigned int data, char* buffer)
+int32_t sg::getintparam( const char* &input, bool decimal, bool trimstart, bool acceptneg )
 {
-	char *b2 = buffer;
+	long	retval(0);
+	char	converted;
+	bool	found(false);
+	bool	negative(false);
 
-	if(!data) {
-		*b2++ = '0';
-		*b2 = '\0';
-		return 1;
+	if( trimstart )
+		while( *input && fromchr( *input, decimal ) == -1 && *input != '-' )
+			++input;
+
+	while( *input ) {
+		if(( converted = fromchr( *input, decimal )) == -1) {
+			if( ! retval ) {
+				if( *input == 'x' || *input == 'X' ) {
+					decimal = false;
+					converted = 0;
+				} else if( *input == '-' ) {
+					negative = true;
+					converted = 0;
+				} else break;
+			} else break;
+		}
+		retval *=  decimal ? 10 : 16;
+		retval += converted;
+		found = true;
+		++input;
 	}
-
-	while(data) {
-		uint8_t curval = data & 0x0f;
-		*b2++ = tochr(curval, true);
-		data >>= 4;
-	}
-	size_t ret = b2 - buffer;
-
-	*b2-- = 0;
-
-	strrev(buffer, b2);
-    return ret;
+	return found ? (negative ? 0 - retval : retval ) : (acceptneg ? INT32_MIN : -1);
 }
+
 
 
 

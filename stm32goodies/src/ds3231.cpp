@@ -34,6 +34,7 @@
 
 #include <stdio.h>
 #include <sg/ds3231.h>
+#include <sg/strutil.h>
 
 /* control register 0Eh/8Eh
 bit7 EOSC   Enable Oscillator (1 if oscillator must be stopped when on battery)
@@ -47,15 +48,66 @@ bit0 A1IE   Alarm1 interrupt enable (1 to enable)
 */
 using namespace sg;
 
+//////////////////////////////////////////////////////////////////////////////
+uint8_t DS3231::Ts::YMDToString(char *buffer, uint8_t size)
+{
+	uint8_t	count = 0;
+	if(size && size < 11) return 0;
+	buffer += count = todec(buffer, year, 4);
+	*buffer++ = '.';
+	++count;
+	return count + MDToString(buffer);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+uint8_t DS3231::Ts::MDToString(char *buffer, uint8_t size)
+{
+	uint8_t	count = 0, tmp;
+	if(size && size < 6) return 0;
+	buffer += count = todec(buffer, mon, 2);
+	*buffer++ = '.';
+	++count;
+	tmp = todec(buffer, mday, 2);
+	buffer += tmp;
+	count += tmp;
+	*buffer = 0;
+	return count;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+uint8_t DS3231::Ts::TimeToString(char *buffer, uint8_t size, bool seconds)
+{
+	uint8_t	count = 0, tmp;
+	if(size && size < (seconds ? 9: 6)) return 0;
+	buffer += count = todec(buffer, hour, 2);
+	*buffer++ = ':';
+	++count;
+	tmp = todec(buffer, min, 2);
+	buffer += tmp;
+	count += tmp;
+	if(seconds) {
+		*buffer++ = ':';
+		++count;
+		tmp = todec(buffer, sec, 2);
+		buffer += tmp;
+		count += tmp;
+	}
+	*buffer = 0;
+	return count;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 DS3231::DS3231(I2cMaster &i2c, I2cMaster::Mode mode)
 	: m_i2c(i2c), m_mode(mode)
 {}
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::Init(const uint8_t ctrl_reg)
 {
     return SetCreg(ctrl_reg);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::Set(Ts t)
 {
     uint8_t i, *_t((uint8_t*)&t);
@@ -75,6 +127,7 @@ HAL_StatusTypeDef DS3231::Set(Ts t)
    	return st;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::Set(const char *buf)
 {
 	Ts t;
@@ -82,6 +135,7 @@ HAL_StatusTypeDef DS3231::Set(const char *buf)
 	return Set(t);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::Get(Ts &t, bool &desync)
 {
     uint8_t i, *_t((uint8_t*)&t);
@@ -106,11 +160,13 @@ HAL_StatusTypeDef DS3231::Get(Ts &t, bool &desync)
     return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::SetAddr(const uint8_t addr, const uint8_t val)
 {
     return m_i2c.WriteMem(DS3231_I2C_ADDR,addr,1, &val, 1, m_mode);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::GetAddr(const uint8_t addr, uint8_t &val)
 {
 	HAL_StatusTypeDef ret;
@@ -119,8 +175,9 @@ HAL_StatusTypeDef DS3231::GetAddr(const uint8_t addr, uint8_t &val)
     return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 // control register
-
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::SetCreg(const uint8_t val)
 {
     return SetAddr(DS3231_CONTROL_ADDR, val);
@@ -136,11 +193,13 @@ bit1 A2F      Alarm 2 Flag - (1 if alarm2 was triggered)
 bit0 A1F      Alarm 1 Flag - (1 if alarm1 was triggered)
 */
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::SetSreg(const uint8_t val)
 {
     return SetAddr(DS3231_STATUS_ADDR, val);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::GetSreg(uint8_t &val)
 {
 	return GetAddr(DS3231_STATUS_ADDR, val);
@@ -148,6 +207,7 @@ HAL_StatusTypeDef DS3231::GetSreg(uint8_t &val)
 
 // aging register
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::SetAging(const int8_t val)
 {
     uint8_t reg;
@@ -160,6 +220,7 @@ HAL_StatusTypeDef DS3231::SetAging(const int8_t val)
     return SetAddr(DS3231_AGING_OFFSET_ADDR, reg);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::GetAging(int8_t &val)
 {
     uint8_t reg;
@@ -175,9 +236,9 @@ HAL_StatusTypeDef DS3231::GetAging(int8_t &val)
 
     return ret;
 }
-
+//////////////////////////////////////////////////////////////////////////////
 // temperature register
-
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::GetTreg(float &temp)
 {
     HAL_StatusTypeDef rv;
@@ -203,10 +264,11 @@ HAL_StatusTypeDef DS3231::GetTreg(float &temp)
     return rv;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 // alarms
-
 // flags are: A1M1 (seconds), A1M2 (minutes), A1M3 (hour), 
 // A1M4 (day) 0 to enable, 1 to disable, DY/DT (dayofweek == 1/dayofmonth == 0)
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::SetA1(const uint8_t s, const uint8_t mi, const uint8_t h, const uint8_t d, const uint8_t * flags)
 {
     uint8_t t[4] = { s, mi, h, d };
@@ -222,6 +284,7 @@ HAL_StatusTypeDef DS3231::SetA1(const uint8_t s, const uint8_t mi, const uint8_t
     return m_i2c.WriteMem(DS3231_I2C_ADDR, DS3231_ALARM1_ADDR, 1, t, 4);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::GetA1(char *buf, const uint8_t len)
 {
     uint8_t n[4];
@@ -250,6 +313,7 @@ HAL_StatusTypeDef DS3231::GetA1(char *buf, const uint8_t len)
     return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 // when the alarm flag is cleared the pulldown on INT is also released
 HAL_StatusTypeDef DS3231::ClearA1f(void)
 {
@@ -262,6 +326,7 @@ HAL_StatusTypeDef DS3231::ClearA1f(void)
 
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::TriggeredA1(bool &b)
 {
     uint8_t reg_val;
@@ -273,12 +338,14 @@ HAL_StatusTypeDef DS3231::TriggeredA1(bool &b)
     return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 /* flag bits are:
  * 0:	DY/DT (dayofweek == 1/dayofmonth == 0)
  * 1:	A2M4 (day) 0 to enable
  * 2:	A2M3 (hour) 0 to enable
  * 3:	A2M2 (minutes) 0 to enable
  */
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::SetA2(const uint8_t mi, const uint8_t h, const uint8_t d, const uint8_t flags)
 {
     uint8_t t[3] = { mi, h, d };
@@ -294,6 +361,7 @@ HAL_StatusTypeDef DS3231::SetA2(const uint8_t mi, const uint8_t h, const uint8_t
     return m_i2c.WriteMem(DS3231_I2C_ADDR, DS3231_ALARM2_ADDR, 1, t,3);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::GetA2(char *buf, const uint8_t len)
 {
     uint8_t n[3];
@@ -320,6 +388,7 @@ HAL_StatusTypeDef DS3231::GetA2(char *buf, const uint8_t len)
     return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 // when the alarm flag is cleared the pulldown on INT is also released
 HAL_StatusTypeDef DS3231::ClearA2f(void)
 {
@@ -331,6 +400,7 @@ HAL_StatusTypeDef DS3231::ClearA2f(void)
     return SetSreg(reg_val & ~DS3231_A2F);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231::TriggeredA2(bool &b)
 {
     uint8_t reg_val;
@@ -342,19 +412,21 @@ HAL_StatusTypeDef DS3231::TriggeredA2(bool &b)
     return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 // helpers
-
-
+//////////////////////////////////////////////////////////////////////////////
 uint8_t DS3231::DecToBcd(const uint8_t val)
 {
     return ((val / 10 * 16) + (val % 10));
 }
 
+//////////////////////////////////////////////////////////////////////////////
 uint8_t DS3231::BcdToDec(const uint8_t val)
 {
     return ((val / 16 * 10) + (val % 16));
 }
 
+//////////////////////////////////////////////////////////////////////////////
 uint8_t DS3231::Inp2Toi(const char * &c)
 {
     uint8_t rv;
@@ -363,6 +435,7 @@ uint8_t DS3231::Inp2Toi(const char * &c)
     return rv;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 uint8_t DS3231::Dow(uint8_t y, uint8_t m, uint8_t d)
 {
 	static uint8_t t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
@@ -370,6 +443,7 @@ uint8_t DS3231::Dow(uint8_t y, uint8_t m, uint8_t d)
 	return ((y + (y >> 2) + t[m-1] + d + 6) % 7) +1;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void DS3231::StrToTs(const char *buf, Ts &t)
 {
 	buf+=2;
@@ -382,8 +456,11 @@ void DS3231::StrToTs(const char *buf, Ts &t)
 	t.wday = Dow(t.year-2000,t.mon,t.mday);
 }
 
-// ----------------------------- DS3231_DST -------------------------------
 
+
+//////////////////////////////////////////////////////////////////////////////
+// ----------------------------- DS3231_DST -------------------------------
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231_DST::Set(Ts t)
 {
     HAL_StatusTypeDef ret;
@@ -410,6 +487,7 @@ HAL_StatusTypeDef DS3231_DST::Set(Ts t)
     return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231_DST::Set(const char *buf)
 {
 	Ts t;
@@ -417,6 +495,7 @@ HAL_StatusTypeDef DS3231_DST::Set(const char *buf)
 	return Set(t);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231_DST::Get(Ts &t, bool &desync)
 {
     uint8_t i;
@@ -459,6 +538,7 @@ HAL_StatusTypeDef DS3231_DST::Get(Ts &t, bool &desync)
     return error;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 void DS3231_DST::FixSummerTime(Ts &t)
 {
     if (++t.hour<24)
@@ -478,6 +558,7 @@ void DS3231_DST::FixSummerTime(Ts &t)
     t.year++;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 uint8_t DS3231_DST::LastSunOfMonth31(uint8_t y, uint8_t m)
 {
 	uint8_t d = 31;
@@ -492,6 +573,7 @@ uint8_t DS3231_DST::LastSunOfMonth31(uint8_t y, uint8_t m)
 	return d;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 uint8_t DS3231_DST::MonLastDay(uint8_t y, uint8_t m)
 {
 	if (m!=2)
@@ -499,6 +581,7 @@ uint8_t DS3231_DST::MonLastDay(uint8_t y, uint8_t m)
 	return ((y & 3)?28:29);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 bool DS3231_DST::CheckDst(uint8_t year, uint8_t mon, uint8_t day, uint8_t hour)
 {
 	uint8_t temp;

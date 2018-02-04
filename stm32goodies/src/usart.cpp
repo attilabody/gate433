@@ -221,7 +221,7 @@ uint16_t DbgUsart::Send(uint32_t u, bool hex, bool prefix, bool pad)
 		return ret;
 	} else {
 		char buffer[13];
-		uitodec(u, buffer);
+		todec(buffer, u);
 		return Send(buffer, strlen(buffer));
 	}
 }
@@ -248,7 +248,7 @@ uint16_t DbgUsart::Send(uint16_t u, bool hex, bool prefix, bool pad)
 		return ret;
 	} else {
 		char    buffer[8];
-		uitodec(u, buffer);
+		todec(buffer, u);
 		return Send(buffer, strlen(buffer));
 	}
 }
@@ -266,7 +266,7 @@ uint16_t DbgUsart::Send(uint8_t u, bool hex, bool prefix)
 		return ret;
 	} else {
 		char    buffer[4];
-		uitodec(u, buffer);
+		todec(buffer, u);
 		return Send(buffer, strlen(buffer));
 	}
 }
@@ -278,7 +278,7 @@ uint16_t DbgUsart::Send(const char *str)
 }
 
 ////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef DbgUsart::Receive(uint8_t *buffer, uint16_t bufferSize, IReceiverCallback *callback, void *callbackUserPtr)
+HAL_StatusTypeDef DbgUsart::Receive(uint8_t *buffer, uint16_t bufferSize, IReceiverCallback &callback, void *callbackUserPtr)
 {
 	HAL_StatusTypeDef st;
 
@@ -288,7 +288,7 @@ HAL_StatusTypeDef DbgUsart::Receive(uint8_t *buffer, uint16_t bufferSize, IRecei
 	}
 
 	m_inputBufferSize = bufferSize;
-	m_receiverCallback = callback;
+	m_receiverCallback = &callback;
 	m_receivedCallbackUserPtr = callbackUserPtr;
 	m_inputBuffer = buffer;
 

@@ -22,7 +22,7 @@ public:
 	I2cMaster::Status	Home();
 	I2cMaster::Status	SetCursor(uint8_t x, uint8_t y);
 	I2cMaster::Status	Print(const char* str);
-	size_t	Print(unsigned int i, bool hex = false);
+	I2cMaster::Status	Print(uint32_t i, bool hex = false, uint8_t pad = 0, uint8_t *count = nullptr);
 
 private:
 	inline I2cMaster::Status SendData();

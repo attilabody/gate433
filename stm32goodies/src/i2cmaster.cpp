@@ -76,11 +76,13 @@ void I2cCallbackDispatcher::Callback(I2C_HandleTypeDef *hi2c, II2cCallback::Call
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-I2cMaster::I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher *disp)
+I2cMaster::I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher &disp, Mode defaultMode)
 : m_hi2c(hi2c)
+, m_defautMode(defaultMode)
 {
-	if(disp)
-		disp->Register(this);
+	disp.Register(this);
+	if(m_defautMode == Default)
+		m_defautMode = Poll;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -101,6 +103,8 @@ I2cMaster::Status I2cMaster::Write(const uint16_t i2cAddress, const void *data, 
 {
 	if(WaitCallback() != HAL_I2C_ERROR_NONE)
 		return HAL_ERROR;
+	if(mode == Default)
+		mode = m_defautMode;
 	if(mode == Poll) {
 		return HAL_I2C_Master_Transmit(m_hi2c, i2cAddress, reinterpret_cast<uint8_t*>(const_cast<void*>(data)), size, HAL_MAX_DELAY);
 	} else {
@@ -122,6 +126,8 @@ I2cMaster::Status I2cMaster::Read(const uint16_t i2cAddress, void *data, uint8_t
 {
 	if(WaitCallback() != HAL_I2C_ERROR_NONE)
 		return HAL_ERROR;
+	if(mode == Default)
+		mode = m_defautMode;
 	if(mode == Poll) {
 		return HAL_I2C_Master_Receive(m_hi2c, i2cAddress, (uint8_t*)data, size, HAL_MAX_DELAY);
 	} else {
@@ -143,6 +149,8 @@ I2cMaster::Status I2cMaster::WriteMem(const uint16_t i2cAddress, uint16_t memAdd
 {
 	if(WaitCallback() != HAL_I2C_ERROR_NONE)
 		return HAL_ERROR;
+	if(mode == Default)
+		mode = m_defautMode;
 	if(mode == Poll) {
 		return HAL_I2C_Mem_Write(m_hi2c, i2cAddress, memAddr, memAddrSize, reinterpret_cast<uint8_t*>(const_cast<void*>(data)), size, HAL_MAX_DELAY);
 	} else {
@@ -164,6 +172,8 @@ I2cMaster::Status I2cMaster::ReadMem(const uint16_t i2cAddress, uint16_t memAddr
 {
 	if(WaitCallback() != HAL_I2C_ERROR_NONE)
 		return HAL_ERROR;
+	if(mode == Default)
+		mode = m_defautMode;
 	if(mode == Poll) {
 		return HAL_I2C_Mem_Read(m_hi2c, i2cAddress, memAddr, memAddrSize, (uint8_t*)data, size, HAL_MAX_DELAY);
 	} else {
