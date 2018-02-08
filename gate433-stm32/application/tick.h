@@ -5,12 +5,13 @@
  *      Author: compi
  */
 
-#ifndef ITICK_H_
-#define ITICK_H_
+#ifndef TICK_H_
+#define TICK_H_
+#include <inttypes.h>
 
 class ITick {
 public:
 	virtual void Tick(uint32_t now) = 0;
 };
 
-#endif /* ITICK_H_ */
+#endif /* TICK_H_ */
