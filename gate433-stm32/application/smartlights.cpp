@@ -5,8 +5,8 @@
  *      Author: compi
  */
 
-#include <SmartLights.h>
 #include <sg/itlock.h>
+#include <smartlights.h>
 
 ////////////////////////////////////////////////////////////////////
 SmartLights::SmartLights() {

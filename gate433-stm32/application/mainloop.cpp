@@ -4,13 +4,13 @@
  *  Created on: Jan 11, 2018
  *      Author: compi
  */
+#include <rfdecoder.h>
 #include "stm32f1xx_hal.h"
 #include "i2c.h"
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
 
-#include <RFDecoder.h>
 #include <sg/itlock.h>
 
 

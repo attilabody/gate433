@@ -5,9 +5,9 @@
  *      Author: abody
  */
 
-#include <SdFile.h>
 #include <fatfs.h>
 #include <sd_diskio.h>
+#include <sdfile.h>
 
 //////////////////////////////////////////////////////////////////////////////
 bool SdDriver::m_libInitialized = false;

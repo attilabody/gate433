@@ -8,8 +8,8 @@
 #ifndef SMARTLIGHTS_H_
 #define SMARTLIGHTS_H_
 
+#include <pwmoutputs.h>
 #include <tick.h>
-#include "PwmOutputs.h"
 
 class SmartLights: public PwmOutputs, public ITick
 {

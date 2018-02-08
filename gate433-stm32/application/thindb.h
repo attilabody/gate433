@@ -8,8 +8,8 @@
 #ifndef THINDB_H_
 #define THINDB_H_
 
+#include <sdfile.h>
 #include "database.h"
-#include "SdFile.h"
 
 
 class thindb: public database

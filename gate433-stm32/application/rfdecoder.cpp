@@ -5,9 +5,9 @@
  *      Author: compi
  */
 
-#include "RFDecoder.h"
 #include <tim.h>
 #include <gpio.h>
+#include <rfdecoder.h>
 
 ////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef RFDecoder::Init(IDecoderCallback &callback)

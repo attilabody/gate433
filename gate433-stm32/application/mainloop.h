@@ -7,6 +7,8 @@
 
 #ifndef MAINLOOP_H_
 #define MAINLOOP_H_
+#include <rfdecoder.h>
+#include <sdfile.h>
 #include <sg/singleton.h>
 #include <sg/usart.h>
 #include <sg/i2cmaster.h>
@@ -14,12 +16,10 @@
 #include <sg/ds3231.h>
 #include <sg/i2c_lcd.h>
 #include <sg/strutil.h>
+#include <smartlights.h>
 
-#include "RFDecoder.h"
-#include "SmartLights.h"
 #include "i2cdb.h"
 #include "commsyms.h"
-#include "SdFile.h"
 
 
 class MainLoop : public sg::Singleton<MainLoop>, public RFDecoder::IDecoderCallback, public sg::Usart::IReceiverCallback

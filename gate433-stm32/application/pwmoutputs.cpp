@@ -5,7 +5,7 @@
  *      Author: compi
  */
 
-#include <PwmOutputs.h>
+#include <pwmoutputs.h>
 #include <string.h>
 
 ////////////////////////////////////////////////////////////////////
