@@ -47,21 +47,21 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-bool I2cCallbackDispatcher::Register(II2cCallback *handler)
+bool I2cCallbackDispatcher::Register(II2cCallback &handler)
 {
-	decltype(handler)*	hp = nullptr;
+	II2cCallback	**hp = nullptr;
 
 	for( auto& h : m_handlers) {
-		if( h == handler )
+		if( h == &handler )
 			return true;
 		if(!hp && !h)
 			hp = &h;
 	}
-	if(hp) {
-		*hp = handler;
-		return true;
-	}
-	return false;
+	if(!hp)
+		return false;
+
+	*hp = &handler;
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ I2cMaster::I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher &disp, Mode 
 : m_hi2c(hi2c)
 , m_defautMode(defaultMode)
 {
-	disp.Register(this);
+	disp.Register(*this);
 	if(m_defautMode == Default)
 		m_defautMode = Poll;
 }

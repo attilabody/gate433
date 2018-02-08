@@ -47,7 +47,7 @@ public:
 		friend class I2cCallbackDispatcher;
 	};
 
-	bool Register(II2cCallback *handler);
+	bool Register(II2cCallback &handler);
 
 private:
 	I2cCallbackDispatcher() { memset(&m_handlers, 0, sizeof(m_handlers)); }
