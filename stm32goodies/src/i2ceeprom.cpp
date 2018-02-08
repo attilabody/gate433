@@ -27,6 +27,7 @@ HAL_StatusTypeDef I2cEEPROM::PollStatus()
 			return ret;
 		HAL_Delay(1);
 	}
+	m_needPoll = false;
 	return ret;
 }
 
