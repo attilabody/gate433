@@ -30,7 +30,7 @@ inline char tochr(const uint8_t in, const bool upper = true)
 char fromchr( char c, bool decimal = true );
 
 //////////////////////////////////////////////////////////////////////////////
-template< typename T> size_t todec(char* buffer, T data, uint8_t minDigits = 0, char pading = '0')
+template< typename T> size_t todec(char* buffer, T data, uint8_t minDigits = 0, char padding = '0')
 {
 	char *b2 = buffer;
 	do {
@@ -41,7 +41,7 @@ template< typename T> size_t todec(char* buffer, T data, uint8_t minDigits = 0, 
 	size_t ret = b2 - buffer;
 
 	while(ret < minDigits) {
-		*b2++ = pading;
+		*b2++ = padding;
 		++ret;
 	}
 
@@ -52,7 +52,7 @@ template< typename T> size_t todec(char* buffer, T data, uint8_t minDigits = 0, 
 }
 
 //////////////////////////////////////////////////////////////////////////////
-template< typename T> size_t tohex(char* buffer, T data, uint8_t minDigits = 0, char pading = '0')
+template< typename T> size_t tohex(char* buffer, T data, uint8_t minDigits = 0, char padding = '0')
 {
 	char *b2 = buffer;
 
@@ -65,7 +65,7 @@ template< typename T> size_t tohex(char* buffer, T data, uint8_t minDigits = 0, 
 	size_t ret = b2 - buffer;
 
 	while(ret < minDigits) {
-		*b2++ = pading;
+		*b2++ = padding;
 		++ret;
 	}
 
@@ -75,6 +75,7 @@ template< typename T> size_t tohex(char* buffer, T data, uint8_t minDigits = 0, 
     return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 int32_t getintparam( const char* &input, bool decimal = true, bool trimstart = true, bool acceptneg = false );
 
 }	//	namespace sg

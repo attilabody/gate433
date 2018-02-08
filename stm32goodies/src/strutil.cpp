@@ -32,7 +32,7 @@ int32_t sg::getintparam( const char* &input, bool decimal, bool trimstart, bool 
 			++input;
 
 	while( *input ) {
-		if(( converted = fromchr( *input, decimal )) == -1) {
+		if(( converted = fromchr( *input, decimal )) == (char)-1) {
 			if( ! retval ) {
 				if( *input == 'x' || *input == 'X' ) {
 					decimal = false;
