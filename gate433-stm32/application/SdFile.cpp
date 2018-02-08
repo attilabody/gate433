@@ -55,43 +55,16 @@ SdFile::~SdFile()
 //////////////////////////////////////////////////////////////////////////////
 bool SdFile::Open(const char *path, SdFile::OpenMode mode)
 {
-	uint8_t	om;
-
-	if(m_isOpen)
+	if(m_isOpen && !Close())
 		return false;
 
-	if(mode == OpenMode::READ)
-		om = FA_READ;
-	else if(mode == OpenMode::WRITE_TRUNC)
-		om = FA_WRITE | FA_CREATE_ALWAYS;
-	else if(mode == OpenMode::WRITE_APPEND)
-		om = FA_WRITE | FA_OPEN_EXISTING;
-	else if(mode == OpenMode::RW_TRUNC)
-		om = FA_READ | FA_WRITE | FA_CREATE_ALWAYS;
-	else if(mode == OpenMode::RW_APPEND)
-		om = FA_READ | FA_WRITE | FA_OPEN_EXISTING;
-	else
-		return false;
-
-	FRESULT ret = f_open(&m_file, path, om);
+	FRESULT ret = f_open(&m_file, path, mode);
 
 	if(ret == FR_OK) {
 		m_isOpen = true;
-		if(mode == OpenMode::WRITE_APPEND) {
-			ret = f_lseek(&m_file, m_file.fsize);
-			if(ret == FR_OK) {
-				m_pos = m_file.fsize;
-				return true;
-			} else {
-				m_lastError = ret;
-				return false;
-			}
-		} else {
-			m_pos = 0;
-		}
+		m_pos = 0;
 		return true;
 	}
-
 	m_lastError = ret;
 	return false;
 }
@@ -133,12 +106,12 @@ unsigned int SdFile::Read(void *buffer, unsigned int size)
 	if(!m_isOpen)
 		return 0;
 	unsigned int read = 0;
-	FRESULT ret = f_read(&m_file, buffer, size, &read);
-	if(ret == FR_OK) {
+	FRESULT res = f_read(&m_file, buffer, size, &read);
+	if(res == FR_OK) {
 		m_pos += read;
 		return read;
 	}
-	m_lastError = ret;
+	m_lastError = res;
 	return 0;
 }
 
@@ -164,23 +137,9 @@ bool SdFile::Sync()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
+uint32_t SdFile::Size()
+{
+	return m_isOpen ? m_file.fsize : 0;
+}
 
 //////////////////////////////////////////////////////////////////////////////

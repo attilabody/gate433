@@ -43,8 +43,13 @@ class SdFile : public SdDriver
 public:
 	~SdFile();
 
-	enum class OpenMode {
-		READ, WRITE_TRUNC, WRITE_APPEND, RW_TRUNC, RW_APPEND
+	enum OpenMode : uint8_t {
+		READ = FA_READ,
+		OPEN_EXISTING = FA_OPEN_EXISTING,
+		WRITE = FA_WRITE,
+		CREATE_NEW = FA_CREATE_NEW,
+		CREATE_ALWAYS = FA_CREATE_ALWAYS,
+		OPEN_ALWAYS = FA_OPEN_ALWAYS
 	};
 	bool Open(const char *path, OpenMode mode);
 	bool Close();
@@ -53,7 +58,9 @@ public:
 	unsigned int Write(void *buffer, unsigned int size);
 	bool Sync();
 	bool Seek(uint32_t pos);
+	uint32_t Size();
 	uint32_t Ftell() { return m_pos; }
+	bool IsOpen() { return m_isOpen; }
 
 private:
 	FIL				m_file;
