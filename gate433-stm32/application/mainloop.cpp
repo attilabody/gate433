@@ -19,7 +19,7 @@
 #include "mainloop.h"
 
 //#define TESTLOOP
-#define TEST_SDCARD
+//#define TEST_SDCARD
 #define TEST_EEPROM
 #define TEST_RTC
 
@@ -36,11 +36,7 @@ bool g_mainLoppReady = false;
 ////////////////////////////////////////////////////////////////////
 void _MainLoop()
 {
-#ifdef TESTLOOP
-	MainLoop::Instance().TestLoop();
-#else
 	MainLoop::Instance().Loop();
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -53,14 +49,16 @@ void HAL_SYSTICK_Callback(void)
 
 ////////////////////////////////////////////////////////////////////
 MainLoop::MainLoop()
-: m_com(sg::DbgUsart::Instance())
+: m_com(&huart1, sg::UsartCallbackDispatcher::Instance(), m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), true)
 , m_i2c(&hi2c1, sg::I2cCallbackDispatcher::Instance())
-, m_eeprom(m_i2c, EEPROM_I2C_ADDRESS, EEPROM_ADDRESS_LENGTH, 128)
+, m_dbEeprom(m_i2c, DB_I2C_ADDRESS, DB_ADDRESS_LENGTH, 128)
+, m_db(m_dbEeprom, 0)
+, m_configEeprom(m_i2c, CFG_I2C_ADDRESS, CFG_ADDRESS_LENGTH, 32)
 , m_rtc(m_i2c)
 , m_lcd(m_i2c, LCD_I2C_ADDRESS)
 , m_decoder(RFDecoder::Instance())
+, m_proc(*this)
 {
-	m_com.Init(sg::UsartCallbackDispatcher::Instance(), &huart1, m_serialBuffer, sizeof(m_serialBuffer), true);
 	m_lcd.Init();
 	m_decoder.Init(*this);
 }
@@ -82,23 +80,23 @@ void MainLoop::Fail(const char * file, int line)
 #define FAIL() Fail(__FILE__, __LINE__)
 
 ////////////////////////////////////////////////////////////////////
-void MainLoop::DumpBufferLine(uint16_t base, uint16_t offset, uint8_t count)
+void MainLoop::DumpBufferLine(uint8_t *buffer, uint16_t base, uint16_t offset, uint8_t count)
 {
-	m_com << sg::DbgUsart::hex << sg::DbgUsart::pad << (uint16_t)(base + offset);
+	m_com << sg::Usart::hex << sg::Usart::pad << (uint16_t)(base + offset);
 	while(count--) {
-		m_com << ' ' << m_eepromBuffer[offset++];
+		m_com << ' ' << buffer[offset++];
 	}
-	m_com << sg::DbgUsart::endl;
+	m_com << sg::Usart::endl;
 
 }
 
 ////////////////////////////////////////////////////////////////////
-void MainLoop::LineReceived(uint16_t count)
+void MainLoop::LineReceived(char *buffer, uint16_t count)
 {
-	uint8_t	*bufPtr = m_eepromBuffer + count -1;
-	while(bufPtr != m_eepromBuffer && (*bufPtr == '\r' || *bufPtr == '\n' || !*bufPtr))
+	char *bufPtr = m_serialOutRingBuffer + count -1;
+	while(bufPtr != m_serialOutRingBuffer && (*bufPtr == '\r' || *bufPtr == '\n' || !*bufPtr))
 		--bufPtr;
-	if(bufPtr < m_eepromBuffer + count -1)
+	if(bufPtr < m_serialOutRingBuffer + count -1)
 		*(bufPtr + 1) = 0;
 	m_lineReceived = true;
 }
@@ -113,11 +111,18 @@ void MainLoop::CodeReceived(uint16_t code)
 }
 
 ////////////////////////////////////////////////////////////////////
+void MainLoop::Tick(uint32_t now)
+{
+	m_lights.Tick(now);
+}
+
+////////////////////////////////////////////////////////////////////
 #ifdef TESTLOOP
-void MainLoop::TestLoop()
+void MainLoop::Loop()
 {
 	HAL_StatusTypeDef	ret = HAL_OK;
 	bool				firstCode = true;
+	uint8_t				eepromBuffer[256];
 
 	for(uint8_t cnt = 0; cnt < 16; ++cnt) {
 	  uint32_t start = SysTick->VAL;
@@ -137,13 +142,13 @@ void MainLoop::TestLoop()
 	m_lcd.Print("SD card");
 
 	TICK("openw1");
-	if(sdFileW.Open("STM32.TXT", SdFile::OpenMode::WRITE_TRUNC)) {
+	if(sdFileW.Open("STM32.TXT", static_cast<SdFile::OpenMode>(SdFile::CREATE_ALWAYS | SdFile::WRITE))) {
 		SdFile sdFileR;
 		TICK("openr1");
-		if(sdFileR.Open("FILE.TXT", SdFile::OpenMode::READ)) {
+		if(sdFileR.Open("FILE.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::READ))) {
 			TICK("read1");
 			if((bytesread = sdFileR.Read(rtext, sizeof(rtext))) != 0) {
-				m_com << sg::DbgUsart::Buffer(rtext, bytesread) << "\r\n";
+				m_com << sg::Usart::Buffer(rtext, bytesread) << "\r\n";
 				fpos = sdFileR.Ftell();
 				TICK("write1.1");
 				byteswritten = sdFileW.Write(wtext, sizeof(wtext)-1);
@@ -152,14 +157,15 @@ void MainLoop::TestLoop()
 				if(byteswritten) {
 					TICK("closew1");
 					sdFileW.Close();
-					if(sdFileW.Open("STM32.TXT", SdFile::OpenMode::WRITE_APPEND)) {
+					if(sdFileW.Open("STM32.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::WRITE))) {
+						sdFileW.Seek(sdFileW.Size());
 						TICK("write1.2");
 						byteswritten = sdFileW.Write(rtext, bytesread);
 						TICK("closew1");
 						sdFileW.Close();
 					}
 					TICK("openr2");
-					if(sdFileR.Open("STM32.TXT", SdFile::OpenMode::READ)) {
+					if(sdFileR.Open("STM32.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::READ))) {
 						do {
 							TICK("read2");
 							if((bytesread = sdFileR.Read(rtext, sizeof(rtext))))
@@ -173,29 +179,36 @@ void MainLoop::TestLoop()
 		} else FAIL();
 	} else FAIL();
 	(void)fpos;
-#endif
+#endif	//	TEST_SDCARD
 
 	m_lcd.Clear();
 	m_lcd.Print("EEPROM");
 
 #ifdef TEST_EEPROM
-	for(uint16_t i=0; i < sizeof(m_eepromBuffer); ++i)
-		m_eepromBuffer[i] = 0xff-i;
+	for(uint16_t i=0; i < sizeof(eepromBuffer); ++i)
+		eepromBuffer[i] = 0xff-i;
 
-	ret = m_eeprom.Write(sizeof(m_eepromBuffer), m_eepromBuffer, sizeof(m_eepromBuffer));
-	m_eeprom.Sync();
-	memset(m_eepromBuffer, 0xaa, sizeof(m_eepromBuffer));
-	ret = m_eeprom.Read(0, m_eepromBuffer, sizeof(m_eepromBuffer));
-	m_eeprom.Sync();
-	for(uint16_t offset = 0; offset < sizeof(m_eepromBuffer); offset += 32)
-		DumpBufferLine(0, offset, 32);
-	m_com << sg::DbgUsart::endl;
+	ret = m_dbEeprom.Write(eepromBuffer, sizeof(eepromBuffer), sizeof(eepromBuffer));
+	memset(eepromBuffer, 0xaa, sizeof(eepromBuffer));
+	ret = m_dbEeprom.Read(eepromBuffer, 0, sizeof(eepromBuffer));
+	if(ret == HAL_OK)
+	{
+		m_dbEeprom.Sync();
+		for(uint16_t offset = 0; offset < sizeof(eepromBuffer); offset += 32)
+			DumpBufferLine(eepromBuffer, 0, offset, 32);
+		m_com << sg::Usart::endl;
 
-	ret = m_eeprom.Read(sizeof(m_eepromBuffer), m_eepromBuffer, sizeof(m_eepromBuffer));
-	m_eeprom.Sync();
-	for(uint16_t offset = 0; offset < sizeof(m_eepromBuffer); offset += 32)
-		DumpBufferLine(sizeof(m_eepromBuffer), offset, 32);
-	m_com << sg::DbgUsart::endl;
+		ret = m_dbEeprom.Read(eepromBuffer, sizeof(eepromBuffer), sizeof(eepromBuffer));
+		if(ret == HAL_OK) {
+			m_dbEeprom.Sync();
+			for(uint16_t offset = 0; offset < sizeof(eepromBuffer); offset += 32)
+				DumpBufferLine(eepromBuffer, sizeof(eepromBuffer), offset, 32);
+			m_com << sg::Usart::endl;
+		}
+	}
+
+	database::dbrecord	rec;
+	m_db.getParams(0, rec);
 
 	uint16_t	base = 0;
 #endif	//	TEST_EEPROM
@@ -206,7 +219,7 @@ void MainLoop::TestLoop()
 	Ts		ts;
 	bool	desync = false;
 #endif	//	TEST_RTC
-	ret = m_com.Receive(m_eepromBuffer, sizeof(m_eepromBuffer), *this);
+	ret = m_com.Receive(m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), *this);
 
 	uint32_t	counter = 0;
 	while(true)
@@ -222,9 +235,9 @@ void MainLoop::TestLoop()
 		auto firstTick = HAL_GetTick();
 		do {
 			if(m_lineReceived) {
-				m_com << m_eepromBuffer << "\r\n";
+				m_com << m_serialOutRingBuffer << "\r\n";
 				m_lineReceived = false;
-				ret = m_com.Receive(m_eepromBuffer, sizeof(m_eepromBuffer), *this);
+				ret = m_com.Receive(m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), *this);
 			}
 		} while(HAL_GetTick() - firstTick < 20 );
 
@@ -233,7 +246,7 @@ void MainLoop::TestLoop()
 			counter -= 8192;
 #ifdef TEST_RTC
 			ret = m_rtc.Get(ts, desync);
-			m_com << sg::DbgUsart::dec << (ts.hour < 10 ? "0" : "") << ts.hour << (ts.min < 10 ? ":0" : ":") << ts.min << (ts.sec < 10 ? ":0" : ":") << ts.sec << "  ";
+			m_com << sg::Usart::dec << (ts.hour < 10 ? "0" : "") << ts.hour << (ts.min < 10 ? ":0" : ":") << ts.min << (ts.sec < 10 ? ":0" : ":") << ts.sec << "  ";
 #else
 			TICK('#');
 #endif
@@ -248,49 +261,44 @@ void MainLoop::TestLoop()
 					m_lcd.SetCursor(0, 0);
 				m_lcd.Print(code, false, 4);
 			}
-			m_com << sg::DbgUsart::endl;
+			m_com << sg::Usart::endl;
 
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 #if defined(TEST_EEPROM)
-			m_com << sg::DbgUsart::endl;
-			ret = m_eeprom.Read(base, m_eepromBuffer, sizeof(m_eepromBuffer));
-			m_eeprom.Sync();
-			for(uint16_t offset = 0; offset < sizeof(m_eepromBuffer); offset += 32)
-				DumpBufferLine(base, offset, 32);
-			m_com << sg::DbgUsart::endl << sg::DbgUsart::endl;
+			m_com << sg::Usart::endl;
+			ret = m_dbEeprom.Read(eepromBuffer, base, sizeof(eepromBuffer));
+			m_dbEeprom.Sync();
+			for(uint16_t offset = 0; offset < sizeof(eepromBuffer); offset += 32)
+				DumpBufferLine(eepromBuffer, base, offset, 32);
+			m_com << sg::Usart::endl << sg::Usart::endl;
 			base += 256;
 #endif
 		}
 	}
 	(void)ret;
 }
-#endif	//	TESTLOOP
-
-////////////////////////////////////////////////////////////////////
-void MainLoop::Tick(uint32_t now)
-{
-	m_lights.Tick(now);
-}
+#else	//	TESTLOOP
 
 ////////////////////////////////////////////////////////////////////
 void MainLoop::Loop()
 {
+	HAL_StatusTypeDef	ret = HAL_OK;
 	uint32_t		oldTick;
 	uint32_t		now, lastLedTick, tsTick;
 	bool			desync;
-	sg::DS3231::Ts	ts, old;
+	sg::DS3231::Ts	ts;
 	char			timebuf[10];
 	
 	MainLoop::Instance();
 	g_mainLoppReady = true;
 
 	{
-		m_rtc.Get(old, desync);
+		m_rtc.Get(m_ts, desync);
 		do {
 			m_rtc.Get(ts, desync);
-		} while(ts.sec == old.sec);
+		} while(ts.sec == m_ts.sec);
 		tsTick = HAL_GetTick();
-		old = ts;
+		m_ts = ts;
 	}
 	oldTick = tsTick;
 	lastLedTick = tsTick;
@@ -301,6 +309,8 @@ void MainLoop::Loop()
 	m_lights.SetMode(3, SmartLights::BLINK, 100);
 	m_lights.SetMode(4, SmartLights::BLINK, 180);
 	m_lights.SetMode(5, SmartLights::BLINK, 220);
+
+	ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
 
 	while(true)
 	{
@@ -314,13 +324,19 @@ void MainLoop::Loop()
 			m_lcd.Print(code, false, 4);
 		}
 
+		if(m_lineReceived) {
+			m_proc.Process(m_serialBuffer);
+			m_lineReceived = false;
+			ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
+		}
+
 		if(now != oldTick)
 		{
 			if(now - tsTick > 980) {
 				m_rtc.Get(ts, desync);
-				if(old.sec != ts.sec) {
+				if(m_ts.sec != ts.sec) {
 					tsTick = now;
-					old = ts;
+					m_ts = ts;
 					m_lcd.SetCursor(0, 1);
 					ts.TimeToString(timebuf, sizeof(timebuf), true);
 					m_lcd.Print(timebuf);
@@ -334,5 +350,9 @@ void MainLoop::Loop()
 
 			oldTick = now;
 		}
-	}
+
+	}	//	while(true)
+
+	(void)ret;
 }
+#endif	//	TESTLOOP
