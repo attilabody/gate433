@@ -1,4 +1,9 @@
 #MicroXplorer Configuration settings - do not modify
+FATFS.IPParameters=_FS_MINIMIZE,_USE_STRFUNC,_USE_MKFS,_FS_NORTC
+FATFS._FS_MINIMIZE=2
+FATFS._FS_NORTC=1
+FATFS._USE_MKFS=0
+FATFS._USE_STRFUNC=0
 File.Version=6
 KeepUserPlacement=false
 Mcu.Family=STM32F1
