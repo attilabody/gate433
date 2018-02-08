@@ -5,8 +5,8 @@
  *      Author: abody
  */
 
-#ifndef FLASHDB_H_
-#define FLASHDB_H_
+#ifndef _I2CDB_H_
+#define _I2CDB_H_
 
 #include "database.h"
 #include <sg/i2ceeprom.h>
@@ -28,4 +28,4 @@ private:
 	uint16_t		m_offset;
 };
 
-#endif /* FLASHDB_H_ */
+#endif /* FLASH_H_ */
