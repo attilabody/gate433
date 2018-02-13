@@ -128,9 +128,9 @@ void MainLoop::CommandProcessor::Process(const char* input)
 		for( id = from; id <= to; ++id ) {
 			//CHECKPOINT;
 			if( m_parent.m_db.getParams(id, rec)) {
-				sg::tohex(m_parent.m_serialBuffer, id, 3);
-				m_parent.m_serialBuffer[3] = ' ';
-				rec.serialize( m_parent.m_serialBuffer + 4);
+				sg::todec(m_parent.m_serialBuffer, id, 4);
+				m_parent.m_serialBuffer[4] = ' ';
+				rec.serialize( m_parent.m_serialBuffer + 5);
 				m_parent.m_com << DATA << m_parent.m_serialBuffer << sg::Usart::endl;
 			} else break;
 		}
@@ -139,7 +139,7 @@ void MainLoop::CommandProcessor::Process(const char* input)
 
 	} else if(IsCommand(CMD_GDT)) {
 		m_parent.m_com << RESP << (uint16_t)m_parent.m_ts.year << '.' << (uint16_t)m_parent.m_ts.mon << '.' <<
-				(uint16_t)m_parent.m_ts.mday << '/' << (uint16_t)m_parent.m_ts.wday << "    " <<
+				(uint16_t)m_parent.m_ts.mday << '/' << (uint16_t)m_parent.m_ts.wday << "  " <<
 				m_parent.m_ts.hour << ':' << m_parent.m_ts.min << ':' << (uint16_t)m_parent.m_ts.sec <<
 				sg::Usart::endl;
 	} else if(IsCommand(CMD_SDT)) {
@@ -172,7 +172,7 @@ void MainLoop::CommandProcessor::Process(const char* input)
 	} else if(IsCommand(CMD_DS)) {
 		SdFile	f;
 		char buffer[16];
-		if( f.Open("SHUFFLE.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::READ))) {
+		if( f.Open("SHUFFLE.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::READ)) == FR_OK) {
 			while( GetLine( f, buffer, sizeof(buffer)) != -1 ) {
 				//CHECKPOINT;
 				PrintResp(buffer);
@@ -183,6 +183,10 @@ void MainLoop::CommandProcessor::Process(const char* input)
 			PrintErr("CANTOPEN");
 		}
 	} else if(IsCommand(CMD_DL)) {
+		if(m_parent.m_log.dump(m_parent.m_com, false))
+			PrintRespOk();
+		else
+			PrintErr();
 	} else if(IsCommand(CMD_TL)) {
 	} else if(IsCommand(CMD_IL)) {
 	} else {

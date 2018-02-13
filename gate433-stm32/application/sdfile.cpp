@@ -14,33 +14,11 @@ bool SdDriver::m_libInitialized = false;
 FATFS SdDriver::m_fatFS;
 char SdDriver::m_sdPath[4];
 
+//////////////////////////////////////////////////////////////////////////////
 SdDriver::SdDriver()
 {
 	if(!m_libInitialized && !FATFS_LinkDriver(&SD_Driver, m_sdPath) && !f_mount(&m_fatFS, (TCHAR const*)m_sdPath, 0))
 			m_libInitialized = true;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-bool SdVolume::Unlink(const char *path)
-{
-	return HandleRet(f_unlink(path));
-}
-
-//////////////////////////////////////////////////////////////////////////////
-bool SdVolume::MkDir(const char *path)
-{
-	return HandleRet(f_mkdir(path));
-}
-
-//////////////////////////////////////////////////////////////////////////////
-bool SdVolume::Rename(const char *oldPath, const char *newPath)
-{
-	return HandleRet(f_rename(oldPath, newPath));
-}
-
-bool SdVolume::Stat(FILINFO &info, const char *path)
-{
-	return HandleRet(f_stat(path, &info));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -53,87 +31,81 @@ SdFile::~SdFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool SdFile::Open(const char *path, SdFile::OpenMode mode)
+FRESULT SdFile::Open(const char *path, SdFile::OpenMode mode)
 {
-	if(m_isOpen && !Close())
-		return false;
+	if(m_isOpen && Close() != FR_OK)
+		return FR_INT_ERR;
 
 	FRESULT ret = f_open(&m_file, path, mode);
 
 	if(ret == FR_OK) {
 		m_isOpen = true;
 		m_pos = 0;
-		return true;
 	}
-	m_lastError = ret;
-	return false;
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool SdFile::Close()
+FRESULT SdFile::Close()
 {
 	if(!m_isOpen)
-		return false;
+		return FR_INT_ERR;
 
 	FRESULT ret = f_close(&m_file);
 	if(ret == FR_OK) {
 		m_isOpen = false;
-		return true;
 	}
-
-	m_lastError = ret;
-	return false;
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool SdFile::Seek(uint32_t pos)
+FRESULT SdFile::Seek(uint32_t pos)
 {
 	if(!m_isOpen)
-		return false;
+		return FR_INT_ERR;
 
 	FRESULT	ret = f_lseek(&m_file, pos);
 	if(ret == FR_OK) {
 		m_pos = pos;
-		return true;
+		return ret;
 	}
 
-	m_lastError = ret;
-	return false;
+	return ret;
 }
 //////////////////////////////////////////////////////////////////////////////
-unsigned int SdFile::Read(void *buffer, unsigned int size)
+FRESULT SdFile::Read(void *buffer, unsigned int size, unsigned int *read)
 {
 	if(!m_isOpen)
-		return 0;
-	unsigned int read = 0;
-	FRESULT res = f_read(&m_file, buffer, size, &read);
+		return FR_INT_ERR;
+	unsigned int _read = 0;
+	FRESULT res = f_read(&m_file, buffer, size, &_read);
 	if(res == FR_OK) {
-		m_pos += read;
-		return read;
+		m_pos += _read;
+		if(read)
+			*read = _read;
 	}
-	m_lastError = res;
-	return 0;
+	return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-unsigned int SdFile::Write(void *buffer, unsigned int size)
+FRESULT SdFile::Write(void *buffer, unsigned int size, unsigned int *written)
 {
 	if(!m_isOpen)
-		return 0;
-	unsigned int written = 0;
-	FRESULT ret = f_write(&m_file, buffer, size, &written);
+		return FR_INT_ERR;
+	unsigned int _written = 0;
+	FRESULT ret = f_write(&m_file, buffer, size, &_written);
 	if(ret == FR_OK) {
-		m_pos += written;
-		return written;
+		m_pos += _written;
+		if(written)
+			*written = _written;
 	}
-	m_lastError = ret;
-	return 0;
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool SdFile::Sync()
+FRESULT SdFile::Sync()
 {
-	return m_isOpen ? HandleRet(f_sync(&m_file)) : false;
+	return m_isOpen ? f_sync(&m_file) : FR_INT_ERR;
 }
 
 //////////////////////////////////////////////////////////////////////////////

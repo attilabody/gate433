@@ -13,15 +13,6 @@ class SdDriver
 {
 protected:
 	SdDriver();
-	FRESULT	GetLastError() { return m_lastError; }
-	bool HandleRet(FRESULT ret) {
-		if(ret == FR_OK)
-			return true;
-		m_lastError = ret;
-		return false;
-	}
-
-	FRESULT			m_lastError = FR_OK;
 
 	static bool		m_libInitialized;
 	static FATFS	m_fatFS;
@@ -31,10 +22,10 @@ protected:
 class SdVolume : public SdDriver
 {
 public:
-	bool MkDir(const char *path);
-	bool Unlink(const char *path);
-	bool Rename(const char *oldPath, const char *newPath);
-	bool Stat(FILINFO &info, const char *path);
+	FRESULT MkDir(const char *path) { return f_mkdir(path); }
+	FRESULT Unlink(const char *path) { return f_unlink(path); }
+	FRESULT Rename(const char *oldPath, const char *newPath) { return f_rename(oldPath, newPath); }
+	FRESULT Stat(FILINFO &info, const char *path) { return f_stat(path, &info); }
 private:
 };
 
@@ -51,13 +42,13 @@ public:
 		CREATE_ALWAYS = FA_CREATE_ALWAYS,
 		OPEN_ALWAYS = FA_OPEN_ALWAYS
 	};
-	bool Open(const char *path, OpenMode mode);
-	bool Close();
+	FRESULT Open(const char *path, OpenMode mode);
+	FRESULT Close();
 
-	unsigned int Read(void *buffer, unsigned int size);
-	unsigned int Write(void *buffer, unsigned int size);
-	bool Sync();
-	bool Seek(uint32_t pos);
+	FRESULT Read(void *buffer, unsigned int size, unsigned int *read = nullptr);
+	FRESULT Write(void *buffer, unsigned int size, unsigned int *written = nullptr);
+	FRESULT Sync();
+	FRESULT Seek(uint32_t pos);
 	uint32_t Size();
 	uint32_t Ftell() { return m_pos; }
 	bool IsOpen() { return m_isOpen; }

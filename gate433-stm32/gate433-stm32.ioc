@@ -1,7 +1,8 @@
 #MicroXplorer Configuration settings - do not modify
-FATFS.IPParameters=_FS_MINIMIZE,_USE_STRFUNC,_USE_MKFS,_FS_NORTC
-FATFS._FS_MINIMIZE=2
+FATFS.IPParameters=_FS_MINIMIZE,_USE_STRFUNC,_USE_MKFS,_FS_NORTC,_FS_TINY
+FATFS._FS_MINIMIZE=0
 FATFS._FS_NORTC=1
+FATFS._FS_TINY=0
 FATFS._USE_MKFS=0
 FATFS._USE_STRFUNC=0
 File.Version=6
@@ -194,7 +195,7 @@ ProjectManager.BackupPrevious=true
 ProjectManager.CompilerOptimize=2
 ProjectManager.ComputerToolchain=false
 ProjectManager.CoupleFile=true
-ProjectManager.CustomerFirmwarePackage=
+ProjectManager.CustomerFirmwarePackage=/home/compi/STM32Cube/Repository/STM32Cube_FW_F1_V1.6.0
 ProjectManager.DefaultFWLocation=true
 ProjectManager.DeletePrevious=true
 ProjectManager.DeviceId=STM32F103C8Tx

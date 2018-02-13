@@ -6,6 +6,7 @@
  */
 #include <rfdecoder.h>
 #include "stm32f1xx_hal.h"
+#include "main.h"
 #include "i2c.h"
 #include "spi.h"
 #include "usart.h"
@@ -57,6 +58,8 @@ MainLoop::MainLoop()
 , m_rtc(m_i2c)
 , m_lcd(m_i2c, LCD_I2C_ADDRESS)
 , m_decoder(RFDecoder::Instance())
+, m_loop(LOOP_I_GPIO_Port, LOOP_I_Pin, LOOP_O_GPIO_Port, LOOP_O_Pin, false)
+, m_log("LOG.TXT")
 , m_proc(*this)
 {
 	m_lcd.Init();
@@ -93,10 +96,10 @@ void MainLoop::DumpBufferLine(uint8_t *buffer, uint16_t base, uint16_t offset, u
 ////////////////////////////////////////////////////////////////////
 void MainLoop::LineReceived(char *buffer, uint16_t count)
 {
-	char *bufPtr = m_serialOutRingBuffer + count -1;
-	while(bufPtr != m_serialOutRingBuffer && (*bufPtr == '\r' || *bufPtr == '\n' || !*bufPtr))
+	char *bufPtr = m_serialBuffer + count -1;
+	while(bufPtr != m_serialBuffer && (*bufPtr == '\r' || *bufPtr == '\n' || !*bufPtr))
 		--bufPtr;
-	if(bufPtr < m_serialOutRingBuffer + count -1)
+	if(bufPtr < m_serialBuffer + count -1)
 		*(bufPtr + 1) = 0;
 	m_lineReceived = true;
 }
@@ -114,6 +117,7 @@ void MainLoop::CodeReceived(uint16_t code)
 void MainLoop::Tick(uint32_t now)
 {
 	m_lights.Tick(now);
+	m_loop.Tick(now);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -319,14 +323,18 @@ void MainLoop::Loop()
 		if(m_codeReceived) {
 			auto code = m_code;
 			m_codeReceived = false;
-			m_com << code;
+			m_com << code << m_com.endl;
 			m_lcd.SetCursor(0, 0);
 			m_lcd.Print(code, false, 4);
+			if(code != m_lastCode)
+				m_log.log(m_log.INFO, m_ts, "RCV", code, code >> 10, -1, -1, -1);
+			m_lastCode = code;
 		}
 
 		if(m_lineReceived) {
 			m_proc.Process(m_serialBuffer);
 			m_lineReceived = false;
+
 			ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
 		}
 

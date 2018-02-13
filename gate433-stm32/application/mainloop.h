@@ -9,6 +9,7 @@
 #define MAINLOOP_H_
 #include <rfdecoder.h>
 #include <sdfile.h>
+#include <sdlogwriter.h>
 #include <sg/singleton.h>
 #include <sg/usart.h>
 #include <sg/i2cmaster.h>
@@ -16,9 +17,9 @@
 #include <sg/ds3231.h>
 #include <sg/i2c_lcd.h>
 #include <sg/strutil.h>
-#include <smartlights.h>
-
+#include "smartlights.h"
 #include "i2cdb.h"
+#include "inductiveloop.h"
 #include "commsyms.h"
 
 
@@ -46,15 +47,17 @@ private:
 
 	RFDecoder		&m_decoder;
 	SmartLights		m_lights;
+	InductiveLoop	m_loop;
+	SdLogWriter		m_log;
 
 	static const uint16_t	MAX_CODE = 1023;
-
 
 	virtual void LineReceived(char *buffer, uint16_t count);
 	volatile bool	m_lineReceived = false;
 
 	virtual void CodeReceived(uint16_t code);
 	uint16_t		m_code = 0;
+	uint16_t		m_lastCode = 0xffff;
 	volatile bool	m_codeReceived = false;
 
 	//	utility functions
@@ -85,7 +88,7 @@ private:
 
 	CommandProcessor	m_proc;
 
-	sg::DS3231::Ts	m_ts;
+	sg::DS3231::Ts		m_ts;
 };
 
 #endif /* MAINLOOP_H_ */
