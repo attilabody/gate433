@@ -22,13 +22,13 @@ char sg::fromchr( char c, bool decimal)
 //////////////////////////////////////////////////////////////////////////////
 int32_t sg::getintparam( const char* &input, bool decimal, bool trimstart, bool acceptneg )
 {
-	long	retval(0);
+	int32_t	retval(0);
 	char	converted;
 	bool	found(false);
 	bool	negative(false);
 
 	if( trimstart )
-		while( *input && fromchr( *input, decimal ) == -1 && *input != '-' )
+		while( *input && fromchr( *input, decimal ) == (char)-1 && *input != '-' )
 			++input;
 
 	while( *input ) {
