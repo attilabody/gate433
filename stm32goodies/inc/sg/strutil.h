@@ -30,17 +30,19 @@ inline char tochr(const uint8_t in, const bool upper = true)
 char fromchr( char c, bool decimal = true );
 
 //////////////////////////////////////////////////////////////////////////////
-template< typename T> size_t todec(char* buffer, T data, uint8_t minDigits = 0, char padding = '0')
+template< typename T> size_t todec(char* buffer, T data, uint8_t digits = 0, char padding = '0')
 {
 	char *b2 = buffer;
+	uint8_t remainig = digits ? digits: -1;
+
 	do {
 		*b2++ = (data % 10) + '0';
 		data /= 10;
-	} while(data);
+	} while(data && --remainig);
 
 	size_t ret = b2 - buffer;
 
-	while(ret < minDigits) {
+	while(ret < digits) {
 		*b2++ = padding;
 		++ret;
 	}
@@ -52,19 +54,20 @@ template< typename T> size_t todec(char* buffer, T data, uint8_t minDigits = 0, 
 }
 
 //////////////////////////////////////////////////////////////////////////////
-template< typename T> size_t tohex(char* buffer, T data, uint8_t minDigits = 0, char padding = '0')
+template< typename T> size_t tohex(char* buffer, T data, uint8_t digits = 0, char padding = '0')
 {
 	char *b2 = buffer;
+	uint8_t	remaining = digits ? digits : -1;
 
 	do {
 		uint8_t curval = data & 0x0f;
 		*b2++ = tochr(curval, true);
 		data >>= 4;
-	} while(data);
+	} while(data && --remaining);
 
 	size_t ret = b2 - buffer;
 
-	while(ret < minDigits) {
+	while(ret < digits) {
 		*b2++ = padding;
 		++ret;
 	}

@@ -48,9 +48,9 @@ class DS3231
 	    uint8_t mon;         /* month */
 	    uint8_t year_s;      /* year in short notation */
 	    int16_t year;        /* year */
-	    uint8_t YMDToString(char *buffer, uint8_t size = 0);
-	    uint8_t MDToString(char *buffer, uint8_t size = 0);
-	    uint8_t TimeToString(char *buffer, uint8_t size = 0, bool seconds = false);
+	    uint8_t YMDToString(char *buffer, uint8_t yearDigits = 4, uint8_t size = 0) const;
+	    uint8_t MDToString(char *buffer, uint8_t size = 0) const;
+	    uint8_t TimeToString(char *buffer, uint8_t size = 0, bool seconds = false) const;
 	};
 
 	HAL_StatusTypeDef Init(const uint8_t creg = DS3231_INTCN);

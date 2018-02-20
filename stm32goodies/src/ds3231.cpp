@@ -49,18 +49,18 @@ bit0 A1IE   Alarm1 interrupt enable (1 to enable)
 using namespace sg;
 
 //////////////////////////////////////////////////////////////////////////////
-uint8_t DS3231::Ts::YMDToString(char *buffer, uint8_t size)
+uint8_t DS3231::Ts::YMDToString(char *buffer, uint8_t yearDigits, uint8_t size) const
 {
 	uint8_t	count = 0;
-	if(size && size < 11) return 0;
-	buffer += count = todec(buffer, year, 4);
+	if(size && size < 7 + yearDigits) return 0;
+	buffer += count = todec(buffer, year, yearDigits);
 	*buffer++ = '.';
 	++count;
 	return count + MDToString(buffer);
 }
 
 //////////////////////////////////////////////////////////////////////////////
-uint8_t DS3231::Ts::MDToString(char *buffer, uint8_t size)
+uint8_t DS3231::Ts::MDToString(char *buffer, uint8_t size) const
 {
 	uint8_t	count = 0, tmp;
 	if(size && size < 6) return 0;
@@ -75,7 +75,7 @@ uint8_t DS3231::Ts::MDToString(char *buffer, uint8_t size)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-uint8_t DS3231::Ts::TimeToString(char *buffer, uint8_t size, bool seconds)
+uint8_t DS3231::Ts::TimeToString(char *buffer, uint8_t size, bool seconds) const
 {
 	uint8_t	count = 0, tmp;
 	if(size && size < (seconds ? 9: 6)) return 0;
