@@ -18,7 +18,7 @@ public:
 
 	void Tick(uint32_t now);
 
-	enum Mode  : uint8_t { OFF = 0, ON, BLINK };
+	enum Mode  : uint8_t { OFF = 0, ON = 1, BLINK = 2 };
 
 	bool SetMode(uint8_t index, Mode mode, uint16_t step);
 	void SetMax(uint16_t m) { m_maxVal = m; }
@@ -35,7 +35,7 @@ private:
 		uint16_t	step;
 	} m_states[COUNT];
 
-	void Tick(uint8_t li, uint32_t now);
+	void Tock(uint8_t li, uint32_t now);
 };
 
 #endif /* SMARTLIGHTS_H_ */

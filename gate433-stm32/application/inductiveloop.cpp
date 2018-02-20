@@ -26,8 +26,10 @@ void InductiveLoop::Tick(uint32_t now)
 {
 	uint8_t rawstatus = 0;
 
-	if(Debounce(true, now) == m_activeHigh) rawstatus |= (uint8_t) INNER;
-	if(Debounce(false, now) == m_activeHigh) rawstatus |= (uint8_t) OUTER;
+	if(Debounce(true, now) == m_activeHigh)
+		rawstatus |= (uint8_t) INNER;
+	if(Debounce(false, now) == m_activeHigh)
+		rawstatus |= (uint8_t) OUTER;
 
 	if( rawstatus == ( INNER | OUTER )) {
 		if( m_status == NONE )

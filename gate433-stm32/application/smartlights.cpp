@@ -18,12 +18,12 @@ void SmartLights::Tick(uint32_t now)
 {
 	for(uint8_t li = 0; li < COUNT; ++li)
 		if(m_states[li].active)
-			Tick(li, now);
+			Tock(li, now);
 	m_lastTick = now;
 }
 
 ////////////////////////////////////////////////////////////////////
-void SmartLights::Tick(uint8_t li, uint32_t now)
+void SmartLights::Tock(uint8_t li, uint32_t now)
 {
 	State		&light = m_states[li];
 	uint32_t	deltaT = now - m_lastTick;
@@ -79,8 +79,8 @@ void SmartLights::Tick(uint8_t li, uint32_t now)
 bool SmartLights::SetMode(uint8_t index, Mode mode, uint16_t step)
 {
 	if(index >= COUNT) return false;
-	sg::ItLock	lock;
 	State &light = m_states[index];
+	sg::ItLock	lock;
 	light.mode = mode;
 	light.step = step;
 	light.active = true;

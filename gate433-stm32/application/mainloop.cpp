@@ -52,13 +52,14 @@ void HAL_SYSTICK_Callback(void)
 MainLoop::MainLoop()
 : m_com(&huart1, sg::UsartCallbackDispatcher::Instance(), m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), true)
 , m_i2c(&hi2c1, sg::I2cCallbackDispatcher::Instance())
-, m_dbEeprom(m_i2c, DB_I2C_ADDRESS, DB_ADDRESS_LENGTH, 128)
+, m_dbEeprom(m_i2c, Config::Instance().dbI2cAddress, Config::Instance().dbAddresLength, Config::Instance().dbPageLength)
 , m_db(m_dbEeprom, 0)
-, m_configEeprom(m_i2c, CFG_I2C_ADDRESS, CFG_ADDRESS_LENGTH, 32)
+, m_configEeprom(m_i2c, CFG_I2C_ADDRESS, CFG_ADDRESS_LENGTH, CFG_PAGE_LENGTH)
 , m_rtc(m_i2c)
-, m_lcd(m_i2c, LCD_I2C_ADDRESS)
+, m_lcd(m_i2c, Config::Instance().lcdI2cAddress, Config::Instance().lcdWidth, Config::Instance().lcdHeight)
 , m_decoder(RFDecoder::Instance())
-, m_loop(LOOP_I_GPIO_Port, LOOP_I_Pin, LOOP_O_GPIO_Port, LOOP_O_Pin, false)
+, m_lights(256, 128)
+, m_loop(LOOP_I_GPIO_Port, LOOP_I_Pin, LOOP_O_GPIO_Port, LOOP_O_Pin, true)
 , m_log("LOG.TXT")
 , m_proc(*this)
 {
@@ -287,32 +288,28 @@ void MainLoop::Loop()
 void MainLoop::Loop()
 {
 	HAL_StatusTypeDef	ret = HAL_OK;
-	uint32_t		oldTick;
-	uint32_t		now, lastLedTick, tsTick;
-	bool			desync;
+	uint32_t		oldTick, ellapsed;
+	uint32_t		now, lastHeartbeat;
 	sg::DS3231::Ts	ts;
-	char			timebuf[10];
+
+	InductiveLoop::STATUS	ilStatus = InductiveLoop::NONE;
+	bool					ilConflict = false;
+	bool					inner = false;
+	bool					ilChanged = false;
 	
 	MainLoop::Instance();
 	g_mainLoppReady = true;
 
 	{
-		m_rtc.Get(m_ts, desync);
+		m_rtc.Get(m_rtcDateTime, m_rtcDesync);
 		do {
-			m_rtc.Get(ts, desync);
-		} while(ts.sec == m_ts.sec);
-		tsTick = HAL_GetTick();
-		m_ts = ts;
+			m_rtc.Get(ts, m_rtcDesync);
+		} while(ts.sec == m_rtcDateTime.sec);
+		m_rtcTick = HAL_GetTick();
+		m_rtcDateTime = ts;
 	}
-	oldTick = tsTick;
-	lastLedTick = tsTick;
-
-	m_lights.SetMode(0, SmartLights::BLINK, 128);
-	m_lights.SetMode(1, SmartLights::BLINK, 120);
-	m_lights.SetMode(2, SmartLights::BLINK, 150);
-	m_lights.SetMode(3, SmartLights::BLINK, 100);
-	m_lights.SetMode(4, SmartLights::BLINK, 180);
-	m_lights.SetMode(5, SmartLights::BLINK, 220);
+	oldTick = m_rtcTick;
+	lastHeartbeat = m_rtcTick;
 
 	ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
 
@@ -320,47 +317,137 @@ void MainLoop::Loop()
 	{
 		now = HAL_GetTick();
 
-		if(m_codeReceived) {
-			auto code = m_code;
-			m_codeReceived = false;
-			m_com << code << m_com.endl;
-			m_lcd.SetCursor(0, 0);
-			m_lcd.Print(code, false, 4);
-			if(code != m_lastCode)
-				m_log.log(m_log.INFO, m_ts, "RCV", code, code >> 10, -1, -1, -1);
-			m_lastCode = code;
-		}
-
 		if(m_lineReceived) {
 			m_proc.Process(m_serialBuffer);
 			m_lineReceived = false;
-
 			ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
 		}
 
 		if(now != oldTick)
 		{
-			if(now - tsTick > 980) {
-				m_rtc.Get(ts, desync);
-				if(m_ts.sec != ts.sec) {
-					tsTick = now;
-					m_ts = ts;
-					m_lcd.SetCursor(0, 1);
-					ts.TimeToString(timebuf, sizeof(timebuf), true);
-					m_lcd.Print(timebuf);
-				}
+			{
+				sg::ItLock	lock;
+				ilStatus = m_loop.GetStatus();
+				ilConflict = m_loop.GetConflict();
+			}
+			ilChanged = ilStatus != m_ilStatus || ilConflict != m_ilConflict;
+
+
+			if(ilChanged) {
+				m_ilStatus = ilStatus;
+				m_ilConflict = ilConflict;
+				m_lcd.UpdateLoopStatus(ilStatus == InductiveLoop::INNER, ilStatus == InductiveLoop::OUTER, ilConflict);
+				inner = ilStatus == InductiveLoop::INNER;
 			}
 
-			if(now - lastLedTick >= 500) {
+			if(CheckDateTime(now))
+				m_lcd.UpdateDt(m_rtcDateTime, m_rtcDesync);
+
+			if(now - lastHeartbeat >= 500) {
 				HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-				lastLedTick = now;
+				lastHeartbeat = now;
 			}
 
 			oldTick = now;
+		}
+
+		switch(m_state)
+		{
+		case States::OFF:
+		case States::CONFLICT:
+		case States::CODEWAIT:
+			if(ilChanged)
+			{
+				if(ilStatus == InductiveLoop::NONE)
+					ChangeState(States::OFF, inner, now);
+				else if(ilConflict)
+					ChangeState(States::CONFLICT, inner, now);
+				else
+					ChangeState(States::CODEWAIT, inner, now);
+			}
+			else if(m_state == States::CODEWAIT && m_codeReceived)
+			{
+				if(m_code == m_lastCode) {	// received second time
+					m_com << m_code << m_com.endl;
+					m_lcd.UpdateLastReceivedId(m_code);
+					ChangeState(Authorize(m_code, inner), inner, now);
+					m_log.log(m_log.INFO, m_rtcDateTime, "RCV", m_code, m_code >> 10, -1, -1, -1);
+				} else {
+					m_lastCode = m_code;
+					m_codeReceived = false;
+				}
+			}
+
+			break;
+
+		case States::ACCEPT:
+		case States::WARN:
+		case States::HURRY:
+			if(ilChanged && ilStatus == InductiveLoop::NONE) {
+				m_db.setStatus(m_lastCode, inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
+				ChangeState(States::OFF, inner, now);
+			} else {
+				ellapsed = now - m_stateStartedTick;
+				if(ellapsed > (m_state == States::HURRY ? Config::Instance().hurryTimeout : Config::Instance().passTimeout) * 1000)
+					ChangeState(m_state == States::HURRY ? States::OFF : States::HURRY, inner, now);//, ilChanged);
+			}
+			break;
+
+		case States::DENY:
+		case States::UNREGISTERED:
+			if(ilChanged && ilStatus != m_stateInner ? InductiveLoop::INNER : InductiveLoop::OUTER) {
+				m_ilStatus = InductiveLoop::NONE;
+				ChangeState(States::OFF, inner, now);
+			}
+			break;
+
+		case States::NUMSTATES:	// should not happen
+			break;
 		}
 
 	}	//	while(true)
 
 	(void)ret;
 }
+
+////////////////////////////////////////////////////////////////////
+// may return ACCEPT WARN DENY UNREGISTERED
+States MainLoop::Authorize( uint16_t id, bool inner )
+{
+	return States::ACCEPT;
+}
+
+////////////////////////////////////////////////////////////////////
+void MainLoop::ChangeState(States newStatus, bool inner, uint32_t now)
+{
+	if( newStatus == States::CODEWAIT) {
+		m_lastCode = -1;
+		m_codeReceived = false;
+	}
+
+	m_stateStartedTick = now;
+	m_stateInner = inner;
+	m_lights.SetMode(newStatus, inner);
+	m_state = newStatus;
+}
+
+////////////////////////////////////////////////////////////////////
+bool MainLoop::CheckDateTime(uint32_t now)
+{
+	sg::DS3231::Ts	ts;
+	bool desync;
+
+	if(now - m_rtcTick > 980) {
+		m_rtc.Get(ts, desync);
+		if(m_rtcDateTime.sec != ts.sec) {
+			m_rtcTick = now;
+			m_rtcDateTime = ts;
+			m_rtcDateTime = ts;
+			m_rtcDesync = desync;
+			return true;
+		}
+	}
+	return false;
+}
+
 #endif	//	TESTLOOP

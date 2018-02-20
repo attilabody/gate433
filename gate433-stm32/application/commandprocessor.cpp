@@ -47,7 +47,7 @@ void MainLoop::CommandProcessor::Process(const char* input)
 			rec.serialize(m_parent.m_serialBuffer);
 			PrintResp(m_parent.m_serialBuffer);
 		} else
-			PrintErr();
+			PrintRespErr();
 
 	} else if(IsCommand(CMD_SDB)) {
 		database::dbrecord	rec;
@@ -56,9 +56,9 @@ void MainLoop::CommandProcessor::Process(const char* input)
 			if( m_parent.m_db.setParams( id, rec ))
 				PrintRespOk();
 			else
-				PrintErr();
+				PrintRespErr();
 		} else
-			PrintErr();
+			PrintRespErr();
 
 	} else if(IsCommand(CMD_EDB)) {
 		thindb		tdb;
@@ -79,7 +79,7 @@ void MainLoop::CommandProcessor::Process(const char* input)
 		if(id == to + 1)
 			PrintRespOk();
 		else
-			PrintErr();
+			PrintRespErr();
 
 	} else if(IsCommand(CMD_IDB)) {
 		uint16_t changed = 0, id = 0;
@@ -112,7 +112,7 @@ void MainLoop::CommandProcessor::Process(const char* input)
 		if(id)
 			PrintRespOk();
 		else
-			PrintErr();
+			PrintRespErr();
 		m_parent.m_com << changed << sg::Usart::endl;
 
 	} else if(IsCommand(CMD_DDB)) {
@@ -135,12 +135,12 @@ void MainLoop::CommandProcessor::Process(const char* input)
 			} else break;
 		}
 		if( id == to + 1 ) PrintRespOk();
-		else PrintErr();
+		else PrintRespErr();
 
 	} else if(IsCommand(CMD_GDT)) {
-		m_parent.m_com << RESP << (uint16_t)m_parent.m_ts.year << '.' << (uint16_t)m_parent.m_ts.mon << '.' <<
-				(uint16_t)m_parent.m_ts.mday << '/' << (uint16_t)m_parent.m_ts.wday << "  " <<
-				m_parent.m_ts.hour << ':' << m_parent.m_ts.min << ':' << (uint16_t)m_parent.m_ts.sec <<
+		m_parent.m_com << RESP << (uint16_t)m_parent.m_rtcDateTime.year << '.' << (uint16_t)m_parent.m_rtcDateTime.mon << '.' <<
+				(uint16_t)m_parent.m_rtcDateTime.mday << '/' << (uint16_t)m_parent.m_rtcDateTime.wday << "  " <<
+				m_parent.m_rtcDateTime.hour << ':' << m_parent.m_rtcDateTime.min << ':' << (uint16_t)m_parent.m_rtcDateTime.sec <<
 				sg::Usart::endl;
 	} else if(IsCommand(CMD_SDT)) {
 		sg::DS3231_DST::Ts	t;
@@ -165,7 +165,7 @@ void MainLoop::CommandProcessor::Process(const char* input)
 				break;
 		}
 		if(id != to + 1)
-			PrintErr();
+			PrintRespErr();
 		else
 			PrintRespOk();
 
@@ -180,15 +180,33 @@ void MainLoop::CommandProcessor::Process(const char* input)
 			PrintResp("");
 			f.Close();
 		} else {
-			PrintErr("CANTOPEN");
+			PrintRespErr("CANTOPEN");
 		}
 	} else if(IsCommand(CMD_DL)) {
 		if(m_parent.m_log.dump(m_parent.m_com, false))
 			PrintRespOk();
 		else
-			PrintErr();
+			PrintRespErr();
 	} else if(IsCommand(CMD_TL)) {
+		//TODO: truncate log
 	} else if(IsCommand(CMD_IL)) {
+		//TODO: infinite loop (watchdog test)
+	} else if(IsCommand(CMD_SL)) {
+		bool inner = false;
+		bool valid = false;
+		if(*m_bufPtr == 'i' || *m_bufPtr == 'I' ) {
+			inner = valid = true;
+			++m_bufPtr;
+		} else if(*m_bufPtr == 'o' || *m_bufPtr == 'O' ) {
+			valid = true;
+			++m_bufPtr;
+		}
+		if(valid) {
+			uint8_t mode(GetParam());
+			m_parent.m_lights.SetMode(static_cast<States>(mode), inner);
+			PrintRespOk();
+		} else
+			PrintRespErr();
 	} else {
 		m_parent.m_com << ERR << " CMD" << sg::Usart::endl;
 	}
