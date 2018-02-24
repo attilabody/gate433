@@ -18,7 +18,10 @@ enum States
 	DENY,
 	UNREGISTERED,
 	HURRY,
+	PASSING,
 	NUMSTATES
 };
+
+extern char g_stateSigns[States::NUMSTATES]; //	{ ' ', 'W', 'C', 'A', 'W', 'D', 'U', 'H', 'P' }
 
 #endif /* STATES_H_ */

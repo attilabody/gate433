@@ -30,6 +30,7 @@ const uint16_t	TrafficLights::COMPSTATES[States::NUMSTATES] = {
 	, 0x1010	//	DENY -			PR1SR1
 	, 0x1020	//	UNREGISTERED	PR2SR1
 	, 0x1002	//	HURRY -			PG2SR1
+	, 0x1010	//	PASSING -		PR1SR1
 };
 
 ////////////////////////////////////////////////////////////////////

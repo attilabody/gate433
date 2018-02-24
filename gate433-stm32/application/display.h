@@ -9,6 +9,7 @@
 #define DISPLAY_H_
 #include <sg/i2c_lcd.h>
 #include <sg/ds3231.h>
+#include "states.h"
 
 struct ts;
 
@@ -20,19 +21,16 @@ public:
 	using sg::I2cLcd::Init;
 
 	void UpdateDt(const sg::DS3231::Ts &dt, bool deSync);
-	void UpdateLoopStatus( bool inner, bool outer, bool conflict );
-	void UpdateLastReceivedId( uint16_t id );
-	void UpdateLastDecision( char decision, uint16_t id );
+	void UpdateLoopStatus( bool inner, bool outer, bool conflict);
+	void UpdateLastReceivedId( uint16_t id);
+	States UpdateLastDecision(States state, uint16_t id, char reason);
 
-	enum CHANGETYPE {
-		DATECHANGED = 1,
-		TIMECHANGED = 2,
-		SYNCCHANGED = 4
-	};
+	uint16_t GetLastReceivedId() { return m_lastReceivedId; }
 
 protected:
 	uint8_t	m_width;
 	uint8_t	m_height;
+
 	sg::DS3231::Ts	m_dt;
 	bool			m_deSync = false;
 	uint16_t		m_lastReceivedId = 0;

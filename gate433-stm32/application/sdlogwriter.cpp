@@ -81,12 +81,12 @@ SdLogWriter::SdLogWriter(const char *name)
 {};
 
 /////////////////////////////////////////////////////////////////////////////
-void SdLogWriter::log(CATEGORY category, sg::DS3231::Ts &datetime, const char* message, uint16_t rid, uint8_t btn, uint8_t dbpos, uint8_t loop,  uint8_t decision )
+void SdLogWriter::log(CATEGORY category, sg::DS3231::Ts &datetime, const char* message, uint16_t rid, uint8_t btn, uint8_t dbpos, uint8_t loop,  uint8_t decision, char reason )
 {
 	char		buffer[32];
 
 	sdfwbuffer	b(m_name, buffer, sizeof(buffer));
-	writelinehdr(b, category, datetime, rid, btn, dbpos, loop, decision);
+	writelinehdr(b, category, datetime, rid, btn, dbpos, loop, decision, reason);
 	b.writebuffer::write( message );
 	b.writebuffer::write( '\n' );
 }
@@ -145,10 +145,10 @@ bool SdLogWriter::truncate()
 /////////////////////////////////////////////////////////////////////////////
 const char* SdLogWriter::__catsrts = "DBG" "INF" "WRN" "ERR" "WTF";
 const char* SdLogWriter::__positions = "UOI";
-const char* SdLogWriter::__decisions = "ACK" "UNR" "DAY" "TME" "POS";
+const char* SdLogWriter::__states = "OFF" "CDW" "CON" "ACC" "WRN" "DNY" "UNR" "HRY" "PAS";
 
 /////////////////////////////////////////////////////////////////////////////
-bool SdLogWriter::writelinehdr(sdfwbuffer &wb, CATEGORY c, sg::DS3231::Ts &datetime, uint16_t remoteid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision )
+bool SdLogWriter::writelinehdr(sdfwbuffer &wb, CATEGORY c, sg::DS3231::Ts &datetime, uint16_t remoteid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision, char reason )
 {
 	bool ret( true );
 	ret &= wb.write( datetime );
@@ -172,8 +172,12 @@ bool SdLogWriter::writelinehdr(sdfwbuffer &wb, CATEGORY c, sg::DS3231::Ts &datet
 		ret &= wb.writebuffer::write(' ');
 	}
 	if( decision != 0xff ) {
-		ret &= wb.writebuffer::write( __decisions + decision * 3, 3 );
+		ret &= wb.writebuffer::write( __states + decision * 3, 3 );
 		ret &= wb.writebuffer::write(' ');
+	}
+	if(reason != ' ') {
+		ret &= wb.writebuffer::write(' ');
+		ret &= wb.writebuffer::write(reason);
 	}
 	return ret;
 }

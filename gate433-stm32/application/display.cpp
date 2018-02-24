@@ -15,6 +15,8 @@ Display::Display(sg::I2cMaster &i2c, uint8_t i2cAddress, uint8_t width, uint8_t 
 , m_width(width)
 , m_height(height)
 {
+	sg::I2cLcd::Init();
+	UpdateLoopStatus(false, false, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -26,7 +28,6 @@ Display::~Display()
 void Display::UpdateDt(const sg::DS3231::Ts &dt, bool deSync)
 {
 	char	lcdbuffer[13];
-	sg::DS3231::Ts	tmp = dt;
 
 	if(dt.sec != m_dt.sec || dt.min != m_dt.min || dt.hour != m_dt.hour) {
 		SetCursor(0,1);
@@ -67,13 +68,16 @@ void Display::UpdateLastReceivedId( uint16_t id )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void Display::UpdateLastDecision( char decision, uint16_t id )
+States Display::UpdateLastDecision(States state, uint16_t id, char reason)
 {
-	char buf[3] { decision, ' ', 0 };
+	char buf[3] { g_stateSigns[state], ' ', 0 };
 
-	buf[4] = 0;
+	if(state == States::DENY && reason && reason != ' ')
+		buf[0] = reason;
+
 	SetCursor(10, 1);
 	Print(buf);
 	Print(id, false, 4);
+	return state;
 }
 

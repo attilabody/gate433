@@ -25,7 +25,7 @@ public:
 
 	void log( 	CATEGORY category, sg::DS3231::Ts &datetime, const char* message,
 				uint16_t rid = 0xffff, uint8_t button = 0xff, uint8_t dbpos = 0xff,
-				uint8_t loop = 0xff, uint8_t decision = 0xff );
+				uint8_t loop = 0xff, uint8_t decision = 0xff, char reason = ' ' );
 
 	bool dump(sg::Usart &com, bool trunc = false);
 	bool truncate();
@@ -47,11 +47,11 @@ protected:
 
 	bool writelinehdr(
 			sdfwbuffer &wb, CATEGORY c, sg::DS3231::Ts &datetime, uint16_t remoteid,
-			uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision);
+			uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision, char reason);
 
 	static const char* __catsrts;
 	static const char* __positions;
-	static const char* __decisions;
+	static const char* __states;
 
 };
 

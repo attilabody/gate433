@@ -34,6 +34,8 @@ extern "C" void HAL_SYSTICK_Callback(void);
 
 bool g_mainLoppReady = false;
 
+char g_stateSigns[States::NUMSTATES] = { ' ', 'W', 'C', 'A', 'W', 'D', 'U', 'H', 'P' };
+
 ////////////////////////////////////////////////////////////////////
 void _MainLoop()
 {
@@ -63,7 +65,6 @@ MainLoop::MainLoop()
 , m_log("LOG.TXT")
 , m_proc(*this)
 {
-	m_lcd.Init();
 	m_decoder.Init(*this);
 }
 
@@ -108,6 +109,8 @@ void MainLoop::LineReceived(char *buffer, uint16_t count)
 ////////////////////////////////////////////////////////////////////
 void MainLoop::CodeReceived(uint16_t code)
 {
+	if(code != m_lcd.GetLastReceivedId())
+		m_lcd.UpdateLastReceivedId(code);
 	if(!m_codeReceived) {
 		m_code = code;
 		m_codeReceived = true;
@@ -358,20 +361,14 @@ void MainLoop::Loop()
 		case States::CODEWAIT:
 			if(ilChanged)
 			{
-				if(ilStatus == InductiveLoop::NONE)
-					ChangeState(States::OFF, inner, now);
-				else if(ilConflict)
-					ChangeState(States::CONFLICT, inner, now);
-				else
-					ChangeState(States::CODEWAIT, inner, now);
+				ChangeState(ilStatus == InductiveLoop::NONE ? States::OFF : (ilConflict ? States::CONFLICT : States::CODEWAIT), inner, now);
 			}
 			else if(m_state == States::CODEWAIT && m_codeReceived)
 			{
 				if(m_code == m_lastCode) {	// received second time
 					m_com << m_code << m_com.endl;
-					m_lcd.UpdateLastReceivedId(m_code);
-					ChangeState(Authorize(m_code, inner), inner, now);
 					m_log.log(m_log.INFO, m_rtcDateTime, "RCV", m_code, m_code >> 10, -1, -1, -1);
+					ChangeState(Authorize(m_code, inner), inner, now);
 				} else {
 					m_lastCode = m_code;
 					m_codeReceived = false;
@@ -383,9 +380,14 @@ void MainLoop::Loop()
 		case States::ACCEPT:
 		case States::WARN:
 		case States::HURRY:
-			if(ilChanged && ilStatus == InductiveLoop::NONE) {
-				m_db.setStatus(m_lastCode, inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
-				ChangeState(States::OFF, inner, now);
+		case States::PASSING:
+			if(ilChanged) {
+				if(ilStatus == InductiveLoop::NONE) {
+					m_db.setStatus(m_lastCode, m_cycleInner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
+					ChangeState(States::OFF, inner, now);
+				} else if(m_state != States::PASSING) {
+					ChangeState(States::PASSING, inner, m_stateStartedTick);
+				}
 			} else {
 				ellapsed = now - m_stateStartedTick;
 				if(ellapsed > (m_state == States::HURRY ? Config::Instance().hurryTimeout : Config::Instance().passTimeout) * 1000)
@@ -395,9 +397,8 @@ void MainLoop::Loop()
 
 		case States::DENY:
 		case States::UNREGISTERED:
-			if(ilChanged && ilStatus != m_stateInner ? InductiveLoop::INNER : InductiveLoop::OUTER) {
-				m_ilStatus = InductiveLoop::NONE;
-				ChangeState(States::OFF, inner, now);
+			if(ilChanged && ilStatus != (m_cycleInner ? InductiveLoop::INNER : InductiveLoop::OUTER)) {
+				ChangeState(ilStatus == InductiveLoop::NONE ? States::OFF : (ilConflict ? States::CONFLICT : States::CODEWAIT), inner, now);
 			}
 			break;
 
@@ -411,24 +412,67 @@ void MainLoop::Loop()
 }
 
 ////////////////////////////////////////////////////////////////////
-// may return ACCEPT WARN DENY UNREGISTERED
-States MainLoop::Authorize( uint16_t id, bool inner )
-{
-	return States::ACCEPT;
-}
-
-////////////////////////////////////////////////////////////////////
 void MainLoop::ChangeState(States newStatus, bool inner, uint32_t now)
 {
-	if( newStatus == States::CODEWAIT) {
+	if(newStatus == States::CODEWAIT) {
 		m_lastCode = -1;
 		m_codeReceived = false;
+		m_cycleInner = inner;
+	} else if(newStatus == States::ACCEPT || newStatus == States::WARN) {
+		//TODO: Opa da gatha
 	}
 
 	m_stateStartedTick = now;
-	m_stateInner = inner;
 	m_lights.SetMode(newStatus, inner);
 	m_state = newStatus;
+}
+
+////////////////////////////////////////////////////////////////////
+// may return ACCEPT WARN DENY UNREGISTERED
+States MainLoop::Authorize( uint16_t id, bool inner )
+{
+	database::dbrecord	rec;
+	States				ret(States::ACCEPT);
+	char				reason = ' ';
+
+	uint16_t	mod( m_rtcDateTime.min + m_rtcDateTime.hour * 60 );
+	uint8_t		dow( 1<<(m_rtcDateTime.wday - 1));
+
+	uint8_t		button = id >> 10;
+
+	id &= 0x3ff;
+
+	if( !m_db.getParams(id, rec ) )
+		return ret;
+
+
+	if(!rec.in_start && !rec.in_end)
+		ret = States::UNREGISTERED;
+	else if( rec.position == ( inner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE ) ) {
+		ret = Config::Instance().relaxedPos ? States::WARN : States::DENY;
+		reason = 'P';
+	} else if(!m_rtcDesync)
+	{
+		States	timeFail = Config::Instance().relaxedDateTime ? States::WARN : States::DENY;
+		if( !( rec.days & dow )) {
+			ret = timeFail;
+			reason = 'D';
+		} else {
+			uint16_t	start( inner ? rec.out_start : rec.in_start );
+			uint16_t	end( inner ? rec.out_end : rec.in_end );
+
+			if(mod < start || mod > end) {
+				ret = timeFail;
+				reason = 'T';
+			}
+		}
+	}
+	m_log.log(logwriter::INFO, m_rtcDateTime, "Auth", id, button, rec.position, inner, ret, reason );
+	if((rec.days & 0x80) && ret == States::DENY)
+		ret = States::WARN;
+
+	m_lcd.UpdateLastDecision(ret, id, reason);
+	return ret;
 }
 
 ////////////////////////////////////////////////////////////////////

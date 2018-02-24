@@ -37,7 +37,7 @@ public:
 	void Tick(uint32_t now);
 
 private:
-	States Authorize( uint16_t id, bool inner );
+	States Authorize(uint16_t id, bool inner);
 	void ChangeState(States newStatus, bool inner, uint32_t now);//, bool ilChanged);
 
 	sg::Usart		m_com;
@@ -55,7 +55,7 @@ private:
 
 	States			m_state = States::OFF;
 	uint32_t		m_stateStartedTick = 0;
-	uint32_t		m_stateInner = false;
+	bool			m_cycleInner = false;
 
 	char			m_serialOutRingBuffer[32];
 	char			m_serialBuffer[32];
