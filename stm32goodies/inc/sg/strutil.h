@@ -32,8 +32,13 @@ char fromchr( char c, bool decimal = true );
 //////////////////////////////////////////////////////////////////////////////
 template< typename T> size_t todec(char* buffer, T data, uint8_t digits = 0, char padding = '0')
 {
+	bool neg = data < 0;
+
 	char *b2 = buffer;
 	uint8_t remainig = digits ? digits: -1;
+
+	if(neg)
+		data = -data;
 
 	do {
 		*b2++ = (data % 10) + '0';
@@ -46,6 +51,9 @@ template< typename T> size_t todec(char* buffer, T data, uint8_t digits = 0, cha
 		*b2++ = padding;
 		++ret;
 	}
+
+	if(neg)
+		*b2++ = '-';
 
 	*b2-- = 0;
 

@@ -74,27 +74,26 @@ public:
 
 	void SetBlock(bool block) { m_block = block; }
 
-	uint16_t Send(const void *buffer, uint16_t count);
-	uint16_t Send(char c);
-	uint16_t Send(bool b);
-	uint16_t Send(uint32_t u, bool hex = false, bool prefix = true, bool pad = false);
-	uint16_t Send(uint16_t u, bool hex = false, bool prefix = true, bool pad = false);
-	uint16_t Send(uint8_t u, bool hex = false, bool prefix = true);
-	uint16_t Send(const char *str);
+	size_t Send(const void *buffer, uint16_t count);
+	size_t Send(char c);
+	size_t Send(bool b);
+	size_t Send(uint32_t u, bool hex = false, bool prefix = true, uint8_t digits = 0);
+	size_t Send(uint16_t u, bool hex = false, bool prefix = true, uint8_t digits = 0);
+	size_t Send(uint8_t u, bool hex = false, bool prefix = true, uint8_t digits = 0);
+	size_t Send(const char *str);
 
 	struct Hex {};
 	struct Dec {};
 	struct Prefix {};
 	struct NoPrefix {};
-	struct Pad {};
 	struct NoPad {};
 	struct Endl {};
+	struct Pad { uint8_t w; Pad(uint8_t _w) : w(_w) {} };
 
 	static const Hex		hex;
 	static const Dec		dec;
 	static const Prefix		prefix;
 	static const NoPrefix	noprefix;
-	static const Pad		pad;
 	static const NoPad		nopad;
 	static const Endl		endl;
 
@@ -108,16 +107,16 @@ public:
 	template<typename T> Usart& operator<<(T* ptr) { Send(reinterpret_cast<const char*>(ptr)); return *this; }
 	Usart& operator<<(char c) { Send(&c, 1); return *this; }
 	Usart& operator<<(bool b) { Send(b ? '1' : '0'); return *this; }
-	Usart& operator<<(uint32_t u) { Send(u, m_hex, m_prefix, m_pad); return *this; }
-	Usart& operator<<(uint16_t u) { Send(u, m_hex, m_prefix, m_pad); return *this; }
+	Usart& operator<<(uint32_t u) { Send(u, m_hex, m_prefix, m_digits); return *this; }
+	Usart& operator<<(uint16_t u) { Send(u, m_hex, m_prefix, m_digits); return *this; }
 	Usart& operator<<(uint8_t u) { Send(u, m_hex, m_prefix); return *this; }
 
 	Usart& operator<<(Hex) { m_hex = true; return *this; }
 	Usart& operator<<(Dec) { m_hex = false; return *this; }
 	Usart& operator<<(Prefix) { m_prefix = true; return *this; }
 	Usart& operator<<(NoPrefix) { m_prefix = false; return *this; }
-	Usart& operator<<(Pad) { m_pad = true; return *this; }
-	Usart& operator<<(NoPad) { m_pad = false; return *this; }
+	Usart& operator<<(const Pad &p) { m_digits = p.w; return *this; }
+	Usart& operator<<(NoPad) { m_digits = 0; return *this; }
 	Usart& operator<<(Endl) { Send("\r\n", 2); return *this; }
 
 	struct IReceiverCallback {
@@ -144,7 +143,7 @@ private:
 	bool				m_block = true;
 	bool				m_prefix = false;
 	bool				m_hex = false;
-	bool				m_pad = false;
+	uint8_t				m_digits = 0;
 
 	volatile uint16_t	m_txStart = 0;
 	volatile uint16_t	m_txCount = 0;

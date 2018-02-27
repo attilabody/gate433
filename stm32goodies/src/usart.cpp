@@ -148,7 +148,7 @@ bool Usart::UsartCallback(UART_HandleTypeDef *huart, CallbackType type)
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t  Usart::Send(const void *buffer, uint16_t count)
+size_t  Usart::Send(const void *buffer, uint16_t count)
 {
 	uint16_t			requestedSize = count;
 	HAL_StatusTypeDef	st;
@@ -166,92 +166,62 @@ uint16_t  Usart::Send(const void *buffer, uint16_t count)
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t  Usart::Send(char c)
+size_t  Usart::Send(char c)
 {
 	return Send(&c, 1);
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t Usart::Send(bool b)
+size_t Usart::Send(bool b)
 {
 	return Send(b ? '1' : '0');
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t Usart::Send(uint32_t u, bool hex, bool prefix, bool pad)
+size_t Usart::Send(uint32_t u, bool hex, bool prefix, uint8_t digits)
 {
+	char buffer[digits ? digits + (prefix ? 3 : 1) : 13];
+	size_t ret = 0;
+
 	if(hex) {
-		uint16_t ret = 0;
 		if(prefix)
-			ret += Send("0x");
-		uint8_t	*pb = ((uint8_t *)((&u) + 1) - 1);
-		uint8_t b;
-		for(uint8_t byte = 0; byte < sizeof(u); ++byte) {
-			b = *pb >> 4;
-			if(pad || b)
-				ret += Send(tochr(b));
-			if(b) pad = true;
-			b = *pb & 0xF;
-			if(pad || b)// || !byte)
-				ret += Send(tochr(b));
-			if(b) pad = true;
-			--pb;
-		}
-		return ret;
-	} else {
-		char buffer[13];
-		todec(buffer, u);
-		return Send(buffer, strlen(buffer));
-	}
+			ret = Send("0x", 2);
+		return Send(buffer, tohex(buffer, u, digits)) + ret;
+	} else
+		return Send(buffer, todec(buffer, u, digits));
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t Usart::Send(uint16_t u, bool hex, bool prefix, bool pad)
+size_t Usart::Send(uint16_t u, bool hex, bool prefix, uint8_t digits)
 {
+	char buffer[digits ? digits + (prefix ? 3 : 1) : 8];
+	size_t ret = 0;
+
 	if(hex) {
-		uint16_t  ret = 0;
 		if(prefix)
-			ret += Send("0x");
-		uint8_t	*pb = ((uint8_t *)((&u) + 1) - 1);
-		uint8_t b;
-		for(uint8_t byte = 0; byte < sizeof(u); ++byte) {
-			b = *pb >> 4;
-			if(pad || b)
-				ret += Send(tochr(b));
-			if(b) pad = true;
-			b = *pb & 0xF;
-			if(pad || b || !byte)
-				ret += Send(tochr(b));
-			--pb;
-		}
-		return ret;
-	} else {
-		char    buffer[8];
-		todec(buffer, u);
-		return Send(buffer, strlen(buffer));
-	}
+			ret = Send("0x", 2);
+		return Send(buffer, tohex(buffer, u, digits)) + ret;
+	} else
+		return Send(buffer, todec(buffer, u, digits));
 }
 
 
 ////////////////////////////////////////////////////////////////////
-uint16_t Usart::Send(uint8_t u, bool hex, bool prefix)
+size_t Usart::Send(uint8_t u, bool hex, bool prefix, uint8_t digits)
 {
+	char buffer[digits ? digits + (prefix ? 3 : 1) : 5];
+	size_t ret = 0;
+
 	if(hex) {
-		uint16_t  ret = 0;
 		if(prefix)
-			ret += Send("0x");
-		ret += Send(tochr(u >> 4));
-		ret += Send(tochr(u & 0x0F));
-		return ret;
-	} else {
-		char    buffer[4];
-		todec(buffer, u);
-		return Send(buffer, strlen(buffer));
-	}
+			ret = Send("0x", 2);
+		return Send(buffer, tohex(buffer, u, digits)) + ret;
+	} else
+		return Send(buffer, todec(buffer, u, digits));
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t Usart::Send(const char *str)
+size_t Usart::Send(const char *str)
 {
 	return Send((void *)str, strlen(str));
 }
