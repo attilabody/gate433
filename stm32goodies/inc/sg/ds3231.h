@@ -59,7 +59,7 @@ class DS3231
 	HAL_StatusTypeDef Get(struct Ts &t, bool &desync);
 
 	// temperature register
-	HAL_StatusTypeDef GetTreg(float &temp);
+	HAL_StatusTypeDef GetTreg(int16_t &temp);
 
 	// alarms
 	HAL_StatusTypeDef SetA1(const uint8_t s, const uint8_t mi, const uint8_t h, const uint8_t d,

@@ -239,27 +239,18 @@ HAL_StatusTypeDef DS3231::GetAging(int8_t &val)
 //////////////////////////////////////////////////////////////////////////////
 // temperature register
 //////////////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef DS3231::GetTreg(float &temp)
+HAL_StatusTypeDef DS3231::GetTreg(int16_t &temp)
 {
     HAL_StatusTypeDef rv;
-    uint8_t temp_msb, temp_lsb;
-    int8_t nint;
     uint8_t	buf[2];
-
 
     if((rv = m_i2c.ReadMem(DS3231_I2C_ADDR, DS3231_TEMPERATURE_ADDR, 1, buf, 2)) != HAL_OK)
     	return rv;
     m_i2c.WaitCallback();
 
-    temp_msb = buf[0];
-    temp_lsb = buf[1] >> 6;
-
-    if ((temp_msb & 0x80) != 0)
-        nint = temp_msb | ~((1 << 8) - 1);      // if negative get two's complement
-    else
-        nint = temp_msb;
-
-    temp = 0.25 * temp_lsb + nint;
+    temp = *reinterpret_cast<int8_t*>(buf);
+    temp <<= 2;
+    temp |= buf[1] >> 6;
 
     return rv;
 }
@@ -498,33 +489,31 @@ HAL_StatusTypeDef DS3231_DST::Set(const char *buf)
 //////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef DS3231_DST::Get(Ts &t, bool &desync)
 {
-    uint8_t i;
+    bool check = false;
     HAL_StatusTypeDef error;
 
     if((error = DS3231::Get(t, desync)) != HAL_OK)
     	return error;
 
-    i=0;
     switch (m_checklevel)
     {
     case CheckLevel_Hour:
-    	if (t.hour!=m_hour)
-    	{
-    		i=1;
-    		break;
-    	}
+		if (t.hour != m_hour)
+			check = true;
+		break;
+
     case CheckLevel_Day:
-    	if (t.wday!=m_mday)
-    	{
-    		i=1;
-    		break;
-    	}
+    	if(t.wday != m_mday)
+			check = true;
+    	break;
+
     case CheckLevel_Mon:
     	if ((t.mon!=m_mon) ||
     		(t.year_s!=m_year))
-    		i=1;
+    		check = true;
     }
-    if (i)
+
+    if (check)
     {
     	m_year=t.year_s;
     	m_mon=t.mon;
