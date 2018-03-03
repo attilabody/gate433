@@ -17,6 +17,8 @@ public:
 	using SmartLights::Tick;
 
 	TrafficLights(uint16_t switchStep, uint16_t blinkStep);
+	virtual ~TrafficLights() = default;
+
 
 	void SetMode(States mode, bool inner);
 private:

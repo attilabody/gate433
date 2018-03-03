@@ -36,29 +36,29 @@ bool MainLoop::CommandProcessor::IsCommand(const char *command)
 }
 
 ////////////////////////////////////////////////////////////////////
-void MainLoop::CommandProcessor::Process(const char* input)
+void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 {
-	m_bufPtr = input;
+	m_bufPtr = buffer;
 
 	if(IsCommand(CMD_GDB)) {
 		database::dbrecord	rec;
 		int32_t id = GetParam();
 		if( id != -1 && m_parent.m_db.getParams(id, rec)) {
-			rec.serialize(m_parent.m_serialBuffer);
-			PrintResp(m_parent.m_serialBuffer);
+			rec.serialize(static_cast<char * const>(buffer));
+			PrintResp(com, buffer);
 		} else
-			PrintRespErr();
+			PrintRespErr(com);
 
 	} else if(IsCommand(CMD_SDB)) {
 		database::dbrecord	rec;
 		int id = GetParam();
 		if( id != -1 && rec.parse(m_bufPtr)) {
 			if( m_parent.m_db.setParams( id, rec ))
-				PrintRespOk();
+				PrintRespOk(com);
 			else
-				PrintRespErr();
+				PrintRespErr(com);
 		} else
-			PrintRespErr();
+			PrintRespErr(com);
 
 	} else if(IsCommand(CMD_EDB)) {
 		thindb		tdb;
@@ -77,9 +77,9 @@ void MainLoop::CommandProcessor::Process(const char* input)
 			tdb.close();
 		}
 		if(id == to + 1)
-			PrintRespOk();
+			PrintRespOk(com);
 		else
-			PrintRespErr();
+			PrintRespErr(com);
 
 	} else if(IsCommand(CMD_IDB)) {
 		uint16_t changed = 0, id = 0;
@@ -97,7 +97,7 @@ void MainLoop::CommandProcessor::Process(const char* input)
 					break;
 				if(!rec.infoequal(old))
 				{
-					m_parent.m_com << '+';
+					com << '+';
 					if(!m_parent.m_db.setParams(id, rec))
 						break;
 					else
@@ -108,12 +108,12 @@ void MainLoop::CommandProcessor::Process(const char* input)
 				id = 0;
 			tdb.close();
 		}
-		m_parent.m_com << sg::Usart::endl;
+		com << sg::Usart::endl;
 		if(id)
-			PrintRespOk();
+			PrintRespOk(com);
 		else
-			PrintRespErr();
-		m_parent.m_com << changed << sg::Usart::endl;
+			PrintRespErr(com);
+		com << changed << sg::Usart::endl;
 
 	} else if(IsCommand(CMD_DDB)) {
 		database::dbrecord	rec;
@@ -128,27 +128,29 @@ void MainLoop::CommandProcessor::Process(const char* input)
 		for( id = from; id <= to; ++id ) {
 			//CHECKPOINT;
 			if( m_parent.m_db.getParams(id, rec)) {
-				sg::todec(m_parent.m_serialBuffer, id, 4);
-				m_parent.m_serialBuffer[4] = ' ';
-				rec.serialize( m_parent.m_serialBuffer + 5);
-				m_parent.m_com << DATA << m_parent.m_serialBuffer << sg::Usart::endl;
+				sg::todec(buffer, id, 4);
+				buffer[4] = ' ';
+				rec.serialize( buffer + 5);
+				com << DATA << buffer << sg::Usart::endl;
 			} else break;
 		}
-		if( id == to + 1 ) PrintRespOk();
-		else PrintRespErr();
+		if(id == to + 1)
+			PrintRespOk(com);
+		else
+			PrintRespErr(com);
 
 	} else if(IsCommand(CMD_GDT)) {
-		m_parent.m_com << RESP << (uint16_t)m_parent.m_rtcDateTime.year << '.' << (uint16_t)m_parent.m_rtcDateTime.mon << '.' <<
-				(uint16_t)m_parent.m_rtcDateTime.mday << '/' << (uint16_t)m_parent.m_rtcDateTime.wday << "  " <<
-				m_parent.m_rtcDateTime.hour << ':' << m_parent.m_rtcDateTime.min << ':' << (uint16_t)m_parent.m_rtcDateTime.sec <<
-				sg::Usart::endl;
+		auto &dt = m_parent.m_rtcDateTime;
+		com << com.dec << com.nopad << RESP << (uint16_t)dt.year << '.' << sg::Usart::Pad(2) << (uint16_t)dt.mon << '.' <<
+			(uint16_t)dt.mday << '/' << (uint16_t)dt.wday << "  " << dt.hour << ':' << dt.min << ':' << (uint16_t)dt.sec <<
+			sg::Usart::endl << com.nopad;
 	} else if(IsCommand(CMD_SDT)) {
 		sg::DS3231_DST::Ts	t;
 		if(GetDateTime(t)) {
 			m_parent.m_rtc.Set(t);
-			PrintRespOk();
+			PrintRespOk(com);
 		} else
-			m_parent.m_com << ERR << " DTFMT" << sg::Usart::endl;
+			com << ERR << " DTFMT" << sg::Usart::endl;
 
 	} else if(IsCommand(CMD_CS)) {
 		uint16_t from(GetParam());
@@ -165,9 +167,9 @@ void MainLoop::CommandProcessor::Process(const char* input)
 				break;
 		}
 		if(id != to + 1)
-			PrintRespErr();
+			PrintRespErr(com);
 		else
-			PrintRespOk();
+			PrintRespOk(com);
 
 	} else if(IsCommand(CMD_DS)) {
 		SdFile	f;
@@ -175,20 +177,23 @@ void MainLoop::CommandProcessor::Process(const char* input)
 		if( f.Open("SHUFFLE.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::READ)) == FR_OK) {
 			while( GetLine( f, buffer, sizeof(buffer)) != -1 ) {
 				//CHECKPOINT;
-				PrintResp(buffer);
+				PrintResp(com, buffer);
 			}
-			PrintResp("");
+			PrintResp(com, "");
 			f.Close();
 		} else {
-			PrintRespErr("CANTOPEN");
+			PrintRespErr(com, "CANTOPEN");
 		}
 	} else if(IsCommand(CMD_DL)) {
-		if(m_parent.m_log.dump(m_parent.m_com, false))
-			PrintRespOk();
+		if(m_parent.m_log.dump(com, false))
+			PrintRespOk(com);
 		else
-			PrintRespErr();
+			PrintRespErr(com);
 	} else if(IsCommand(CMD_TL)) {
-		//TODO: truncate log
+		if(m_parent.m_log.truncate())
+			PrintRespOk(com);
+		else
+			PrintRespErr(com);
 	} else if(IsCommand(CMD_IL)) {
 		//TODO: infinite loop (watchdog test)
 	} else if(IsCommand(CMD_SL)) {
@@ -204,11 +209,17 @@ void MainLoop::CommandProcessor::Process(const char* input)
 		if(valid) {
 			uint8_t mode(GetParam());
 			m_parent.m_lights.SetMode(static_cast<States>(mode), inner);
-			PrintRespOk();
+			PrintRespOk(com);
 		} else
-			PrintRespErr();
+			PrintRespErr(com);
+	} else if(IsCommand(CMD_GT)) {
+		int16_t	rawTemp;
+		if(m_parent.m_rtc.GetTreg(rawTemp) == HAL_OK) {
+			com << RESP << (int16_t)(rawTemp >> 2) << com.endl;
+		} else
+			PrintRespErr(com);
 	} else {
-		m_parent.m_com << ERR << " CMD" << sg::Usart::endl;
+		com << ERR << " CMD" << sg::Usart::endl;
 	}
 }
 

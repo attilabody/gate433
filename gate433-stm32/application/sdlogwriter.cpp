@@ -148,10 +148,10 @@ const char* SdLogWriter::__positions = "UOI";
 const char* SdLogWriter::__states = "OFF" "CDW" "CON" "ACC" "WRN" "DNY" "UNR" "HRY" "PAS";
 
 /////////////////////////////////////////////////////////////////////////////
-bool SdLogWriter::writelinehdr(sdfwbuffer &wb, CATEGORY c, sg::DS3231::Ts &datetime, uint16_t remoteid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision, char reason )
+bool SdLogWriter::writelinehdr(sdfwbuffer &wb, CATEGORY c, sg::DS3231::Ts &dateTime, uint16_t remoteid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision, char reason )
 {
 	bool ret( true );
-	ret &= wb.write( datetime );
+	ret &= wb.write( dateTime );
 	ret &= wb.writebuffer::write( ' ' );
 	ret &= wb.writebuffer::write( __catsrts + c * 3, 3 );
 	ret &= wb.writebuffer::write( ' ' );
@@ -176,8 +176,8 @@ bool SdLogWriter::writelinehdr(sdfwbuffer &wb, CATEGORY c, sg::DS3231::Ts &datet
 		ret &= wb.writebuffer::write(' ');
 	}
 	if(reason != ' ') {
-		ret &= wb.writebuffer::write(' ');
 		ret &= wb.writebuffer::write(reason);
+		ret &= wb.writebuffer::write(' ');
 	}
 	return ret;
 }

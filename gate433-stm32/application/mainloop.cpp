@@ -52,7 +52,9 @@ void HAL_SYSTICK_Callback(void)
 
 ////////////////////////////////////////////////////////////////////
 MainLoop::MainLoop()
-: m_com(&huart1, sg::UsartCallbackDispatcher::Instance(), m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), true)
+: m_lights(256, 128)
+, m_com(&huart1, sg::UsartCallbackDispatcher::Instance(), m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), true)
+, m_wifi(&huart3, sg::UsartCallbackDispatcher::Instance(), m_wifiOutRingBuffer, sizeof(m_wifiOutRingBuffer), true)
 , m_i2c(&hi2c1, sg::I2cCallbackDispatcher::Instance())
 , m_dbEeprom(m_i2c, Config::Instance().dbI2cAddress, Config::Instance().dbAddresLength, Config::Instance().dbPageLength)
 , m_db(m_dbEeprom, 0)
@@ -60,7 +62,6 @@ MainLoop::MainLoop()
 , m_rtc(m_i2c)
 , m_lcd(m_i2c, Config::Instance().lcdI2cAddress, Config::Instance().lcdWidth, Config::Instance().lcdHeight)
 , m_decoder(RFDecoder::Instance())
-, m_lights(256, 128)
 , m_loop(LOOP_I_GPIO_Port, LOOP_I_Pin, LOOP_O_GPIO_Port, LOOP_O_Pin, true)
 , m_log("LOG.TXT")
 , m_proc(*this)
@@ -76,6 +77,7 @@ MainLoop::MainLoop()
 void MainLoop::Fail(const char * file, int line)
 {
 	m_com << file << ": " << (uint32_t)line << "\r\n";
+	m_wifi << file << ": " << (uint32_t)line << "\r\n";
 	while(1) {
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		HAL_Delay(100);
@@ -84,37 +86,63 @@ void MainLoop::Fail(const char * file, int line)
 
 #define FAIL() Fail(__FILE__, __LINE__)
 
-////////////////////////////////////////////////////////////////////
-void MainLoop::DumpBufferLine(uint8_t *buffer, uint16_t base, uint16_t offset, uint8_t count)
-{
-	m_com << sg::Usart::hex << sg::Usart::pad << (uint16_t)(base + offset);
-	while(count--) {
-		m_com << ' ' << buffer[offset++];
-	}
-	m_com << sg::Usart::endl;
-
-}
+//////////////////////////////////////////////////////////////////////
+//void MainLoop::DumpBufferLine(uint8_t *buffer, uint16_t base, uint16_t offset, uint8_t count)
+//{
+//	m_com << sg::Usart::hex << sg::Usart::pad << (uint16_t)(base + offset);
+//	while(count--) {
+//		m_com << ' ' << buffer[offset++];
+//	}
+//	m_com << sg::Usart::endl;
+//
+//}
 
 ////////////////////////////////////////////////////////////////////
 void MainLoop::LineReceived(char *buffer, uint16_t count)
 {
-	char *bufPtr = m_serialBuffer + count -1;
-	while(bufPtr != m_serialBuffer && (*bufPtr == '\r' || *bufPtr == '\n' || !*bufPtr))
+	HAL_StatusTypeDef ret;
+	(void)ret;
+
+	if(buffer != m_serialBuffer && buffer != m_wifiBuffer)
+		return;
+	if(buffer == m_serialBuffer && m_serialLineReceived) {
+		ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
+		return;
+	} else if( buffer == m_wifiBuffer && m_wifiLineReceived) {
+		ret = m_wifi.Receive(m_wifiBuffer, sizeof(m_wifiBuffer), *this);
+		return;
+	}
+
+	char *bufPtr = buffer + count -1;
+	while(bufPtr >= buffer && (*bufPtr == '\r' || *bufPtr == '\n' || !*bufPtr))
 		--bufPtr;
-	if(bufPtr < m_serialBuffer + count -1)
+	if(bufPtr < buffer + LINEBUFFER_SIZE - 1)
 		*(bufPtr + 1) = 0;
-	m_lineReceived = true;
+	else
+		buffer[ LINEBUFFER_SIZE - 1] = 0;
+
+	if(buffer == m_serialBuffer)
+		m_serialLineReceived = true;
+	else
+		m_wifiLineReceived = true;
 }
 
+
+////////////////////////////////////////////////////////////////////
+// Called from ISR
 ////////////////////////////////////////////////////////////////////
 void MainLoop::CodeReceived(uint16_t code)
 {
-	if(code != m_lcd.GetLastReceivedId())
-		m_lcd.UpdateLastReceivedId(code);
 	if(!m_codeReceived) {
 		m_code = code;
 		m_codeReceived = true;
 	}
+	uint32_t now = HAL_GetTick();
+	if(m_codeLogQueueIndex < CODE_LOG_QUEUE_SIZE && (m_lastCodeReceived != code || now - m_lastCodeReceivedTick > 1000))
+		m_codeLogQueue[m_codeLogQueueIndex++] = code;
+
+	m_lastCodeReceived = code;
+	m_lastCodeReceivedTick = now;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -242,9 +270,9 @@ void MainLoop::Loop()
 
 		auto firstTick = HAL_GetTick();
 		do {
-			if(m_lineReceived) {
+			if(m_serialLineReceived) {
 				m_com << m_serialOutRingBuffer << "\r\n";
-				m_lineReceived = false;
+				m_serialLineReceived = false;
 				ret = m_com.Receive(m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), *this);
 			}
 		} while(HAL_GetTick() - firstTick < 20 );
@@ -290,17 +318,16 @@ void MainLoop::Loop()
 ////////////////////////////////////////////////////////////////////
 void MainLoop::Loop()
 {
-	HAL_StatusTypeDef	ret = HAL_OK;
-	uint32_t		oldTick, ellapsed;
-	uint32_t		now, lastHeartbeat;
-	sg::DS3231::Ts	ts;
+	HAL_StatusTypeDef		ret = HAL_OK;
+	uint32_t				oldTick, ellapsed;
+	uint32_t				now, lastHeartbeat;
+	sg::DS3231::Ts			ts;
 
 	InductiveLoop::STATUS	ilStatus = InductiveLoop::NONE;
 	bool					ilConflict = false;
 	bool					inner = false;
 	bool					ilChanged = false;
 	
-	MainLoop::Instance();
 	g_mainLoppReady = true;
 
 	{
@@ -315,15 +342,38 @@ void MainLoop::Loop()
 	lastHeartbeat = m_rtcTick;
 
 	ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
+	ret = m_wifi.Receive(m_wifiBuffer, sizeof(m_wifiBuffer), *this);
+
+	m_com << "\r\n:READY\r\n";
+	m_wifi << "\r\n:READY\r\n";
 
 	while(true)
 	{
 		now = HAL_GetTick();
 
-		if(m_lineReceived) {
-			m_proc.Process(m_serialBuffer);
-			m_lineReceived = false;
+		if(m_serialLineReceived) {
+			if(m_serialBuffer[0])
+				m_proc.Process(m_com, m_serialBuffer);
+			m_serialLineReceived = false;
 			ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
+		}
+		if(m_wifiLineReceived) {
+			if(m_wifiBuffer[0])
+				m_proc.Process(m_wifi, m_wifiBuffer);
+			m_wifiLineReceived = false;
+			ret = m_wifi.Receive(m_wifiBuffer, sizeof(m_wifiBuffer), *this);
+		}
+
+		if(m_codeLogQueueIndex) {
+			uint16_t code;
+			{
+				sg::ItLock	lock;
+				code = m_codeLogQueue[--m_codeLogQueueIndex];
+			}
+			m_log.log(m_log.INFO, m_rtcDateTime, "RCV", code & 0x3ff, code >> 10, -1, -1, -1);
+
+			if(code != m_lcd.GetLastReceivedId())
+				m_lcd.UpdateLastReceivedId(code);
 		}
 
 		if(now != oldTick)
@@ -334,7 +384,6 @@ void MainLoop::Loop()
 				ilConflict = m_loop.GetConflict();
 			}
 			ilChanged = ilStatus != m_ilStatus || ilConflict != m_ilConflict;
-
 
 			if(ilChanged) {
 				m_ilStatus = ilStatus;
@@ -365,12 +414,10 @@ void MainLoop::Loop()
 			}
 			else if(m_state == States::CODEWAIT && m_codeReceived)
 			{
-				if(m_code == m_lastCode) {	// received second time
-					m_com << m_code << m_com.endl;
-					m_log.log(m_log.INFO, m_rtcDateTime, "RCV", m_code, m_code >> 10, -1, -1, -1);
+				if(m_code == m_countedCode) {	// received second time
 					ChangeState(Authorize(m_code, inner), inner, now);
 				} else {
-					m_lastCode = m_code;
+					m_countedCode = m_code;
 					m_codeReceived = false;
 				}
 			}
@@ -383,7 +430,7 @@ void MainLoop::Loop()
 		case States::PASSING:
 			if(ilChanged) {
 				if(ilStatus == InductiveLoop::NONE) {
-					m_db.setStatus(m_lastCode, m_cycleInner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
+					m_db.setStatus(m_countedCode, m_cycleInner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
 					ChangeState(States::OFF, inner, now);
 				} else if(m_state != States::PASSING) {
 					ChangeState(States::PASSING, inner, m_stateStartedTick);
@@ -415,7 +462,7 @@ void MainLoop::Loop()
 void MainLoop::ChangeState(States newStatus, bool inner, uint32_t now)
 {
 	if(newStatus == States::CODEWAIT) {
-		m_lastCode = -1;
+		m_countedCode = -1;
 		m_codeReceived = false;
 		m_cycleInner = inner;
 	} else if(newStatus == States::ACCEPT || newStatus == States::WARN) {
@@ -438,11 +485,7 @@ States MainLoop::Authorize( uint16_t id, bool inner )
 	uint16_t	mod( m_rtcDateTime.min + m_rtcDateTime.hour * 60 );
 	uint8_t		dow( 1<<(m_rtcDateTime.wday - 1));
 
-	uint8_t		button = id >> 10;
-
-	id &= 0x3ff;
-
-	if( !m_db.getParams(id, rec ) )
+	if( !m_db.getParams(id & 0x3ff, rec) )
 		return ret;
 
 
@@ -467,7 +510,7 @@ States MainLoop::Authorize( uint16_t id, bool inner )
 			}
 		}
 	}
-	m_log.log(logwriter::INFO, m_rtcDateTime, "Auth", id, button, rec.position, inner, ret, reason );
+	m_log.log(logwriter::INFO, m_rtcDateTime, "Auth", id&0x3ff, id >> 10, rec.position, inner, ret, reason );
 	if((rec.days & 0x80) && ret == States::DENY)
 		ret = States::WARN;
 

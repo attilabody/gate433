@@ -66,6 +66,8 @@ public:
 	virtual bool setInfo( int code, const dbrecord &recin ) = 0;
 	virtual bool setStatus( int code, dbrecord::POSITION pos ) = 0;
 	virtual void cleanstatuses() = 0;
+	virtual ~database() = default;
+
 };
 
 #endif /* DATABASE_H_ */

@@ -77,7 +77,7 @@ States Display::UpdateLastDecision(States state, uint16_t id, char reason)
 
 	SetCursor(10, 1);
 	Print(buf);
-	Print(id, false, 4);
+	Print(id & 0x3ff, false, 4);
 	return state;
 }
 

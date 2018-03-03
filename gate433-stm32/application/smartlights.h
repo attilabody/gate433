@@ -15,6 +15,8 @@ class SmartLights: public PwmOutputs, public ITick
 {
 public:
 	SmartLights();
+	virtual ~SmartLights() = default;
+
 
 	void Tick(uint32_t now);
 

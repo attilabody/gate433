@@ -20,6 +20,7 @@ const char CMD_DS[] = "ds";		//	dump shuffle
 const char CMD_DL[] = "dl";		//	dump log
 const char CMD_TL[] = "tl";		//	truncate log
 const char CMD_IL[] = "il";		//	infinite loop
+const char CMD_GT[] = "gt";		//	get temperature
 
 const char CMD_SL[] = "sl";		//	set lights
 

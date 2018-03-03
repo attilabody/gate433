@@ -61,6 +61,7 @@ void TIM1_CC_IRQHandler(void);
 void I2C1_EV_IRQHandler(void);
 void I2C1_ER_IRQHandler(void);
 void USART1_IRQHandler(void);
+void USART3_IRQHandler(void);
 
 #ifdef __cplusplus
 }

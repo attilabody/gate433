@@ -23,7 +23,7 @@ public:
 	SdLogWriter(const char *name);
 
 
-	void log( 	CATEGORY category, sg::DS3231::Ts &datetime, const char* message,
+	void log( 	CATEGORY category, sg::DS3231::Ts &dateTime, const char* message,
 				uint16_t rid = 0xffff, uint8_t button = 0xff, uint8_t dbpos = 0xff,
 				uint8_t loop = 0xff, uint8_t decision = 0xff, char reason = ' ' );
 
