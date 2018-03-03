@@ -71,6 +71,8 @@ public:
 	Usart(Usart &&) = delete;
 	Usart &operator=(const Usart &) = delete;
 	Usart(UART_HandleTypeDef *huart, UsartCallbackDispatcher &disp, char *outputBuffer, uint16_t outputBufferSize, bool block);
+	virtual ~Usart() = default;
+
 
 	void SetBlock(bool block) { m_block = block; }
 
@@ -107,9 +109,6 @@ public:
 	template<typename T> Usart& operator<<(T* ptr) { Send(reinterpret_cast<const char*>(ptr)); return *this; }
 	Usart& operator<<(char c) { Send(&c, 1); return *this; }
 	Usart& operator<<(bool b) { Send(b ? '1' : '0'); return *this; }
-	Usart& operator<<(uint32_t u) { Send(u, m_hex, m_prefix, m_digits); return *this; }
-	Usart& operator<<(uint16_t u) { Send(u, m_hex, m_prefix, m_digits); return *this; }
-	Usart& operator<<(uint8_t u) { Send(u, m_hex, m_prefix); return *this; }
 
 	Usart& operator<<(Hex) { m_hex = true; return *this; }
 	Usart& operator<<(Dec) { m_hex = false; return *this; }

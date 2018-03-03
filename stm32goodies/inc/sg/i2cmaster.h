@@ -78,6 +78,8 @@ public:
 	typedef HAL_StatusTypeDef Status;
 
 	I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher &disp, Mode defaultMode = Poll);
+	virtual ~I2cMaster() = default;
+
 
 	Status Write(const uint16_t i2cAddress, const void *data, uint8_t size, Mode mode = Default);
 	Status Read(const uint16_t i2cAddress, void *data, uint8_t size, Mode mode = Default);
