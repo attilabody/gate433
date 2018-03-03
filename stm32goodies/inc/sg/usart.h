@@ -10,6 +10,7 @@
 
 #include <sg/stm32_hal.h>
 #include <sg/singleton.h>
+#include <sg/strutil.h>
 #include <stddef.h>
 #include <string.h>
 #include <inttypes.h>
@@ -79,10 +80,27 @@ public:
 	size_t Send(const void *buffer, uint16_t count);
 	size_t Send(char c);
 	size_t Send(bool b);
-	size_t Send(uint32_t u, bool hex = false, bool prefix = true, uint8_t digits = 0);
-	size_t Send(uint16_t u, bool hex = false, bool prefix = true, uint8_t digits = 0);
-	size_t Send(uint8_t u, bool hex = false, bool prefix = true, uint8_t digits = 0);
 	size_t Send(const char *str);
+	size_t Send(char *str) { return Send(static_cast<const char*>(str)); }
+
+	template<typename T> size_t SendInt(T u, bool hex = false, bool prefix = true, uint8_t digits = 0)
+	{
+		char buffer[digits ? digits + 2 : sizeof(u) * 3 + 1];
+		char *bptr = buffer;
+		size_t ret = 0;
+
+		if(hex) {
+			if(prefix)
+				ret = Send("0x", 2);
+			return Send(buffer, tohex(buffer, u, digits)) + ret;
+		} else {
+			if(u < 0) {
+				*bptr++ = '-';
+				u = 0 - u;
+			}
+			return Send(buffer, todec(bptr, u, digits) + (bptr - buffer));
+		}
+	}
 
 	struct Hex {};
 	struct Dec {};
@@ -106,7 +124,7 @@ public:
 	};
 
 	Usart& operator<<(const Buffer& b) { Send(b.m_buffer, b.m_count); return *this; }
-	template<typename T> Usart& operator<<(T* ptr) { Send(reinterpret_cast<const char*>(ptr)); return *this; }
+	template<typename T> Usart& operator<<(T* ptr) { Send(static_cast<const char*>(ptr)); return *this; }
 	Usart& operator<<(char c) { Send(&c, 1); return *this; }
 	Usart& operator<<(bool b) { Send(b ? '1' : '0'); return *this; }
 
@@ -117,6 +135,8 @@ public:
 	Usart& operator<<(const Pad &p) { m_digits = p.w; return *this; }
 	Usart& operator<<(NoPad) { m_digits = 0; return *this; }
 	Usart& operator<<(Endl) { Send("\r\n", 2); return *this; }
+
+	template<typename T> Usart& operator<<(T u) { SendInt(u, m_hex, m_prefix, m_digits); return *this; }
 
 	struct IReceiverCallback {
 		virtual void LineReceived(char *buffer, uint16_t count) = 0;

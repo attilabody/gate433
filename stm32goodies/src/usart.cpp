@@ -178,49 +178,6 @@ size_t Usart::Send(bool b)
 }
 
 ////////////////////////////////////////////////////////////////////
-size_t Usart::Send(uint32_t u, bool hex, bool prefix, uint8_t digits)
-{
-	char buffer[digits ? digits + (prefix ? 3 : 1) : 13];
-	size_t ret = 0;
-
-	if(hex) {
-		if(prefix)
-			ret = Send("0x", 2);
-		return Send(buffer, tohex(buffer, u, digits)) + ret;
-	} else
-		return Send(buffer, todec(buffer, u, digits));
-}
-
-////////////////////////////////////////////////////////////////////
-size_t Usart::Send(uint16_t u, bool hex, bool prefix, uint8_t digits)
-{
-	char buffer[digits ? digits + (prefix ? 3 : 1) : 8];
-	size_t ret = 0;
-
-	if(hex) {
-		if(prefix)
-			ret = Send("0x", 2);
-		return Send(buffer, tohex(buffer, u, digits)) + ret;
-	} else
-		return Send(buffer, todec(buffer, u, digits));
-}
-
-
-////////////////////////////////////////////////////////////////////
-size_t Usart::Send(uint8_t u, bool hex, bool prefix, uint8_t digits)
-{
-	char buffer[digits ? digits + (prefix ? 3 : 1) : 5];
-	size_t ret = 0;
-
-	if(hex) {
-		if(prefix)
-			ret = Send("0x", 2);
-		return Send(buffer, tohex(buffer, u, digits)) + ret;
-	} else
-		return Send(buffer, todec(buffer, u, digits));
-}
-
-////////////////////////////////////////////////////////////////////
 size_t Usart::Send(const char *str)
 {
 	return Send((void *)str, strlen(str));
