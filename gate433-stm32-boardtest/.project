@@ -23,8 +23,13 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
+		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
 	<linkedResources>
-		
+		<link>
+			<name>stm32goodies</name>
+			<type>2</type>
+			<location>PARENT-1-PROJECT_LOC/stm32goodies</location>
+		</link>
 	</linkedResources>
 </projectDescription>
