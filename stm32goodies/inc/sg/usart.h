@@ -74,8 +74,8 @@ public:
 	Usart(UART_HandleTypeDef *huart, UsartCallbackDispatcher &disp, char *outputBuffer, uint16_t outputBufferSize, bool block);
 	virtual ~Usart() = default;
 
-
 	void SetBlock(bool block) { m_block = block; }
+	bool GetAndClearError();
 
 	size_t Send(const void *buffer, uint16_t count);
 	size_t Send(char c);
@@ -159,6 +159,7 @@ private:
 	uint16_t			m_inputBufferSize = 0;
 	IReceiverCallback	*m_receiverCallback = nullptr;
 	void				*m_receivedCallbackUserPtr = nullptr;
+	bool				m_errorOccured = false;
 	bool				m_block = true;
 	bool				m_prefix = false;
 	bool				m_hex = false;

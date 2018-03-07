@@ -127,12 +127,9 @@ bool Usart::UsartCallback(UART_HandleTypeDef *huart, CallbackType type)
 
 	if(huart != m_huart)
 		return false;
-	if(m_inputBuffer && type == CallbackType::RxCpltCallback)
-	{
+	if(m_inputBuffer && type == CallbackType::RxCpltCallback) {
 		m_receiverCallback->LineReceived(m_inputBuffer, m_inputBufferSize - huart->RxXferCount);
-	}
-	else if(m_txCount && type == CallbackType::TxCpltCallback)
-	{
+	} else if(m_txCount && type == CallbackType::TxCpltCallback) {
 		m_txCount -= huart->TxXferSize;
 		m_txStart += huart->TxXferSize;
 		if(m_txStart >= m_outputBufferSize)
@@ -140,11 +137,23 @@ bool Usart::UsartCallback(UART_HandleTypeDef *huart, CallbackType type)
 		auto chunkSize = m_txStart + m_txCount > m_outputBufferSize ? m_outputBufferSize - m_txStart : m_txCount;
 		if(chunkSize)
 			st = HAL_UART_Transmit_IT(m_huart, reinterpret_cast<uint8_t*>(m_outputBuffer + m_txStart), chunkSize);
+	} else if(type == CallbackType::ErrorCallback) {
+		st = HAL_UART_AbortReceive_IT(huart);
+		m_errorOccured = true;
 	}
 
 	(void)st;
 
 	return true;
+}
+
+////////////////////////////////////////////////////////////////////
+bool Usart::GetAndClearError()
+{
+	ItLock	l;
+	bool ret = m_errorOccured;
+	m_errorOccured = false;
+	return ret;
 }
 
 ////////////////////////////////////////////////////////////////////
