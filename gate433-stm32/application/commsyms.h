@@ -13,4 +13,9 @@
 #define ERR '!'
 #define CMNT '#'
 
+#define RESPS ":"
+#define DATAS ">"
+#define ERRS "!"
+#define CMNTS "#"
+
 #endif /* COMMON_COMMSYMS_H_ */

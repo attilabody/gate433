@@ -40,7 +40,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 {
 	m_bufPtr = buffer;
 
-	if(IsCommand(CMD_GDB)) {
+	if(IsCommand(CMD_GDB)) {	// get dbrecord
 		database::dbrecord	rec;
 		int32_t id = GetParam();
 		if( id != -1 && m_parent.m_db.getParams(id, rec)) {
@@ -49,7 +49,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 		} else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_SDB)) {
+	} else if(IsCommand(CMD_SDB)) {	//	set dbrecord
 		database::dbrecord	rec;
 		int id = GetParam();
 		if( id != -1 && rec.parse(m_bufPtr)) {
@@ -60,7 +60,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 		} else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_EDB)) {
+	} else if(IsCommand(CMD_EDB)) {	//	export database
 		thindb		tdb;
 		uint16_t	from = GetParam();
 		uint16_t	to = GetParam();
@@ -81,7 +81,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 		else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_IDB)) {
+	} else if(IsCommand(CMD_IDB)) {	//	import database
 		uint16_t changed = 0, id = 0;
 		uint16_t from = GetParam();
 		uint16_t to = GetParam();
@@ -115,7 +115,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 			PrintRespErr(com);
 		com << changed << sg::Usart::endl;
 
-	} else if(IsCommand(CMD_DDB)) {
+	} else if(IsCommand(CMD_DDB)) {	//	dump database
 		database::dbrecord	rec;
 		uint16_t from = GetParam();
 		uint16_t to = GetParam();
@@ -139,12 +139,12 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 		else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_GDT)) {
+	} else if(IsCommand(CMD_GDT)) {	//	get datetime
 		auto &dt = m_parent.m_rtcDateTime;
 		com << com.dec << com.nopad << RESP << (uint16_t)dt.year << '.' << sg::Usart::Pad(2) << (uint16_t)dt.mon << '.' <<
 			(uint16_t)dt.mday << '/' << (uint16_t)dt.wday << "  " << dt.hour << ':' << dt.min << ':' << (uint16_t)dt.sec <<
 			sg::Usart::endl << com.nopad;
-	} else if(IsCommand(CMD_SDT)) {
+	} else if(IsCommand(CMD_SDT)) {	// set datetime
 		sg::DS3231_DST::Ts	t;
 		if(GetDateTime(t)) {
 			m_parent.m_rtc.Set(t);
@@ -152,13 +152,18 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 		} else
 			com << ERR << " DTFMT" << sg::Usart::endl;
 
-	} else if(IsCommand(CMD_CS)) {
+	} else if(IsCommand(CMD_CS)) {	// clear statuses
 		uint16_t from(GetParam());
 		uint16_t to( GetParam());
 		uint16_t id;
 
-		if(from > MAX_CODE) from = 0;
-		if(to > MAX_CODE ) to = MAX_CODE;
+		if(from > MAX_CODE && to > MAX_CODE) {
+			from = 0;
+			to = MAX_CODE;
+		} else {
+			if(from > MAX_CODE) from = 0;
+			if(to > MAX_CODE ) to = from;
+		}
 		if(from > to) from = to;
 
 		for(id = from; id <= to; ++id) {
@@ -171,7 +176,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 		else
 			PrintRespOk(com);
 
-	} else if(IsCommand(CMD_DS)) {
+	} else if(IsCommand(CMD_DS)) {	// dump shuffle
 		SdFile	f;
 		char buffer[16];
 		if( f.Open("SHUFFLE.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::READ)) == FR_OK) {
@@ -184,25 +189,29 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 		} else {
 			PrintRespErr(com, "CANTOPEN");
 		}
-	} else if(IsCommand(CMD_DL)) {
+
+	} else if(IsCommand(CMD_DL)) {	// dump log
 		if(m_parent.m_log.dump(com, false))
 			PrintRespOk(com);
 		else
 			PrintRespErr(com);
-	} else if(IsCommand(CMD_TL)) {
+
+	} else if(IsCommand(CMD_TL)) {	//	truncate log
 		if(m_parent.m_log.truncate())
 			PrintRespOk(com);
 		else
 			PrintRespErr(com);
+
 	} else if(IsCommand(CMD_IL)) {
 		//TODO: infinite loop (watchdog test)
-	} else if(IsCommand(CMD_SL)) {
+
+	} else if(IsCommand(CMD_SL)) {	//set lights
 		bool inner = false;
 		bool valid = false;
-		if(*m_bufPtr == 'i' || *m_bufPtr == 'I' ) {
+		if(*m_bufPtr == 'i') {
 			inner = valid = true;
 			++m_bufPtr;
-		} else if(*m_bufPtr == 'o' || *m_bufPtr == 'O' ) {
+		} else if(*m_bufPtr == 'o') {
 			valid = true;
 			++m_bufPtr;
 		}
@@ -212,14 +221,16 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 			PrintRespOk(com);
 		} else
 			PrintRespErr(com);
+
 	} else if(IsCommand(CMD_GT)) {
 		int16_t	rawTemp;
 		if(m_parent.m_rtc.GetTreg(rawTemp) == HAL_OK) {
 			com << RESP << (int16_t)(rawTemp >> 2) << com.endl;
 		} else
 			PrintRespErr(com);
+
 	} else {
-		com << ERR << " CMD" << sg::Usart::endl;
+		com << ERR << " CMD " << buffer << sg::Usart::endl;
 	}
 }
 

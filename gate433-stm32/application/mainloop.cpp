@@ -341,21 +341,33 @@ void MainLoop::Loop()
 	oldTick = m_rtcTick;
 	lastHeartbeat = m_rtcTick;
 
-	ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
-	ret = m_wifi.Receive(m_wifiBuffer, sizeof(m_wifiBuffer), *this);
+	if((ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this)) != HAL_OK)
+		m_log.log(logwriter::ERROR, m_rtcDateTime, "m_com.Receive", ret);
+	if((ret = m_wifi.Receive(m_wifiBuffer, sizeof(m_wifiBuffer), *this)) != HAL_OK)
+		m_log.log(logwriter::ERROR, m_rtcDateTime, "m_wifi.Receive", ret);
 
-	m_com << "\r\n:READY\r\n";
-	m_wifi << "\r\n:READY\r\n";
+	m_com << "\r\n" CMNTS  "READY\r\n";
+	m_wifi << "\r\n" CMNTS "READY\r\n";
 
 	while(true)
 	{
 		now = HAL_GetTick();
 
+		if(m_com.GetAndClearError()) {
+			if((ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this)) != HAL_OK)
+				m_log.log(logwriter::ERROR, m_rtcDateTime, "m_com.Receive", ret);
+			m_serialLineReceived = false;
+		}
 		if(m_serialLineReceived) {
 			if(m_serialBuffer[0])
 				m_proc.Process(m_com, m_serialBuffer);
 			m_serialLineReceived = false;
 			ret = m_com.Receive(m_serialBuffer, sizeof(m_serialBuffer), *this);
+		}
+		if(m_wifi.GetAndClearError()) {
+			if((ret = m_wifi.Receive(m_wifiBuffer, sizeof(m_wifiBuffer), *this)) != HAL_OK)
+				m_log.log(logwriter::ERROR, m_rtcDateTime, "m_wifi.Receive", ret);
+			m_wifiLineReceived = false;
 		}
 		if(m_wifiLineReceived) {
 			if(m_wifiBuffer[0])
@@ -451,7 +463,9 @@ void MainLoop::Loop()
 
 		case States::NUMSTATES:	// should not happen
 			break;
-		}
+		}	//	switch(m_state)
+
+		m_log.LogFromQueue(1);
 
 	}	//	while(true)
 

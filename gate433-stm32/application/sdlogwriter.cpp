@@ -43,7 +43,7 @@ bool SdLogWriter::sdfwbuffer::flush()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-bool SdLogWriter::sdfwbuffer::write(sg::DS3231::Ts &dt )
+bool SdLogWriter::sdfwbuffer::write(const sg::DS3231::Ts &dt )
 {
 	return
 		   write( dt.year , 4 )
@@ -81,7 +81,7 @@ SdLogWriter::SdLogWriter(const char *name)
 {};
 
 /////////////////////////////////////////////////////////////////////////////
-void SdLogWriter::log(CATEGORY category, sg::DS3231::Ts &datetime, const char* message, uint16_t rid, uint8_t btn, uint8_t dbpos, uint8_t loop,  uint8_t decision, char reason )
+void SdLogWriter::log(CATEGORY category, const sg::DS3231::Ts &datetime, const char* message, uint16_t rid, uint8_t btn, uint8_t dbpos, uint8_t loop,  uint8_t decision, char reason )
 {
 	char		buffer[32];
 
@@ -143,12 +143,67 @@ bool SdLogWriter::truncate()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+uint8_t SdLogWriter::WritePos() {
+	uint8_t w = m_readPos + LOGBUFFERCOUNT - m_free;
+	return w < LOGBUFFERCOUNT ? w : w - LOGBUFFERCOUNT;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+bool SdLogWriter::Queue(CATEGORY category, sg::DS3231::Ts &dateTime, const char* message,
+		uint16_t rid, uint8_t button, uint8_t dbPos,
+		uint8_t loop, uint8_t decision, char reason)
+{
+	if(!m_free)
+		return false;
+
+	LogData &l = m_logBuffer[WritePos()];
+
+	l.category = category;
+	l.dateTime = dateTime;
+	strncpy(l.message, message, sizeof(l.message)-1);
+	l.message[sizeof(l.message) - 1] = 0;
+	l.rid = rid;
+	l.button = button;
+	l.dbPos = dbPos;
+	l.loop = loop;
+	l.decision = decision;
+	l.reason = reason;
+
+	--m_free;
+
+	return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+bool SdLogWriter::LogFromQueue(uint8_t maxCount)
+{
+	bool ret = false;
+	if(!maxCount)
+		return ret;
+
+	while(maxCount-- && m_free < LOGBUFFERCOUNT) {
+		Log(m_logBuffer[m_readPos++]);
+		if(m_readPos >= LOGBUFFERCOUNT)
+			m_readPos = 0;
+		++m_free;
+		ret = true;
+	}
+	return ret;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void SdLogWriter::Log(const LogData &l)
+{
+	log(l.category, l.dateTime, l.message, l.rid, l.button, l.dbPos, l.loop, l.decision, l.reason);
+}
+
+/////////////////////////////////////////////////////////////////////////////
 const char* SdLogWriter::__catsrts = "DBG" "INF" "WRN" "ERR" "WTF";
 const char* SdLogWriter::__positions = "UOI";
 const char* SdLogWriter::__states = "OFF" "CDW" "CON" "ACC" "WRN" "DNY" "UNR" "HRY" "PAS";
 
 /////////////////////////////////////////////////////////////////////////////
-bool SdLogWriter::writelinehdr(sdfwbuffer &wb, CATEGORY c, sg::DS3231::Ts &dateTime, uint16_t remoteid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision, char reason )
+bool SdLogWriter::writelinehdr(sdfwbuffer &wb, CATEGORY c, const sg::DS3231::Ts &dateTime, uint16_t remoteid, uint8_t btn, uint8_t dbpos, uint8_t loop, uint8_t decision, char reason )
 {
 	bool ret( true );
 	ret &= wb.write( dateTime );
