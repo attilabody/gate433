@@ -59,6 +59,8 @@
 
 #define SD_CS_Pin GPIO_PIN_4
 #define SD_CS_GPIO_Port GPIOA
+#define OPEN_Pin GPIO_PIN_12
+#define OPEN_GPIO_Port GPIOB
 #define LOOP_O_Pin GPIO_PIN_14
 #define LOOP_O_GPIO_Port GPIOB
 #define LOOP_I_Pin GPIO_PIN_15

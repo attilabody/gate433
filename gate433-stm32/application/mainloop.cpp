@@ -53,6 +53,7 @@ void HAL_SYSTICK_Callback(void)
 ////////////////////////////////////////////////////////////////////
 MainLoop::MainLoop()
 : m_lights(256, 128)
+, m_gate(OPEN_GPIO_Port, OPEN_Pin, false)
 , m_com(&huart1, sg::UsartCallbackDispatcher::Instance(), m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), true)
 , m_wifi(&huart3, sg::UsartCallbackDispatcher::Instance(), m_wifiOutRingBuffer, sizeof(m_wifiOutRingBuffer), true)
 , m_i2c(&hi2c1, sg::I2cCallbackDispatcher::Instance())
@@ -150,6 +151,7 @@ void MainLoop::Tick(uint32_t now)
 {
 	m_lights.Tick(now);
 	m_loop.Tick(now);
+	m_gate.Tick(now);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -444,6 +446,7 @@ void MainLoop::Loop()
 				if(ilStatus == InductiveLoop::NONE) {
 					m_db.setStatus(m_countedCode, m_cycleInner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
 					ChangeState(States::OFF, inner, now);
+					m_gate.Reset();
 				} else if(m_state != States::PASSING) {
 					ChangeState(States::PASSING, inner, m_stateStartedTick);
 				}
@@ -480,7 +483,7 @@ void MainLoop::ChangeState(States newStatus, bool inner, uint32_t now)
 		m_codeReceived = false;
 		m_cycleInner = inner;
 	} else if(newStatus == States::ACCEPT || newStatus == States::WARN) {
-		//TODO: Opa da gatha
+		m_gate.Set(500, 1500, now);
 	}
 
 	m_stateStartedTick = now;

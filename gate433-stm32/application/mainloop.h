@@ -20,6 +20,7 @@
 #include <sg/strutil.h>
 #include "states.h"
 #include "trafficlights.h"
+#include "pulsingoutput.h"
 #include "i2cdb.h"
 #include "inductiveloop.h"
 #include "commsyms.h"
@@ -43,6 +44,7 @@ private:
 	void ChangeState(States newStatus, bool inner, uint32_t now);//, bool ilChanged);
 
 	TrafficLights	m_lights;
+	PulsingOutput	m_gate;
 	sg::Usart		m_com;
 	sg::Usart		m_wifi;
 	sg::I2cMaster	m_i2c;
