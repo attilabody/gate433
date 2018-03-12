@@ -29,7 +29,6 @@ private:
 	bool			m_active = false;
 	uint16_t		m_pulseLen = 0;
 	uint16_t		m_cycleLen = 0;
-	uint32_t		m_lastTick = 0;
 	uint32_t		m_changedAt = 0;
 };
 

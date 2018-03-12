@@ -446,7 +446,6 @@ void MainLoop::Loop()
 				if(ilStatus == InductiveLoop::NONE) {
 					m_db.setStatus(m_countedCode, m_cycleInner ? database::dbrecord::OUTSIDE : database::dbrecord::INSIDE);
 					ChangeState(States::OFF, inner, now);
-					m_gate.Reset();
 				} else if(m_state != States::PASSING) {
 					ChangeState(States::PASSING, inner, m_stateStartedTick);
 				}
@@ -484,7 +483,8 @@ void MainLoop::ChangeState(States newStatus, bool inner, uint32_t now)
 		m_cycleInner = inner;
 	} else if(newStatus == States::ACCEPT || newStatus == States::WARN) {
 		m_gate.Set(500, 1500, now);
-	}
+	} else if(newStatus == States::OFF)
+		m_gate.Reset();
 
 	m_stateStartedTick = now;
 	m_lights.SetMode(newStatus, inner);
