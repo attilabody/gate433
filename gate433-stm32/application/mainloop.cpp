@@ -31,10 +31,18 @@
 
 extern "C" void _MainLoop();
 extern "C" void HAL_SYSTICK_Callback(void);
+extern "C" void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+
 
 bool g_mainLoppReady = false;
 
 char g_stateSigns[States::NUMSTATES] = { ' ', 'W', 'C', 'A', 'W', 'D', 'U', 'H', 'P' };
+
+////////////////////////////////////////////////////////////////////
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	MainLoop::Instance().HAL_GPIO_EXTI_Callback(GPIO_Pin);
+}
 
 ////////////////////////////////////////////////////////////////////
 void _MainLoop()
@@ -52,7 +60,8 @@ void HAL_SYSTICK_Callback(void)
 
 ////////////////////////////////////////////////////////////////////
 MainLoop::MainLoop()
-: m_lights(256, 128)
+: RotaryDecoder(this, 2, BTN_CLK_GPIO_Port, BTN_CLK_Pin, BTN_DATA_GPIO_Port, BTN_DATA_Pin, BTN_SW_GPIO_Port, BTN_SW_Pin)
+, m_lights(256, 128)
 , m_gate(OPEN_GPIO_Port, OPEN_Pin, false)
 , m_com(&huart1, sg::UsartCallbackDispatcher::Instance(), m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), true)
 , m_wifi(&huart3, sg::UsartCallbackDispatcher::Instance(), m_wifiOutRingBuffer, sizeof(m_wifiOutRingBuffer), true)
@@ -145,6 +154,24 @@ void MainLoop::CodeReceived(uint16_t code)
 	m_lastCodeReceived = code;
 	m_lastCodeReceivedTick = now;
 }
+
+////////////////////////////////////////////////////////////////////
+// Called from ISR
+////////////////////////////////////////////////////////////////////
+void MainLoop::Step(bool up)
+{
+	if(up) m_rotaryCounter++;
+	else m_rotaryCounter--;
+}
+
+////////////////////////////////////////////////////////////////////
+// Called from ISR
+////////////////////////////////////////////////////////////////////
+void MainLoop::Click(bool on)
+{
+	m_rotaryButton = on;
+}
+
 
 ////////////////////////////////////////////////////////////////////
 void MainLoop::Tick(uint32_t now)
@@ -325,6 +352,9 @@ void MainLoop::Loop()
 	uint32_t				now, lastHeartbeat;
 	sg::DS3231::Ts			ts;
 
+	int32_t					counter = m_rotaryCounter;
+	bool					button = m_rotaryButton;
+
 	InductiveLoop::STATUS	ilStatus = InductiveLoop::NONE;
 	bool					ilConflict = false;
 	bool					inner = false;
@@ -412,6 +442,15 @@ void MainLoop::Loop()
 			if(now - lastHeartbeat >= 500) {
 				HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 				lastHeartbeat = now;
+			}
+
+			if(counter != m_rotaryCounter) {
+				m_wifi << m_rotaryCounter << m_wifi.endl;
+				counter = m_rotaryCounter;
+			}
+			if(button != m_rotaryButton) {
+				m_wifi << (m_rotaryButton ? "ON" : "OFF") << m_wifi.endl;
+				button = m_rotaryButton;
 			}
 
 			oldTick = now;
