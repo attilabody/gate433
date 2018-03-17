@@ -109,8 +109,8 @@ private:
 
 	//	utility functions
 	void Fail(const char * file, int line);
-	//void DumpBufferLine(uint8_t *buffer, uint16_t base, uint16_t offset, uint8_t count);
 	bool CheckDateTime(uint32_t now);
+	void UpdateDow(sg::DS3231::Ts &ts);
 
 	class CommandProcessor
 	{

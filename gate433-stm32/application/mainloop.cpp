@@ -4,6 +4,7 @@
  *  Created on: Jan 11, 2018
  *      Author: compi
  */
+#include <ctype.h>
 #include <rfdecoder.h>
 #include "stm32f1xx_hal.h"
 #include "main.h"
@@ -368,6 +369,7 @@ void MainLoop::Loop()
 			m_rtc.Get(ts, m_rtcDesync);
 		} while(ts.sec == m_rtcDateTime.sec);
 		m_rtcTick = HAL_GetTick();
+		UpdateDow(ts);
 		m_rtcDateTime = ts;
 	}
 	oldTick = m_rtcTick;
@@ -488,7 +490,7 @@ void MainLoop::Loop()
 				} else if(m_state != States::PASSING) {
 					ChangeState(States::PASSING, inner, m_stateStartedTick);
 				}
-			} else {
+			} else if(m_state == States::ACCEPT || m_state == States::WARN ) {
 				ellapsed = now - m_stateStartedTick;
 				if(ellapsed > (m_state == States::HURRY ? Config::Instance().hurryTimeout : Config::Instance().passTimeout) * 1000)
 					ChangeState(m_state == States::HURRY ? States::OFF : States::HURRY, inner, now);//, ilChanged);
@@ -583,14 +585,50 @@ bool MainLoop::CheckDateTime(uint32_t now)
 	if(now - m_rtcTick > 980) {
 		m_rtc.Get(ts, desync);
 		if(m_rtcDateTime.sec != ts.sec) {
+			if(m_rtcDateTime.mday != ts.mday)
+				UpdateDow(ts);
 			m_rtcTick = now;
-			m_rtcDateTime = ts;
 			m_rtcDateTime = ts;
 			m_rtcDesync = desync;
 			return true;
 		}
 	}
 	return false;
+}
+
+////////////////////////////////////////////////////////////////////
+void MainLoop::UpdateDow(sg::DS3231::Ts &ts)
+{
+	SdFile		f;
+	char		buffer[17];
+	const char	*bufPtr;
+	uint8_t		month, day, dow;
+
+	uint8_t	used = 0;
+	FRESULT	fr;
+	unsigned int	read;
+
+	if(f.Open("SHUFFLE.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::READ )) == FR_OK)
+	{
+		do {
+			if((fr = f.Read(buffer + used, sizeof(buffer) - 1 - used, &read)) == FR_OK) {
+				used += read;
+				buffer[used] = 0;
+				bufPtr = buffer;
+				if( (month = sg::getintparam(bufPtr)) != 0xff &&
+					(day = sg::getintparam(bufPtr)) != 0xff &&
+					(dow = sg::getintparam(bufPtr) != 0xff) &&
+					month == ts.mon && day == ts.mday)
+				{
+					ts.wday = dow;
+					break;
+				}
+				memmove(buffer, bufPtr, used - (bufPtr - buffer));
+				used -= bufPtr - buffer;
+			}
+		} while(fr == FR_OK && (used || read));
+		f.Close();
+	}
 }
 
 #endif	//	TESTLOOP
