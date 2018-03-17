@@ -21,14 +21,15 @@ public:
 	I2cMaster::Status	Clear();
 	I2cMaster::Status	Home();
 	I2cMaster::Status	SetCursor(uint8_t x, uint8_t y);
+	I2cMaster::Status	Print(const char c) { return SendByte(c, false); }
 	I2cMaster::Status	Print(const char* str);
 	I2cMaster::Status	Print(uint32_t i, bool hex = false, uint8_t pad = 0, uint8_t *count = nullptr);
 
 private:
-	inline I2cMaster::Status SendData();
-	inline I2cMaster::Status Epulse();
-	inline I2cMaster::Status SendByte(uint8_t b, bool isCmd);
-	inline I2cMaster::Status SendNibble(uint8_t nibble);
+	I2cMaster::Status SendData();
+	I2cMaster::Status Epulse();
+	I2cMaster::Status SendByte(uint8_t b, bool isCmd);
+	I2cMaster::Status SendNibble(uint8_t nibble);
 
 	I2cMaster			&m_i2c;
 	uint8_t				m_data;
