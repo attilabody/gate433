@@ -6,45 +6,66 @@
  */
 
 #include <display.h>
-//#include "toolbox.h"
-//#include "dthelpers.h"
+#include <string.h>
+#include <sg/strutil.h>
+
 
 //////////////////////////////////////////////////////////////////////////////
-Display::Display(sg::I2cMaster &i2c, uint8_t i2cAddress, uint8_t width, uint8_t height)
+Display::Display(sg::I2cMaster &i2c, uint8_t i2cAddress)
 : sg::I2cLcd(i2c, i2cAddress)
-, m_width(width)
-, m_height(height)
 {
 	sg::I2cLcd::Init();
 	UpdateLoopStatus(false, false, false);
+
+	uint8_t offset = 0;
+	for(uint8_t line = 0; line < 4; ++line) {
+		m_lineOffsets[line] = offset;
+		offset += WIDTH;
+	}
+	memset(m_backBuffer, ' ', sizeof(m_backBuffer));
 }
 
 //////////////////////////////////////////////////////////////////////////////
-Display::~Display()
+void Display::Update(uint8_t x, uint8_t y, const char *str)
 {
+	m_x = x;
+	m_y = y;
+	m_needPos = true;
+	Update(str);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+void Display::Update(const char *str)
+{
+	char *bufPtr = m_backBuffer + m_lineOffsets[m_y] + m_x;
+	while(*str && m_x < WIDTH) {
+		if(*bufPtr != *str) {
+			if(m_needPos)
+				SetCursor(m_x, m_y);
+			*bufPtr = *str;
+			Print(*str);
+			m_needPos = false;
+		} else
+			m_needPos = true;
+		++m_x;
+		++str;
+		++bufPtr;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void Display::UpdateDt(const sg::DS3231::Ts &dt, bool deSync)
 {
-	char	lcdbuffer[13];
+	char	lcdBuffer[13];
 
-	if(dt.sec != m_dt.sec || dt.min != m_dt.min || dt.hour != m_dt.hour) {
-		SetCursor(0,1);
-		dt.TimeToString(lcdbuffer, 0, true);
-		Print(lcdbuffer);
-	}
+	dt.TimeToString(lcdBuffer, 0, true);
+	Update(0,1, lcdBuffer);
 
-	if(dt.year != m_dt.year || dt.mon != m_dt.mon || dt.mday != m_dt.mday) {
-		SetCursor(0,0);
-		dt.YMDToString(lcdbuffer, 2);
-		Print(lcdbuffer);
-	}
+	dt.YMDToString(lcdBuffer, 2);
+	Update(0, 0, lcdBuffer);
 
-	if(deSync != m_deSync) {
-		SetCursor(8,0);
-		Print(deSync ? "!" : " ");
-	}
+	Update(8, 0, deSync ? "!" : " ");
+
 	m_dt = dt;
 	m_deSync = deSync;
 }
@@ -52,17 +73,17 @@ void Display::UpdateDt(const sg::DS3231::Ts &dt, bool deSync)
 //////////////////////////////////////////////////////////////////////////////
 void Display::UpdateLoopStatus( bool inner, bool outer, bool conflict )
 {
-	SetCursor(9, 0);
-	Print(outer ? "O" : (conflict ? "o" : "_"));
-	Print(inner ? "I" : (conflict ? "i" : "_"));
+	Update(9, 0, (outer ? "O" : (conflict ? "o" : "_")));
+	Update(inner ? "I" : (conflict ? "i" : "_"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void Display::UpdateLastReceivedId( uint16_t id )
 {
 	if(m_lastReceivedId != id) {
-		SetCursor(12, 0);
-		Print(id, false, 4);
+		char buffer[5];
+		sg::todec(buffer, id, 4, '0');
+		Update(12, 0, buffer);
 		m_lastReceivedId = id;
 	}
 }
@@ -70,14 +91,11 @@ void Display::UpdateLastReceivedId( uint16_t id )
 //////////////////////////////////////////////////////////////////////////////
 States Display::UpdateLastDecision(States state, uint16_t id, char reason)
 {
-	char buf[3] { g_stateSigns[state], ' ', 0 };
+	char buf[5] { (state == States::DENY && reason && reason != ' ') ? reason : g_stateSigns[state], ' ', 0 };
 
-	if(state == States::DENY && reason && reason != ' ')
-		buf[0] = reason;
-
-	SetCursor(10, 1);
-	Print(buf);
-	Print(id & 0x3ff, false, 4);
+	Update(10, 1, buf);
+	sg::todec(buf, id, 4, '0');
+	Update(buf);
 	return state;
 }
 

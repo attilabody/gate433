@@ -20,8 +20,6 @@ struct Config : public sg::Singleton<Config>
 	uint8_t 	dbAddresLength = 2;
 	uint8_t		dbPageLength = 128;
 	uint8_t 	lcdI2cAddress = 0x27 << 1;
-	uint8_t 	lcdWidth = 16;
-	uint8_t 	lcdHeight = 2;
 	uint8_t		passTimeout = 30;
 	uint8_t		hurryTimeout = 90;
 	bool		relaxedPos = false;
