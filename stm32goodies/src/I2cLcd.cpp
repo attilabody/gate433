@@ -209,7 +209,7 @@ I2cMaster::Status I2cLcd::Print(uint32_t u, bool hex, uint8_t pad, uint8_t *coun
 
 	if(pad > 10) pad = 10;
 
-	size_t _count = hex ? tohex(buffer, u, pad, '0') : todec(buffer, u, pad, '0');
+	size_t _count = hex ? ToHex(buffer, u, pad, '0') : ToDec(buffer, u, pad, '0');
 	if((ret = Print(buffer)) != HAL_OK)
 		return ret;
 

@@ -15,22 +15,22 @@
 namespace sg {
 
 //////////////////////////////////////////////////////////////////////////////
-inline void strrev(char *first, char *last)
+inline void StrRev(char *first, char *last)
 {
 	while(last > first) std::swap(*first++, *last--);
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline char tochr(const uint8_t in, const bool upper = true)
+inline char ToChar(const uint8_t in, const bool upper = true)
 {
 	return in + ((in < 10) ? '0' : (upper ? 'A' : 'a') - 10);
 }
 
 //////////////////////////////////////////////////////////////////////////////
-char fromchr( char c, bool decimal = true );
+char FromChar( char c, bool decimal = true );
 
 //////////////////////////////////////////////////////////////////////////////
-template< typename T> size_t todec(char* buffer, T data, uint8_t digits = 0, char padding = '0')
+template< typename T> size_t ToDec(char* buffer, T data, uint8_t digits = 0, char padding = '0')
 {
 	bool neg = data < 0;
 
@@ -57,19 +57,19 @@ template< typename T> size_t todec(char* buffer, T data, uint8_t digits = 0, cha
 
 	*b2-- = 0;
 
-	strrev(buffer, b2);
+	StrRev(buffer, b2);
     return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-template< typename T> size_t tohex(char* buffer, T data, uint8_t digits = 0, char padding = '0')
+template< typename T> size_t ToHex(char* buffer, T data, uint8_t digits = 0, char padding = '0')
 {
 	char *b2 = buffer;
 	uint8_t	remaining = digits ? digits : -1;
 
 	do {
 		uint8_t curval = data & 0x0f;
-		*b2++ = tochr(curval, true);
+		*b2++ = ToChar(curval, true);
 		data >>= 4;
 	} while(data && --remaining);
 
@@ -82,12 +82,12 @@ template< typename T> size_t tohex(char* buffer, T data, uint8_t digits = 0, cha
 
 	*b2-- = 0;
 
-	strrev(buffer, b2);
+	StrRev(buffer, b2);
     return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-int32_t getintparam( const char* &input, bool decimal = true, bool trimstart = true, bool acceptneg = false );
+int32_t GetIntParam( const char* &input, bool decimal = true, bool trimstart = true, bool acceptneg = false );
 
 }	//	namespace sg
 #endif /* INC_STRUTIL_H_ */

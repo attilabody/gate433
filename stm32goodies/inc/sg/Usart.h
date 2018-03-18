@@ -92,13 +92,13 @@ public:
 		if(hex) {
 			if(prefix)
 				ret = Send("0x", 2);
-			return Send(buffer, tohex(buffer, u, digits)) + ret;
+			return Send(buffer, ToHex(buffer, u, digits)) + ret;
 		} else {
 			if(u < 0) {
 				*bptr++ = '-';
 				u = 0 - u;
 			}
-			return Send(buffer, todec(bptr, u, digits) + (bptr - buffer));
+			return Send(buffer, ToDec(bptr, u, digits) + (bptr - buffer));
 		}
 	}
 

@@ -10,7 +10,7 @@
 using namespace sg;
 
 //////////////////////////////////////////////////////////////////////////////
-char sg::fromchr( char c, bool decimal)
+char sg::FromChar( char c, bool decimal)
 {
 	if(c >= '0' && c <= '9') return c - '0';
 	if(decimal) return -1;
@@ -20,7 +20,7 @@ char sg::fromchr( char c, bool decimal)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-int32_t sg::getintparam( const char* &input, bool decimal, bool trimstart, bool acceptneg )
+int32_t sg::GetIntParam( const char* &input, bool decimal, bool trimstart, bool acceptneg )
 {
 	int32_t	retval(0);
 	char	converted;
@@ -28,11 +28,11 @@ int32_t sg::getintparam( const char* &input, bool decimal, bool trimstart, bool 
 	bool	negative(false);
 
 	if( trimstart )
-		while( *input && fromchr( *input, decimal ) == (char)-1 && *input != '-' )
+		while( *input && FromChar( *input, decimal ) == (char)-1 && *input != '-' )
 			++input;
 
 	while( *input ) {
-		if(( converted = fromchr( *input, decimal )) == (char)-1) {
+		if(( converted = FromChar( *input, decimal )) == (char)-1) {
 			if( ! retval ) {
 				if( *input == 'x' || *input == 'X' ) {
 					decimal = false;

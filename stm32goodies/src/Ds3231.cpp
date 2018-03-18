@@ -53,7 +53,7 @@ uint8_t DS3231::Ts::YMDToString(char *buffer, uint8_t yearDigits, uint8_t size) 
 {
 	uint8_t	count = 0;
 	if(size && size < 7 + yearDigits) return 0;
-	buffer += count = todec(buffer, year, yearDigits);
+	buffer += count = ToDec(buffer, year, yearDigits);
 	*buffer++ = '.';
 	++count;
 	return count + MDToString(buffer);
@@ -64,10 +64,10 @@ uint8_t DS3231::Ts::MDToString(char *buffer, uint8_t size) const
 {
 	uint8_t	count = 0, tmp;
 	if(size && size < 6) return 0;
-	buffer += count = todec(buffer, mon, 2);
+	buffer += count = ToDec(buffer, mon, 2);
 	*buffer++ = '.';
 	++count;
-	tmp = todec(buffer, mday, 2);
+	tmp = ToDec(buffer, mday, 2);
 	buffer += tmp;
 	count += tmp;
 	*buffer = 0;
@@ -79,16 +79,16 @@ uint8_t DS3231::Ts::TimeToString(char *buffer, uint8_t size, bool seconds) const
 {
 	uint8_t	count = 0, tmp;
 	if(size && size < (seconds ? 9: 6)) return 0;
-	buffer += count = todec(buffer, hour, 2);
+	buffer += count = ToDec(buffer, hour, 2);
 	*buffer++ = ':';
 	++count;
-	tmp = todec(buffer, min, 2);
+	tmp = ToDec(buffer, min, 2);
 	buffer += tmp;
 	count += tmp;
 	if(seconds) {
 		*buffer++ = ':';
 		++count;
-		tmp = todec(buffer, sec, 2);
+		tmp = ToDec(buffer, sec, 2);
 		buffer += tmp;
 		count += tmp;
 	}
