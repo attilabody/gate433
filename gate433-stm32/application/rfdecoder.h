@@ -48,8 +48,7 @@ private:
 	TIM_HandleTypeDef &m_htim = htim1;
 
 	uint16_t	m_lastCapture = 0;
-	uint16_t	m_lastHLength = 0;
-	uint16_t	m_lastLLength = 0;
+	uint16_t	m_lastLength = 0;
 	uint8_t		m_overflow = 0;
 
 	uint16_t	m_syncLength = 0;

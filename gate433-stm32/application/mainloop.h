@@ -83,7 +83,7 @@ private:
 
 	// IDecoderCallback
 	virtual void CodeReceived(uint16_t code);
-	uint16_t		m_code = 0;
+	uint16_t		m_code = 0xffff;
 	uint16_t		m_countedCode = 0xffff;
 	volatile bool	m_codeReceived = false;
 

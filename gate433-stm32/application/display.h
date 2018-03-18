@@ -33,7 +33,7 @@ protected:
 
 	sg::DS3231::Ts	m_dt;
 	bool			m_deSync = false;
-	uint16_t		m_lastReceivedId = 0;
+	uint16_t		m_lastReceivedId = 0xffff;
 
 	static const uint8_t WIDTH = 16;
 	static const uint8_t HEIGHT = 2;

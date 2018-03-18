@@ -52,11 +52,12 @@ void RFDecoder::CaptureCallback(TIM_HandleTypeDef *htim)
 		return;
 	}
 
-	length = currentCapture - m_lastCapture;
+	length = ((m_overflow == 1 && currentCapture > m_lastCapture) ||  m_overflow > 1) ? 0xffff : currentCapture - m_lastCapture;
 
 	ProcessPeriod(level, m_overflow < 2 ? length : 0xffff);
 
 	m_lastCapture = currentCapture;
+	m_lastLength = length;
 	m_overflow = 0;
 }
 
@@ -66,7 +67,7 @@ void RFDecoder::ProcessPeriod(bool level, uint16_t length)
 	bool highLong;
 
 	if(!m_syncLength) {	//looking for sync
-		if(level && length > SYNCLENGTH_MIN && length < SYNCLENGTH_MAX )
+		if(level && length > SYNCLENGTH_MIN && length < SYNCLENGTH_MAX && m_lastLength == 0xffff)
 		{	//high pulse with appropriate length
 			m_syncLength = length;
 			m_code = 0;
