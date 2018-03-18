@@ -2,7 +2,7 @@
 #define __ds3231_h_
 
 #include <inttypes.h>
-#include <sg/i2cmaster.h>
+#include <sg/I2cMaster.h>
 
 #define SECONDS_FROM_1970_TO_2000 946684800
 

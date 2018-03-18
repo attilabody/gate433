@@ -4,7 +4,7 @@
  *  Created on: Jan 23, 2018
  *      Author: compi
  */
-#include <sg/i2ceeprom.h>
+#include <sg/I2cEeprom.h>
 
 namespace sg
 {

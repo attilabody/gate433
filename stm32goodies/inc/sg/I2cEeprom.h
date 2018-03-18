@@ -8,9 +8,9 @@
 #ifndef INC_SG_I2CEEPROM_H_
 #define INC_SG_I2CEEPROM_H_
 
+#include <sg/I2cMaster.h>
 #include <stdint.h>
-#include <sg/stm32_hal.h>
-#include <sg/i2cmaster.h>
+#include <sg/Stm32Hal.h>
 
 namespace sg {
 

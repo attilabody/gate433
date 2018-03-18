@@ -1,8 +1,8 @@
 #ifndef _I2CMASTER_H_
 #define _I2CMASTER_H_
-#include <sg/stm32_hal.h>
-#include <sg/singleton.h>
 #include <inttypes.h>
+#include <sg/Singleton.h>
+#include <sg/Stm32Hal.h>
 #include <string.h>
 
 extern "C" {

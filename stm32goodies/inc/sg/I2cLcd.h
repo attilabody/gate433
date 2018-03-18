@@ -7,8 +7,8 @@
 #if !defined(I2C_LCD_H_)// && defined(HAVE_I2C) && defined(USE_I2C)
 #define I2C_LCD_H_
 
-#include <sg/stm32_hal.h>
-#include <sg/i2cmaster.h>
+#include <sg/Stm32Hal.h>
+#include <sg/I2cMaster.h>
 
 namespace sg {
 

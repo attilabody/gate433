@@ -8,12 +8,12 @@
 #ifndef USART_H
 #define USART_H
 
-#include <sg/stm32_hal.h>
-#include <sg/singleton.h>
-#include <sg/strutil.h>
+#include <sg/Stm32Hal.h>
+#include <sg/Singleton.h>
 #include <stddef.h>
 #include <string.h>
 #include <inttypes.h>
+#include <sg/Strutil.h>
 
 namespace sg {
 

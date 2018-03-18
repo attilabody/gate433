@@ -4,7 +4,7 @@
  *  Created on: Nov 28, 2016
  *      Author: compi
  */
-#include "sg/strutil.h"
+#include <sg/Strutil.h>
 #include <cstdint>
 
 using namespace sg;

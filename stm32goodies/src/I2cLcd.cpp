@@ -7,11 +7,11 @@
 
 //#include "config.h"
 //#if defined(HAVE_I2C) && defined(USE_I2C)
-#include <sg/stm32_hal.h>
+#include <sg/I2cLcd.h>
+#include <sg/Stm32Hal.h>
 //#include <util/delay.h>
 
-#include "sg/i2c_lcd.h"
-#include "sg/strutil.h"
+#include <sg/Strutil.h>
 
 using namespace sg;
 

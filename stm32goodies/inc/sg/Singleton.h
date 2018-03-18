@@ -8,7 +8,7 @@
 #ifndef SINGLETON_H_
 #define SINGLETON_H_
 
-#include <sg/itlock.h>
+#include <sg/ItLock.h>
 namespace sg {
 
 template<typename T> class Singleton

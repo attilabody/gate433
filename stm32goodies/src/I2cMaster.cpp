@@ -5,7 +5,7 @@
  *      Author: compi
  */
 
-#include <sg/i2cmaster.h>
+#include <sg/I2cMaster.h>
 using namespace sg;
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)

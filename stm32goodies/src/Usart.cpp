@@ -5,10 +5,10 @@
  *      Author: compi
  */
 
-#include <sg/usart.h>
 #include <stdlib.h>
-#include <sg/itlock.h>
-#include <sg/strutil.h>
+#include <sg/ItLock.h>
+#include <sg/Strutil.h>
+#include <sg/Usart.h>
 
 using namespace sg;
 

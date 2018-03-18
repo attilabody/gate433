@@ -32,9 +32,9 @@
    
 */
 
+#include <sg/Ds3231.h>
+#include <sg/Strutil.h>
 #include <stdio.h>
-#include <sg/ds3231.h>
-#include <sg/strutil.h>
 
 /* control register 0Eh/8Eh
 bit7 EOSC   Enable Oscillator (1 if oscillator must be stopped when on battery)

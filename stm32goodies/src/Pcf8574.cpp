@@ -18,7 +18,7 @@
 //
 //#include "config.h"
 //#if defined(HAVE_I2C) && defined(USE_I2C)
-#include "sg/pcf8574.h"
+#include <sg/Pcf8574.h>
 
 using namespace sg;
 
