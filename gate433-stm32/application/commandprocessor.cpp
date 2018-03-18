@@ -8,7 +8,7 @@
 #include "commands.h"
 //#include "commsyms.h" from mainloop.h
 #include <ctype.h>
-#include <sg/strutil.h>
+#include <sg/Strutil.h>
 
 #include "database.h"
 #include "thindb.h"
@@ -128,7 +128,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 		for( id = from; id <= to; ++id ) {
 			//CHECKPOINT;
 			if( m_parent.m_db.getParams(id, rec)) {
-				sg::todec(buffer, id, 4);
+				sg::ToDec(buffer, id, 4);
 				buffer[4] = ' ';
 				rec.serialize( buffer + 5);
 				com << DATA << buffer << sg::Usart::endl;

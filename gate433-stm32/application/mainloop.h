@@ -11,13 +11,13 @@
 #include <rfdecoder.h>
 #include <sdfile.h>
 #include <sdlogwriter.h>
-#include <sg/singleton.h>
-#include <sg/usart.h>
-#include <sg/i2cmaster.h>
-#include <sg/i2ceeprom.h>
-#include <sg/ds3231.h>
-#include <sg/i2c_lcd.h>
-#include <sg/strutil.h>
+#include <sg/Singleton.h>
+#include <sg/Usart.h>
+#include <sg/I2cMaster.h>
+#include <sg/Ds3231.h>
+#include <sg/I2cLcd.h>
+#include <sg/I2cEeprom.h>
+#include <sg/Strutil.h>
 #include "states.h"
 #include "trafficlights.h"
 #include "pulsingoutput.h"
@@ -131,7 +131,7 @@ private:
 		void PrintRespOk(sg::Usart &com) { com << RESP << "OK" << sg::Usart::endl; }
 
 		bool IsCommand(const char *command);
-		int32_t GetParam(bool decimal = true, bool trimstart = true, bool acceptneg = false) { return sg::getintparam(m_bufPtr, decimal, trimstart, acceptneg); }
+		int32_t GetParam(bool decimal = true, bool trimstart = true, bool acceptneg = false) { return sg::GetIntParam(m_bufPtr, decimal, trimstart, acceptneg); }
 		bool GetDateTime(sg::DS3231_DST::Ts &t);
 		uint16_t GetLine(SdFile &f, char* buffer, uint8_t buflen);
 	};

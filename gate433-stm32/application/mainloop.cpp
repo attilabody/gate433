@@ -13,7 +13,7 @@
 #include "usart.h"
 #include "gpio.h"
 
-#include <sg/itlock.h>
+#include <sg/ItLock.h>
 
 
 #include "config.h"
@@ -615,9 +615,9 @@ void MainLoop::UpdateDow(sg::DS3231::Ts &ts)
 				used += read;
 				buffer[used] = 0;
 				bufPtr = buffer;
-				if( (month = sg::getintparam(bufPtr)) != 0xff &&
-					(day = sg::getintparam(bufPtr)) != 0xff &&
-					(dow = sg::getintparam(bufPtr) != 0xff) &&
+				if( (month = sg::GetIntParam(bufPtr)) != 0xff &&
+					(day = sg::GetIntParam(bufPtr)) != 0xff &&
+					(dow = sg::GetIntParam(bufPtr) != 0xff) &&
 					month == ts.mon && day == ts.mday)
 				{
 					ts.wday = dow;

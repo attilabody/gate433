@@ -7,7 +7,7 @@
 
 #ifndef INDUCTIVELOOP_H_
 #define INDUCTIVELOOP_H_
-#include <sg/stm32_hal.h>
+#include <sg/Stm32Hal.h>
 #include <tick.h>
 
 class InductiveLoop : public ITick

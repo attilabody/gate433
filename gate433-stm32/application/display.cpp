@@ -6,8 +6,8 @@
  */
 
 #include <display.h>
+#include <sg/Strutil.h>
 #include <string.h>
-#include <sg/strutil.h>
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ void Display::UpdateLastReceivedId( uint16_t id )
 {
 	if(m_lastReceivedId != id) {
 		char buffer[5];
-		sg::todec(buffer, id, 4, '0');
+		sg::ToDec(buffer, id, 4, '0');
 		Update(12, 0, buffer);
 		m_lastReceivedId = id;
 	}
@@ -94,7 +94,7 @@ States Display::UpdateLastDecision(States state, uint16_t id, char reason)
 	char buf[5] { (state == States::DENY && reason && reason != ' ') ? reason : g_stateSigns[state], ' ', 0 };
 
 	Update(10, 1, buf);
-	sg::todec(buf, id, 4, '0');
+	sg::ToDec(buf, id, 4, '0');
 	Update(buf);
 	return state;
 }

@@ -9,7 +9,7 @@
 #define RFDECODER_H_
 
 #include "stm32f1xx_hal.h"
-#include <sg/singleton.h>
+#include <sg/Singleton.h>
 
 #ifdef __cplusplus
 extern "C" {

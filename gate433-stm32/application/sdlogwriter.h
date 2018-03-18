@@ -9,8 +9,8 @@
 #define SDLOGWRITER_H_
 
 #include <sdfile.h>
-#include <sg/ds3231.h>
-#include <sg/usart.h>
+#include <sg/Ds3231.h>
+#include <sg/Usart.h>
 #include "logwriter.h"
 #include "writebuffer.h"
 

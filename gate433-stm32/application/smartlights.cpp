@@ -5,7 +5,7 @@
  *      Author: compi
  */
 
-#include <sg/itlock.h>
+#include <sg/ItLock.h>
 #include <smartlights.h>
 
 ////////////////////////////////////////////////////////////////////

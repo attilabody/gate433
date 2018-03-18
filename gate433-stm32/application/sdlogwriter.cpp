@@ -7,7 +7,7 @@
 
 #include <sdfile.h>
 #include <sdlogwriter.h>
-#include <sg/ds3231.h>
+#include <sg/Ds3231.h>
 #include "commsyms.h"
 
 //extern uint16_t	g_lastcheckpoint;

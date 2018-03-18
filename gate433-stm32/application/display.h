@@ -7,8 +7,8 @@
 
 #ifndef DISPLAY_H_
 #define DISPLAY_H_
-#include <sg/i2c_lcd.h>
-#include <sg/ds3231.h>
+#include <sg/Ds3231.h>
+#include <sg/I2cLcd.h>
 #include "states.h"
 
 struct ts;

@@ -6,7 +6,7 @@
  */
 #ifndef CONFIG_H_
 #define CONFIG_H_
-#include <sg/singleton.h>
+#include <sg/Singleton.h>
 
 #define CFG_I2C_ADDRESS		(0x57 << 1)
 #define CFG_ADDRESS_LENGTH	2

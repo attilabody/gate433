@@ -1,5 +1,5 @@
+#include <sg/Strutil.h>
 #include "database.h"
-#include <sg/strutil.h>
 //#define VERBOSE
 
 using namespace sg;
@@ -36,12 +36,12 @@ bool database::dbrecord::parse( const char* &dbstring )
 {
 	int16_t	sflags, dflags;
 
-	if( (in_start = getintparam( dbstring, false, true )) == (uint16_t) -1
-			|| (in_end = getintparam( dbstring, false, true )) == (uint16_t) -1
-			|| (out_start = getintparam( dbstring, false, true )) == (uint16_t) -1
-			|| (out_end = getintparam( dbstring, false, true )) == (uint16_t) -1
-			|| (sflags = getintparam( dbstring, false, true )) == -1
-			|| (dflags = getintparam( dbstring, false, true )) == -1
+	if( (in_start = GetIntParam( dbstring, false, true )) == (uint16_t) -1
+			|| (in_end = GetIntParam( dbstring, false, true )) == (uint16_t) -1
+			|| (out_start = GetIntParam( dbstring, false, true )) == (uint16_t) -1
+			|| (out_end = GetIntParam( dbstring, false, true )) == (uint16_t) -1
+			|| (sflags = GetIntParam( dbstring, false, true )) == -1
+			|| (dflags = GetIntParam( dbstring, false, true )) == -1
 	) {
 		in_start = -1;
 		return false;
@@ -56,17 +56,17 @@ bool database::dbrecord::parse( const char* &dbstring )
 //////////////////////////////////////////////////////////////////////////////
 void database::dbrecord::serializeinfo( char *&buffer ) const
 {
-	buffer += tohex( buffer, in_start, 3 ); *buffer++ = ' ';
-	buffer += tohex( buffer, in_end, 3 ); *buffer++ = ' ';
-	buffer += tohex( buffer, out_start, 3 ); *buffer++ = ' ';
-	buffer += tohex( buffer, out_end, 3 ); *buffer++ = ' ';
-	buffer += tohex( buffer, (uint16_t)days, 3);
+	buffer += ToHex( buffer, in_start, 3 ); *buffer++ = ' ';
+	buffer += ToHex( buffer, in_end, 3 ); *buffer++ = ' ';
+	buffer += ToHex( buffer, out_start, 3 ); *buffer++ = ' ';
+	buffer += ToHex( buffer, out_end, 3 ); *buffer++ = ' ';
+	buffer += ToHex( buffer, (uint16_t)days, 3);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void database::dbrecord::serializestatus( char *&buffer ) const
 {
-	buffer += tohex( buffer, (uint16_t) position, 3 );
+	buffer += ToHex( buffer, (uint16_t) position, 3 );
 }
 
 //////////////////////////////////////////////////////////////////////////////

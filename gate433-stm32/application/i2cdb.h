@@ -9,7 +9,7 @@
 #define _I2CDB_H_
 
 #include "database.h"
-#include <sg/i2ceeprom.h>
+#include <sg/I2cEeprom.h>
 
 class i2cdb: public database
 {

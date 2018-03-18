@@ -5,9 +5,9 @@
  *      Author: abody
  */
 
+#include <sg/Strutil.h>
 #include "thindb.h"
 #include "config.h"
-#include <sg/strutil.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -59,12 +59,12 @@ bool thindb::getParams( int code, dbrecord &recout )
 		return false;
 	}
 
-	if( (recout.in_start = sg::getintparam( bufptr, false, true )) == (uint16_t) -1
-			|| (recout.in_end = sg::getintparam( bufptr, false, true )) == (uint16_t) -1
-			|| (recout.out_start = sg::getintparam( bufptr, false, true )) == (uint16_t) -1
-			|| (recout.out_end = sg::getintparam( bufptr, false, true )) == (uint16_t) -1
-			|| (tmp1 = sg::getintparam( bufptr, false, true )) ==  -1
-			|| (tmp2 = sg::getintparam( bufptr, false, true )) ==  -1 )
+	if( (recout.in_start = sg::GetIntParam( bufptr, false, true )) == (uint16_t) -1
+			|| (recout.in_end = sg::GetIntParam( bufptr, false, true )) == (uint16_t) -1
+			|| (recout.out_start = sg::GetIntParam( bufptr, false, true )) == (uint16_t) -1
+			|| (recout.out_end = sg::GetIntParam( bufptr, false, true )) == (uint16_t) -1
+			|| (tmp1 = sg::GetIntParam( bufptr, false, true )) ==  -1
+			|| (tmp2 = sg::GetIntParam( bufptr, false, true )) ==  -1 )
 	{
 		recout.in_start = -1;
 		return false;
@@ -114,7 +114,7 @@ bool thindb::setStatus( int code, dbrecord::POSITION pos )
 	unsigned int	written;
 	bool			ret( false );
 
-	sg::tohex(statusbuffer, (uint16_t) pos, 3);
+	sg::ToHex(statusbuffer, (uint16_t) pos, 3);
 
 	if(m_file.Open(m_name, static_cast<SdFile::OpenMode>(SdFile::OPEN_ALWAYS | SdFile::WRITE | SdFile::READ)) == FR_OK) {
 		if(m_file.Seek(code * DBRECORD_WIDTH + STATUS_OFFSET ) == FR_OK
