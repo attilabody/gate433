@@ -490,10 +490,14 @@ void MainLoop::Loop()
 				} else if(m_state != States::PASSING) {
 					ChangeState(States::PASSING, inner, m_stateStartedTick);
 				}
-			} else if(m_state == States::ACCEPT || m_state == States::WARN ) {
+			} else if(m_state == States::ACCEPT || m_state == States::WARN) {
 				ellapsed = now - m_stateStartedTick;
-				if(ellapsed > (m_state == States::HURRY ? Config::Instance().hurryTimeout : Config::Instance().passTimeout) * 1000)
-					ChangeState(m_state == States::HURRY ? States::OFF : States::HURRY, inner, now);//, ilChanged);
+				if(ellapsed > Config::Instance().passTimeout * 1000)
+					ChangeState(States::HURRY, inner, now);
+			} else {
+				ellapsed = now - m_stateStartedTick;
+				if(ellapsed > Config::Instance().hurryTimeout * 1000)
+					ChangeState(States::OFF, inner, now);
 			}
 			break;
 
