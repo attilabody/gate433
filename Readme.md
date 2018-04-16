@@ -22,7 +22,7 @@ Features list:
 
 There are two versions of the hardware: Original version used Arduino Nano as central component. It is obsoleted by the newer version based on a popular STM32F103C8T6 based minimal board widely known as BluePill. It's actually cheaper on eBay or Aliexpress than the total cost of the components it contains.
 
-Both versions ar using two inputs (usually coming from inductive loop detectors) in addition to the RF signal to decide if a vehicke intends to enter or exit. A pair of tricolor traffic lighst provide feedback fo drivers.
+Both versions ar using two inputs (usually coming from inductive loop detectors) in addition to the RF signal to decide if a vehicke intends to enter or exit. A pair of tricolor traffic lights provide feedback for drivers.
 
 Both versions have 6 opto-isolated open drain output for 12V LED traffic lights,one opto-isolated open collector output for gate opening and two opto-isolated input for inductive loop detectors.
 

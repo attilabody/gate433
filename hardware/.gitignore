@@ -4,3 +4,5 @@ _autosave-*
 *.zip
 *.gbr
 *.drl
+*.fcstd?*
+
