@@ -115,7 +115,7 @@ private:
 		friend class MainLoop;
 	public:
 		CommandProcessor(MainLoop &parent);
-		void Process(sg::Usart &com, char * const buffer);
+		void Process(sg::Usart &com, char * buffer);
 
 	private:
 		MainLoop &m_parent;

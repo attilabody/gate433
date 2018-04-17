@@ -40,17 +40,17 @@ public:
 			  UNKNOWN = 0, OUTSIDE , INSIDE
 		};
 		dbrecord();
-		dbrecord( const char* &dbstring );
-		dbrecord( uint16_t is, uint16_t ie, uint16_t os, uint16_t oe, uint8_t d, POSITION p );
-		bool parse( const char *&dbstring);
-		void serializeinfo( char *&buffer ) const;
-		void serializestatus( char *&buffer ) const;
-		void serialize( char *&buffer ) const;
-		void serialize( char *buffer ) const;
-		uint8_t pack( uint8_t *buffer ) const;
-		void unpack( uint8_t *buffer );
+		dbrecord(const char* &dbstring );
+		dbrecord(uint16_t is, uint16_t ie, uint16_t os, uint16_t oe, uint8_t d, POSITION p );
+		bool parse(const char *&dbstring);
+		void serializeinfo(char *&buffer ) const;
+		void serializestatus(char *&buffer ) const;
+		void serialize(char *&buffer ) const;
+		void serialize(char *buffer ) const;
+		uint8_t pack(uint8_t *buffer ) const;
+		void unpack(uint8_t *buffer );
 		bool enabled() const { return (in_start < in_end || out_start < out_end ) && (days & 0x7f) != 0; }
-		void settimes( uint16_t is, uint16_t ie, uint16_t os, uint16_t oe );
+		void settimes(uint16_t is, uint16_t ie, uint16_t os, uint16_t oe );
 		bool infoequal(const dbrecord &other);
 
 		uint16_t	in_start;

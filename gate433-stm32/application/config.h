@@ -36,16 +36,14 @@ struct Config : public ConfigData, public sg::Singleton<Config>
 
 	bool Load();
 	bool Save();
+	bool Reset();
 	bool Set(const char *name, const char *value);
+	bool Get(char* buffer, const char *name);
+	bool Get(char* buffer, uint8_t index);
 
 private:
-	static constexpr ConfigItemDescriptor s_configItems[] = {
-			{ CFG_LCDI2CADDRESS, ConfigItemDescriptor::_uint8_t, { uint8ptr: &ConfigData::lcdI2cAddress }},
-			{ CFG_PASSTIMEOUT, ConfigItemDescriptor::_uint8_t, { uint8ptr: &ConfigData::passTimeout }},
-			{ CFG_HURRYTIMEOUT, ConfigItemDescriptor::_uint8_t, { uint8ptr: &ConfigData::hurryTimeout }},
-			{ CFG_RELAXEDPOS, ConfigItemDescriptor::_bool, { boolptr: &ConfigData::relaxedPos }},
-			{ CFG_RELAXEDDATETIME, ConfigItemDescriptor::_bool, { boolptr: &ConfigData::relaxedDateTime }},
-	};
+	static ConfigItemDescriptor const s_configItems[5];
+	void ToBuffer(char *buffer, ConfigItemDescriptor const &desc);
 
 
 };

@@ -21,7 +21,12 @@ const char CMD_DL[] = "dl";		//	dump log
 const char CMD_TL[] = "tl";		//	truncate log
 const char CMD_IL[] = "il";		//	infinite loop
 const char CMD_GT[] = "gt";		//	get temperature
+const char CMD_GET[] = "get";	//  get configuration variable
 const char CMD_SET[] = "set";	//  set configuration variable
+const char CMD_LIST[] = "list";
+const char CMD_SAVE[] = "save";	//	save configuration
+const char CMD_LOAD[] = "load";
+const char CMD_CLR[] = "clr";
 const char CMD_SL[] = "sl";		//	set lights
 
 #define CFG_LCDI2CADDRESS "lia"

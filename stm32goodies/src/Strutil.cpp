@@ -51,7 +51,22 @@ int32_t sg::GetIntParam( const char* &input, bool decimal, bool trimstart, bool 
 	return found ? (negative ? 0 - retval : retval ) : (acceptneg ? INT32_MIN : -1);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+char const * sg::GetStringParam(char ** input)
+{
+	char *in = *input;
 
+	while(*in && (*in == ' ' || *in == '\t' ))
+			++in;
+	char *last = in;
+	while(*last && *last != ' ' && *last != '\t' )
+		++last;
+	if(*last)
+		*(last++) = 0;
+
+	*input = last;
+	return in;
+}
 
 
 

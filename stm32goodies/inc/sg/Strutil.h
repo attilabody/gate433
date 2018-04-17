@@ -88,6 +88,9 @@ template< typename T> size_t ToHex(char* buffer, T data, uint8_t digits = 0, cha
 
 //////////////////////////////////////////////////////////////////////////////
 int32_t GetIntParam( const char* &input, bool decimal = true, bool trimstart = true, bool acceptneg = false );
+char const *GetStringParam(char ** input);
+
+//////////////////////////////////////////////////////////////////////////////
 
 }	//	namespace sg
 #endif /* INC_STRUTIL_H_ */

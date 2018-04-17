@@ -37,7 +37,7 @@ bool MainLoop::CommandProcessor::IsCommand(const char *command)
 }
 
 ////////////////////////////////////////////////////////////////////
-void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
+void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 {
 	m_bufPtr = buffer;
 
@@ -229,6 +229,33 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * const buffer)
 			com << RESP << (int16_t)(rawTemp >> 2) << com.endl;
 		} else
 			PrintRespErr(com);
+
+	} else if(IsCommand(CMD_GET)) {
+		Config::Instance().Get(buffer, sg::GetStringParam(const_cast<char**>(&m_bufPtr)));
+		PrintResp(com, buffer);
+
+	} else if(IsCommand(CMD_SET)) {
+		auto name = sg::GetStringParam(const_cast<char**>(&m_bufPtr));
+		if(Config::Instance().Set(name, m_bufPtr)) PrintRespOk(com);
+		else PrintRespErr(com);
+
+	} else if(IsCommand(CMD_LIST)) {
+		uint8_t index = 0;
+		while(Config::Instance().Get(buffer, index++))
+			com << DATA << buffer << sg::Usart::endl;
+		PrintRespOk(com);
+
+	} else if(IsCommand(CMD_SAVE)) {
+		if(Config::Instance().Save()) PrintRespOk(com);
+		else PrintRespErr(com);
+
+	} else if(IsCommand(CMD_LOAD)) {
+		if(Config::Instance().Load()) PrintRespOk(com);
+		else PrintRespErr(com);
+
+	} else if(IsCommand(CMD_CLR)) {
+		if(Config::Instance().Reset()) PrintRespOk(com);
+		else PrintRespErr(com);
 
 	} else {
 		com << ERR << " CMD " << buffer << sg::Usart::endl;
