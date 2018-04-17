@@ -41,7 +41,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 {
 	m_bufPtr = buffer;
 
-	if(IsCommand(CMD_GDB)) {	// get dbrecord
+	if(IsCommand(CMD_GETDBRECORD)) {	// get dbrecord
 		database::dbrecord	rec;
 		int32_t id = GetParam();
 		if( id != -1 && m_parent.m_db.getParams(id, rec)) {
@@ -50,7 +50,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 		} else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_SDB)) {	//	set dbrecord
+	} else if(IsCommand(CMD_SETDBRECORD)) {	//	set dbrecord
 		database::dbrecord	rec;
 		int id = GetParam();
 		if( id != -1 && rec.parse(m_bufPtr)) {
@@ -61,7 +61,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 		} else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_EDB)) {	//	export database
+	} else if(IsCommand(CMD_EXPORTDB)) {	//	export database
 		thindb		tdb;
 		uint16_t	from = GetParam();
 		uint16_t	to = GetParam();
@@ -82,7 +82,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 		else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_IDB)) {	//	import database
+	} else if(IsCommand(CMD_IMPORTDB)) {	//	import database
 		uint16_t changed = 0, id = 0;
 		uint16_t from = GetParam();
 		uint16_t to = GetParam();
@@ -116,7 +116,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 			PrintRespErr(com);
 		com << changed << sg::Usart::endl;
 
-	} else if(IsCommand(CMD_DDB)) {	//	dump database
+	} else if(IsCommand(CMD_DUMPDB)) {	//	dump database
 		database::dbrecord	rec;
 		uint16_t from = GetParam();
 		uint16_t to = GetParam();
@@ -140,12 +140,12 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 		else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_GDT)) {	//	get datetime
+	} else if(IsCommand(CMD_GETDATETIME)) {	//	get datetime
 		auto &dt = m_parent.m_rtcDateTime;
 		com << com.dec << com.nopad << RESP << (uint16_t)dt.year << '.' << sg::Usart::Pad(2) << (uint16_t)dt.mon << '.' <<
 			(uint16_t)dt.mday << '/' << (uint16_t)dt.wday << "  " << dt.hour << ':' << dt.min << ':' << (uint16_t)dt.sec <<
 			sg::Usart::endl << com.nopad;
-	} else if(IsCommand(CMD_SDT)) {	// set datetime
+	} else if(IsCommand(CMD_SETDATETIME)) {	// set datetime
 		sg::DS3231_DST::Ts	t;
 		if(GetDateTime(t)) {
 			m_parent.m_rtc.Set(t);
@@ -153,7 +153,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 		} else
 			com << ERR << " DTFMT" << sg::Usart::endl;
 
-	} else if(IsCommand(CMD_CS)) {	// clear statuses
+	} else if(IsCommand(CMD_CLEARSTATUS)) {	// clear statuses
 		uint16_t from(GetParam());
 		uint16_t to( GetParam());
 		uint16_t id;
@@ -177,7 +177,7 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 		else
 			PrintRespOk(com);
 
-	} else if(IsCommand(CMD_DS)) {	// dump shuffle
+	} else if(IsCommand(CMD_DUMPSHUFFLE)) {	// dump shuffle
 		SdFile	f;
 		char buffer[16];
 		if( f.Open("SHUFFLE.TXT", static_cast<SdFile::OpenMode>(SdFile::OPEN_EXISTING | SdFile::READ)) == FR_OK) {
@@ -191,22 +191,22 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 			PrintRespErr(com, "CANTOPEN");
 		}
 
-	} else if(IsCommand(CMD_DL)) {	// dump log
+	} else if(IsCommand(CMD_DUMPLOG)) {	// dump log
 		if(m_parent.m_log.dump(com, false))
 			PrintRespOk(com);
 		else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_TL)) {	//	truncate log
+	} else if(IsCommand(CMD_TRUNCATELOG)) {	//	truncate log
 		if(m_parent.m_log.truncate())
 			PrintRespOk(com);
 		else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_IL)) {
+	} else if(IsCommand(CMD_HALT)) {
 		//TODO: infinite loop (watchdog test)
 
-	} else if(IsCommand(CMD_SL)) {	//set lights
+	} else if(IsCommand(CMD_SETLIGHTS)) {	//set lights
 		bool inner = false;
 		bool valid = false;
 		if(*m_bufPtr == 'i') {
@@ -223,37 +223,37 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 		} else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_GT)) {
+	} else if(IsCommand(CMD_GETTEMP)) {
 		int16_t	rawTemp;
 		if(m_parent.m_rtc.GetTreg(rawTemp) == HAL_OK) {
 			com << RESP << (int16_t)(rawTemp >> 2) << com.endl;
 		} else
 			PrintRespErr(com);
 
-	} else if(IsCommand(CMD_GET)) {
+	} else if(IsCommand(CMD_GETCONFIG)) {
 		Config::Instance().Get(buffer, sg::GetStringParam(const_cast<char**>(&m_bufPtr)));
 		PrintResp(com, buffer);
 
-	} else if(IsCommand(CMD_SET)) {
+	} else if(IsCommand(CMD_SETCONFIG)) {
 		auto name = sg::GetStringParam(const_cast<char**>(&m_bufPtr));
 		if(Config::Instance().Set(name, m_bufPtr)) PrintRespOk(com);
 		else PrintRespErr(com);
 
-	} else if(IsCommand(CMD_LIST)) {
+	} else if(IsCommand(CMD_LISTCONFIG)) {
 		uint8_t index = 0;
 		while(Config::Instance().Get(buffer, index++))
 			com << DATA << buffer << sg::Usart::endl;
 		PrintRespOk(com);
 
-	} else if(IsCommand(CMD_SAVE)) {
+	} else if(IsCommand(CMD_SAVECONFIG)) {
 		if(Config::Instance().Save()) PrintRespOk(com);
 		else PrintRespErr(com);
 
-	} else if(IsCommand(CMD_LOAD)) {
+	} else if(IsCommand(CMD_LOADCONFIG)) {
 		if(Config::Instance().Load()) PrintRespOk(com);
 		else PrintRespErr(com);
 
-	} else if(IsCommand(CMD_CLR)) {
+	} else if(IsCommand(CMD_CLEARCONFIG)) {
 		if(Config::Instance().Reset()) PrintRespOk(com);
 		else PrintRespErr(com);
 
