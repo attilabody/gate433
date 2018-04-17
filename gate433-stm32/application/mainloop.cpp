@@ -48,6 +48,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 ////////////////////////////////////////////////////////////////////
 void _MainLoop()
 {
+	Config::Instance().Load();
+
 	MainLoop::Instance().Loop();
 }
 
@@ -66,10 +68,8 @@ MainLoop::MainLoop()
 , m_gate(OPEN_GPIO_Port, OPEN_Pin, false)
 , m_com(&huart1, sg::UsartCallbackDispatcher::Instance(), m_serialOutRingBuffer, sizeof(m_serialOutRingBuffer), true)
 , m_wifi(&huart3, sg::UsartCallbackDispatcher::Instance(), m_wifiOutRingBuffer, sizeof(m_wifiOutRingBuffer), true)
-, m_i2c(&hi2c1, sg::I2cCallbackDispatcher::Instance())
-, m_dbEeprom(m_i2c, Config::Instance().dbI2cAddress, Config::Instance().dbAddresLength, Config::Instance().dbPageLength)
-, m_db(m_dbEeprom, 0)
-, m_configEeprom(m_i2c, CFG_I2C_ADDRESS, CFG_ADDRESS_LENGTH, CFG_PAGE_LENGTH)
+, m_i2c(I2c1::Instance())
+, m_db(MainI2cEeprom::Instance(), (sizeof(ConfigData)/I2CEEPROMPAGELENGTH+1)*I2CEEPROMPAGELENGTH)
 , m_rtc(m_i2c)
 , m_lcd(m_i2c, Config::Instance().lcdI2cAddress)
 , m_decoder(RFDecoder::Instance())
@@ -254,19 +254,19 @@ void MainLoop::Loop()
 	for(uint16_t i=0; i < sizeof(eepromBuffer); ++i)
 		eepromBuffer[i] = 0xff-i;
 
-	ret = m_dbEeprom.Write(eepromBuffer, sizeof(eepromBuffer), sizeof(eepromBuffer));
+	ret = m_i2cEeprom.Write(eepromBuffer, sizeof(eepromBuffer), sizeof(eepromBuffer));
 	memset(eepromBuffer, 0xaa, sizeof(eepromBuffer));
-	ret = m_dbEeprom.Read(eepromBuffer, 0, sizeof(eepromBuffer));
+	ret = m_i2cEeprom.Read(eepromBuffer, 0, sizeof(eepromBuffer));
 	if(ret == HAL_OK)
 	{
-		m_dbEeprom.Sync();
+		m_i2cEeprom.Sync();
 		for(uint16_t offset = 0; offset < sizeof(eepromBuffer); offset += 32)
 			DumpBufferLine(eepromBuffer, 0, offset, 32);
 		m_com << sg::Usart::endl;
 
-		ret = m_dbEeprom.Read(eepromBuffer, sizeof(eepromBuffer), sizeof(eepromBuffer));
+		ret = m_i2cEeprom.Read(eepromBuffer, sizeof(eepromBuffer), sizeof(eepromBuffer));
 		if(ret == HAL_OK) {
-			m_dbEeprom.Sync();
+			m_i2cEeprom.Sync();
 			for(uint16_t offset = 0; offset < sizeof(eepromBuffer); offset += 32)
 				DumpBufferLine(eepromBuffer, sizeof(eepromBuffer), offset, 32);
 			m_com << sg::Usart::endl;
@@ -332,8 +332,8 @@ void MainLoop::Loop()
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 #if defined(TEST_EEPROM)
 			m_com << sg::Usart::endl;
-			ret = m_dbEeprom.Read(eepromBuffer, base, sizeof(eepromBuffer));
-			m_dbEeprom.Sync();
+			ret = m_i2cEeprom.Read(eepromBuffer, base, sizeof(eepromBuffer));
+			m_i2cEeprom.Sync();
 			for(uint16_t offset = 0; offset < sizeof(eepromBuffer); offset += 32)
 				DumpBufferLine(eepromBuffer, base, offset, 32);
 			m_com << sg::Usart::endl << sg::Usart::endl;

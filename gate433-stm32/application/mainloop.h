@@ -53,10 +53,8 @@ private:
 	PulsingOutput	m_gate;
 	sg::Usart		m_com;
 	sg::Usart		m_wifi;
-	sg::I2cMaster	m_i2c;
-	sg::I2cEEPROM	m_dbEeprom;
+	sg::I2cMaster	&m_i2c;
 	i2cdb			m_db;
-	sg::I2cEEPROM	m_configEeprom;
 	sg::DS3231_DST	m_rtc;
 	Display			m_lcd;
 

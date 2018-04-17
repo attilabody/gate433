@@ -21,7 +21,13 @@ const char CMD_DL[] = "dl";		//	dump log
 const char CMD_TL[] = "tl";		//	truncate log
 const char CMD_IL[] = "il";		//	infinite loop
 const char CMD_GT[] = "gt";		//	get temperature
-
+const char CMD_SET[] = "set";	//  set configuration variable
 const char CMD_SL[] = "sl";		//	set lights
+
+#define CFG_LCDI2CADDRESS "lia"
+#define CFG_PASSTIMEOUT "pto"
+#define CFG_HURRYTIMEOUT "hto"
+#define CFG_RELAXEDPOS "rpo"
+#define CFG_RELAXEDDATETIME "rdt"
 
 #endif /* COMMANDS_H_ */

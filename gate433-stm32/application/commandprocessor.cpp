@@ -12,6 +12,7 @@
 
 #include "database.h"
 #include "thindb.h"
+#include "config.h"
 
 ////////////////////////////////////////////////////////////////////
 MainLoop::CommandProcessor::CommandProcessor(MainLoop &parent) : m_parent(parent)
