@@ -27,10 +27,10 @@ struct Config : public ConfigData, public sg::Singleton<Config>
 
 	struct ConfigItemDescriptor {
 		const char* mnemonic;
-		enum Type { _uint8_t, _bool } type;
+		enum Type { uint8_t, bool_t } type;
 		union {
-			uint8_t	ConfigData::*uint8ptr;
-			bool	ConfigData::*boolptr;
+			::uint8_t	ConfigData::*uint8ptr;
+			bool		ConfigData::*boolptr;
 		};
 	};
 

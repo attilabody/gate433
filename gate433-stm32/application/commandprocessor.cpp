@@ -89,7 +89,6 @@ void MainLoop::CommandProcessor::Process(sg::Usart &com, char * buffer)
 		if(to > MAX_CODE) to = MAX_CODE;
 		if(from == 0xffff) from = 0;
 		else if(from > to) from = to;
-		//uint16_t	imported(importdb(from, to));
 		thindb tdb;
 		database::dbrecord rec, old;
 		if(tdb.init("DB.TXT", true)) {

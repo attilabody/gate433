@@ -9,11 +9,11 @@
 #include <sg/Strutil.h>
 
 Config::ConfigItemDescriptor const Config::s_configItems[] = {
-		{ CFG_LCDI2CADDRESS, ConfigItemDescriptor::_uint8_t, { uint8ptr: &ConfigData::lcdI2cAddress }},
-		{ CFG_PASSTIMEOUT, ConfigItemDescriptor::_uint8_t, { uint8ptr: &ConfigData::passTimeout }},
-		{ CFG_HURRYTIMEOUT, ConfigItemDescriptor::_uint8_t, { uint8ptr: &ConfigData::hurryTimeout }},
-		{ CFG_RELAXEDPOS, ConfigItemDescriptor::_bool, { boolptr: &ConfigData::relaxedPos }},
-		{ CFG_RELAXEDDATETIME, ConfigItemDescriptor::_bool, { boolptr: &ConfigData::relaxedDateTime }},
+		{ CFG_LCDI2CADDRESS, ConfigItemDescriptor::uint8_t, { uint8ptr: &ConfigData::lcdI2cAddress }},
+		{ CFG_PASSTIMEOUT, ConfigItemDescriptor::uint8_t, { uint8ptr: &ConfigData::passTimeout }},
+		{ CFG_HURRYTIMEOUT, ConfigItemDescriptor::uint8_t, { uint8ptr: &ConfigData::hurryTimeout }},
+		{ CFG_RELAXEDPOS, ConfigItemDescriptor::bool_t, { boolptr: &ConfigData::relaxedPos }},
+		{ CFG_RELAXEDDATETIME, ConfigItemDescriptor::bool_t, { boolptr: &ConfigData::relaxedDateTime }},
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,8 +25,11 @@ bool Config::Load()
 
 	if((hs = eeprom.Read(&h, 0, sizeof(h))) == HAL_OK) {
 		eeprom.Sync();
-		if(h.magic == header.magic && h.version == header.version )
+		if(h.magic == header.magic && h.version == header.version ) {
 			hs = eeprom.Read(static_cast<ConfigData*>(this), 0, sizeof(ConfigData));
+			if(hs == HAL_OK)
+				eeprom.Sync();
+		}
 		else
 			return false;
 	}
@@ -60,7 +63,7 @@ bool Config::Set(const char *name, const char *value)
 		{
 			switch(desc.type)
 			{
-			case ConfigItemDescriptor::_uint8_t:
+			case ConfigItemDescriptor::uint8_t:
 				{
 					int32_t val = sg::GetIntParam(value);
 					if(val != -1) {
@@ -70,7 +73,7 @@ bool Config::Set(const char *name, const char *value)
 				}
 				break;
 
-			case ConfigItemDescriptor::_bool:
+			case ConfigItemDescriptor::bool_t:
 				{
 					bool val;
 					int32_t tmp;
@@ -133,11 +136,11 @@ void Config::ToBuffer(char *buffer, ConfigItemDescriptor const &desc)
 {
 	switch(desc.type)
 	{
-	case ConfigItemDescriptor::_uint8_t:
+	case ConfigItemDescriptor::uint8_t:
 		sg::ToDec(buffer, static_cast<ConfigData*>(this)->*(desc.uint8ptr));
 		break;
 
-	case ConfigItemDescriptor::_bool:
+	case ConfigItemDescriptor::bool_t:
 		strcpy(buffer, static_cast<ConfigData*>(this)->*(desc.boolptr) ? "true":"false");
 		break;
 	}
