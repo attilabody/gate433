@@ -9,11 +9,11 @@
 #include <sg/Strutil.h>
 
 Config::ConfigItemDescriptor const Config::s_configItems[] = {
-		{ CFG_LCDI2CADDRESS, ConfigItemDescriptor::uint8_t, { uint8ptr: &ConfigData::lcdI2cAddress }},
-		{ CFG_PASSTIMEOUT, ConfigItemDescriptor::uint8_t, { uint8ptr: &ConfigData::passTimeout }},
-		{ CFG_HURRYTIMEOUT, ConfigItemDescriptor::uint8_t, { uint8ptr: &ConfigData::hurryTimeout }},
-		{ CFG_RELAXEDPOS, ConfigItemDescriptor::bool_t, { boolptr: &ConfigData::relaxedPos }},
-		{ CFG_RELAXEDDATETIME, ConfigItemDescriptor::bool_t, { boolptr: &ConfigData::relaxedDateTime }},
+		{ CFG_LCDI2CADDRESS, &ConfigData::lcdI2cAddress },
+		{ CFG_PASSTIMEOUT, &ConfigData::passTimeout },
+		{ CFG_HURRYTIMEOUT, &ConfigData::hurryTimeout },
+		{ CFG_RELAXEDPOS, &ConfigData::relaxedPos },
+		{ CFG_RELAXEDDATETIME, &ConfigData::relaxedDateTime },
 };
 
 //////////////////////////////////////////////////////////////////////////////

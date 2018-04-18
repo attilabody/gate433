@@ -32,6 +32,10 @@ struct Config : public ConfigData, public sg::Singleton<Config>
 			::uint8_t	ConfigData::*uint8ptr;
 			bool		ConfigData::*boolptr;
 		};
+		ConfigItemDescriptor(char const *_menmonic, ::uint8_t ConfigData::*_uint8ptr)
+			: mnemonic(_menmonic), type(ConfigItemDescriptor::uint8_t), uint8ptr(_uint8ptr) {}
+		ConfigItemDescriptor(char const * _menmonic, bool ConfigData::*_boolptr)
+			: mnemonic(_menmonic), type(ConfigItemDescriptor::bool_t), boolptr(_boolptr) {}
 	};
 
 	bool Load();
