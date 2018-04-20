@@ -4,6 +4,7 @@ Debug/
 *.d
 *.bak
 *.tmp
+*.stl
 .settings/
 Debug_AVaRICE/
 .metadata/
