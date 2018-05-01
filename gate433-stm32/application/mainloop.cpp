@@ -42,7 +42,8 @@ char g_stateSigns[States::NUMSTATES] = { ' ', 'W', 'C', 'A', 'W', 'D', 'U', 'H',
 ////////////////////////////////////////////////////////////////////
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	MainLoop::Instance().HAL_GPIO_EXTI_Callback(GPIO_Pin);
+	if(g_mainLoppReady)
+		MainLoop::Instance().HAL_GPIO_EXTI_Callback(GPIO_Pin);
 }
 
 ////////////////////////////////////////////////////////////////////
